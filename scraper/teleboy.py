@@ -11,6 +11,7 @@ import subprocess
 import unicodedata
 
 PAGINA = "https://www.teleboy.ch/tv/sender"
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
 RE_NOME = re.compile(r'<div class="no-focus" title="([^"{}]+)"')
 
 # parole di "paese" che si possono togliere per il confronto, con il paese Teleboy corrispondente
@@ -46,14 +47,21 @@ def leggi_pagina(timeout=90):
     chrome = next((shutil.which(b) for b in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser")
                    if shutil.which(b)), None)
     if not chrome:
+        print("Teleboy: Chrome non trovato, uso la copia salvata")
         return None
     try:
-        r = subprocess.run([chrome, "--headless=new", "--no-sandbox", "--disable-gpu", "--virtual-time-budget=15000",
-                            "--dump-dom", PAGINA], capture_output=True, text=True, timeout=timeout)
-    except Exception:
+        r = subprocess.run([chrome, "--headless=new", "--no-sandbox", "--disable-gpu", "--virtual-time-budget=20000",
+                            "--user-agent=" + UA, "--dump-dom", PAGINA], capture_output=True, text=True, timeout=timeout)
+    except Exception as e:
+        print(f"Teleboy: lettura pagina non riuscita ({e}), uso la copia salvata")
         return None
     nomi = list(dict.fromkeys(html.unescape(x).strip() for x in RE_NOME.findall(r.stdout)))
-    return nomi if len(nomi) >= 100 else None
+    if len(nomi) < 100:
+        titolo = re.search(r"<title>(.*?)</title>", r.stdout, re.S)
+        print(f"Teleboy: pagina letta ma {len(nomi)} canali (exit {r.returncode}, {len(r.stdout)} byte, "
+              f"titolo {titolo.group(1).strip()[:60] if titolo else '-'!r}), uso la copia salvata")
+        return None
+    return nomi
 
 
 class Teleboy:
