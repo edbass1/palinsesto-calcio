@@ -341,5 +341,26 @@
    "Pallavolo",
    120
   ]
+ },
+ "_nota_canali_per_sport": "Canali presi sempre per uno sport di ALTRI SPORT (pagine 'pagine_altri_sport'), anche se LiveOnSat non li segna in chiaro. Regex sul nome del canale.",
+ "canali_per_sport": {
+  "Basket": [
+   {
+    "regex": "^Idman\\b",
+    "nota": "Idman TV (Azerbaigian)"
+   },
+   {
+    "regex": "^X ?Sports\\b",
+    "nota": "X Sports (Brasile)"
+   },
+   {
+    "regex": "^Sporty ?TV\\b",
+    "nota": "Sporty TV (Nigeria)"
+   },
+   {
+    "regex": "^RTSH\\b",
+    "nota": "RTSH 1 / RTSH Sport (Albania)"
+   }
+  ]
  }
 }

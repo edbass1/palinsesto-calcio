@@ -13,6 +13,10 @@ import re
 import shutil
 import subprocess
 import urllib.request
+from pathlib import Path
+
+RADICE = Path(__file__).resolve().parent.parent
+FILE_DATI = RADICE / "dati" / "basket_tv.json"
 
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
 FEED = "https://feeds.incrowdsports.com/provider/euroleague-feeds/v2/competitions/{c}/seasons/{c}{anno}/{cosa}"
@@ -134,44 +138,115 @@ def _simile(a, b):
     return difflib.SequenceMatcher(None, n(a), n(b)).ratio()
 
 
-def raccogli(conf, inizio, fine, scarica_pagina_fn=None, scarica_json=None, stat=None):
-    """(eventi ALTRI SPORT, errore). conf = altri_sport.json -> euroleague_tv."""
+def partite_pagina(pg, h, canali, scarica_json, st):
+    """Partite di una pagina TV Listings con i canali scelti e l'orario ufficiale:
+    [{'comp', 'codice', 'ts', 'casa', 'ospite', 'canali': [chiavi]}]"""
+    partite = analizza(h, canali)
+    st[pg["nome"]] = {"partite_con_canali": len(partite)}
+    if not partite:
+        return []
+    cal = orari(pg["codice"], sorted({p["giorno"] for p in partite}), scarica_json)
+    out = []
+    for p in partite:
+        cand = [(_simile(p["casa"], c) + _simile(p["ospite"], o), q) for q, c, o in cal
+                if abs((q.date() - p["giorno"]).days) <= 1]
+        punti, quando = max(cand, key=lambda x: x[0], default=(0, None))
+        if quando is None or punti < 1.2:
+            st.setdefault("senza_orario", []).append(f'{p["casa"]} - {p["ospite"]}')
+            continue
+        out.append({"comp": pg["nome"], "codice": pg["codice"], "ts": int(quando.timestamp()),
+                    "casa": p["casa"], "ospite": p["ospite"], "canali": p["canali"]})
+    return out
+
+
+def a_eventi(partite, conf, inizio, fine):
+    canali = conf.get("canali", {})
+    out = []
+    for p in partite:
+        ts = p["ts"]
+        if not (inizio.timestamp() - 2 * 3600 <= ts < fine.timestamp()):
+            continue
+        em = [{"nome": canali[k]["nome"], "pagina": None, "link": None, "vpn": canali[k].get("vpn"), "fta": True}
+              for k in p["canali"] if k in canali]
+        if not em:
+            continue
+        tit = f'{p["casa"]} - {p["ospite"]}'
+        out.append({"id": f'el:{p["codice"]}:{ts}:{tit.lower()}', "ts": ts, "fine": ts + conf.get("durata_min", 120) * 60,
+                    "sport": "Basket", "titolo": f'{p["comp"]}: {tit}', "titolo_orig": f'{p["comp"]} {tit}',
+                    "titolo_src": tit, "evento": True, "lingua": "en", "descrizione": p["comp"], "comp": p["comp"],
+                    "da_los": True, "emittenti": em})
+    return out
+
+
+def leggi_dati(percorso=None):
+    f = Path(percorso) if percorso else FILE_DATI
+    try:
+        return json.loads(f.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def raccogli(conf, inizio, fine, scarica_pagina_fn=None, scarica_json=None, stat=None, file_dati=None):
+    """(eventi ALTRI SPORT, None). Se una pagina non si legge si usano i dati di dati/basket_tv.json
+    (scritti da scripts/aggiorna_basket.sh su un'altra macchina), validi finché le partite sono future.
+    Gli errori finiscono solo nel log (stat['errori']), mai nella pagina."""
     scarica_pagina_fn = scarica_pagina_fn or scarica_pagina
     scarica_json = scarica_json or scarica_semplice
-    canali = conf.get("canali", {})
-    eventi, falliti = [], []
     st = stat if stat is not None else {}
+    partite, errori = [], []
+    dati = None
     for pg in conf.get("pagine", []):
         h, err = scarica_pagina_fn(pg["url"])
-        if not h:
-            falliti.append(f'{pg["nome"]} ({err})')
+        if h:
+            partite += partite_pagina(pg, h, conf.get("canali", {}), scarica_json, st)
+            st.setdefault("fonte", {})[pg["nome"]] = "pagina letta ora"
             continue
-        partite = analizza(h, canali)
-        st[pg["nome"]] = {"partite_con_canali": len(partite)}
-        if not partite:
-            continue
-        cal = orari(pg["codice"], sorted({p["giorno"] for p in partite}), scarica_json)
-        for p in partite:
-            cand = [(max(_simile(p["casa"], c), 0) + _simile(p["ospite"], o), q) for q, c, o in cal
-                    if abs((q.astimezone(inizio.tzinfo).date() - p["giorno"]).days) <= 1]
-            punti, quando = max(cand, key=lambda x: x[0], default=(0, None))
-            if quando is None or punti < 1.2:
-                st.setdefault("senza_orario", []).append(f'{p["casa"]} - {p["ospite"]}')
-                continue
-            ts = int(quando.timestamp())
-            if not (inizio.timestamp() - 2 * 3600 <= ts < fine.timestamp()):
-                continue
-            em = [{"nome": canali[k]["nome"], "pagina": None, "link": None, "vpn": canali[k].get("vpn"), "fta": True}
-                  for k in p["canali"]]
-            tit = f'{p["casa"]} - {p["ospite"]}'
-            eventi.append({"id": f'el:{pg["codice"]}:{ts}:{tit.lower()}', "ts": ts, "fine": ts + conf.get("durata_min", 120) * 60,
-                           "sport": "Basket", "titolo": f'{pg["nome"]}: {tit}', "titolo_orig": f'{pg["nome"]} {tit}',
-                           "titolo_src": tit, "evento": True, "lingua": "en", "descrizione": pg["nome"], "comp": pg["nome"],
-                           "da_los": True, "emittenti": em})
+        dati = dati if dati is not None else (leggi_dati(file_dati) or {})
+        dal_file = [p for p in dati.get("partite", []) if p.get("codice") == pg["codice"]]
+        if dati.get("partite") is not None:
+            partite += dal_file
+            st.setdefault("fonte", {})[pg["nome"]] = f'dati/basket_tv.json ({dati.get("aggiornato", "?")}, {len(dal_file)} partite)'
+        else:
+            errori.append(f'{pg["nome"]}: {err}')
+            st.setdefault("fonte", {})[pg["nome"]] = "non letta, nessun file dati"
+    eventi = a_eventi(partite, conf, inizio, fine)
     st["eventi"] = len(eventi)
-    err = f'TV Listings {", ".join(falliti)}' if falliti else None
-    return eventi, err
+    if errori:
+        st["errori"] = errori
+    return eventi, None
 
 
 def fn_raccogli(conf, inizio, fine, stat=None, **kw):
     return lambda: raccogli(conf, inizio, fine, stat=stat, **kw)
+
+
+def esporta(percorso, conf=None):
+    """Legge ora le pagine (con Chrome se serve) e scrive dati/basket_tv.json. Restituisce il numero di partite."""
+    if conf is None:
+        conf = json.loads((RADICE / "altri_sport.json").read_text(encoding="utf-8")).get("euroleague_tv", {})
+    st, partite, lette = {}, [], 0
+    for pg in conf.get("pagine", []):
+        h, err = scarica_pagina(pg["url"])
+        if not h:
+            print(f"{pg['nome']}: non letta ({err})")
+            continue
+        lette += 1
+        pp = partite_pagina(pg, h, conf.get("canali", {}), scarica_semplice, st)
+        print(f"{pg['nome']}: {len(pp)} partite con i canali scelti")
+        partite += pp
+    if not lette:
+        return None
+    dati = {"_nota": "Scritto da scripts/aggiorna_basket.sh: partite EuroLeague/EuroCup con i canali scelti (altri_sport.json -> euroleague_tv) e orario ufficiale (UTC, epoch). Il build lo usa se non riesce a leggere le pagine.",
+            "aggiornato": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%MZ"), "partite": partite}
+    Path(percorso).parent.mkdir(parents=True, exist_ok=True)
+    Path(percorso).write_text(json.dumps(dati, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return len(partite)
+
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) == 3 and sys.argv[1] == "--esporta":
+        n = esporta(sys.argv[2])
+        sys.exit(0 if n is not None else 1)
+    print("uso: python3 scraper/euroleague_tv.py --esporta dati/basket_tv.json")
+    sys.exit(2)

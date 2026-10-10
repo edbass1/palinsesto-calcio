@@ -26,6 +26,7 @@ def titolo_bello(t):
 def analizza_pagina(h, sport, durata, conf, teleboy, inizio, fine, escluso):
     """Eventi (formato altri_sport) di una pagina LiveOnSat; tutte le partite (anche senza canali, per NFL)."""
     regole, alias = conf.get("canali_in_chiaro", []), conf.get("alias_canali", [])
+    regole = list(regole) + list(conf.get("canali_per_sport", {}).get(sport, []))  # es. Idman TV per il basket
     escludi = ["dazn"] + [x for x in conf.get("escludi_canali", []) if x]
     out = []
     for p in L.analizza(h, regole, alias, escludi, teleboy):

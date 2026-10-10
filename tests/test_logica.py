@@ -815,9 +815,30 @@ def test_euroleague_tv():
     altri, _, _ = A.raccogli_altri(ini, fine, ini, rx, scarica_srg_fn=vuoto, scarica_ard_fn=vuoto, scarica_el_fn=lambda: (ev, err))
     h = p.genera_html(ini.date(), ini, [], [], [], dove, altri)
     assert 'href="#dv-x-sports"' in h and "youtube.com/@xsports.brasil/streams" in h and "VPN BRASILE" in h and "Solo via app da scaricare" in h
-    # pagina non raggiungibile -> avviso, nessun errore
-    _, err = E.raccogli(conf, ini, fine, lambda u: (None, "HTTP Error 429"), fj, {})
-    assert err and "EuroLeague" in err
+    # pagina non raggiungibile e nessun file dati: nessun avviso nella pagina, solo nel log
+    st2 = {}
+    ev2, err = E.raccogli(conf, ini, fine, lambda u: (None, "HTTP Error 429"), fj, st2, file_dati=str(F / "non-esiste.json"))
+    assert ev2 == [] and err is None and len(st2["errori"]) == 2, st2
+    # pagina non raggiungibile ma file dati/basket_tv.json (scritto da scripts/aggiorna_basket.sh): si usano quei dati
+    import tempfile
+    dati = {"aggiornato": "2026-10-08T09:00Z", "partite": [x for pg in conf["pagine"] if pg["codice"] == "E"
+                                                           for x in E.partite_pagina(pg, fp(pg["url"])[0], conf["canali"], fj, {})]}
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+        json.dump(dati, f)
+    st3 = {}
+    ev3, err = E.raccogli(conf, ini, fine, lambda u: (None, "HTTP Error 429"), fj, st3, file_dati=f.name)
+    assert err is None and [e["titolo"] for e in ev3] == [e["titolo"] for e in ev] and "dati/basket_tv.json" in st3["fonte"]["EuroLeague"], st3
+    # dopo le partite (finestra successiva) il file non dà più niente
+    assert E.raccogli(conf, ini + dt.timedelta(days=3), fine + dt.timedelta(days=3), lambda u: (None, "429"), fj, {}, file_dati=f.name)[0] == []
+    # riserva LiveOnSat: canali scelti per il basket presi anche se non in chiaro
+    import altri_los as AL
+    blocco = ('<span class = comp_head>ULEB Euroleague - Round 5</span><div class = blockfix ><div class = fLeft style="a">Real Madrid v Monaco</div>'
+              '<div data-timestamp="%d"></div><a href="#" class = chan_live_not_free onmouseover="x" onmouseout="return nd();">Idman TV</a>'
+              '<a href="#" class = chan_live_not_free onmouseover="x" onmouseout="return nd();">Nova Sports 4 Hellas</a></div>') % (int(ini.timestamp()) + 3600)
+    nessuno = lambda n: False
+    los = AL.analizza_pagina(blocco, "Basket", 120, CONF_LOS, None, ini, fine, nessuno)
+    assert [x["nome"] for x in los[0]["emittenti"]] == ["Idman TV"], los
+    assert AL.analizza_pagina(blocco, "Hockey su ghiaccio", 120, CONF_LOS, None, ini, fine, nessuno)[0]["emittenti"] == []
     return ev
 
 

@@ -1122,7 +1122,10 @@ def main():
             print("  ", r)
     if "calcio_stream" in st:
         if st.get("euroleague_tv"):
-            print(f"  EuroLeague/EuroCup TV Listings: {st['euroleague_tv']}")
+            el = st["euroleague_tv"]
+            print(f"  EuroLeague/EuroCup TV Listings: {el.get('eventi', 0)} partite · fonte {el.get('fonte')}")
+            for x in el.get("errori", []):
+                print("    (solo log) TV Listings non letta:", x)
         if st.get("altri_los"):
             print(f"  LiveOnSat altri sport: {st['altri_los']}")
         al = st["altri_sport"]
