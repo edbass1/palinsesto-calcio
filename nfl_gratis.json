@@ -1,0 +1,20 @@
+{
+ "_nota": "Partite NFL in chiaro/gratis nel mondo. Ogni aggiornamento legge la pagina di TechRadar ('fonte'), che per ogni giornata elenca quali partite sono gratis e dove; se la pagina non si legge si usa la copia 'partite' qui sotto (copiata il 10/10/2026, Week 5). 'canali': etichetta usata da TechRadar -> nome mostrato, paese della VPN, link verificato.",
+ "fonte": "https://www.techradar.com/how-to-watch/american-football/nfl-2026-free",
+ "canali": {
+  "5": {"nome": "5 (Channel 5 / 5ACTION)", "vpn": "REGNO UNITO", "url": "https://www.channel5.com/"},
+  "7plus": {"nome": "7plus (Seven, Australia)", "vpn": "AUSTRALIA", "url": "https://7plus.com.au/live-tv"},
+  "TVNZ+": {"nome": "TVNZ+ (TVNZ 1 / Duke)", "vpn": "NUOVA ZELANDA", "url": "https://www.tvnz.co.nz/livetv"},
+  "VM Play": {"nome": "Virgin Media Play (Irlanda)", "vpn": "IRLANDA", "url": "https://play.virginmediatelevision.ie/"},
+  "Twitch": {"nome": "Twitch (NFL, Thursday Night Football)", "vpn": "STATI UNITI", "url": "https://www.twitch.tv/nfl"}
+ },
+ "partite": [
+  {"giorno": "2026-10-08", "ora_et": "8.15pm", "squadre": ["Buccaneers", "Cowboys"], "canali": ["Twitch", "7plus"]},
+  {"giorno": "2026-10-11", "ora_et": "9.30am", "squadre": ["Eagles", "Jaguars"], "canali": ["5", "VM Play"]},
+  {"giorno": "2026-10-11", "ora_et": "1pm", "squadre": ["Raiders", "Patriots"], "canali": ["5", "7plus", "TVNZ+"]},
+  {"giorno": "2026-10-11", "ora_et": "1pm", "squadre": ["Giants", "Commanders"], "canali": ["TVNZ+"]},
+  {"giorno": "2026-10-11", "ora_et": "4.05pm", "squadre": ["Broncos", "Chargers"], "canali": ["TVNZ+"]},
+  {"giorno": "2026-10-11", "ora_et": "4.25pm", "squadre": ["Lions", "Cardinals"], "canali": ["7plus"]},
+  {"giorno": "2026-10-11", "ora_et": "4.25pm", "squadre": ["49ers", "Seahawks"], "canali": ["5", "VM Play"]}
+ ]
+}

@@ -83,7 +83,7 @@ def analizza(xml, teleboy, conf, inizio, fine):
                        "titolo_orig": f"{titolo} {sotto} {desc}", "titolo_src": titolo, "evento": True,
                        "lingua": LINGUE.get(teleboy.paese(n) or "", "de"), "descrizione": desc, "da_epg": True,
                        "emittenti": [{"nome": n, "pagina": PAGINA, "link": teleboy.link(n) or PAGINA, "vpn": "SVIZZERA",
-                                      "teleboy": True}]})
+                                      "teleboy": True, "teleboy_nome": n}]})
     return eventi
 
 

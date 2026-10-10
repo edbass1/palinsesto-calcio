@@ -385,10 +385,11 @@
    "fonte": "ricerca",
    "verificato": true,
    "canali": [
-    "^Channel ?5\\b"
+    "^Channel ?5\\b",
+    "^5 \\(Channel 5"
    ],
    "vpn": "UK",
-   "note": "Gratuito (my5).",
+   "note": "Gratuito (my5 / 5ACTION). Trasmette anche partite NFL gratis.",
    "link": [
     {
      "url": "https://www.channel5.com/",
@@ -658,6 +659,23 @@
    ]
   },
   {
+   "id": "rts-senegal",
+   "nome": "RTS (Senegal)",
+   "fonte": "ricerca",
+   "verificato": true,
+   "canali": [
+    "^RTS ?[12]? S[ée]n[ée]gal"
+   ],
+   "vpn": "Senegal",
+   "note": "Gratuito.",
+   "link": [
+    {
+     "url": "https://www.rts.sn",
+     "testo": "RTS Sénégal"
+    }
+   ]
+  },
+  {
    "id": "rts",
    "nome": "RTS (Svizzera francese)",
    "fonte": "ricerca",
@@ -845,7 +863,7 @@
   {
    "id": "trt",
    "nome": "TRT Spor (Turchia)",
-   "fonte": "ricerca",
+   "fonte": "utente",
    "verificato": true,
    "canali": [
     "^TRT\\b"
@@ -854,8 +872,12 @@
    "note": "Gratuito (piattaforma tabii).",
    "link": [
     {
+     "url": "https://www.trtspor.com.tr/canli-yayin-izle/trt-spor",
+     "testo": "TRT Spor – diretta (link utente)"
+    },
+    {
      "url": "https://www.trtizle.com/canli/tv/trt-spor",
-     "testo": "TRT Spor – diretta"
+     "testo": "TRT İzle (link alternativo)"
     }
    ]
   },
@@ -890,6 +912,270 @@
     {
      "url": "https://sport.ceskatelevize.cz/zive-vysilani",
      "testo": "ČT sport – diretta"
+    }
+   ]
+  },
+  {
+   "id": "virgin-media",
+   "nome": "Virgin Media (Irlanda)",
+   "fonte": "ricerca",
+   "verificato": true,
+   "canali": [
+    "^Virgin Media",
+    "^VM Play\\b"
+   ],
+   "vpn": "Irlanda",
+   "note": "Gratuito con registrazione su Virgin Media Play. Trasmette partite NFL gratis.",
+   "link": [
+    {
+     "url": "https://www.virginmediatelevision.ie",
+     "testo": "Virgin Media Television"
+    },
+    {
+     "url": "https://play.virginmediatelevision.ie/",
+     "testo": "Virgin Media Play – diretta"
+    }
+   ]
+  },
+  {
+   "id": "7plus",
+   "nome": "7plus (Seven, Australia)",
+   "fonte": "ricerca",
+   "verificato": true,
+   "canali": [
+    "^7 ?plus\\b",
+    "^Seven\\b",
+    "^7mate\\b"
+   ],
+   "vpn": "Australia",
+   "note": "Gratuito con registrazione. Trasmette partite NFL gratis.",
+   "link": [
+    {
+     "url": "https://7plus.com.au/live-tv",
+     "testo": "7plus – diretta"
+    }
+   ]
+  },
+  {
+   "id": "tvnz",
+   "nome": "TVNZ+ (Nuova Zelanda)",
+   "fonte": "ricerca",
+   "verificato": true,
+   "canali": [
+    "^TVNZ",
+    "^Duke\\b"
+   ],
+   "vpn": "Nuova Zelanda",
+   "note": "Gratuito con registrazione. Trasmette partite NFL gratis.",
+   "link": [
+    {
+     "url": "https://www.tvnz.co.nz/livetv",
+     "testo": "TVNZ+ – diretta"
+    }
+   ]
+  },
+  {
+   "id": "twitch-nfl",
+   "nome": "Twitch (canale NFL)",
+   "fonte": "ricerca",
+   "verificato": true,
+   "canali": [
+    "^Twitch\\b"
+   ],
+   "vpn": "Stati Uniti",
+   "note": "Gratuito (alcune partite del giovedì).",
+   "link": [
+    {
+     "url": "https://www.twitch.tv/nfl",
+     "testo": "twitch.tv/nfl"
+    }
+   ]
+  },
+  {
+   "id": "idman",
+   "nome": "Idman TV (Azerbaigian)",
+   "fonte": "ricerca",
+   "verificato": true,
+   "canali": [
+    "^Idman\\b"
+   ],
+   "vpn": "Azerbaigian",
+   "note": "Gratuito.",
+   "link": [
+    {
+     "url": "https://idmantv.az/az",
+     "testo": "Idman TV"
+    }
+   ]
+  },
+  {
+   "id": "cbc-sport",
+   "nome": "CBC Sport (Azerbaigian)",
+   "fonte": "ricerca",
+   "verificato": false,
+   "canali": [
+    "^CBC Sport\\b"
+   ],
+   "vpn": "Azerbaigian",
+   "note": "Gratuito.",
+   "link": [
+    {
+     "url": "https://cbcsport.az",
+     "testo": "CBC Sport"
+    }
+   ]
+  },
+  {
+   "id": "mbc-action",
+   "nome": "MBC Action (Shahid)",
+   "fonte": "ricerca",
+   "verificato": true,
+   "canali": [
+    "^MBC Action\\b"
+   ],
+   "vpn": "Emirati Arabi",
+   "note": "Gratuito con registrazione su Shahid.",
+   "link": [
+    {
+     "url": "https://shahid.mbc.net/ar/livestream",
+     "testo": "Shahid – dirette MBC"
+    }
+   ]
+  },
+  {
+   "id": "crtv",
+   "nome": "CRTV (Camerun)",
+   "fonte": "ricerca",
+   "verificato": true,
+   "canali": [
+    "^CRTV\\b"
+   ],
+   "vpn": "Camerun",
+   "note": "Gratuito.",
+   "link": [
+    {
+     "url": "https://www.crtv.cm",
+     "testo": "CRTV"
+    }
+   ]
+  },
+  {
+   "id": "nci",
+   "nome": "NCI – La Nouvelle Chaîne Ivoirienne",
+   "fonte": "ricerca",
+   "verificato": true,
+   "canali": [
+    "^La Nouvelle Cha[iî]ne Ivo",
+    "^NCI\\b"
+   ],
+   "vpn": "Costa d'Avorio",
+   "note": "Gratuito.",
+   "link": [
+    {
+     "url": "https://www.nci.ci",
+     "testo": "NCI"
+    }
+   ]
+  },
+  {
+   "id": "ortb",
+   "nome": "ORTB (Benin)",
+   "fonte": "ricerca",
+   "verificato": false,
+   "canali": [
+    "^ORTB\\b"
+   ],
+   "vpn": "Benin",
+   "note": "Gratuito.",
+   "link": [
+    {
+     "url": "https://ortb.bj",
+     "testo": "ORTB"
+    }
+   ]
+  },
+  {
+   "id": "znbc",
+   "nome": "ZNBC (Zambia)",
+   "fonte": "ricerca",
+   "verificato": false,
+   "canali": [
+    "^ZNBC\\b"
+   ],
+   "vpn": "Zambia",
+   "note": "Gratuito.",
+   "link": [
+    {
+     "url": "https://www.znbc.co.zm",
+     "testo": "ZNBC"
+    }
+   ]
+  },
+  {
+   "id": "miramar",
+   "nome": "TV Miramar (Mozambico)",
+   "fonte": "ricerca",
+   "verificato": false,
+   "canali": [
+    "^TV Miramar\\b"
+   ],
+   "vpn": "Mozambico",
+   "note": "Gratuito.",
+   "link": [
+    {
+     "url": "https://www.tvmiramar.co.mz",
+     "testo": "TV Miramar"
+    }
+   ]
+  },
+  {
+   "id": "bein-haber",
+   "nome": "beIN Sports Haber (Turchia)",
+   "fonte": "ricerca",
+   "verificato": true,
+   "canali": [
+    "^beIN Sports? Haber\\b"
+   ],
+   "vpn": "Turchia",
+   "note": "Canale di notizie sportive in chiaro.",
+   "link": [
+    {
+     "url": "https://www.beinsports.com.tr",
+     "testo": "beIN Sports Türkiye"
+    }
+   ]
+  },
+  {
+   "id": "htspor",
+   "nome": "HT Spor (Turchia)",
+   "fonte": "ricerca",
+   "verificato": true,
+   "canali": [
+    "^HT Spor\\b"
+   ],
+   "vpn": "Turchia",
+   "note": "Gratuito.",
+   "link": [
+    {
+     "url": "https://www.htspor.com/canli-yayin",
+     "testo": "HT Spor – diretta"
+    }
+   ]
+  },
+  {
+   "id": "sifir",
+   "nome": "Sıfır TV (Turchia)",
+   "fonte": "ricerca",
+   "verificato": false,
+   "canali": [
+    "^S[iı]f[iı]r TV\\b"
+   ],
+   "vpn": "Turchia",
+   "note": "Gratuito.",
+   "link": [
+    {
+     "url": "https://www.sifirtv.com.tr",
+     "testo": "Sıfır TV"
     }
    ]
   }

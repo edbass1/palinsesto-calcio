@@ -22,6 +22,7 @@ import teleboy as teleboy_mod  # noqa: E402
 import dazn  # noqa: E402
 import altri_sport  # noqa: E402
 import epg_teleboy  # noqa: E402
+import altri_los  # noqa: E402
 
 ROMA = ZoneInfo("Europe/Rome")
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -392,6 +393,8 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
             scarica_srg_fn=conf_altri.get("scarica_srg_fn"), scarica_ard_fn=conf_altri.get("scarica_ard_fn"),
             conf=conf_altri.get("conf"), programmi_tolti=st.setdefault("programmi_tolti", []),
             scarica_dazn_fn=conf_altri.get("scarica_dazn_fn", dazn.altri_sport_it if conf_dazn is not None else None),
+            scarica_los_fn=conf_altri.get("scarica_los_fn", altri_los.fn_raccogli(
+                conf_los, teleboy, inizio, fine, stat=st.setdefault("altri_los", {})) if conf_los else None),
             scarica_tb_fn=conf_altri.get("scarica_tb_fn", epg_teleboy.fn_raccogli(
                 teleboy, altri_sport.regole_conf().get("teleboy_epg", {}), inizio, fine) if teleboy is not None else None))
         falliti += avvisi
@@ -454,8 +457,12 @@ def periodo(primo: dt.date, giorni: int = GIORNI_FINESTRA):
     return f"{a} – {b}"
 
 
-def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None):
+def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categorie=None):
     esc = html.escape
+    cat_calcio, cat_altro = classificatore(categorie if categorie is not None else carica_categorie())
+    for g in gruppi:
+        for e in g["partite"]:
+            e["_cat"] = " ".join(sorted(cat_calcio(e, g["nome"])))
     ora_r = ora.astimezone(ROMA)
     aggiornato = f"{GIORNI_LUNGHI[ora_r.weekday()]} {ora_r:%d/%m/%Y} alle {ora_r:%H:%M}"
     giorni = [(primo + dt.timedelta(days=i)) for i in range(GIORNI_FINESTRA)]
@@ -475,7 +482,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None):
         if comp:
             squadre = f'<span class="comp-tag">{esc(comp)}</span>' + squadre
         canali = "".join(badge(c, dove, usati) for c in e["canali"])
-        return (f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}">'
+        return (f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}" data-cat="{e.get("_cat", "")}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span>'
                 + (f'<span class="notte">notte tra {GIORNI[(q.weekday() - 1) % 7].lower()} e {GIORNI[q.weekday()].lower()}</span>' if notte else '') +
@@ -503,15 +510,9 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None):
     def scheda_altro(e):
         q = dt.datetime.fromtimestamp(e["ts"], ROMA)
         f = dt.datetime.fromtimestamp(e["fine"], ROMA)
-        em = "".join(
-            f'<li class="fta"><a href="{esc(x["pagina"])}" target="_blank" rel="noopener">{esc(x["nome"])}</a> '
-            + ('<span class="tag dz">DAZN GRATIS</span> ' if x.get("dazn_gratis") else '')
-            + ('<span class="tag tb">TELEBOY</span> ' if x.get("teleboy") else '')
-            + (f'<span class="tag vpn">VPN {esc(x["vpn"])}</span>' if x.get("vpn") else '<span class="tag vpn">SENZA VPN</span>')
-            + (f' <a class="diretta" href="{esc(x["link"])}" target="_blank" rel="noopener">▶ diretta</a>' if x.get("link") else '')
-            + '</li>'
-            for x in e["emittenti"])
-        return (f'<li class="partita evento" data-ts="{e["ts"]}" data-fine="{e["fine"]}" data-giorno="{q:%Y-%m-%d}">'
+        em = "".join(emittente_altro(x, dove, usati) for x in e["emittenti"])
+        return (f'<li class="partita evento" data-ts="{e["ts"]}" data-fine="{e["fine"]}" data-giorno="{q:%Y-%m-%d}"'
+                f' data-cat="{" ".join(sorted(cat_altro(e)))}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span><span class="fino">fino alle {f:%H:%M}</span>'
                 '<span class="stato" aria-live="polite"></span></div>'
@@ -548,12 +549,72 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None):
         + f'><span>{GIORNI[d.weekday()]}</span> <span>{d.day}</span></button>'
         for d in giorni)
 
+    cc = (categorie if categorie is not None else carica_categorie())
+    tit = lambda g, k, d: esc(((cc.get(g) or {}).get(k) or {}).get("titolo") or d)
+    tasti = lambda g, voci: "".join(
+        f'<button type="button" data-gruppo="{g}" data-cat="{k}" aria-pressed="{"true" if k == "tutto" else "false"}">{t}</button>'
+        for k, t in voci)
+    scelta = ('<section class="scelta" aria-label="Scegli cosa vuoi vedere"><p class="scelta-t">Scegli cosa vuoi vedere:</p>'
+              '<div class="scelta-b" data-gruppo="calcio">'
+              + tasti("calcio", [("tutto", "TUTTO"), ("elite", tit("calcio", "elite", "ELITE CALCIO")),
+                                 ("italia", tit("calcio", "italia", "CALCIO ITALIA"))]) + '</div>'
+              '<div class="scelta-b due" data-gruppo="altri" hidden>'
+              + tasti("altri", [("tutto", "TUTTO"), ("elite", tit("altri", "elite", "ELITE SPORT"))]) + '</div></section>')
     return TEMPLATE.format(
-        periodo=esc(periodo(primo)), aggiornato=esc(aggiornato), n=n_partite,
+        scelta=scelta, periodo=esc(periodo(primo)), aggiornato=esc(aggiornato), n=n_partite,
         bottoni=bottoni, sezioni="\n".join(sezioni), orario="\n".join(orario), avvisi=avvisi, note=note,
         altri="\n".join(sez_altri), n_altri=len(altri),
         dove=sezione_dove(dove, usati), durata=DURATA_PARTITA_S,
         vuoto_nascosto=' hidden' if gruppi else '')
+
+
+# ---------- Filtri "Scegli cosa vuoi vedere" (categorie.json) ----------
+def carica_categorie(percorso=None):
+    p = Path(percorso) if percorso else RADICE / "categorie.json"
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+
+
+def _intero(lista):
+    return [re.compile(rf"(?:{x})", re.I) for x in lista or []]
+
+
+def classificatore(cat):
+    """-> (fn_calcio(evento, competizione) -> set, fn_altro(evento) -> set) secondo categorie.json."""
+    c = (cat or {}).get("calcio", {})
+    el, it = c.get("elite", {}), c.get("italia", {})
+    el_comp, el_no = _intero(el.get("competizioni")), _intero(el.get("escludi_squadre"))
+    it_comp, coppe = _intero(it.get("competizioni")), _intero(it.get("coppe_europee"))
+    naz = {x.lower() for x in it.get("nazionale", [])}
+    rx_ita = re.compile(r"\b(?:" + "|".join(re.escape(x) for x in it.get("squadre", [])) + r")\b", re.I) if it.get("squadre") else None
+    a = (cat or {}).get("altri", {}).get("elite", {})
+    a_sport = {x.lower() for x in a.get("sport", [])}
+    a_tit = _intero(a.get("titoli"))
+    fa_no = _intero(a.get("football_americano_escludi"))
+    generici = {x.lower() for x in a.get("titoli_solo_per_sport", ["Sport", "Programma sportivo", ""])}
+
+    def piena(rxs, testo):
+        return any(r.fullmatch(testo.strip()) for r in rxs)
+
+    def calcio(e, comp):
+        out = set()
+        squadre = [x for x in (e.get("casa"), e.get("ospite")) if x]
+        if piena(el_comp, comp) and not any(r.search(x) for r in el_no for x in squadre):
+            out.add("elite")
+        if (piena(it_comp, comp) or any(x.strip().lower() in naz for x in squadre)
+                or (rx_ita and piena(coppe, comp) and any(rx_ita.search(x) for x in squadre))):
+            out.add("italia")
+        return out
+
+    def altro(e):
+        t = " ".join(x for x in (e.get("titolo"), e.get("titolo_originale"), e.get("titolo_orig"), e.get("competizione")) if x)
+        sp = (e.get("sport") or "").lower()
+        if sp == "football americano" and any(r.search(t) for r in fa_no):
+            return set()
+        # i titoli valgono solo per gli eventi senza uno sport preciso (es. 'F3 Motors' in una squadra di pallavolo non è Formula 3)
+        if sp in a_sport or (sp in generici and any(r.search(t) for r in a_tit)):
+            return {"elite"}
+        return set()
+    return calcio, altro
 
 
 # ---------- "Dove vederli" ----------
@@ -562,6 +623,48 @@ def voce_dove(nome: str, dove):
         if any(re.search(rx, nome, re.I) for rx in v.get("canali", [])):
             return v
     return None
+
+
+def sito_ufficiale(v):
+    """Primo link della voce "Dove vederli" (il sito di streaming), o None."""
+    for l in (v or {}).get("link", []):
+        if l.get("url"):
+            return l["url"]
+    return None
+
+
+def vpn_breve(v):
+    t = ((v or {}).get("vpn") or "").strip()
+    return t.upper() if t and len(t) <= 22 and not re.search(r"serve|solo|registr", t, re.I) else None
+
+
+def emittente_altro(x, dove, usati):
+    """Riga di un'emittente in ALTRI SPORT: nome (link al sito o a "Dove vederli"), etichette, VPN, link diretta."""
+    esc = html.escape
+    v = None if x.get("pagina") else voce_dove(x["nome"], dove)
+    if v:
+        usati.add(v["id"])
+    if x.get("pagina"):
+        nome = f'<a href="{esc(x["pagina"])}" target="_blank" rel="noopener">{esc(x["nome"])}</a>'
+    elif v:
+        nome = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{esc(x["nome"])}</a>'
+    else:
+        nome = esc(x["nome"])
+    tag = ('<span class="tag" aria-label="in chiaro">IN CHIARO</span> ' if x.get("fta") else '')
+    tag2 = (('<span class="tag dz">DAZN GRATIS</span> ' if x.get("dazn_gratis") else '')
+            + ('<span class="tag tb">TELEBOY</span> ' if x.get("teleboy") else ''))
+    vpn = x.get("vpn") or (vpn_breve(v) if v else None)
+    if vpn:
+        vpn_t = f'<span class="tag vpn">VPN {esc(vpn)}</span>'
+    elif x.get("vpn") is None and not x.get("fta"):
+        vpn_t = '<span class="tag vpn">SENZA VPN</span>'
+    else:
+        vpn_t = ''
+    link = x.get("link") or (sito_ufficiale(v) if v else None)
+    etichetta = "▶ diretta" if x.get("link") else "▶ sito"
+    return (f'<li class="fta">{tag}{nome} {tag2}{vpn_t}'
+            + (f' <a class="diretta" href="{esc(link)}" target="_blank" rel="noopener">{etichetta}</a>' if link else '')
+            + '</li>')
 
 
 def badge(c, dove, usati):
@@ -591,6 +694,9 @@ def badge(c, dove, usati):
     if v:
         usati.add(v["id"])
         testo = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{testo}</a>'
+        sito = sito_ufficiale(v)
+        if sito and not extra and v["id"] != "teleboy":
+            extra = f' <a class="diretta" href="{esc(sito)}" target="_blank" rel="noopener" title="Sito di streaming">▶ sito</a>'
     testo += extra
     return f'<li class="fta">{testo}</li>' if c["fta"] else f'<li>{testo}</li>'
 
@@ -598,7 +704,7 @@ def badge(c, dove, usati):
 def sezione_dove(dove, usati):
     """Voci inserite dall'utente sempre; quelle trovate con la ricerca solo se servono a qualche partita."""
     esc = html.escape
-    voci = [v for v in dove if v.get("fonte") == "utente" or v["id"] in usati]
+    voci = [v for v in dove if v.get("fonte") == "utente" or v.get("sempre") or v["id"] in usati]
     if not voci:
         return ""
     righe = []
@@ -656,6 +762,16 @@ TEMPLATE = """<!doctype html>
                background:#111; color:#fff; border:3px solid #666; cursor:pointer; flex:1 1 auto; }}
   nav.filtri button[aria-pressed="true"] {{ background:var(--giallo); color:#000; border-color:var(--giallo); }}
   nav.filtri button:disabled {{ opacity:.35; cursor:default; }}
+  section.scelta {{ max-width:1000px; margin:6px auto 14px; border:3px solid var(--giallo); border-radius:16px; padding:10px 12px 12px; background:#0b0b0b; }}
+  .scelta-t {{ margin:0 0 8px; font-size:1.25rem; font-weight:900; color:var(--giallo); }}
+  .scelta-b {{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }}
+  .scelta-b.due {{ grid-template-columns:repeat(2, 1fr); }}
+  .scelta-b[hidden] {{ display:none; }}
+  .scelta-b button {{ font:inherit; font-size:1.05rem; font-weight:900; min-height:64px; padding:6px 8px; border-radius:12px; line-height:1.15;
+               background:#111; color:#fff; border:3px solid #888; cursor:pointer; }}
+  .scelta-b button[aria-pressed="true"] {{ background:var(--giallo); color:#000; border-color:var(--giallo); }}
+  .scelta-b button[aria-pressed="true"]::before {{ content:"✓ "; }}
+  .scelta-b button:focus-visible {{ outline:4px solid var(--azzurro); outline-offset:3px; }}
   nav.viste {{ max-width:1000px; margin:4px auto 0; display:grid; grid-template-columns:1fr 1fr; gap:10px; }}
   nav.viste button.altri {{ grid-column:1 / -1; border-color:var(--azzurro); }}
   .tag.vpn {{ background:#ffd400; color:#000; }}
@@ -738,6 +854,7 @@ TEMPLATE = """<!doctype html>
   <p class="agg">Aggiornato {aggiornato} · <span id="n-partite">{n}</span> partite · orari italiani</p>
   <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera) · <span class="tag dz">DAZN GRATIS</span> = partita senza lucchetto su DAZN (account gratuito)</p>
 </header>
+{scelta}
 <nav class="viste" aria-label="Come ordinare le partite">
   <button type="button" data-vista="campionato" aria-pressed="true">PER CAMPIONATO</button>
   <button type="button" data-vista="orario" aria-pressed="false">IN ORDINE DI ORARIO</button>
@@ -752,9 +869,10 @@ TEMPLATE = """<!doctype html>
 {orario}
 </div>
 <div id="vista-altri" class="vista" hidden>
-<p class="intro-altri">Dirette streaming gratuite di altri sport: SRF, RTS, RSI (Svizzera), ARD (Germania) DAZN Italia (eventi senza lucchetto, con account gratuito) e i canali gratuiti di Teleboy (guida TV pubblica). Tocca l'emittente per aprire la diretta.</p>
+<p class="intro-altri">Dirette gratuite di altri sport: SRF, RTS, RSI (Svizzera), ARD (Germania), DAZN Italia (eventi senza lucchetto, con account gratuito), i canali gratuiti di Teleboy (guida TV pubblica) e i canali in chiaro di tutto il mondo (LiveOnSat; partite NFL gratis secondo TechRadar). Tocca l'emittente per aprire la diretta.</p>
 {altri}
 </div>
+<p class="vuoto" id="vuoto-scelta" hidden>Nessun evento per questa scelta nei giorni selezionati. Tocca <strong>TUTTO</strong> per vedere tutto.</p>
 <p class="vuoto" id="vuoto"{vuoto_nascosto}>Nessuna partita in programma in questi giorni.</p>
 {avvisi}
 {dove}
@@ -769,7 +887,21 @@ TEMPLATE = """<!doctype html>
 (function () {{
   var DURATA = {durata};  // secondi dopo il calcio d'inizio oltre i quali la partita sparisce (2h15m)
   var bottoni = [].slice.call(document.querySelectorAll('nav.filtri button'));
-  var filtroAttivo = 'tutti';
+  var filtroAttivo = 'tutti', vistaAttiva = 'campionato';
+  // "Scegli cosa vuoi vedere": una scelta per il calcio (TUTTO / ELITE CALCIO / CALCIO ITALIA) e una per ALTRI SPORT
+  var tastiCat = [].slice.call(document.querySelectorAll('.scelta-b button'));
+  var catAttiva = {{ calcio: 'tutto', altri: 'tutto' }};
+  ['calcio', 'altri'].forEach(function (g) {{
+    var v = null;
+    try {{ v = localStorage.getItem('scelta-' + g); }} catch (e) {{}}
+    if (v && tastiCat.some(function (b) {{ return b.dataset.gruppo === g && b.dataset.cat === v; }})) catAttiva[g] = v;
+  }});
+  function gruppo(p) {{ return p.closest('#vista-altri') ? 'altri' : 'calcio'; }}
+  function catOk(p) {{
+    var c = catAttiva[gruppo(p)];
+    return c === 'tutto' || (' ' + (p.dataset.cat || '') + ' ').indexOf(' ' + c + ' ') >= 0;
+  }}
+  function vistaEl() {{ return document.getElementById('vista-' + vistaAttiva); }}
   function partite() {{ return [].slice.call(document.querySelectorAll('li.partita')); }}
   function aggiornaSezioni() {{
     [].forEach.call(document.querySelectorAll('section.comp, section.giorno-sez'), function (s) {{
@@ -777,27 +909,33 @@ TEMPLATE = """<!doctype html>
     }});
     // giorni senza più partite: bottone disattivato
     var restano = {{}};
-    partite().forEach(function (p) {{ restano[p.dataset.giorno] = true; }});
+    [].forEach.call(vistaEl().querySelectorAll('li.partita'), function (p) {{ if (catOk(p)) restano[p.dataset.giorno] = true; }});
     bottoni.forEach(function (b) {{
       if (b.dataset.filtro === 'tutti') return;
       b.disabled = !restano[b.dataset.filtro];
       if (b.disabled) b.title = 'Nessuna partita rimasta'; else b.removeAttribute('title');
     }});
-    var n = document.querySelectorAll('#vista-campionato li.partita').length;
+    var conta = function (sel) {{ return [].filter.call(document.querySelectorAll(sel), catOk).length; }};
+    var tot = document.querySelectorAll('#vista-campionato li.partita').length;
+    var n = conta('#vista-campionato li.partita');
     var na = document.querySelector('nav.viste .altri .n');
-    if (na) na.textContent = '(' + document.querySelectorAll('#vista-altri li.partita').length + ')';
+    if (na) na.textContent = '(' + conta('#vista-altri li.partita') + ')';
     var cont = document.getElementById('n-partite');
     if (cont) cont.textContent = n;
     var vuoto = document.getElementById('vuoto');
-    if (vuoto) vuoto.hidden = n > 0;
+    if (vuoto) vuoto.hidden = tot > 0 || vistaAttiva === 'altri';
+    var qui = vistaEl().querySelectorAll('li.partita');
+    var vs = document.getElementById('vuoto-scelta');
+    if (vs) vs.hidden = !qui.length || !![].some.call(qui, function (p) {{ return !p.hidden; }});
   }}
   function filtra(f) {{
     var b0 = bottoni.filter(function (b) {{ return b.dataset.filtro === f; }})[0];
     if (!b0 || b0.disabled) f = 'tutti';
     filtroAttivo = f;
     bottoni.forEach(function (b) {{ b.setAttribute('aria-pressed', b.dataset.filtro === f ? 'true' : 'false'); }});
-    partite().forEach(function (p) {{ p.hidden = !(f === 'tutti' || p.dataset.giorno === f); }});
+    partite().forEach(function (p) {{ p.hidden = !((f === 'tutti' || p.dataset.giorno === f) && catOk(p)); }});
     aggiornaSezioni();
+    if (f !== 'tutti' && b0 && b0.disabled) {{ filtra('tutti'); return; }}  // con la nuova scelta quel giorno è vuoto
     try {{ sessionStorage.setItem('filtro', f); }} catch (e) {{}}
   }}
   bottoni.forEach(function (b) {{ b.addEventListener('click', function () {{ filtra(b.dataset.filtro); }}); }});
@@ -809,8 +947,23 @@ TEMPLATE = """<!doctype html>
     document.getElementById('vista-campionato').hidden = v !== 'campionato';
     document.getElementById('vista-orario').hidden = v !== 'orario';
     document.getElementById('vista-altri').hidden = v !== 'altri';
+    vistaAttiva = v;
+    [].forEach.call(document.querySelectorAll('.scelta-b'), function (d) {{
+      d.hidden = d.dataset.gruppo !== (v === 'altri' ? 'altri' : 'calcio');
+    }});
     try {{ localStorage.setItem('vista', v); }} catch (e) {{}}
+    filtra(filtroAttivo);
   }}
+  function scegli(g, c) {{
+    catAttiva[g] = c;
+    tastiCat.forEach(function (b) {{ if (b.dataset.gruppo === g) b.setAttribute('aria-pressed', b.dataset.cat === c ? 'true' : 'false'); }});
+    try {{ localStorage.setItem('scelta-' + g, c); }} catch (e) {{}}
+    filtra(filtroAttivo);
+  }}
+  tastiCat.forEach(function (b) {{ b.addEventListener('click', function () {{ scegli(b.dataset.gruppo, b.dataset.cat); }}); }});
+  ['calcio', 'altri'].forEach(function (g) {{
+    tastiCat.forEach(function (b) {{ if (b.dataset.gruppo === g) b.setAttribute('aria-pressed', b.dataset.cat === catAttiva[g] ? 'true' : 'false'); }});
+  }});
   tastiVista.forEach(function (b) {{ b.addEventListener('click', function () {{ vista(b.dataset.vista); }}); }});
   var daUrl = /[?&]vista=(orario|campionato|altri)/.exec(location.search);  // es. ...?vista=orario
   var scelta = daUrl ? daUrl[1] : null;
@@ -905,6 +1058,8 @@ def main():
         for r in st["dazn_dettagli"]:
             print("  ", r)
     if "calcio_stream" in st:
+        if st.get("altri_los"):
+            print(f"  LiveOnSat altri sport: {st['altri_los']}")
         al = st["altri_sport"]
         print(f"  Altri sport per fonte: Teleboy (guida TV) {sum(any(x.get('teleboy') for x in e['emittenti']) for e in al)} · "
               f"DAZN Italia {sum(any(x.get('dazn_gratis') for x in e['emittenti']) for e in al)} · "

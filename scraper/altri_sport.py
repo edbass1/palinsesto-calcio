@@ -270,54 +270,110 @@ def _parola_comune(a, b):
     return bool(parole(a) & parole(b))
 
 
+RE_SEP_SQUADRE = re.compile(r"\s+(?:-|–|v|vs\.?|at|@|gegen|contro|contre)\s+", re.I)
+
+
+SPORT_SQUADRE = {"Football americano", "Basket", "Hockey su ghiaccio", "Rugby", "Rugby a 13", "Football australiano",
+                 "Sport gaelici", "Pallamano", "Pallavolo", "Baseball", "Tennis", "Tennistavolo", "Boxe", "Freccette",
+                 "Snooker", "Unihockey", "Badminton", "Lotta"}
+
+
+def squadre_evento(e):
+    """Due squadre/atleti dal titolo ('A - B', 'A v B', 'A at B', 'A gegen B'), o None (solo sport a squadre/sfide)."""
+    if e.get("sport") not in SPORT_SQUADRE:
+        return None
+    if e.get("nfl_soprannomi"):
+        return list(e["nfl_soprannomi"])
+    t = (e.get("titolo_src") or e.get("titolo") or "")
+    t = t.rsplit(":", 1)[-1].rsplit(",", 1)[-1].strip()
+    parti = RE_SEP_SQUADRE.split(t)
+    return [x.strip() for x in parti] if len(parti) == 2 and all(x.strip() for x in parti) else None
+
+
+def _stesse_squadre(a, b):
+    """Ogni squadra di a ha una parola (5 lettere iniziali) in comune con una squadra di b, e viceversa."""
+    def parole(nome):
+        return {w[:5] for w in re.findall(r"[\wÀ-ÿ]{3,}", nome.lower()) if w not in ("new", "the", "city", "fc")}
+    pa, pb = [parole(x) for x in a], [parole(x) for x in b]
+    return all(any(x & y for y in pb) for x in pa) and all(any(x & y for x in pa) for y in pb)
+
+
+def _chiave(x):
+    return (x.get("teleboy_nome") or x["nome"]).lower()
+
+
+def _priorita(e):
+    """Titolo da tenere quando si uniscono fonti diverse: streaming SRG/ARD/DAZN > LiveOnSat > guida TV > TechRadar."""
+    if e.get("nfl_soprannomi"):
+        return 0
+    if e.get("da_epg"):
+        return 1
+    if e.get("da_los"):
+        return 2
+    return 3
+
+
 def unisci_eventi(eventi):
     """Stesso evento su più emittenti: stesso id swisstxt, oppure stesso sport, emittente diversa,
-    inizio entro 45 minuti e titoli simili (es. GP di F1 su SRF, RTS e RSI)."""
+    inizio entro 45 minuti e titoli simili (es. GP di F1 su SRF, RTS e RSI). Con due squadre nel titolo
+    (NFL, NBA, rugby...) devono coincidere le squadre; per guida TV e LiveOnSat serve una parola in comune."""
     import difflib
     uniti = []
-    for e in sorted(eventi, key=lambda e: e["ts"]):
+    for e in sorted(eventi, key=lambda e: (e["ts"], -_priorita(e))):
         gia = None
         for u in uniti:
             if e["id"] in u["ids"]:
                 gia = u
                 break
             if (u["sport"] == e["sport"] and e["sport"] not in ("Sport", "Programma sportivo", "Calcio")
-                    and not {x["nome"] for x in u["emittenti"]} & {x["nome"] for x in e["emittenti"]}
-                    and abs(u["ts"] - e["ts"]) <= 45 * 60
-                    and (not (u.get("da_epg") or e.get("da_epg")) or _parola_comune(u, e))):
-                gia = u
-                break
+                    and abs(u["ts"] - e["ts"]) <= 45 * 60):
+                sa, sb = u.get("_squadre") or squadre_evento(u), squadre_evento(e)
+                if sa and sb:
+                    if _stesse_squadre(sa, sb):
+                        gia = u
+                        break
+                    continue
+                if ({_chiave(x) for x in u["emittenti"]} & {_chiave(x) for x in e["emittenti"]}):
+                    continue
+                deboli = any(x.get("da_epg") or x.get("da_los") for x in (u, e))
+                if not deboli or _parola_comune(u, e):
+                    gia = u
+                    break
             if e["sport"] == "Calcio" == u["sport"] and abs(u["ts"] - e["ts"]) <= 45 * 60:
                 a, b = calcio_squadre(u), calcio_squadre(e)
                 if a and b and difflib.SequenceMatcher(None, (a[0] + a[1]).lower(), (b[0] + b[1]).lower()).ratio() > 0.6:
                     gia = u
                     break
         if gia is None:
-            uniti.append(dict(e, ids={e["id"]}, emittenti=list(e["emittenti"]), testi=[e["titolo_orig"]]))
-            continue
-        if gia.get("da_epg") and not e.get("da_epg"):  # meglio titolo e link dello streaming che quelli della guida TV
-            for k in ("titolo", "lingua", "titolo_src", "id"):
-                gia[k] = e.get(k, gia.get(k))
-            gia["da_epg"] = False
-            gia["emittenti"] = list(e["emittenti"]) + gia["emittenti"]
-            gia["ids"].add(e["id"])
-            gia["testi"].append(e["titolo_orig"])
-            gia["fine"] = max(gia["fine"], e["fine"])
+            uniti.append(dict(e, ids={e["id"]}, emittenti=list(e["emittenti"]), testi=[e["titolo_orig"]],
+                              _squadre=squadre_evento(e), _prio=_priorita(e)))
             continue
         gia["ids"].add(e["id"])
         gia["testi"].append(e["titolo_orig"])
         gia["fine"] = max(gia["fine"], e["fine"])
-        for x in e["emittenti"]:
-            if x["nome"] not in [y["nome"] for y in gia["emittenti"]]:
-                gia["emittenti"].append(x)
-        if e["emittenti"][0]["nome"] == "RSI" and e["sport"] != "Calcio":  # titolo in italiano, se c'è
+        if not gia.get("_squadre") or e.get("nfl_soprannomi") is None and squadre_evento(e):
+            gia["_squadre"] = gia.get("_squadre") or squadre_evento(e)
+        if _priorita(e) > gia["_prio"]:  # titolo e prime emittenti dalla fonte migliore
+            for k in ("titolo", "lingua", "titolo_src", "da_epg", "da_los"):
+                gia[k] = e.get(k)
+            gia["_prio"] = _priorita(e)
+            nuove = [x for x in e["emittenti"] if _chiave(x) not in {_chiave(y) for y in gia["emittenti"]}]
+            gia["emittenti"] = nuove + gia["emittenti"]
+        else:
+            for x in e["emittenti"]:
+                if _chiave(x) not in {_chiave(y) for y in gia["emittenti"]}:
+                    gia["emittenti"].append(x)
+        if e["emittenti"] and e["emittenti"][0]["nome"] == "RSI" and e["sport"] != "Calcio":  # titolo in italiano, se c'è
             gia["titolo"] = e["titolo"]
             gia["lingua"] = "it"
+    for u in uniti:
+        # un canale LiveOnSat che è anche su Teleboy: basta una riga (quella con il link Teleboy)
+        u["emittenti"] = [x for x in u["emittenti"] if x.get("fta") is not False or x.get("teleboy")]
     return uniti
 
 
 def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None, scarica_ard_fn=None,
-                   conf=None, programmi_tolti=None, scarica_dazn_fn=None, scarica_tb_fn=None):
+                   conf=None, programmi_tolti=None, scarica_dazn_fn=None, scarica_tb_fn=None, scarica_los_fn=None):
     """(eventi altri sport, partite di calcio, avvisi). Toglie gli eventi già finiti, i programmi sportivi
     (magazine, highlights, studio...: vedi altri_sport.json) e il calcio femminile.
     programmi_tolti (lista), se data, riceve "Emittente gg/mm hh:mm Titolo – motivo" per ogni programma tolto."""
@@ -334,6 +390,11 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
     if err:
         falliti.append("ARD")
     tutti += ev
+    if scarica_los_fn is not None:  # LiveOnSat altri sport (canali in chiaro nel mondo) + NFL gratis (TechRadar)
+        ev, err = scarica_los_fn()
+        if err:
+            falliti.append("LiveOnSat")
+        tutti += ev
     if scarica_tb_fn is not None:  # canali gratuiti di Teleboy (guida TV pubblica)
         ev, err = scarica_tb_fn()
         if err:
@@ -356,6 +417,7 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
     tutti = tenuti
     altri, calcio = [], []
     uniti = unisci_eventi(tutti)
+    uniti = [e for e in uniti if e["emittenti"]]  # partite LiveOnSat senza nessun canale gratis: via
     for e in uniti:  # titoli in italiano (glossario traduzioni.json); l'originale resta se la traduzione è parziale
         if e.get("lingua", "it") != "it" and e["sport"] != "Calcio":
             it, completa = traduci.traduci(e["titolo"])

@@ -101,7 +101,7 @@ def competizione_los(nome: str):
     return 80, base.upper()
 
 
-def scarica(url: str, tentativi: int = 4):
+def scarica(url: str, tentativi: int = 4, vuota_ok: bool = False):
     """LiveOnSat risponde a volte 502 (Cloudflare): si riprova con attesa crescente."""
     req = urllib.request.Request(url, headers={
         "User-Agent": UA, "Accept": "text/html,application/xhtml+xml,*/*;q=0.8",
@@ -114,6 +114,8 @@ def scarica(url: str, tentativi: int = 4):
                 testo = r.read().decode("utf-8", "replace")
                 if "blockfix" in testo or "time_head" in testo:
                     return testo, None
+                if vuota_ok and "LiveOnSat" in testo[:3000]:
+                    return testo, None  # pagina valida ma senza eventi in programma (es. NHL fuori stagione)
                 errore = "pagina inattesa (possibile blocco)"
         except urllib.error.HTTPError as e:
             errore = f"HTTP {e.code}"

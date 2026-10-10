@@ -440,7 +440,7 @@ def test_altri_sport():
     p.scarica, L.scarica = finto_lstv, finto_los
     st = {}
     gruppi, falliti, _ = p.raccogli(canali, ini, fine, dict(CONF_LOS, pausa_secondi=0), st, None, None,
-                                    {"ora": ora2, "scarica_srg_fn": srg, "scarica_ard_fn": lambda i, f: ([], None)})
+                                    {"ora": ora2, "scarica_srg_fn": srg, "scarica_ard_fn": lambda i, f: ([], None), "scarica_los_fn": None})
     tutte = {f'{e["casa"]} - {e["ospite"]}': (g["nome"], e) for g in gruppi for e in g["partite"]}
     nome, lug = tutte["Lugano - Luzern"]
     assert nome == "SUPER LEAGUE (Svizzera)" and [c["nome"] for c in lug["canali"]][-2:] == ["SRF stream", "RSI stream"], lug
@@ -693,6 +693,77 @@ def test_unione():
     assert orario.count('class="comp-tag"') == st["totale"] and 'data-vista="orario"' in html and "localStorage" in html
     return st
 
+def test_categorie():
+    """Filtri ELITE CALCIO / CALCIO ITALIA / ELITE SPORT (categorie.json)."""
+    cal, alt = p.classificatore(p.carica_categorie())
+    E = lambda c, o="Y": {"casa": c, "ospite": o}
+    assert cal(E("Juventus", "Torino"), "SERIE A") == {"elite", "italia"}
+    assert cal(E("Bari", "Palermo"), "SERIE B") == {"italia"}
+    assert cal(E("Arsenal", "Leeds"), "PREMIER LEAGUE") == {"elite"}
+    assert cal(E("Neftchi", "Qarabag"), "PREMIER LEAGUE (Azerbaigian)") == set()
+    assert cal(E("Flamengo", "Santos"), "SERIE B BRASILE") == set()
+    assert cal(E("Real Madrid", "Napoli"), "UEFA CHAMPIONS LEAGUE") == {"elite", "italia"}
+    assert cal(E("Real Madrid", "Bayern"), "UEFA CHAMPIONS LEAGUE") == {"elite"}
+    assert cal(E("Inter U19", "Ajax U19"), "UEFA YOUTH LEAGUE") == set()
+    assert cal(E("Italia", "Norvegia"), "NAZIONALI – QUALIFICAZIONI MONDIALI 2026") == {"elite", "italia"}
+    assert cal(E("Francia", "Spagna"), "NAZIONALI – UEFA NATIONS LEAGUE") == {"elite"}
+    assert cal(E("Italia U21", "Svezia U21"), "NAZIONALI – QUALIFICAZIONI EUROPEI U21") == set()
+    assert cal(E("Juventus", "Avellino"), "COPPA ITALIA") == {"elite", "italia"}
+    assert "elite" in cal(E("Barcelona", "X"), "COPA DEL REY") and "elite" in cal(E("Bayern", "X"), "DFB-POKAL")
+    assert cal(E("Ternana", "Gubbio"), "SERIE C – GIRONE B") == {"italia"}
+    assert cal(E("Roma", "Lazio"), "ROMANIA LIGA I") == set()
+    A = lambda sp, t: alt({"sport": sp, "titolo": t})
+    for sp, t in [("Formula 1", "Gran Premio di Singapore"), ("Motomondiale", "MotoGP: gara"), ("Motori", "WEC 6 Ore del Fuji"),
+                  ("Tennis", "ATP Shanghai"), ("Basket", "EuroLeague: Olimpia Milano - Real Madrid"),
+                  ("Football americano", "Seattle Seahawks - San Francisco 49ers"), ("Sport", "NASCAR Cup Series"), ("Sport", "Rally di Sardegna")]:
+        assert A(sp, t) == {"elite"}, (sp, t)
+    for sp, t in [("Ciclismo", "Paris-Tours"), ("Football americano", "College Football: Alabama - Georgia"), ("Boxe", "Serata di boxe"),
+                  ("Freccette", "Swiss Darts Trophy"), ("Hockey su ghiaccio", "Lugano - Zug"),
+                  ("Pallavolo", "LVF A2, Cosedil F3 Motors Akademia Messina - Club Italia")]:
+        assert A(sp, t) == set(), (sp, t)
+    # HTML: pulsanti e attributi
+    ora = dt.datetime(2026, 10, 10, 15, 0, tzinfo=p.ROMA)
+    q = ora + dt.timedelta(hours=3)
+    g = [{"nome": "SERIE A", "partite": [{"casa": "Juventus", "ospite": "Torino", "quando": q, "ts": int(q.timestamp()), "canali": []}]},
+         {"nome": "LIGA I (Romania)", "partite": [{"casa": "FCSB", "ospite": "Rapid", "quando": q, "ts": int(q.timestamp()), "canali": []}]}]
+    al = [{"sport": "Formula 1", "titolo": "Gara", "ts": int(q.timestamp()), "fine": int(q.timestamp()) + 7200, "emittenti": []}]
+    h = p.genera_html(*p.finestra(ora)[:1], ora, g, [], [], [], al)
+    assert "Scegli cosa vuoi vedere:" in h and h.count('data-gruppo="calcio" data-cat=') == 3 and h.count('data-gruppo="altri" data-cat=') == 2
+    assert 'data-cat="elite italia"' in h and 'data-cat=""' in h and 'data-fine="%d" data-giorno' % (int(q.timestamp()) + 7200) in h
+    assert ">ELITE CALCIO<" in h and ">CALCIO ITALIA<" in h and ">ELITE SPORT<" in h
+
+def test_altri_los_nfl():
+    """Altri sport da LiveOnSat (solo canali in chiaro) + NFL gratis da TechRadar, uniti; link dei canali da dove_vederli.json."""
+    import gzip
+    import altri_los as AL
+    import altri_sport as A
+    import teleboy as TB
+    F = QUI / "fixtures_los_altri_2026-10-10"
+    los = lambda u: ((gzip.open(F / (u.rsplit("/", 1)[-1] + ".gz"), "rt").read(), None) if (F / (u.rsplit("/", 1)[-1] + ".gz")).exists()
+                     else ("<title>LiveOnSat</title>", None))
+    tr = lambda u: (gzip.open(F / "techradar_nfl.html.gz", "rt").read(), None)
+    tb = TB.carica(str(QUI.parent / "teleboy_canali.json"), aggiorna=False)
+    ora = dt.datetime(2026, 10, 10, 23, 0, tzinfo=p.ROMA)
+    _, ini, fine = p.finestra(ora)
+    st = {}
+    ev, err = AL.fn_raccogli(dict(CONF_LOS, pausa_secondi=0), tb, ini, fine, los, tr, stat=st)()
+    assert err is None and st["nfl_fonte"].startswith("TechRadar") and st["nfl_gratis"] >= 6, st
+    rx = U.regex_femminile(CONF_LOS["escludi_competizioni"])
+    vuoto = lambda *a: ([], None)
+    altri, _, avv = A.raccogli_altri(ini, fine, ora, rx, scarica_srg_fn=vuoto, scarica_ard_fn=vuoto, scarica_los_fn=lambda: (ev, err))
+    nfl = {e["titolo"]: {x["nome"] for x in e["emittenti"]} for e in altri if e["sport"] == "Football americano"}
+    assert {"5 (Channel 5 / 5ACTION)", "7plus (Seven, Australia)", "TVNZ+ (TVNZ 1 / Duke)", "RTL Deutschland"} <= nfl["New England Patriots - Las Vegas Raiders"], nfl
+    assert "Virgin Media Play (Irlanda)" in nfl["Seattle Seahawks - San Francisco 49ers"], nfl
+    assert not any(U.regola_canali(CONF_LOS)(x["nome"]) for e in altri for x in e["emittenti"])
+    assert any(e["sport"] == "Formula 1" and "Singapore" in e["titolo"] for e in altri)
+    dove = json.loads((QUI.parent / "dove_vederli.json").read_text())["voci"]
+    trt = p.voce_dove("TRT Spor Türkiye", dove)
+    assert trt["link"][0]["url"] == "https://www.trtspor.com.tr/canli-yayin-izle/trt-spor" and trt["fonte"] == "utente"
+    assert p.voce_dove("RTS 1 Senegal", dove)["id"] == "rts-senegal" and p.voce_dove("RTS Un Suisse", dove)["id"] == "rts"
+    h = p.genera_html(*p.finestra(ora)[:1], ora, [], [], [], dove, altri)
+    assert 'href="#dv-idman"' in h and "▶ sito" in h, "link canali"
+    return altri
+
 
 if __name__ == "__main__":
     test_finestra(); print("finestra: OK")
@@ -705,6 +776,7 @@ if __name__ == "__main__":
     test_ordine(); print("ordine competizioni: OK")
     test_finite(); print("partite finite tolte: OK")
     test_dove(); print("dove vederli: OK")
+    test_categorie(); print("filtri ELITE/ITALIA: OK")
     tb = test_teleboy(); print(f"Teleboy ({tb.n} canali): OK")
     sd = test_dazn(); print(f"DAZN: gratis {sd['dazn']}, unite {len(sd['uniti_dazn'])}, solo DAZN {sd['solo_dazn']} – OK")
     sf = test_femminile(); print(f"femminile: {len(sf['femminili_tolte'])} partite escluse nei dati salvati – OK")
@@ -714,6 +786,7 @@ if __name__ == "__main__":
     pr = test_programmi(); print(f"programmi sportivi tolti nei dati salvati: {len(pr)} – OK")
     al, ca = test_altri_sport(); print(f"altri sport: {len(al)} eventi, calcio in streaming {len(ca)} – OK")
     print(f"DAZN (rail-router): {test_dazn_rail()} – OK")
+    print(f"LiveOnSat altri sport + NFL gratis: {len(test_altri_los_nfl())} eventi – OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"
           f" = {st['totale']} – OK")

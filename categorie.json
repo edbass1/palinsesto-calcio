@@ -1,0 +1,150 @@
+{
+ "_nota": "Filtri 'Scegli cosa vuoi vedere'. Le voci sono espressioni regolari (maiuscole/minuscole indifferenti) che devono corrispondere a TUTTO il nome della competizione come appare sulla pagina (es. 'SERIE A', non 'SERIE A BRASILE'). Si possono aggiungere o togliere righe liberamente.",
+ "calcio": {
+  "elite": {
+   "titolo": "ELITE CALCIO",
+   "competizioni": [
+    "SERIE A",
+    "PREMIER LEAGUE",
+    "LALIGA",
+    "BUNDESLIGA",
+    "LIGUE 1",
+    "UEFA CHAMPIONS LEAGUE",
+    "UEFA EUROPA LEAGUE",
+    "UEFA CONFERENCE LEAGUE",
+    "SUPERCOPPA EUROPEA",
+    "UEFA SUPER CUP",
+    "COPPA ITALIA",
+    "SUPERCOPPA ITALIANA",
+    "FA CUP.*",
+    "EFL CUP.*",
+    "CARABAO CUP.*",
+    "COMMUNITY SHIELD.*",
+    "COPA DEL REY.*",
+    "SUPERCOPA DE ESPA[ÑN]A.*",
+    "DFB[- ]POKAL.*",
+    "SUPERCUP.*\\(Germania\\)",
+    "DFL[- ]SUPERCUP.*",
+    "COUPE DE FRANCE.*",
+    "TROPH[ÉE]E DES CHAMPIONS.*",
+    "NAZIONALI – (?!.*(FEMMINIL|UNDER|U-?\\d\\d|GIOVANIL)).*",
+    "(?!.*(FEMMINIL|WOMEN|UNDER|U-?\\d\\d|GIOVANIL)).*(MONDIALI|WORLD CUP|EUROPEI|EURO 20\\d\\d|NATIONS LEAGUE|AMICHEVOL[EI] INTERNAZIONAL[EI]|INTERNATIONAL FRIENDL).*"
+   ],
+   "_nota_squadre": "Partite tolte comunque se una squadra è giovanile (U21, U19, ...).",
+   "escludi_squadre": [
+    "\\bU-?\\d\\d\\b",
+    "\\bUnder ?\\d\\d\\b"
+   ]
+  },
+  "italia": {
+   "titolo": "CALCIO ITALIA",
+   "competizioni": [
+    "SERIE A",
+    "SERIE B",
+    "SERIE C.*",
+    "COPPA ITALIA.*",
+    "SUPERCOPPA ITALIANA"
+   ],
+   "_nota_nazionale": "Partite della nazionale italiana (squadra con questo nome esatto), in qualsiasi competizione.",
+   "nazionale": [
+    "Italia",
+    "Italy"
+   ],
+   "_nota_coppe": "Squadre italiane nelle coppe europee: competizione in 'coppe_europee' e almeno una squadra in 'squadre' (parola intera).",
+   "coppe_europee": [
+    "UEFA CHAMPIONS LEAGUE",
+    "UEFA EUROPA LEAGUE",
+    "UEFA CONFERENCE LEAGUE",
+    "SUPERCOPPA EUROPEA",
+    "UEFA SUPER CUP"
+   ],
+   "squadre": [
+    "Inter",
+    "Internazionale",
+    "Milan",
+    "AC Milan",
+    "Juventus",
+    "Napoli",
+    "Roma",
+    "AS Roma",
+    "Lazio",
+    "Atalanta",
+    "Fiorentina",
+    "Bologna",
+    "Torino",
+    "Genoa",
+    "Udinese",
+    "Lecce",
+    "Cagliari",
+    "Verona",
+    "Hellas Verona",
+    "Parma",
+    "Como",
+    "Sassuolo",
+    "Pisa",
+    "Cremonese",
+    "Empoli",
+    "Monza",
+    "Venezia",
+    "Salernitana",
+    "Sampdoria",
+    "Palermo",
+    "Bari",
+    "Frosinone"
+   ]
+  }
+ },
+ "altri": {
+  "elite": {
+   "titolo": "ELITE SPORT",
+   "_nota": "Evento ELITE se lo sport è in 'sport'; per gli eventi con sport generico ('titoli_solo_per_sport') basta che il titolo contenga una voce di 'titoli'. Per il football americano solo NFL: 'football_americano_escludi' toglie college, CFL, ELF, ecc.",
+   "sport": [
+    "Formula 1",
+    "Motomondiale",
+    "Motori",
+    "Tennis",
+    "Basket",
+    "Football americano"
+   ],
+   "titoli": [
+    "\\bFormula ?[1234E]\\b",
+    "\\bF[1234]\\b",
+    "\\bMoto ?GP\\b",
+    "\\bMoto ?[23]\\b",
+    "\\bMotoE\\b",
+    "\\bWEC\\b",
+    "Le Mans",
+    "\\bDTM\\b",
+    "\\bIndy ?Car\\b",
+    "\\bNASCAR\\b",
+    "\\bWRC\\b",
+    "\\bRall(y|ye|ies)\\b",
+    "\\bSuperbike\\b",
+    "\\bWorld ?SBK\\b",
+    "\\bWSBK\\b",
+    "\\bNFL\\b",
+    "\\bNBA\\b",
+    "\\bEuro ?League\\b",
+    "\\bEurocup\\b",
+    "\\bLega ?Basket\\b",
+    "\\bSerie A basket\\b",
+    "\\bATP\\b",
+    "\\bWTA\\b"
+   ],
+   "football_americano_escludi": [
+    "\\bcollege\\b",
+    "\\bNCAA\\b",
+    "\\bCFL\\b",
+    "\\bELF\\b",
+    "\\bGFL\\b",
+    "European League of Football",
+    "\\bUFL\\b"
+   ],
+   "titoli_solo_per_sport": [
+    "Sport",
+    "Programma sportivo",
+    ""
+   ]
+  }
+ }
+}

@@ -694,6 +694,10 @@
    "Gran Premio"
   ],
   [
+   "re:\\b([A-Z][a-zà-ÿ]+(?: [A-Z][a-zà-ÿ]+)?) Grand Prix\\b",
+   "Gran Premio di \\1"
+  ],
+  [
    "Grand Prix",
    "Gran Premio"
   ],
@@ -1252,6 +1256,10 @@
   [
    "Länderspiel",
    "partita della nazionale"
+  ],
+  [
+   "re:\\bRace\\b",
+   "gara"
   ]
  ],
  "parole_italiane": [

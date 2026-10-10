@@ -255,5 +255,60 @@
  },
  "mai_escludere": [
   "idman"
- ]
+ ],
+ "_nota_pagine_altri_sport": "Pagine LiveOnSat degli altri sport (sezione ALTRI SPORT): pagina -> [sport, durata media in minuti]. Stesse regole del calcio: solo canali in chiaro (rossi) o nella lista 'canali_in_chiaro' o su Teleboy, stesse esclusioni. Su LiveOnSat non esistono pagine di tennis, ciclismo, cricket, freccette, snooker o MotoGP (404 al 10/10/2026).",
+ "pagine_altri_sport": {
+  "https://liveonsat.com/usa-nfl-football.php": [
+   "Football americano",
+   210
+  ],
+  "https://liveonsat.com/usa-nba-basketball.php": [
+   "Basket",
+   150
+  ],
+  "https://liveonsat.com/usa-nhl-hockey.php": [
+   "Hockey su ghiaccio",
+   165
+  ],
+  "https://liveonsat.com/x-international-basketball.php": [
+   "Basket",
+   120
+  ],
+  "https://liveonsat.com/x-international-icehockey.php": [
+   "Hockey su ghiaccio",
+   150
+  ],
+  "https://liveonsat.com/x-rugby-union.php": [
+   "Rugby",
+   120
+  ],
+  "https://liveonsat.com/x-rugby-league.php": [
+   "Rugby a 13",
+   120
+  ],
+  "https://liveonsat.com/x-aussie-rules.php": [
+   "Football australiano",
+   150
+  ],
+  "https://liveonsat.com/x-gaa.php": [
+   "Sport gaelici",
+   90
+  ],
+  "https://liveonsat.com/x-formula1.php": [
+   "Formula 1",
+   120
+  ],
+  "https://liveonsat.com/x-boxing-mma.php": [
+   "Boxe",
+   240
+  ],
+  "https://liveonsat.com/x-olympic-handball.php": [
+   "Pallamano",
+   105
+  ],
+  "https://liveonsat.com/x-volleyball.php": [
+   "Pallavolo",
+   120
+  ]
+ }
 }
