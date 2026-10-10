@@ -123,6 +123,18 @@ def test_esclusi():
     assert grezzo["Lille v Le Havre"]["canali_fta"] == ["Megogo Sport Ukraine"]
     assert "Lille v Le Havre" not in titoli and "Monaco v Toulouse" not in titoli
     assert "Paris St Germain v Le Mans" in titoli  # ha altri canali in chiaro
+    # canali iraniani/afghani esclusi (anche con varianti di nome)
+    for parola in ("gem sport", "persiana", "irib", "varzish", "varzesh", "meraj"):
+        assert parola in CONF_LOS["escludi_canali"], parola
+    vietati = ("gem sport", "persiana", "irib", "varz", "meraj")
+    assert not any(v in c.lower() for x in partite for c in x["canali_fta"] for v in vietati)
+    # Arsenal-Leeds (sab 13:30) aveva solo GEM/Idman/IRIB/Meraj/Persiana/Solh: resta solo con Idman TV e Solh TV
+    ars = grezzo["Arsenal v Leeds United"]["canali_fta"]
+    assert ars == ["GEM Sport 1", "Idman TV", "IRIB Varzesh", "Meraj TV", "Persiana Sport", "Solh TV"], ars
+    assert titoli["Arsenal v Leeds United"]["canali_fta"] == ["Idman TV", "Solh TV"]
+    # Rayo-Athletic aveva solo Persiana Sports 3 (+ DAZN): sparisce
+    assert grezzo["Rayo Vallecano v Athletic Bilbao"]["canali_fta"] == ["DAZN España HD FTA", "Persiana Sports 3"]
+    assert "Rayo Vallecano v Athletic Bilbao" not in titoli
     # HTML sintetico: maiuscole/minuscole indifferenti
     finto = ('<span class = comp_head>X</span><div class = blockfix ><div class = fLeft style="a">A v B</div>'
              '<div data-timestamp="1791648000"></div>'
@@ -241,7 +253,7 @@ def test_unione():
     assert st["totale"] == 64 + st["liveonsat"] - len(st["uniti"]), st
     # doppioni uniti: canali LiveSoccerTV + canali in chiaro LiveOnSat, una sola riga
     psg = tutte["PSG - Le Mans"]
-    assert [(c["nome"], c["fta"]) for c in psg["canali"]] == [("TV5 Monde", True), ("Persiana Sports 2", True)], psg["canali"]
+    assert [(c["nome"], c["fta"]) for c in psg["canali"]] == [("TV5 Monde", True)], psg["canali"]  # Persiana esclusa
     assert psg["fonti"] == ["LiveSoccerTV", "LiveOnSat"]
     como = tutte["Como - Roma"]
     assert [c["nome"] for c in como["canali"]] == ["Prima Sport 1", "Sporty TV Africa"], como["canali"]
@@ -255,6 +267,8 @@ def test_unione():
     nomi = [g["nome"] for g in gruppi]
     assert nomi.index("SERIE A") == 0 and nomi.count("PREMIER LEAGUE") == 1 and nomi.count("SERIE A") == 1
     assert not any("dazn" in c["nome"].lower() for e in tutte.values() for c in e["canali"])
+    assert not any(v in c["nome"].lower() for e in tutte.values() for c in e["canali"]
+                   for v in ("megogo", "gem sport", "persiana", "irib", "varz", "meraj"))
     html = p.genera_html(v, dt.datetime(2026, 10, 10, 18, 30, tzinfo=p.ROMA), gruppi, falliti, senza)
     assert html.count('class="partita"') == 2 * st["totale"] and html.count('<li class="fta">') > 50
     # vista "in ordine di orario": stesse partite, ordinate per ora, con separatori per giorno ed etichetta campionato

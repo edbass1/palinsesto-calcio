@@ -36,7 +36,7 @@ In `liveonsat.json`:
 - `pagine`: pagine di LiveOnSat da leggere (una per campionato/nazione; `2day.php` = tutte le partite di oggi);
 - `canali_in_chiaro`: canali considerati gratuiti anche se LiveOnSat non li segna in rosso (espressioni regolari sul nome del canale);
 - `alias_canali`: per unire più nomi dello stesso canale (es. tutte le varianti di TV5 Monde).
-- `escludi_canali`: canali da non mostrare mai (basta una parola del nome, es. `megogo`). DAZN è sempre escluso. Se una partita resta senza canali in chiaro, sparisce.
+- `escludi_canali`: canali da non mostrare mai, per entrambe le fonti (basta una parola del nome: oggi `megogo`, `gem sport`, `persiana`, `irib`, `varzish`/`varzesh`, `meraj`). DAZN è sempre escluso. Se una partita resta senza canali, sparisce.
 
 Per usare solo LiveSoccerTV: `python3 scraper/palinsesto.py --senza-liveonsat`.
 

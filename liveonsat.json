@@ -26,10 +26,16 @@
     "https://liveonsat.com/europe-azerbaijan-premyer-liqa.php",
     "https://liveonsat.com/womens-televised-football.php"
   ],
-  "_nota_escludi": "Canali da non mostrare mai: basta che il nome contenga una di queste parole (maiuscole/minuscole indifferenti). Se una partita resta senza canali in chiaro, non viene mostrata. DAZN è sempre escluso.",
+  "_nota_escludi": "Canali da non mostrare mai, per tutte le fonti (LiveOnSat e LiveSoccerTV): basta che il nome contenga una di queste parole (maiuscole/minuscole indifferenti). Se una partita resta senza canali, non viene mostrata. DAZN è sempre escluso.",
   "escludi_canali": [
     "dazn",
-    "megogo"
+    "megogo",
+    "gem sport",
+    "persiana",
+    "irib",
+    "varzish",
+    "varzesh",
+    "meraj"
   ],
   "canali_in_chiaro": [
     {

@@ -287,6 +287,17 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None):
         st["pagine_liveonsat_fallite"] = len(falliti_los)
         eventi, st["uniti"] = unisci_fonti(eventi, partite_los, conf_los.get("canali_in_chiaro", []))
         st["solo_liveonsat"] = sum(1 for e in eventi if e["fonti"] == ["LiveOnSat"])
+    # esclusioni permanenti (liveonsat.json -> escludi_canali) applicate a tutte le fonti
+    escludi = ["dazn"] + [x.lower() for x in (conf_los or {}).get("escludi_canali", []) if x]
+    st["tolte_esclusi"] = []
+    rimasti = []
+    for e in eventi:
+        e["canali"] = [k for k in e["canali"] if not any(x in k["nome"].lower() for x in escludi)]
+        if e["canali"]:
+            rimasti.append(e)
+        else:
+            st["tolte_esclusi"].append(f'{e["casa"]} - {e["ospite"]}')
+    eventi = rimasti
     st["totale"] = len(eventi)
     if statistiche is not None:
         statistiche.update(st)
