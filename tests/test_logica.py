@@ -715,6 +715,7 @@ def test_categorie():
     assert "elite" in cal(E("Barcelona", "X"), "COPA DEL REY") and "elite" in cal(E("Bayern", "X"), "DFB-POKAL")
     assert cal(E("Ternana", "Gubbio"), "SERIE C – GIRONE B") == {"italia"}
     assert cal(E("Roma", "Lazio"), "ROMANIA LIGA I") == set()
+    assert cal(E("Botafogo PB", "Santa Cruz"), "SERIE C BRASILE") == set() and cal(E("Ternana", "Gubbio"), "SERIE C") == {"italia"}
     A = lambda sp, t: alt({"sport": sp, "titolo": t})
     for sp, t in [("Formula 1", "Gran Premio di Singapore"), ("Motomondiale", "MotoGP: gara"), ("Motori", "WEC 6 Ore del Fuji"),
                   ("Tennis", "ATP Shanghai"), ("Basket", "EuroLeague: Olimpia Milano - Real Madrid"),

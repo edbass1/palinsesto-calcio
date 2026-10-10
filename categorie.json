@@ -41,7 +41,7 @@
    "competizioni": [
     "SERIE A",
     "SERIE B",
-    "SERIE C.*",
+    "SERIE C(?!.*BRASIL)(?!.*\\().*",
     "COPPA ITALIA.*",
     "SUPERCOPPA ITALIANA"
    ],
