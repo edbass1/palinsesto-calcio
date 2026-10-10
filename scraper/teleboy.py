@@ -13,6 +13,8 @@ import unicodedata
 PAGINA = "https://www.teleboy.ch/tv/sender"
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
 RE_NOME = re.compile(r'<div class="no-focus" title="([^"{}]+)"')
+RE_NOME_ID = re.compile(r'<div class="no-focus" title="([^"{}]+)".*?/shared/stations/(\d+)/', re.S)
+LINK_CANALE = "https://tv.teleboy.ch/live(player:live/{id})"  # es. ITV = 346
 
 # parole di "paese" che si possono togliere per il confronto, con il paese Teleboy corrispondente
 PAESI = {"schweiz": "ch", "suisse": "ch", "svizzera": "ch", "switzerland": "ch", "deutschland": "de", "germany": "de",
@@ -56,12 +58,17 @@ def leggi_pagina(timeout=90):
         print(f"Teleboy: lettura pagina non riuscita ({e}), uso la copia salvata")
         return None
     nomi = list(dict.fromkeys(html.unescape(x).strip() for x in RE_NOME.findall(r.stdout)))
+    global ID_LETTI
+    ID_LETTI = {html.unescape(n).strip(): int(i) for n, i in RE_NOME_ID.findall(r.stdout)}
     if len(nomi) < 100:
         titolo = re.search(r"<title>(.*?)</title>", r.stdout, re.S)
         print(f"Teleboy: pagina letta ma {len(nomi)} canali (exit {r.returncode}, {len(r.stdout)} byte, "
               f"titolo {titolo.group(1).strip()[:60] if titolo else '-'!r}), uso la copia salvata")
         return None
     return nomi
+
+
+ID_LETTI = {}
 
 
 class Teleboy:
@@ -79,6 +86,14 @@ class Teleboy:
             for k in {chiave(n), chiave(alias.get(n, n))}:
                 self.canali.setdefault(k, (n, paese))
         self.n = len({v[0] for v in self.canali.values()})
+        self.ids = {c["nome"].strip(): c.get("id") for c in conf.get("canali", []) if c.get("id")}
+        self.ids.update(ID_LETTI if nomi_letti else {})
+        self.modello_link = conf.get("link_canale") or LINK_CANALE
+
+    def link(self, nome_teleboy):
+        """Link diretto al canale nel player Teleboy, se si conosce il numero del canale."""
+        i = self.ids.get(nome_teleboy)
+        return self.modello_link.format(id=i) if i else None
 
     def trova(self, nome):
         """Nome del canale Teleboy corrispondente a `nome`, oppure None."""

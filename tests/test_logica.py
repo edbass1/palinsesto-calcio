@@ -412,17 +412,52 @@ def test_altri_sport():
     nome, lug = tutte["Lugano - Luzern"]
     assert nome == "SUPER LEAGUE (Svizzera)" and [c["nome"] for c in lug["canali"]][-2:] == ["SRF stream", "RSI stream"], lug
     assert lug["quando"].strftime("%H:%M") == "18:00" and "Streaming" in lug["fonti"]  # unita alla partita LiveOnSat delle 18
-    assert lug["canali"][-2]["url"] == "https://www.srf.ch/play/tv/-/video/-?urn=urn:swisstxt:video:srf:1830000"
-    h = p.genera_html(v, ora, gruppi, falliti, [], [], altri)
+    assert lug["canali"][-2]["url"] == "https://www.srf.ch/play/tv/sport-livestreams"
+    assert lug["canali"][-1]["url"] == "https://www.rsi.ch/palinsesto/streaming/"
+    assert lug["canali"][-2]["diretta"] == "https://www.srf.ch/play/tv/-/video/-?urn=urn:swisstxt:video:srf:1830000"
+    dove = json.loads((QUI.parent / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    h = p.genera_html(v, ora, gruppi, falliti, [], dove, altri)
     assert 'data-vista="altri"' in h and 'id="vista-altri"' in h and "VPN SVIZZERA" in h and "VPN GERMANIA" in h
-    assert 'href="https://www.ardmediathek.de/video/' in h and 'data-fine="' in h and "ALTRI SPORT" in h
-    assert 'href="https://www.srf.ch/play/tv/-/video/-?urn=urn:swisstxt:video:srf:1830000" target="_blank"' in h
+    assert 'href="https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/livestreams-ard-"' in h
+    assert 'href="https://www.rsi.ch/palinsesto/streaming/"' in h and 'href="https://www.rts.ch/play/tv/rts-livestreams"' in h
+    assert 'class="diretta" href="https://www.ardmediathek.de/video/' in h and 'data-fine="' in h and "ALTRI SPORT" in h
+    assert 'id="dv-ard-sport"' in h and 'id="dv-srf-sport"' in h  # voci "Dove vederli" (sempre visibili)
     # un'emittente che non risponde: avviso, nessun errore
     A.json_url = lambda url, tentativi=3: (None, "HTTP Error 403") if "ardmediathek" in url else finto_json(url)
     _, _, avvisi = A.raccogli_altri(ini, fine, ora, rx)
     assert avvisi == ["Altri sport: non raggiungibile ARD"], avvisi
     A.json_url = finto_json
     return altri, calcio
+
+
+def test_dazn_rail():
+    """DAZN dalle file "Live"/"ComingUp" (rail-router): stesse partite gratis della guida; guida come riserva."""
+    assert DZ.squadre_da_titolo("Fuoriclasse | Cagliari - Juventus") == ("Cagliari", "Juventus")
+    assert DZ.squadre_da_titolo("Levante UD v Sevilla FC (Spanish commentary)") == ("Levante UD", "Sevilla FC")
+    assert DZ.squadre_da_titolo("Serie A Live") is None
+    rail = lambda paese: (json.load(gzip.open(QUI / "fixtures_dazn_rail_2026-10-10" / f"{paese}.json.gz", "rt"))["Tiles"], None)  # noqa: E731
+    v, ini, fine = p.finestra(dt.datetime(2026, 10, 10, 12, tzinfo=p.ROMA))
+    vero_rail, vera_guida = DZ.scarica_rail, DZ.scarica
+    try:
+        DZ.scarica_rail, DZ.scarica = rail, (lambda *a: (None, "HTTP Error 403: Forbidden"))
+        partite, avvisi = DZ.raccogli_dazn(ini, fine)
+        conta = {}
+        for x in partite:
+            conta[x["paese"]] = conta.get(x["paese"], 0) + 1
+        assert avvisi == [] and conta == {"it": 2, "de": 2, "pt": 10, "be": 2}, (conta, avvisi)
+        cag = [x for x in partite if x["casa"] == "Cagliari"][0]
+        assert dt.datetime.fromtimestamp(cag["ts"], p.ROMA).strftime("%H:%M") == "20:45"  # calcio d'inizio, non il pre-partita
+        # file DAZN in errore -> guida EPG (riserva)
+        DZ.scarica_rail = lambda paese: (None, "HTTP Error 500")
+        DZ.scarica = lambda paese, primo, giorni: finto_dazn(paese, primo, giorni, ())
+        partite2, avvisi2 = DZ.raccogli_dazn(ini, fine)
+        assert avvisi2 == [] and len(partite2) == 16, (len(partite2), avvisi2)
+        # entrambe in errore -> una sola riga di avviso
+        DZ.scarica = lambda *a: (None, "HTTP Error 403: Forbidden")
+        assert DZ.raccogli_dazn(ini, fine)[1] == ["DAZN non raggiungibile in questo aggiornamento"]
+    finally:
+        DZ.scarica_rail, DZ.scarica = vero_rail, vera_guida
+    return conta
 
 
 def test_unione():
@@ -469,7 +504,9 @@ def test_unione():
     assert tutte2["Southampton - Portsmouth"]["canali"][1]["teleboy"] == "ITV"
     dove = json.loads((QUI.parent / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
     h2 = p.genera_html(v, dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA), gruppi2, [], [], dove)
-    assert 'TELEBOY</span>' in h2 and 'id="dv-teleboy"' in h2 and 'href="https://tv.teleboy.ch"' in h2
+    assert 'TELEBOY</span>' in h2 and 'id="dv-teleboy"' in h2 and 'href="https://www.teleboy.ch/it/live"' in h2
+    assert tb.link("ITV") == "https://tv.teleboy.ch/live(player:live/346)"  # come l'esempio dell'utente
+    assert 'href="https://tv.teleboy.ch/live(player:live/346)"' in h2 and "▶ Teleboy" in h2
     assert "Canali di questa pagina disponibili su Teleboy" in h2 and h2.count('href="#dv-teleboy"') > 0
     assert not any(x in h2.lower() for x in ("megogo", "persiana", "gem sport"))
     # vista "in ordine di orario": stesse partite, ordinate per ora, con separatori per giorno ed etichetta campionato
@@ -496,6 +533,7 @@ if __name__ == "__main__":
     sd = test_dazn(); print(f"DAZN: gratis {sd['dazn']}, unite {len(sd['uniti_dazn'])}, solo DAZN {sd['solo_dazn']} – OK")
     sf = test_femminile(); print(f"femminile: {len(sf['femminili_tolte'])} partite escluse nei dati salvati – OK")
     al, ca = test_altri_sport(); print(f"altri sport: {len(al)} eventi, calcio in streaming {len(ca)} – OK")
+    print(f"DAZN (rail-router): {test_dazn_rail()} – OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"
           f" = {st['totale']} – OK")

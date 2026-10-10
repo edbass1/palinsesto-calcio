@@ -10,8 +10,72 @@
    "note": "Registrazione gratuita. I canali con l'etichetta TELEBOY sono nell'elenco canali di Teleboy (aggiornato a ogni pubblicazione); i pacchetti mySports sono a pagamento.",
    "link": [
     {
-     "url": "https://tv.teleboy.ch",
+     "url": "https://www.teleboy.ch/it/live",
      "testo": "Teleboy TV"
+    }
+   ]
+  },
+  {
+   "id": "srf-sport",
+   "nome": "SRF Play – Sport-Livestreams",
+   "fonte": "utente",
+   "canali": [
+    "^SRF stream$"
+   ],
+   "vpn": "Svizzera",
+   "note": "Dirette sportive gratuite di SRF (tedesco).",
+   "link": [
+    {
+     "url": "https://www.srf.ch/play/tv/sport-livestreams",
+     "testo": "SRF Sport-Livestreams"
+    }
+   ]
+  },
+  {
+   "id": "rts-sport",
+   "nome": "RTS Play – Livestreams",
+   "fonte": "utente",
+   "canali": [
+    "^RTS stream$"
+   ],
+   "vpn": "Svizzera",
+   "note": "Dirette sportive gratuite di RTS (francese).",
+   "link": [
+    {
+     "url": "https://www.rts.ch/play/tv/rts-livestreams",
+     "testo": "RTS Livestreams"
+    }
+   ]
+  },
+  {
+   "id": "rsi-sport",
+   "nome": "RSI – Streaming",
+   "fonte": "utente",
+   "canali": [
+    "^RSI stream$"
+   ],
+   "vpn": "Svizzera",
+   "note": "Dirette sportive gratuite di RSI (italiano).",
+   "link": [
+    {
+     "url": "https://www.rsi.ch/palinsesto/streaming/",
+     "testo": "RSI Streaming"
+    }
+   ]
+  },
+  {
+   "id": "ard-sport",
+   "nome": "ARD Mediathek – Sport-Livestreams",
+   "fonte": "utente",
+   "canali": [
+    "^ARD .* stream$"
+   ],
+   "vpn": "Germania",
+   "note": "Dirette sportive gratuite di ARD (tedesco).",
+   "link": [
+    {
+     "url": "https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/livestreams-ard-",
+     "testo": "ARD Sport-Livestreams"
     }
    ]
   },

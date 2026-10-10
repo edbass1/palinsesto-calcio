@@ -13,7 +13,8 @@ import urllib.parse
 import urllib.request
 from zoneinfo import ZoneInfo
 
-URL = "https://epg.discovery.indazn.com/eu/v5/epgWithDatesRange"
+URL = "https://epg.discovery.indazn.com/eu/v5/epgWithDatesRange"   # riserva (bloccato dai server GitHub)
+RAIL = "https://rail-router.discovery.indazn.com/eu/v10/Rail"        # fonte principale (raggiungibile da GitHub)
 CALCIO = "289u5typ3vp4ifwh5thalohmq"  # id dello sport "calcio", uguale in tutti i paesi
 ROMA = ZoneInfo("Europe/Rome")
 UTC = dt.timezone.utc
@@ -72,6 +73,39 @@ def scarica(paese, primo, giorni, tentativi=3):
     return None, err
 
 
+def scarica_rail(paese, tentativi=3):
+    """Riquadri delle file "Live" e "ComingUp" della pagina Calcio di DAZN; (tiles, errore)."""
+    tiles = []
+    for rail in ("Live", "ComingUp"):
+        q = urllib.parse.urlencode({"id": rail, "params": f"PageType:Sport;ContentType:Sport;ContentId:{CALCIO}",
+                                    "languageCode": "it" if paese == "it" else "en", "country": paese,
+                                    "platform": "web", "brand": "dazn"})
+        err = None
+        for i in range(tentativi):
+            try:
+                req = urllib.request.Request(f"{RAIL}?{q}", headers={"User-Agent": UA, "Accept": "application/json"})
+                with urllib.request.urlopen(req, timeout=40) as r:
+                    tiles += json.load(r).get("Tiles") or []
+                err = None
+                break
+            except Exception as e:  # noqa: BLE001
+                err = str(e)[:80]
+                time.sleep(2 * (i + 1))
+        if err and rail == "ComingUp":
+            return None, err
+    return tiles, None
+
+
+RE_SEP = re.compile(r"\s+(?:-|–|v|vs\.?|x)\s+")
+
+
+def squadre_da_titolo(titolo):
+    """I riquadri delle file non hanno 'Contestants': 'Pre | Casa - Ospite (commento)' -> (casa, ospite)."""
+    t = re.sub(r"\s*\([^)]*\)\s*$", "", (titolo or "").split("|")[-1]).strip()
+    parti = RE_SEP.split(t)
+    return (parti[0].strip(), parti[1].strip()) if len(parti) == 2 and all(x.strip() for x in parti) else None
+
+
 def gratis(t):
     return not t.get("EntitlementIds") or bool(t.get("IsFreeToView")) or bool(t.get("IsPlayForFree"))
 
@@ -83,17 +117,31 @@ def analizza(tiles, paese):
         if (t.get("Sport") or {}).get("Id") != CALCIO:
             continue
         squadre = t.get("Contestants") or []
-        if len(squadre) != 2 or t.get("Type") not in ("UpComing", "Live"):
-            continue  # programmi in studio, repliche, highlights
-        k = t.get("EventId") or (t.get("Start"), squadre[0].get("Title"), squadre[1].get("Title"))
+        if len(squadre) == 2:
+            casa, ospite = squadre[0]["Title"].strip(), squadre[1]["Title"].strip()
+        else:
+            cs = squadre_da_titolo(t.get("Title"))
+            if not cs:
+                continue  # programmi in studio
+            casa, ospite = cs
+        if t.get("Type") not in ("UpComing", "Live"):
+            continue  # repliche, highlights
+        # Start può includere il pre-partita; EventStartTime è il calcio d'inizio vero
+        inizio = t.get("EventStartTime") or t["Start"]
+        k = (inizio[:13], casa.lower(), ospite.lower())
+        if t.get("EventId") in viste:
+            k = t["EventId"]
         if k in viste:
             viste[k]["gratis"] = viste[k]["gratis"] or gratis(t)
             continue
-        quando = dt.datetime.fromisoformat(t["Start"].replace("Z", "+00:00"))
-        viste[k] = {"ts": int(quando.timestamp()), "casa": squadre[0]["Title"].strip(), "ospite": squadre[1]["Title"].strip(),
+        quando = dt.datetime.fromisoformat(inizio.replace("Z", "+00:00"))
+        rec = viste[k] = {"ts": int(quando.timestamp()), "casa": casa, "ospite": ospite,
                     "comp": ((t.get("Competition") or {}).get("Title") or "").strip(), "paese": paese,
                     "gratis": gratis(t), "event_id": t.get("EventId")}
-    return [p for p in viste.values() if p["gratis"]]
+        if t.get("EventId"):
+            viste[t["EventId"]] = rec
+    unici = {id(p): p for p in viste.values()}.values()
+    return [p for p in unici if p["gratis"]]
 
 
 FRESCHEZZA_S = 3 * 3600  # dati/dazn.json vale solo se generato da meno di 3 ore
@@ -122,10 +170,21 @@ def riassumi_falliti(falliti):
     return [f"DAZN non raggiungibile per: {', '.join(PAESI[p] for p in falliti)}"]
 
 
+def scarica_tutto(paese, primo, giorni):
+    """Prima le file DAZN (rail-router), poi la guida EPG come riserva; (tiles, errore)."""
+    tiles, err = scarica_rail(paese)
+    if tiles and any((t.get("Sport") or {}).get("Id") == CALCIO for t in tiles):
+        return tiles, None
+    tiles2, err2 = scarica(paese, primo, giorni)
+    if tiles2 is not None:
+        return tiles2, None
+    return None, f"file DAZN: {err or 'vuote'}; guida: {err2}"
+
+
 def raccogli_dazn(inizio, fine, paesi=PAESI, scarica_fn=None, esterni=None, dettagli=None):
     """Partite gratuite nella finestra [inizio, fine); (partite, righe di avviso).
     Se un paese non risponde si usano, se ci sono, i dati freschi di `esterni` ({paese: [partite]})."""
-    scarica_fn = scarica_fn or scarica
+    scarica_fn = scarica_fn or scarica_tutto
     esterni = esterni or {}
     primo = inizio.astimezone(ROMA).date()
     giorni = max(1, (fine.astimezone(ROMA).date() - primo).days + 1)
@@ -159,7 +218,7 @@ def esporta(percorso, ora=None):
     primo = ora.astimezone(ROMA).date()
     paesi = {}
     for paese in PAESI:
-        tiles, err = scarica(paese, primo, 4)
+        tiles, err = scarica_tutto(paese, primo, 4)
         if err or not tiles or not any((t.get("Sport") or {}).get("Id") == CALCIO for t in tiles):
             print(f"DAZN {PAESI[paese]}: non letto ({err or 'guida vuota'})", file=sys.stderr)
             continue

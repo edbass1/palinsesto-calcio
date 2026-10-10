@@ -13,6 +13,10 @@ UTC = dt.timezone.utc
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
 IL = "https://il.srgssr.ch/integrationlayer/2.0/{bu}/mediaList/video/{lista}"
 SRG = {"srf": "SRF", "rts": "RTS", "rsi": "RSI"}
+# pagine indicate dall'utente: link principale per ogni emittente
+PAGINE = {"SRF": "https://www.srf.ch/play/tv/sport-livestreams", "RTS": "https://www.rts.ch/play/tv/rts-livestreams",
+          "RSI": "https://www.rsi.ch/palinsesto/streaming/",
+          "ARD": "https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/livestreams-ard-"}
 ARD_PAGINA = "https://api.ardmediathek.de/page-gateway/pages/ard/editorial/ebc4fa69-c557-47c5-ba61-6488211bc602?pageSize=50"
 ARD_SITO = "https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/livestreams-ard-"
 
@@ -104,7 +108,8 @@ def analizza_srg(bu, media, solo_sport=True):
         idx = str(m.get("cesimId") or m["urn"].rsplit(":", 1)[-1])
         out.append({"id": f"swisstxt:{idx}", "ts": inizio, "fine": fine, "sport": sport or "Sport", "titolo": resto,
                     "titolo_orig": m.get("title") or "",
-                    "emittenti": [{"nome": SRG[bu], "link": f"https://www.{bu}.ch/play/tv/-/video/-?urn=urn:swisstxt:video:{bu}:{idx}",
+                    "emittenti": [{"nome": SRG[bu], "pagina": PAGINE[SRG[bu]],
+                                   "link": f"https://www.{bu}.ch/play/tv/-/video/-?urn=urn:swisstxt:video:{bu}:{idx}",
                                    "vpn": None if m.get("playableAbroad") else "SVIZZERA"}]})
     return out
 
@@ -154,7 +159,7 @@ def analizza_ard(pagina, dettaglio_fn):
         eventi.append({"id": f"ard:{t['id']}", "ts": x["ts"], "fine": fine, "sport": sport or "Sport", "titolo": titolo,
                        "titolo_orig": f"{titolo} {show} {sinossi}",
                        "emittenti": [{"nome": "ARD " + ((t.get("publicationService") or {}).get("name") or "").strip(),
-                                      "link": f"https://www.ardmediathek.de/video/{t['id']}",
+                                      "pagina": PAGINE["ARD"], "link": f"https://www.ardmediathek.de/video/{t['id']}",
                                       "vpn": "GERMANIA"}]})
     return eventi
 

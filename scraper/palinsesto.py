@@ -278,7 +278,8 @@ def evento_stream(p):
     ordine, etichetta = altri_sport.competizione_calcio(p["comp"] + " " + " ".join(p["testi"]))
     return {"ts": p["ts"], "quando": dt.datetime.fromtimestamp(p["ts"], ROMA), "titolo": f'{p["casa"]} v {p["ospite"]}',
             "ordine": ordine, "competizione": etichetta, "casa": p["casa"], "ospite": p["ospite"],
-            "canali": [{"nome": f'{x["nome"]} stream', "fta": True, "url": x["link"], "vpn": x["vpn"]} for x in p["emittenti"]],
+            "canali": [{"nome": f'{x["nome"]} stream', "fta": True, "url": x["pagina"], "diretta": x["link"], "vpn": x["vpn"]}
+                       for x in p["emittenti"]],
             "fonti": ["Streaming"]}
 
 
@@ -408,6 +409,8 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
     for e in eventi:
         for k in e["canali"]:
             k["teleboy"] = teleboy.trova(k["nome"]) if teleboy is not None else None
+            if k["teleboy"]:
+                k["teleboy_link"] = teleboy.link(k["teleboy"])
     st["solo_teleboy"] = sum(1 for e in eventi if e["fonti"] == ["LiveOnSat"] and not any(k["fta"] for k in e["canali"]))
     st["totale"] = len(eventi)
     if statistiche is not None:
@@ -476,9 +479,10 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None):
         q = dt.datetime.fromtimestamp(e["ts"], ROMA)
         f = dt.datetime.fromtimestamp(e["fine"], ROMA)
         em = "".join(
-            f'<li class="fta"><a href="{esc(x["link"])}" target="_blank" rel="noopener">{esc(x["nome"])}</a> '
+            f'<li class="fta"><a href="{esc(x["pagina"])}" target="_blank" rel="noopener">{esc(x["nome"])}</a> '
             + (f'<span class="tag vpn">VPN {esc(x["vpn"])}</span>' if x.get("vpn") else '<span class="tag vpn">SENZA VPN</span>')
-            + '</li>' for x in e["emittenti"])
+            + f' <a class="diretta" href="{esc(x["link"])}" target="_blank" rel="noopener">▶ diretta</a></li>'
+            for x in e["emittenti"])
         return (f'<li class="partita evento" data-ts="{e["ts"]}" data-fine="{e["fine"]}" data-giorno="{q:%Y-%m-%d}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span><span class="fino">fino alle {f:%H:%M}</span>'
@@ -542,18 +546,22 @@ def badge(c, dove, usati):
     # priorità: voci dell'utente, poi Teleboy, poi le altre
     if c.get("url"):  # diretta streaming: link alla pagina dell'evento
         testo = (f'<a href="{esc(c["url"])}" target="_blank" rel="noopener">{testo}</a>'
-                 + (f' <span class="tag vpn">VPN {esc(c["vpn"])}</span>' if c.get("vpn") else ' <span class="tag vpn">SENZA VPN</span>'))
+                 + (f' <span class="tag vpn">VPN {esc(c["vpn"])}</span>' if c.get("vpn") else ' <span class="tag vpn">SENZA VPN</span>')
+                 + (f' <a class="diretta" href="{esc(c["diretta"])}" target="_blank" rel="noopener">▶ diretta</a>' if c.get("diretta") else ''))
         return f'<li class="fta">{testo}</li>' if c["fta"] else f'<li>{testo}</li>'
     v_tb = next((x for x in dove if x["id"] == "teleboy"), None) if c.get("teleboy") else None
     if v_tb is not None:
         v_tb.setdefault("_canali_pagina", set()).add(c["nome"])
         usati.add("teleboy")
     v = voce_dove(c["nome"], [x for x in dove if x.get("fonte") == "utente" and x["id"] != "teleboy"]) or v_tb
+    extra = (f' <a class="diretta" href="{esc(c["teleboy_link"])}" target="_blank" rel="noopener" '
+             f'title="Canale {esc(c["teleboy"])} su Teleboy">▶ Teleboy</a>') if c.get("teleboy_link") else ""
     if not v:
         v = voce_dove(c["nome"], dove)
     if v:
         usati.add(v["id"])
         testo = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{testo}</a>'
+    testo += extra
     return f'<li class="fta">{testo}</li>' if c["fta"] else f'<li>{testo}</li>'
 
 
@@ -619,6 +627,7 @@ TEMPLATE = """<!doctype html>
   nav.viste button.altri {{ grid-column:1 / -1; border-color:var(--azzurro); }}
   .tag.vpn {{ background:#ffd400; color:#000; }}
   .fino {{ font-size:.85rem; color:#ccc; }}
+  a.diretta {{ font-size:.85rem; color:#fff; }}
   .intro-altri {{ font-size:1.05rem; color:#ddd; }}
   nav.viste button {{ font:inherit; font-size:1.05rem; font-weight:900; letter-spacing:.02em; min-height:72px; padding:8px 10px;
                border-radius:14px; background:#111; color:#fff; border:3px solid #888; cursor:pointer; line-height:1.15; }}

@@ -24,1636 +24,1961 @@
   {
    "nome": "SRF 1",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 303
   },
   {
    "nome": "SRF zwei",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 304
   },
   {
    "nome": "3+",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 350
   },
   {
    "nome": "SRF info",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 5
   },
   {
    "nome": "Das Erste",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 309
   },
   {
    "nome": "ZDF",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 306
   },
   {
    "nome": "RTL",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 356
   },
   {
    "nome": "ProSieben Schweiz",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 354
   },
   {
    "nome": "Sat.1",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 360
   },
   {
    "nome": "3+ Adrenalin",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 326
   },
   {
    "nome": "3+ Emotion",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 364
   },
   {
    "nome": "RTLZWEI",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 357
   },
   {
    "nome": "VOX",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 352
   },
   {
    "nome": "3+ Movies",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 351
   },
   {
    "nome": "3+ Serien",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 348
   },
   {
    "nome": "3+ Crime",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 390
   },
   {
    "nome": "3+ Family",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 182
   },
   {
    "nome": "3+ Focus",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 323
   },
   {
    "nome": "SWISS1",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 341
   },
   {
    "nome": "Star TV",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 19
   },
   {
    "nome": "Puls 8",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 362
   },
   {
    "nome": "ORF 1",
    "paese": "at",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 307
   },
   {
    "nome": "ORF 2",
    "paese": "at",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 347
   },
   {
    "nome": "Kabel Eins",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 353
   },
   {
    "nome": "Sat.1 Gold",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 301
   },
   {
    "nome": "RTLup",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 493
   },
   {
    "nome": "sixx",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 361
   },
   {
    "nome": "VOXup",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 518
   },
   {
    "nome": "NITRO",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 358
   },
   {
    "nome": "TLC Deutschland",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 363
   },
   {
    "nome": "Super RTL",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 359
   },
   {
    "nome": "ProSieben Maxx",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 317
   },
   {
    "nome": "Disney Channel",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 145
   },
   {
    "nome": "Comedy Central",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 387
   },
   {
    "nome": "KiKa",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 343
   },
   {
    "nome": "TOGGO plus",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 505
   },
   {
    "nome": "RiC",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 379
   },
   {
    "nome": "Kabel Eins Doku",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 456
   },
   {
    "nome": "N24 Doku",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 465
   },
   {
    "nome": "Welt der Wunder TV",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 511
   },
   {
    "nome": "Arte de",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 310
   },
   {
    "nome": "3sat",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 311
   },
   {
    "nome": "ZDFinfo",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 172
   },
   {
    "nome": "ARD-alpha",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 40
   },
   {
    "nome": "ZDFneo",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 121
   },
   {
    "nome": "ARD ONE",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 470
   },
   {
    "nome": "DMAX",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 154
   },
   {
    "nome": "Home & Garden",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 522
   },
   {
    "nome": "Anixe",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 175
   },
   {
    "nome": "Anixe+",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 547
   },
   {
    "nome": "Tele 5",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 86
   },
   {
    "nome": "ServusTV",
    "paese": "at",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 637
   },
   {
    "nome": "n-tv",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 38
   },
   {
    "nome": "WELT",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 44
   },
   {
    "nome": "Phoenix",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 328
   },
   {
    "nome": "euronews de",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 67
   },
   {
    "nome": "Helvetia One TV",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 528
   },
   {
    "nome": "Kanal9",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 313
   },
   {
    "nome": "Tele 1",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 84
   },
   {
    "nome": "Tele M1",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 20
   },
   {
    "nome": "Tele Südostschweiz",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 314
   },
   {
    "nome": "Tele Top",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 274
   },
   {
    "nome": "Tele Z",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 519
   },
   {
    "nome": "TeleBärn",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 22
   },
   {
    "nome": "Telebasel",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 21
   },
   {
    "nome": "TeleZüri",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 72
   },
   {
    "nome": "TV Oberwallis",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 531
   },
   {
    "nome": "auftanken.tv",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 558
   },
   {
    "nome": "Schaffhauser Fernsehen",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 559
   },
   {
    "nome": "Tele D",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 560
   },
   {
    "nome": "TeleBielingue",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 298
   },
   {
    "nome": "BR Fernsehen Süd",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 336
   },
   {
    "nome": "hr-fernsehen",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 444
   },
   {
    "nome": "MDR Sachsen",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 31
   },
   {
    "nome": "1 FL TV",
    "paese": "li",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 524
   },
   {
    "nome": "NDR Fernsehen",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 337
   },
   {
    "nome": "ORF 3",
    "paese": "at",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 170
   },
   {
    "nome": "Radio Bremen TV",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 476
   },
   {
    "nome": "rbb Berlin",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 486
   },
   {
    "nome": "SR Fernsehen",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 501
   },
   {
    "nome": "SWR Fernsehen BW",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 345
   },
   {
    "nome": "tagesschau24",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 503
   },
   {
    "nome": "WDR Fernsehen",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 338
   },
   {
    "nome": "R9 Österreich",
    "paese": "at",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 475
   },
   {
    "nome": "TVO - das Ostschweizer Fernsehen",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 85
   },
   {
    "nome": "blue Zoom de",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 389
   },
   {
    "nome": "Eurosport 1 de",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 35
   },
   {
    "nome": "Rocket Beans TV",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 491
   },
   {
    "nome": "Sport1",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 36
   },
   {
    "nome": "HSE24",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 445
   },
   {
    "nome": "HSE24 Extra",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 446
   },
   {
    "nome": "HSE24 Trend",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 447
   },
   {
    "nome": "QS24",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 388
   },
   {
    "nome": "wetter.tv",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 386
   },
   {
    "nome": "Bibel TV",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 403
   },
   {
    "nome": "K-TV",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 454
   },
   {
    "nome": "Deluxe Music",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 177
   },
   {
    "nome": "Deutsches Musik Fernsehen",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 429
   },
   {
    "nome": "Folx TV",
    "paese": "si",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 532
   },
   {
    "nome": "Schlager Deluxe",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 562
   },
   {
    "nome": "Melodie TV",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 563
   },
   {
    "nome": "MTV",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 37
   },
   {
    "nome": "BBC One",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 332
   },
   {
    "nome": "BBC Two",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 333
   },
   {
    "nome": "BBC Three",
    "paese": "en",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 564
   },
   {
    "nome": "BBC Four",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 399
   },
   {
    "nome": "BBC World News",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 101
   },
   {
    "nome": "CNN",
    "paese": "us",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 50
   },
   {
    "nome": "CNBC Europe",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 131
   },
   {
    "nome": "Bloomberg",
    "paese": "us",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 150
   },
   {
    "nome": "Bloomberg Quicktake HD",
    "paese": "en",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 565
   },
   {
    "nome": "Sky News",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 496
   },
   {
    "nome": "ITV",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 346
   },
   {
    "nome": "ITV 2",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 255
   },
   {
    "nome": "ITV 3",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 189
   },
   {
    "nome": "ITV 4",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 452
   },
   {
    "nome": "ITVBe",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 453
   },
   {
    "nome": "E4",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 192
   },
   {
    "nome": "Channel 4",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 262
   },
   {
    "nome": "Channel 5",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 191
   },
   {
    "nome": "Film 4",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 263
   },
   {
    "nome": "More 4",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 193
   },
   {
    "nome": "4Seven",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 393
   },
   {
    "nome": "5USA",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 396
   },
   {
    "nome": "5SELECT",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 394
   },
   {
    "nome": "5STAR",
    "paese": "en",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 557
   },
   {
    "nome": "5ACTION",
    "paese": "en",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 566
   },
   {
    "nome": "euronews en",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 195
   },
   {
    "nome": "France 24 en",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 436
   },
   {
    "nome": "Deutsche Welle en",
    "paese": "de",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 426
   },
   {
    "nome": "Al Jazeera en",
    "paese": "qa",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 148
   },
   {
    "nome": "Clubland TV",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 419
   },
   {
    "nome": "Now70s",
    "paese": "en",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 567
   },
   {
    "nome": "Now80s",
    "paese": "en",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 568
   },
   {
    "nome": "Now 90s",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 469
   },
   {
    "nome": "Fashion TV",
    "paese": "fr",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 433
   },
   {
    "nome": "BBC News",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 400
   },
   {
    "nome": "BBC Parliament",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 401
   },
   {
    "nome": "CBBC",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 185
   },
   {
    "nome": "CBeebies",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 411
   },
   {
    "nome": "S4C",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 495
   },
   {
    "nome": "Drama",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 431
   },
   {
    "nome": "Dave",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 423
   },
   {
    "nome": "Sky Mix",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 474
   },
   {
    "nome": "Challenge",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 412
   },
   {
    "nome": "Yesterday",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 512
   },
   {
    "nome": "Food Network",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 435
   },
   {
    "nome": "GOD Channel",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 441
   },
   {
    "nome": "SONLife",
    "paese": "us",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 499
   },
   {
    "nome": "PBS America",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 473
   },
   {
    "nome": "RTS Un",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 331
   },
   {
    "nome": "RTS Deux",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 305
   },
   {
    "nome": "TF1",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 308
   },
   {
    "nome": "M6 Suisse",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 312
   },
   {
    "nome": "TV Suisse Plus",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 527
   },
   {
    "nome": "W9",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 268
   },
   {
    "nome": "France 2",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 342
   },
   {
    "nome": "France 3",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 58
   },
   {
    "nome": "France 4",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 288
   },
   {
    "nome": "France 5",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 80
   },
   {
    "nome": "Arte fr",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 330
   },
   {
    "nome": "blue Zoom fr",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 517
   },
   {
    "nome": "Canal9",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 408
   },
   {
    "nome": "Léman Bleu",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 296
   },
   {
    "nome": "Canal Alpha Neuchâtel",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 299
   },
   {
    "nome": "Canal Alpha Jura",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 525
   },
   {
    "nome": "TVM3",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 385
   },
   {
    "nome": "La Télé",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 297
   },
   {
    "nome": "CARAC 1 HD",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 365
   },
   {
    "nome": "CARAC 2 CH HD",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 521
   },
   {
    "nome": "CARAC 3 HD",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 520
   },
   {
    "nome": "6ter",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 367
   },
   {
    "nome": "TMC",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 383
   },
   {
    "nome": "TFX",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 375
   },
   {
    "nome": "TF1 Séries Films",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 372
   },
   {
    "nome": "Gulli",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 270
   },
   {
    "nome": "France 24 fr",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 147
   },
   {
    "nome": "euronews fr",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 196
   },
   {
    "nome": "franceinfo",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 437
   },
   {
    "nome": "CNEWS",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 420
   },
   {
    "nome": "LCI",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 462
   },
   {
    "nome": "KTO",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 458
   },
   {
    "nome": "TV5 Monde FBS",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 61
   },
   {
    "nome": "TV5",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 507
   },
   {
    "nome": "BFM TV",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 368
   },
   {
    "nome": "beCuriousTV",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 402
   },
   {
    "nome": "TV8 Mont Blanc",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 384
   },
   {
    "nome": "L'Équipe 21",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 373
   },
   {
    "nome": "RMC Life",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 371
   },
   {
    "nome": "CSTAR",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 422
   },
   {
    "nome": "RMC Découverte",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 380
   },
   {
    "nome": "RMC Story",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 376
   },
   {
    "nome": "RSI LA 1",
    "paese": "ch",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 339
   },
   {
    "nome": "RSI LA 2",
    "paese": "ch",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 340
   },
   {
    "nome": "TeleTicino",
    "paese": "ch",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 300
   },
   {
    "nome": "Rai 1",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 52
   },
   {
    "nome": "Rai 2",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 53
   },
   {
    "nome": "Rai 3",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 54
   },
   {
    "nome": "Rai 4",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 477
   },
   {
    "nome": "Rai 5",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 478
   },
   {
    "nome": "Rai Movie",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 480
   },
   {
    "nome": "Rai Premium",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 481
   },
   {
    "nome": "Rai News 24",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 283
   },
   {
    "nome": "Rai Sport 1",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 271
   },
   {
    "nome": "Rai Gulp",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 479
   },
   {
    "nome": "Rai Yoyo",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 485
   },
   {
    "nome": "Rai Scuola",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 482
   },
   {
    "nome": "Rai Storia",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 484
   },
   {
    "nome": "Canale 5",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 335
   },
   {
    "nome": "Italia 1",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 344
   },
   {
    "nome": "Italia 2",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 451
   },
   {
    "nome": "Rete 4",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 329
   },
   {
    "nome": "La7",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 276
   },
   {
    "nome": "La7d",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 461
   },
   {
    "nome": "Iris",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 450
   },
   {
    "nome": "Canale Italia",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 409
   },
   {
    "nome": "Cielo",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 281
   },
   {
    "nome": "Mediaset Extra 2",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 417
   },
   {
    "nome": "27 Twentyseven",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 573
   },
   {
    "nome": "20 Mediaset",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 391
   },
   {
    "nome": "TOPcrime",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 554
   },
   {
    "nome": "Cine34",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 555
   },
   {
    "nome": "TGcom24",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 553
   },
   {
    "nome": "Real Time",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 487
   },
   {
    "nome": "Class TV Moda",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 418
   },
   {
    "nome": "RTL 102.5",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 282
   },
   {
    "nome": "NOVE",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 468
   },
   {
    "nome": "DMAX Italia",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 430
   },
   {
    "nome": "HGTV Italy",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 574
   },
   {
    "nome": "Alma TV",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 575
   },
   {
    "nome": "Giallo",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 440
   },
   {
    "nome": "Focus",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 434
   },
   {
    "nome": "TV8",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 137
   },
   {
    "nome": "TV2000",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 576
   },
   {
    "nome": "euronews it",
    "paese": "fr",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 194
   },
   {
    "nome": "Sky TG24",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 498
   },
   {
    "nome": "UniNettuno University TV",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 509
   },
   {
    "nome": "Boing",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 404
   },
   {
    "nome": "Frisbee",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 439
   },
   {
    "nome": "K2",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 455
   },
   {
    "nome": "Cartoonito",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 410
   },
   {
    "nome": "Super!",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 502
   },
   {
    "nome": "La5",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 460
   },
   {
    "nome": "RADIO TICINO CHANNEL",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 549
   },
   {
    "nome": "Sportitalia HD",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 577
   },
   {
    "nome": "SuperTennis",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 550
   },
   {
    "nome": "Boing Plus",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 552
   },
   {
    "nome": "TVEi",
    "paese": "es",
-   "lingua": "es"
+   "lingua": "es",
+   "id": 153
   },
   {
    "nome": "24H",
    "paese": "es",
-   "lingua": "es"
+   "lingua": "es",
+   "id": 392
   },
   {
    "nome": "Deutsche Welle es",
    "paese": "de",
-   "lingua": "es"
+   "lingua": "es",
+   "id": 428
   },
   {
    "nome": "RTPi",
    "paese": "pt",
-   "lingua": "pt"
+   "lingua": "pt",
+   "id": 152
   },
   {
    "nome": "RTP 3",
    "paese": "pt",
-   "lingua": "pt"
+   "lingua": "pt",
+   "id": 494
   },
   {
    "nome": "Record News",
    "paese": "br",
-   "lingua": "pt"
+   "lingua": "pt",
+   "id": 488
   },
   {
    "nome": "RecordTV",
    "paese": "br",
-   "lingua": "pt"
+   "lingua": "pt",
+   "id": 489
   },
   {
    "nome": "CNN Türk",
    "paese": "tr",
-   "lingua": "tr"
+   "lingua": "tr",
+   "id": 534
   },
   {
    "nome": "Euro D",
    "paese": "tr",
-   "lingua": "tr"
+   "lingua": "tr",
+   "id": 536
   },
   {
    "nome": "Euro Star",
    "paese": "tr",
-   "lingua": "tr"
+   "lingua": "tr",
+   "id": 537
   },
   {
    "nome": "Haber Turk",
    "paese": "tr",
-   "lingua": "tr"
+   "lingua": "tr",
+   "id": 538
   },
   {
    "nome": "Halk TV",
    "paese": "tr",
-   "lingua": "tr"
+   "lingua": "tr",
+   "id": 539
   },
   {
    "nome": "Kanal 7 Avrupa",
    "paese": "tr",
-   "lingua": "tr"
+   "lingua": "tr",
+   "id": 540
   },
   {
    "nome": "TV8 Int",
    "paese": "tr",
-   "lingua": "tr"
+   "lingua": "tr",
+   "id": 578
   },
   {
    "nome": "Show Turk",
    "paese": "tr",
-   "lingua": "tr"
+   "lingua": "tr",
+   "id": 544
   },
   {
    "nome": "BBC Arabic",
    "paese": "gb",
-   "lingua": "ar"
+   "lingua": "ar",
+   "id": 398
   },
   {
    "nome": "Deutsche Welle ar",
    "paese": "de",
-   "lingua": "ar"
+   "lingua": "ar",
+   "id": 427
   },
   {
    "nome": "BVN",
    "paese": "nl",
-   "lingua": "nl"
+   "lingua": "nl",
+   "id": 407
   },
   {
    "nome": "1+1",
    "paese": "ua",
-   "lingua": "ua"
+   "lingua": "ua",
+   "id": 581
   },
   {
    "nome": "Espreso TV",
    "paese": "ua",
-   "lingua": "ua"
+   "lingua": "ua",
+   "id": 585
   },
   {
    "nome": "UATV",
    "paese": "ua",
-   "lingua": "ua"
+   "lingua": "ua",
+   "id": 586
   },
   {
    "nome": "Arirang TV",
    "paese": "kr",
-   "lingua": "kr"
+   "lingua": "kr",
+   "id": 589
   },
   {
    "nome": "KBS World",
    "paese": "kr",
-   "lingua": "kr"
+   "lingua": "kr",
+   "id": 590
   },
   {
    "nome": "NHK World",
    "paese": "jp",
-   "lingua": "jp"
+   "lingua": "jp",
+   "id": 591
   },
   {
    "nome": "E4 Extra",
    "paese": "en",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 592
   },
   {
    "nome": "Swiss Sport TV",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 594
   },
   {
    "nome": "Filmgold",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 598
   },
   {
    "nome": "Wedo Big Stories",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 609
   },
   {
    "nome": "Top Serien",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 610
   },
   {
    "nome": "Naruto",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 611
   },
   {
    "nome": "Top True Crime",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 612
   },
   {
    "nome": "Top Filme",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 613
   },
   {
    "nome": "DF1",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 614
   },
   {
    "nome": "Curiosity Now",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 615
   },
   {
    "nome": "SPIEGEL TV Konflikt",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 618
   },
   {
    "nome": "Terra Mater Wild",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 620
   },
   {
    "nome": "DMAX UK",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 600
   },
   {
    "nome": "Red Bull TV (engl.)",
    "paese": "en",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 621
   },
   {
    "nome": "Quest Red",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 601
   },
   {
    "nome": "Quest",
    "paese": "gb",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 602
   },
   {
    "nome": "Enquetes De Choc",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 616
   },
   {
    "nome": "Homicide",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 617
   },
   {
    "nome": "Food Network Italia HD",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 606
   },
   {
    "nome": "Motor Trend HD",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 608
   },
   {
    "nome": "mySports Eins",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 622
   },
   {
    "nome": "mySports 2",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 624
   },
   {
    "nome": "mySports 3",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 625
   },
   {
    "nome": "mySports 4",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 626
   },
   {
    "nome": "mySports 5",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 627
   },
   {
    "nome": "mySports 6",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 628
   },
   {
    "nome": "mySports 7",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 629
   },
   {
    "nome": "mySports 8",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 630
   },
   {
    "nome": "mySports 9",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 631
   },
   {
    "nome": "mySports Uno",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 632
   },
   {
    "nome": "mySports EDGE",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 633
   },
   {
    "nome": "mySports Un",
    "paese": "ch",
    "lingua": "fr",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 623
   },
   {
    "nome": "Sport 1+",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 634
   },
   {
    "nome": "Motorvision+",
    "paese": "ch",
    "lingua": "de",
-   "pagamento": "mysports"
+   "pagamento": "mysports",
+   "id": 635
   },
   {
    "nome": "Xplore",
    "paese": "us",
-   "lingua": "en"
+   "lingua": "en",
+   "id": 638
   },
   {
    "nome": "Comedy & Shows",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 639
   },
   {
    "nome": "Stromberg",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 640
   },
   {
    "nome": "Telenovela ZDF",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 641
   },
   {
    "nome": "KultKrimi",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 642
   },
   {
    "nome": "Wedo Sports",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 643
   },
   {
    "nome": "One Terra",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 644
   },
   {
    "nome": "wedo Amor",
    "paese": "es",
-   "lingua": "es"
+   "lingua": "es",
+   "id": 645
   },
   {
    "nome": "Scooore",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 646
   },
   {
    "nome": "Crime Time",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 647
   },
   {
    "nome": "Top Sci-Fi",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 648
   },
   {
    "nome": "Wasabi",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 649
   },
   {
    "nome": "Top Action",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 650
   },
   {
    "nome": "Drive TV",
    "paese": "fr",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 651
   },
   {
    "nome": "Canal B D",
    "paese": "ch",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 652
   },
   {
    "nome": "Canal B F",
    "paese": "ch",
-   "lingua": "fr"
+   "lingua": "fr",
+   "id": 653
   },
   {
    "nome": "Moviedome",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 654
   },
   {
    "nome": "wedo True Stories",
    "paese": "de",
-   "lingua": "de"
+   "lingua": "de",
+   "id": 656
   },
   {
    "nome": "wedo Film al Femminile",
    "paese": "it",
-   "lingua": "it"
+   "lingua": "it",
+   "id": 657
   }
- ]
+ ],
+ "link_canale": "https://tv.teleboy.ch/live(player:live/{id})"
 }
