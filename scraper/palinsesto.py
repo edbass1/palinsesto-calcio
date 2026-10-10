@@ -471,7 +471,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
         v.pop("_canali_pagina", None)
     n_partite = sum(len(g["partite"]) for g in gruppi)
 
-    sezioni, usati = [], set()
+    sezioni, usati, usati_c, usati_s = [], set(), set(), set()
 
     def scheda(e, comp=None):
         q = e["quando"]
@@ -481,7 +481,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
             squadre += f' <span class="vs">–</span> <span class="sq">{esc(e["ospite"])}</span>'
         if comp:
             squadre = f'<span class="comp-tag">{esc(comp)}</span>' + squadre
-        canali = "".join(badge(c, dove, usati) for c in e["canali"])
+        canali = "".join(badge(c, dove, usati_c) for c in e["canali"])
         return (f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}" data-cat="{e.get("_cat", "")}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span>'
@@ -510,7 +510,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     def scheda_altro(e):
         q = dt.datetime.fromtimestamp(e["ts"], ROMA)
         f = dt.datetime.fromtimestamp(e["fine"], ROMA)
-        em = "".join(emittente_altro(x, dove, usati) for x in e["emittenti"])
+        em = "".join(emittente_altro(x, dove, usati_s) for x in e["emittenti"])
         return (f'<li class="partita evento" data-ts="{e["ts"]}" data-fine="{e["fine"]}" data-giorno="{q:%Y-%m-%d}"'
                 f' data-cat="{" ".join(sorted(cat_altro(e)))}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
@@ -528,8 +528,17 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
             sez_altri.append(f'<section class="giorno-sez" data-giorno="{d:%Y-%m-%d}">'
                              f'<h2 class="giorno-h">{GIORNI_LUNGHI[d.weekday()].upper()} {d.day} {MESI[d.month - 1].upper()}</h2>'
                              f'<ol class="partite">{"".join(scheda_altro(e) for e in del_giorno)}</ol></section>')
+    # vista "per sport": una sezione per sport (prima quelli con più eventi), eventi in ordine di orario
+    per_sport = {}
+    for e in altri:
+        per_sport.setdefault(e["sport"], []).append(e)
+    sez_sport = [f'<section class="comp"><h2>{esc(sp.upper())}</h2><ol class="partite">{"".join(scheda_altro(e) for e in ev)}</ol></section>'
+                 for sp, ev in sorted(per_sport.items(), key=lambda x: (-len(x[1]), x[0]))]
     if not sez_altri:
-        sez_altri.append('<p class="vuoto">Nessun altro sport in diretta streaming in questi giorni.</p>')
+        sez_altri.append('<p class="vuoto">Nessun altro sport in diretta in questi giorni.</p>')
+        sez_sport.append('<p class="vuoto">Nessun altro sport in diretta in questi giorni.</p>')
+    usati |= usati_c | usati_s
+    sez_dove = {i: " ".join(x for x, u in (("calcio", usati_c), ("sport", usati_s)) if i in u) for i in usati}
 
     avvisi = ""
     if falliti:
@@ -539,32 +548,33 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     if senza:
         note += f'<p>Canali senza partite in questi giorni: {esc(", ".join(senza))}.</p>'
 
-    per_giorno = {}
-    for g in gruppi:
-        for e in g["partite"]:
-            per_giorno[e["quando"].date()] = per_giorno.get(e["quando"].date(), 0) + 1
-    bottoni = '<button type="button" data-filtro="tutti" aria-pressed="true">Tutti</button>' + "".join(
-        f'<button type="button" data-filtro="{d:%Y-%m-%d}" aria-pressed="false"'
-        + ('' if per_giorno.get(d) else ' disabled title="Nessuna partita (o già giocate)"')
-        + f'><span>{GIORNI[d.weekday()]}</span> <span>{d.day}</span></button>'
-        for d in giorni)
+    giorni_c = {e["quando"].date() for g in gruppi for e in g["partite"]}
+    giorni_s = {dt.datetime.fromtimestamp(e["ts"], ROMA).date() for e in altri}
+
+    def bottoni_giorni(pieni):
+        return '<button type="button" data-filtro="tutti" aria-pressed="true">Tutti</button>' + "".join(
+            f'<button type="button" data-filtro="{d:%Y-%m-%d}" aria-pressed="false"'
+            + ('' if d in pieni else ' disabled title="Niente in programma (o già finito)"')
+            + f'><span>{GIORNI[d.weekday()]}</span> <span>{d.day}</span></button>'
+            for d in giorni)
+    bottoni, bottoni_s = bottoni_giorni(giorni_c), bottoni_giorni(giorni_s)
 
     cc = (categorie if categorie is not None else carica_categorie())
     tit = lambda g, k, d: esc(((cc.get(g) or {}).get(k) or {}).get("titolo") or d)
     tasti = lambda g, voci: "".join(
         f'<button type="button" data-gruppo="{g}" data-cat="{k}" aria-pressed="{"true" if k == "tutto" else "false"}">{t}</button>'
         for k, t in voci)
-    scelta = ('<section class="scelta" aria-label="Scegli cosa vuoi vedere"><p class="scelta-t">Scegli cosa vuoi vedere:</p>'
-              '<div class="scelta-b" data-gruppo="calcio">'
-              + tasti("calcio", [("tutto", "TUTTO"), ("elite", tit("calcio", "elite", "ELITE CALCIO")),
-                                 ("italia", tit("calcio", "italia", "CALCIO ITALIA"))]) + '</div>'
-              '<div class="scelta-b due" data-gruppo="altri" hidden>'
-              + tasti("altri", [("tutto", "TUTTO"), ("elite", tit("altri", "elite", "ELITE SPORT"))]) + '</div></section>')
+    scelta_c = tasti("calcio", [("tutto", "TUTTO"), ("elite", tit("calcio", "elite", "ELITE CALCIO")),
+                                ("italia", tit("calcio", "italia", "CALCIO ITALIA")),
+                                ("sudamerica", tit("calcio", "sudamerica", "SUDAMERICA")),
+                                ("minore", tit("calcio", "minore", "CALCIO MINORE"))])
+    scelta_s = tasti("altri", [("tutto", "TUTTO"), ("elite", tit("altri", "elite", "ELITE SPORT"))])
     return TEMPLATE.format(
-        scelta=scelta, periodo=esc(periodo(primo)), aggiornato=esc(aggiornato), n=n_partite,
+        scelta_c=scelta_c, scelta_s=scelta_s, bottoni_s=bottoni_s, per_sport="\n".join(sez_sport),
+        periodo=esc(periodo(primo)), aggiornato=esc(aggiornato), n=n_partite,
         bottoni=bottoni, sezioni="\n".join(sezioni), orario="\n".join(orario), avvisi=avvisi, note=note,
         altri="\n".join(sez_altri), n_altri=len(altri),
-        dove=sezione_dove(dove, usati), durata=DURATA_PARTITA_S,
+        dove=sezione_dove(dove, usati, sez_dove), durata=DURATA_PARTITA_S,
         vuoto_nascosto=' hidden' if gruppi else '')
 
 
@@ -584,6 +594,7 @@ def classificatore(cat):
     el, it = c.get("elite", {}), c.get("italia", {})
     el_comp, el_no = _intero(el.get("competizioni")), _intero(el.get("escludi_squadre"))
     it_comp, coppe = _intero(it.get("competizioni")), _intero(it.get("coppe_europee"))
+    sa_comp = _intero(c.get("sudamerica", {}).get("competizioni"))
     naz = {x.lower() for x in it.get("nazionale", [])}
     rx_ita = re.compile(r"\b(?:" + "|".join(re.escape(x) for x in it.get("squadre", [])) + r")\b", re.I) if it.get("squadre") else None
     a = (cat or {}).get("altri", {}).get("elite", {})
@@ -603,7 +614,9 @@ def classificatore(cat):
         if (piena(it_comp, comp) or any(x.strip().lower() in naz for x in squadre)
                 or (rx_ita and piena(coppe, comp) and any(rx_ita.search(x) for x in squadre))):
             out.add("italia")
-        return out
+        if piena(sa_comp, comp):
+            out.add("sudamerica")
+        return out or {"minore"}  # CALCIO MINORE: tutto il resto
 
     def altro(e):
         t = " ".join(x for x in (e.get("titolo"), e.get("titolo_originale"), e.get("titolo_orig"), e.get("competizione")) if x)
@@ -701,7 +714,7 @@ def badge(c, dove, usati):
     return f'<li class="fta">{testo}</li>' if c["fta"] else f'<li>{testo}</li>'
 
 
-def sezione_dove(dove, usati):
+def sezione_dove(dove, usati, sez=None):
     """Voci inserite dall'utente sempre; quelle trovate con la ricerca solo se servono a qualche partita."""
     esc = html.escape
     voci = [v for v in dove if v.get("fonte") == "utente" or v.get("sempre") or v["id"] in usati]
@@ -714,7 +727,7 @@ def sezione_dove(dove, usati):
             + ('' if l.get("verificato", v.get("verificato", True)) else ' <span class="verifica">link da verificare</span>')
             + '</li>' for l in v.get("link", []))
         righe.append(
-            f'<li class="dove" id="dv-{esc(v["id"])}"><h3>{esc(v["nome"])}</h3>'
+            f'<li class="dove" id="dv-{esc(v["id"])}" data-sez="{esc((sez or {}).get(v["id"]) or "calcio sport")}"><h3>{esc(v["nome"])}</h3>'
             + (f'<p class="consiglio">⭐ {esc(v["consiglio"]["testo"])} <a href="{esc(v["consiglio"]["url"])}" target="_blank" '
                f'rel="noopener noreferrer">{esc(v["consiglio"].get("testo_link") or v["consiglio"]["url"])}</a></p>'
                if v.get("consiglio") else '')
@@ -733,14 +746,14 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Calcio in TV · {periodo}</title>
-<meta name="description" content="Partite di calcio in TV oggi e nei prossimi 3 giorni, orari italiani.">
+<title>Calcio e Sport in TV · {periodo}</title>
+<meta name="description" content="Partite di calcio e altri sport in TV e in streaming gratis, oggi e nei prossimi 3 giorni, orari italiani.">
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Calcio TV">
+<meta name="apple-mobile-web-app-title" content="Calcio e Sport">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -762,29 +775,42 @@ TEMPLATE = """<!doctype html>
                background:#111; color:#fff; border:3px solid #666; cursor:pointer; flex:1 1 auto; }}
   nav.filtri button[aria-pressed="true"] {{ background:var(--giallo); color:#000; border-color:var(--giallo); }}
   nav.filtri button:disabled {{ opacity:.35; cursor:default; }}
-  section.scelta {{ max-width:1000px; margin:6px auto 14px; border:3px solid var(--giallo); border-radius:16px; padding:10px 12px 12px; background:#0b0b0b; }}
-  .scelta-t {{ margin:0 0 8px; font-size:1.25rem; font-weight:900; color:var(--giallo); }}
+  [hidden] {{ display:none !important; }}
+  nav.sezioni {{ max-width:1000px; margin:8px auto 0; display:grid; grid-template-columns:1fr 1fr; gap:12px; }}
+  nav.sezioni button {{ font:inherit; font-size:1.55rem; font-weight:900; letter-spacing:.02em; min-height:104px; padding:10px 8px;
+               border-radius:18px; background:#111; color:#fff; border:4px solid #888; cursor:pointer; line-height:1.1; }}
+  nav.sezioni button .ico {{ display:block; font-size:2rem; line-height:1.1; }}
+  nav.sezioni button .n {{ display:block; font-size:.95rem; font-weight:700; color:#ccc; margin-top:4px; }}
+  nav.sezioni button .n::after {{ content:" in programma"; }}
+  nav.sezioni button[aria-pressed="true"] {{ background:var(--giallo); color:#000; border-color:var(--giallo); box-shadow:0 0 0 4px #fff; }}
+  nav.sezioni button[aria-pressed="true"] .n {{ color:#000; }}
+  nav.sezioni button:focus-visible {{ outline:5px solid var(--azzurro); outline-offset:4px; }}
+  section.pannello {{ max-width:1000px; margin:16px auto 0; border:3px solid #555; border-top:6px solid var(--giallo); border-radius:14px;
+               padding:6px 12px 12px; background:#0b0b0b; }}
+  .et {{ margin:10px 0 6px; font-size:1.05rem; font-weight:900; color:var(--giallo); letter-spacing:.02em; }}
+  .viste {{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }}
+  .viste button {{ font:inherit; font-size:1rem; font-weight:800; min-height:58px; padding:6px 8px; border-radius:12px; line-height:1.15;
+               background:#111; color:#fff; border:3px solid #777; cursor:pointer; }}
+  .viste button[aria-pressed="true"] {{ background:#fff; color:#000; border-color:#fff; }}
+  .viste button[aria-pressed="true"]::before {{ content:"✓ "; }}
+  .viste button:focus-visible {{ outline:4px solid var(--azzurro); outline-offset:3px; }}
   .scelta-b {{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }}
   .scelta-b.due {{ grid-template-columns:repeat(2, 1fr); }}
+  .scelta-b.cinque {{ grid-template-columns:repeat(6, 1fr); }}
+  .scelta-b.cinque button {{ grid-column:span 2; }}
+  .scelta-b.cinque button:nth-child(n+4) {{ grid-column:span 3; }}
   .scelta-b[hidden] {{ display:none; }}
-  .scelta-b button {{ font:inherit; font-size:1.05rem; font-weight:900; min-height:64px; padding:6px 8px; border-radius:12px; line-height:1.15;
+  .scelta-b button {{ font:inherit; font-size:1rem; font-weight:800; min-height:58px; padding:6px 8px; border-radius:12px; line-height:1.15;
                background:#111; color:#fff; border:3px solid #888; cursor:pointer; }}
-  .scelta-b button[aria-pressed="true"] {{ background:var(--giallo); color:#000; border-color:var(--giallo); }}
+  .scelta-b button[aria-pressed="true"] {{ background:#fff; color:#000; border-color:#fff; }}
   .scelta-b button[aria-pressed="true"]::before {{ content:"✓ "; }}
   .scelta-b button:focus-visible {{ outline:4px solid var(--azzurro); outline-offset:3px; }}
-  nav.viste {{ max-width:1000px; margin:4px auto 0; display:grid; grid-template-columns:1fr 1fr; gap:10px; }}
-  nav.viste button.altri {{ grid-column:1 / -1; border-color:var(--azzurro); }}
   .tag.vpn {{ background:#ffd400; color:#000; }}
   .orig {{ display:block; font-size:.95rem; font-weight:400; color:#bbb; margin-top:4px; }}
   .consiglio {{ font-size:1.1rem; font-weight:700; background:#1d1d00; border:2px solid var(--giallo); border-radius:10px; padding:10px 12px; }}
   .fino {{ font-size:.85rem; color:#ccc; }}
   a.diretta {{ font-size:.85rem; color:#fff; }}
   .intro-altri {{ font-size:1.05rem; color:#ddd; }}
-  nav.viste button {{ font:inherit; font-size:1.05rem; font-weight:900; letter-spacing:.02em; min-height:72px; padding:8px 10px;
-               border-radius:14px; background:#111; color:#fff; border:3px solid #888; cursor:pointer; line-height:1.15; }}
-  nav.viste button[aria-pressed="true"] {{ background:#fff; color:#000; border-color:#fff; box-shadow:0 0 0 3px var(--giallo); }}
-  nav.viste button[aria-pressed="true"]::before {{ content:"✓ "; }}
-  nav.viste button:focus-visible {{ outline:4px solid var(--azzurro); outline-offset:3px; }}
   h2.giorno-h {{ background:#fff; color:#000; }}
   section.giorno-sez {{ margin-top:36px; }}
   .comp-tag {{ display:block; width:max-content; max-width:100%; background:var(--giallo); color:#000; font-size:.8rem; font-weight:900;
@@ -810,7 +836,8 @@ TEMPLATE = """<!doctype html>
   ul.canali li.fta {{ color:var(--verde); border-color:var(--verde); }}
   .tag {{ display:inline-block; background:var(--verde); color:#000; font-size:.7rem; font-weight:900; letter-spacing:.04em;
           padding:1px 5px; border-radius:5px; vertical-align:middle; position:relative; top:-2px; }}
-  .h1p {{ color:var(--giallo); }}
+  .h1p {{ color:var(--giallo); display:block; font-size:.8em; }}
+  #vista-sport-tipo .comp-tag {{ display:none; }}
   ul.canali li a {{ color:inherit; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:4px; }}
   section.dove-vederli {{ margin-top:48px; }}
   ol.dove {{ list-style:none; margin:0; padding:0; display:grid; gap:14px; }}
@@ -850,26 +877,40 @@ TEMPLATE = """<!doctype html>
 </head>
 <body>
 <header>
-  <h1>⚽ Calcio in TV <span class="h1p">· {periodo}</span></h1>
-  <p class="agg">Aggiornato {aggiornato} · <span id="n-partite">{n}</span> partite · orari italiani</p>
-  <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera) · <span class="tag dz">DAZN GRATIS</span> = partita senza lucchetto su DAZN (account gratuito)</p>
+  <h1>Calcio e Sport in TV <span class="h1p">{periodo}</span></h1>
+  <p class="agg">Aggiornato {aggiornato} · orari italiani</p>
 </header>
-{scelta}
-<nav class="viste" aria-label="Come ordinare le partite">
-  <button type="button" data-vista="campionato" aria-pressed="true">PER CAMPIONATO</button>
-  <button type="button" data-vista="orario" aria-pressed="false">IN ORDINE DI ORARIO</button>
-  <button type="button" data-vista="altri" aria-pressed="false" class="altri">ALTRI SPORT <span class="n">({n_altri})</span></button>
+<nav class="sezioni" aria-label="Sezione">
+  <button type="button" data-sezione="calcio" aria-pressed="true"><span class="ico" aria-hidden="true">⚽</span> CALCIO <span class="n" id="n-partite">{n}</span></button>
+  <button type="button" data-sezione="sport" aria-pressed="false"><span class="ico" aria-hidden="true">🏁</span> ALTRI SPORT <span class="n" id="n-eventi">{n_altri}</span></button>
 </nav>
-<nav class="filtri" aria-label="Filtra per giorno">{bottoni}</nav>
+<section class="pannello" data-sez="calcio" aria-label="Opzioni calcio">
+  <p class="et">Scegli cosa vuoi vedere:</p>
+  <div class="scelta-b cinque" data-gruppo="calcio">{scelta_c}</div>
+  <p class="et">Ordina:</p>
+  <div class="viste" data-sez="calcio"><button type="button" data-vista="campionato" aria-pressed="true">PER CAMPIONATO</button><button type="button" data-vista="orario" aria-pressed="false">IN ORDINE DI ORARIO</button></div>
+</section>
+<section class="pannello" data-sez="sport" aria-label="Opzioni altri sport" hidden>
+  <p class="et">Scegli cosa vuoi vedere:</p>
+  <div class="scelta-b due" data-gruppo="altri">{scelta_s}</div>
+  <p class="et">Ordina:</p>
+  <div class="viste" data-sez="sport"><button type="button" data-vista="tipo" aria-pressed="true">PER SPORT</button><button type="button" data-vista="orario" aria-pressed="false">IN ORDINE DI ORARIO</button></div>
+</section>
+<nav class="filtri" data-sez="calcio" aria-label="Calcio: filtra per giorno">{bottoni}</nav>
+<nav class="filtri" data-sez="sport" aria-label="Altri sport: filtra per giorno" hidden>{bottoni_s}</nav>
 <main>
-<div id="vista-campionato" class="vista">
+<p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera) · <span class="tag dz">DAZN GRATIS</span> = senza lucchetto su DAZN (account gratuito)</p>
+<p class="intro-altri" data-sez="sport" hidden>Dirette gratuite: SRF, RTS, RSI, ARD, DAZN Italia (senza lucchetto), canali Teleboy e canali in chiaro di tutto il mondo (LiveOnSat, NFL gratis secondo TechRadar). Tocca l'emittente per aprire la diretta.</p>
+<div id="vista-campionato" class="vista" data-sez="calcio">
 {sezioni}
 </div>
-<div id="vista-orario" class="vista" hidden>
+<div id="vista-orario" class="vista" data-sez="calcio" hidden>
 {orario}
 </div>
-<div id="vista-altri" class="vista" hidden>
-<p class="intro-altri">Dirette gratuite di altri sport: SRF, RTS, RSI (Svizzera), ARD (Germania), DAZN Italia (eventi senza lucchetto, con account gratuito), i canali gratuiti di Teleboy (guida TV pubblica) e i canali in chiaro di tutto il mondo (LiveOnSat; partite NFL gratis secondo TechRadar). Tocca l'emittente per aprire la diretta.</p>
+<div id="vista-sport-tipo" class="vista" data-sez="sport" hidden>
+{per_sport}
+</div>
+<div id="vista-sport-orario" class="vista" data-sez="sport" hidden>
 {altri}
 </div>
 <p class="vuoto" id="vuoto-scelta" hidden>Nessun evento per questa scelta nei giorni selezionati. Tocca <strong>TUTTO</strong> per vedere tutto.</p>
@@ -886,108 +927,100 @@ TEMPLATE = """<!doctype html>
 <script>
 (function () {{
   var DURATA = {durata};  // secondi dopo il calcio d'inizio oltre i quali la partita sparisce (2h15m)
-  var bottoni = [].slice.call(document.querySelectorAll('nav.filtri button'));
-  var filtroAttivo = 'tutti', vistaAttiva = 'campionato';
-  // "Scegli cosa vuoi vedere": una scelta per il calcio (TUTTO / ELITE CALCIO / CALCIO ITALIA) e una per ALTRI SPORT
-  var tastiCat = [].slice.call(document.querySelectorAll('.scelta-b button'));
-  var catAttiva = {{ calcio: 'tutto', altri: 'tutto' }};
+  function tutti(sel, base) {{ return [].slice.call((base || document).querySelectorAll(sel)); }}
+  function leggi(k) {{ try {{ return localStorage.getItem(k); }} catch (e) {{ return null; }} }}
+  function salva(k, v) {{ try {{ localStorage.setItem(k, v); }} catch (e) {{}} }}
+  // stato: sezione (calcio/sport), vista di ogni sezione, scelta (TUTTO/ELITE/ITALIA), giorno
+  var S = {{ sezione: 'calcio', vista: {{ calcio: 'campionato', sport: 'tipo' }}, cat: {{ calcio: 'tutto', altri: 'tutto' }},
+            giorno: {{ calcio: 'tutti', sport: 'tutti' }} }};
+  var q = location.search;
+  var m = /[?&]sezione=(calcio|sport)/.exec(q), mv = /[?&]vista=(orario|campionato|altri)/.exec(q);
+  var vecchia = leggi('vista');  // versioni precedenti: vista = campionato / orario / altri
+  S.sezione = m ? m[1] : (mv && mv[1] === 'altri') ? 'sport' : (leggi('sezione') || (vecchia === 'altri' ? 'sport' : 'calcio'));
+  if (S.sezione !== 'sport') S.sezione = 'calcio';
+  var vc = (mv && mv[1] !== 'altri') ? mv[1] : (leggi('vista-calcio') || vecchia);
+  if (vc === 'orario') S.vista.calcio = 'orario';
+  if (leggi('vista-sport') === 'orario') S.vista.sport = 'orario';
   ['calcio', 'altri'].forEach(function (g) {{
-    var v = null;
-    try {{ v = localStorage.getItem('scelta-' + g); }} catch (e) {{}}
-    if (v && tastiCat.some(function (b) {{ return b.dataset.gruppo === g && b.dataset.cat === v; }})) catAttiva[g] = v;
+    var v = leggi('scelta-' + g);
+    if (v && document.querySelector('.scelta-b button[data-gruppo="' + g + '"][data-cat="' + v + '"]')) S.cat[g] = v;
   }});
-  function gruppo(p) {{ return p.closest('#vista-altri') ? 'altri' : 'calcio'; }}
+  try {{ var gs = JSON.parse(sessionStorage.getItem('giorni') || 'null'); if (gs) S.giorno = gs; }} catch (e) {{}}
+  function sezDi(el) {{ return el.closest('[data-sez]').dataset.sez; }}
+  function gruppo(sez) {{ return sez === 'sport' ? 'altri' : 'calcio'; }}
   function catOk(p) {{
-    var c = catAttiva[gruppo(p)];
+    var c = S.cat[gruppo(sezDi(p))];
     return c === 'tutto' || (' ' + (p.dataset.cat || '') + ' ').indexOf(' ' + c + ' ') >= 0;
   }}
-  function vistaEl() {{ return document.getElementById('vista-' + vistaAttiva); }}
-  function partite() {{ return [].slice.call(document.querySelectorAll('li.partita')); }}
-  function aggiornaSezioni() {{
-    [].forEach.call(document.querySelectorAll('section.comp, section.giorno-sez'), function (s) {{
-      s.hidden = !s.querySelector('li.partita:not([hidden])');
+  function idVista(sez) {{ return sez === 'sport' ? 'vista-sport-' + S.vista.sport : 'vista-' + S.vista.calcio; }}
+  function premi(lista, f) {{ lista.forEach(function (b) {{ b.setAttribute('aria-pressed', f(b) ? 'true' : 'false'); }}); }}
+  function aggiorna() {{
+    var sez = S.sezione, vis = idVista(sez);
+    premi(tutti('nav.sezioni button'), function (b) {{ return b.dataset.sezione === sez; }});
+    tutti('.pannello, nav.filtri, .intro-altri').forEach(function (el) {{ el.hidden = el.dataset.sez !== sez; }});
+    tutti('div.vista').forEach(function (d) {{ d.hidden = d.id !== vis; }});
+    tutti('.viste').forEach(function (d) {{
+      premi(tutti('button', d), function (b) {{ return b.dataset.vista === S.vista[d.dataset.sez]; }});
     }});
-    // giorni senza più partite: bottone disattivato
-    var restano = {{}};
-    [].forEach.call(vistaEl().querySelectorAll('li.partita'), function (p) {{ if (catOk(p)) restano[p.dataset.giorno] = true; }});
-    bottoni.forEach(function (b) {{
-      if (b.dataset.filtro === 'tutti') return;
-      b.disabled = !restano[b.dataset.filtro];
-      if (b.disabled) b.title = 'Nessuna partita rimasta'; else b.removeAttribute('title');
+    premi(tutti('.scelta-b button'), function (b) {{ return S.cat[b.dataset.gruppo] === b.dataset.cat; }});
+    ['calcio', 'sport'].forEach(function (z) {{
+      // giorni con ancora qualcosa (con la scelta attiva); se il giorno scelto si è svuotato si torna a "Tutti"
+      var restano = {{}};
+      tutti('#' + idVista(z) + ' li.partita').forEach(function (p) {{ if (catOk(p)) restano[p.dataset.giorno] = true; }});
+      var tasti = tutti('nav.filtri[data-sez="' + z + '"] button');
+      tasti.forEach(function (b) {{
+        if (b.dataset.filtro === 'tutti') return;
+        b.disabled = !restano[b.dataset.filtro];
+        if (b.disabled) b.title = 'Niente in programma'; else b.removeAttribute('title');
+      }});
+      if (S.giorno[z] !== 'tutti' && !restano[S.giorno[z]]) S.giorno[z] = 'tutti';
+      premi(tasti, function (b) {{ return b.dataset.filtro === S.giorno[z]; }});
     }});
-    var conta = function (sel) {{ return [].filter.call(document.querySelectorAll(sel), catOk).length; }};
-    var tot = document.querySelectorAll('#vista-campionato li.partita').length;
-    var n = conta('#vista-campionato li.partita');
-    var na = document.querySelector('nav.viste .altri .n');
-    if (na) na.textContent = '(' + conta('#vista-altri li.partita') + ')';
-    var cont = document.getElementById('n-partite');
-    if (cont) cont.textContent = n;
+    tutti('li.partita').forEach(function (p) {{
+      var g = S.giorno[sezDi(p)];
+      p.hidden = !((g === 'tutti' || p.dataset.giorno === g) && catOk(p));
+    }});
+    tutti('section.comp, section.giorno-sez').forEach(function (s) {{ s.hidden = !s.querySelector('li.partita:not([hidden])'); }});
+    var conta = function (sel) {{ return tutti(sel).filter(catOk).length; }};
+    document.getElementById('n-partite').textContent = conta('#vista-campionato li.partita');
+    document.getElementById('n-eventi').textContent = conta('#vista-sport-orario li.partita');
+    var qui = tutti('#' + vis + ' li.partita');
     var vuoto = document.getElementById('vuoto');
-    if (vuoto) vuoto.hidden = tot > 0 || vistaAttiva === 'altri';
-    var qui = vistaEl().querySelectorAll('li.partita');
+    if (vuoto) vuoto.hidden = !(sez === 'calcio' && !tutti('#vista-campionato li.partita').length);
     var vs = document.getElementById('vuoto-scelta');
-    if (vs) vs.hidden = !qui.length || !![].some.call(qui, function (p) {{ return !p.hidden; }});
+    if (vs) vs.hidden = !qui.length || qui.some(function (p) {{ return !p.hidden; }});
+    // "Dove vederli": le voci della sezione attiva
+    tutti('li.dove').forEach(function (d) {{ d.hidden = (' ' + d.dataset.sez + ' ').indexOf(' ' + sez + ' ') < 0; }});
+    try {{ sessionStorage.setItem('giorni', JSON.stringify(S.giorno)); }} catch (e) {{}}
   }}
-  function filtra(f) {{
-    var b0 = bottoni.filter(function (b) {{ return b.dataset.filtro === f; }})[0];
-    if (!b0 || b0.disabled) f = 'tutti';
-    filtroAttivo = f;
-    bottoni.forEach(function (b) {{ b.setAttribute('aria-pressed', b.dataset.filtro === f ? 'true' : 'false'); }});
-    partite().forEach(function (p) {{ p.hidden = !((f === 'tutti' || p.dataset.giorno === f) && catOk(p)); }});
-    aggiornaSezioni();
-    if (f !== 'tutti' && b0 && b0.disabled) {{ filtra('tutti'); return; }}  // con la nuova scelta quel giorno è vuoto
-    try {{ sessionStorage.setItem('filtro', f); }} catch (e) {{}}
-  }}
-  bottoni.forEach(function (b) {{ b.addEventListener('click', function () {{ filtra(b.dataset.filtro); }}); }});
-  // due viste: per campionato / in ordine di orario (scelta ricordata nel browser)
-  var tastiVista = [].slice.call(document.querySelectorAll('nav.viste button'));
-  function vista(v) {{
-    if (v !== 'orario' && v !== 'altri') v = 'campionato';
-    tastiVista.forEach(function (b) {{ b.setAttribute('aria-pressed', b.dataset.vista === v ? 'true' : 'false'); }});
-    document.getElementById('vista-campionato').hidden = v !== 'campionato';
-    document.getElementById('vista-orario').hidden = v !== 'orario';
-    document.getElementById('vista-altri').hidden = v !== 'altri';
-    vistaAttiva = v;
-    [].forEach.call(document.querySelectorAll('.scelta-b'), function (d) {{
-      d.hidden = d.dataset.gruppo !== (v === 'altri' ? 'altri' : 'calcio');
-    }});
-    try {{ localStorage.setItem('vista', v); }} catch (e) {{}}
-    filtra(filtroAttivo);
-  }}
-  function scegli(g, c) {{
-    catAttiva[g] = c;
-    tastiCat.forEach(function (b) {{ if (b.dataset.gruppo === g) b.setAttribute('aria-pressed', b.dataset.cat === c ? 'true' : 'false'); }});
-    try {{ localStorage.setItem('scelta-' + g, c); }} catch (e) {{}}
-    filtra(filtroAttivo);
-  }}
-  tastiCat.forEach(function (b) {{ b.addEventListener('click', function () {{ scegli(b.dataset.gruppo, b.dataset.cat); }}); }});
-  ['calcio', 'altri'].forEach(function (g) {{
-    tastiCat.forEach(function (b) {{ if (b.dataset.gruppo === g) b.setAttribute('aria-pressed', b.dataset.cat === catAttiva[g] ? 'true' : 'false'); }});
-  }});
-  tastiVista.forEach(function (b) {{ b.addEventListener('click', function () {{ vista(b.dataset.vista); }}); }});
-  var daUrl = /[?&]vista=(orario|campionato|altri)/.exec(location.search);  // es. ...?vista=orario
-  var scelta = daUrl ? daUrl[1] : null;
-  if (!scelta) {{ try {{ scelta = localStorage.getItem('vista'); }} catch (e) {{}} }}
-  vista(scelta);
-  // stato: in corso (fino a 2h15m dall'inizio), tra poco (entro 1 ora); finite -> tolte dalla pagina
+  tutti('nav.sezioni button').forEach(function (b) {{ b.addEventListener('click', function () {{
+    S.sezione = b.dataset.sezione; salva('sezione', S.sezione); aggiorna();
+  }}); }});
+  tutti('.viste button').forEach(function (b) {{ b.addEventListener('click', function () {{
+    var z = sezDi(b); S.vista[z] = b.dataset.vista; salva('vista-' + z, b.dataset.vista); aggiorna();
+  }}); }});
+  tutti('.scelta-b button').forEach(function (b) {{ b.addEventListener('click', function () {{
+    S.cat[b.dataset.gruppo] = b.dataset.cat; salva('scelta-' + b.dataset.gruppo, b.dataset.cat); aggiorna();
+  }}); }});
+  tutti('nav.filtri button').forEach(function (b) {{ b.addEventListener('click', function () {{
+    S.giorno[sezDi(b)] = b.dataset.filtro; aggiorna();
+  }}); }});
+  // stato: in corso (fino a 2h15m dall'inizio o fino alla fine dell'evento), tra poco (entro 1 ora); finite -> tolte
   function stato() {{
-    var ora = Date.now() / 1000, tolte = false;
-    partite().forEach(function (p) {{
+    var ora = Date.now() / 1000;
+    tutti('li.partita').forEach(function (p) {{
       var ts = +p.dataset.ts, s = p.querySelector('.stato'), c = '', t = '';
       var fine = p.dataset.fine ? +p.dataset.fine : ts + DURATA;
-      if (ora >= fine) {{ p.parentNode.removeChild(p); tolte = true; return; }}
+      if (ora >= fine) {{ p.parentNode.removeChild(p); return; }}
       if (ora >= ts) {{ c = 'in-corso'; t = 'IN CORSO'; }}
       else if (ts - ora <= 3600) {{ c = 'tra-poco'; t = 'TRA ' + Math.max(1, Math.round((ts - ora) / 60)) + ' MIN'; }}
       p.classList.remove('in-corso', 'tra-poco');
       if (c) p.classList.add(c);
       s.textContent = t;
     }});
-    if (tolte) filtra(filtroAttivo); else aggiornaSezioni();
+    aggiorna();
   }}
   stato();
-  var salvato = null;
-  try {{ salvato = sessionStorage.getItem('filtro'); }} catch (e) {{}}
-  filtra(salvato || 'tutti');
   setInterval(stato, 60000);
   // ricarica la pagina ogni 30 minuti per prendere gli aggiornamenti
   setTimeout(function () {{ location.reload(); }}, 30 * 60 * 1000);

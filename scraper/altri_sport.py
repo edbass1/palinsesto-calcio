@@ -346,8 +346,9 @@ def unisci_eventi(eventi):
                     break
         if gia is None:
             uniti.append(dict(e, ids={e["id"]}, emittenti=list(e["emittenti"]), testi=[e["titolo_orig"]],
-                              _squadre=squadre_evento(e), _prio=_priorita(e)))
+                              _squadre=squadre_evento(e), _prio=_priorita(e), _fonti=[e]))
             continue
+        gia["_fonti"].append(e)
         gia["ids"].add(e["id"])
         gia["testi"].append(e["titolo_orig"])
         gia["fine"] = max(gia["fine"], e["fine"])
@@ -367,6 +368,18 @@ def unisci_eventi(eventi):
             gia["titolo"] = e["titolo"]
             gia["lingua"] = "it"
     for u in uniti:
+        # due squadre: si preferisce il titolo con i nomi completi ("New York Giants - Washington Commanders"
+        # invece di "Giants @ Commanders"), qualunque sia la fonte
+        if u.get("_squadre"):
+            def lung(x):
+                t = (x.get("titolo") or "").rsplit(":", 1)[-1].rsplit(",", 1)[-1].strip()
+                sq = RE_SEP_SQUADRE.split(t)
+                return sum(len(y.strip()) for y in sq) if len(sq) == 2 else 0
+            migliore = max(u.get("_fonti", []), key=lung, default=None)
+            if migliore is not None and lung(migliore) > lung(u):
+                for k in ("titolo", "lingua", "titolo_src"):
+                    u[k] = migliore.get(k)
+        u.pop("_fonti", None)
         # un canale LiveOnSat che è anche su Teleboy: basta una riga (quella con il link Teleboy)
         u["emittenti"] = [x for x in u["emittenti"] if x.get("fta") is not False or x.get("teleboy")]
     return uniti

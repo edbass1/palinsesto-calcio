@@ -250,7 +250,7 @@ def test_dove():
     assert '<a href="#dv-prima-sport"' in h and '<a href="#dv-rsi"' in h and "Persiana Sports 2</li>" in h
     assert 'id="dv-golazo"' in h and 'id="dv-dazn"' in h and 'id="dv-rsi"' in h  # utente sempre, ricerca se usata
     assert 'id="dv-zdf"' not in h and 'target="_blank" rel="noopener noreferrer"' in h
-    assert "Calcio in TV · Sab 10 – Mar 13 ottobre" in h and h.count("data-filtro=") == 5 and "eekend" not in h
+    assert "Calcio e Sport in TV · Sab 10 – Mar 13 ottobre" in h and h.count("data-filtro=") == 10 and "eekend" not in h
 
 
 def test_finite():
@@ -451,7 +451,7 @@ def test_altri_sport():
     assert lug["canali"][-2]["diretta"] == "https://www.srf.ch/play/tv/-/video/-?urn=urn:swisstxt:video:srf:1830000"
     dove = json.loads((QUI.parent / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
     h = p.genera_html(v, ora, gruppi, falliti, [], dove, altri)
-    assert 'data-vista="altri"' in h and 'id="vista-altri"' in h and "VPN SVIZZERA" in h and "VPN GERMANIA" in h
+    assert 'data-sezione="sport"' in h and 'id="vista-sport-orario"' in h and "VPN SVIZZERA" in h and "VPN GERMANIA" in h
     assert 'href="https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/livestreams-ard-"' in h
     assert 'href="https://www.rsi.ch/palinsesto/streaming/"' in h and 'href="https://www.rts.ch/play/tv/rts-livestreams"' in h
     assert 'class="diretta" href="https://www.ardmediathek.de/video/' in h and 'data-fine="' in h and "ALTRI SPORT" in h
@@ -703,19 +703,21 @@ def test_categorie():
     assert cal(E("Juventus", "Torino"), "SERIE A") == {"elite", "italia"}
     assert cal(E("Bari", "Palermo"), "SERIE B") == {"italia"}
     assert cal(E("Arsenal", "Leeds"), "PREMIER LEAGUE") == {"elite"}
-    assert cal(E("Neftchi", "Qarabag"), "PREMIER LEAGUE (Azerbaigian)") == set()
-    assert cal(E("Flamengo", "Santos"), "SERIE B BRASILE") == set()
+    assert cal(E("Neftchi", "Qarabag"), "PREMIER LEAGUE (Azerbaigian)") == {"minore"}
+    assert cal(E("Flamengo", "Santos"), "SERIE B BRASILE") == {"sudamerica"}
+    assert cal(E("Boca", "River"), "LIGA PROFESIONAL (Argentina)") == {"sudamerica"} and cal(E("A", "B"), "COPA LIBERTADORES") == {"sudamerica"}
+    assert cal(E("America", "Chivas"), "LIGA MX (Messico)") == {"minore"}  # Nord America
     assert cal(E("Real Madrid", "Napoli"), "UEFA CHAMPIONS LEAGUE") == {"elite", "italia"}
     assert cal(E("Real Madrid", "Bayern"), "UEFA CHAMPIONS LEAGUE") == {"elite"}
-    assert cal(E("Inter U19", "Ajax U19"), "UEFA YOUTH LEAGUE") == set()
+    assert cal(E("Inter U19", "Ajax U19"), "UEFA YOUTH LEAGUE") == {"minore"}
     assert cal(E("Italia", "Norvegia"), "NAZIONALI – QUALIFICAZIONI MONDIALI 2026") == {"elite", "italia"}
     assert cal(E("Francia", "Spagna"), "NAZIONALI – UEFA NATIONS LEAGUE") == {"elite"}
-    assert cal(E("Italia U21", "Svezia U21"), "NAZIONALI – QUALIFICAZIONI EUROPEI U21") == set()
+    assert cal(E("Italia U21", "Svezia U21"), "NAZIONALI – QUALIFICAZIONI EUROPEI U21") == {"minore"}
     assert cal(E("Juventus", "Avellino"), "COPPA ITALIA") == {"elite", "italia"}
     assert "elite" in cal(E("Barcelona", "X"), "COPA DEL REY") and "elite" in cal(E("Bayern", "X"), "DFB-POKAL")
     assert cal(E("Ternana", "Gubbio"), "SERIE C – GIRONE B") == {"italia"}
-    assert cal(E("Roma", "Lazio"), "ROMANIA LIGA I") == set()
-    assert cal(E("Botafogo PB", "Santa Cruz"), "SERIE C BRASILE") == set() and cal(E("Ternana", "Gubbio"), "SERIE C") == {"italia"}
+    assert cal(E("Roma", "Lazio"), "ROMANIA LIGA I") == {"minore"}
+    assert cal(E("Botafogo PB", "Santa Cruz"), "SERIE C BRASILE") == {"sudamerica"} and cal(E("Ternana", "Gubbio"), "SERIE C") == {"italia"}
     A = lambda sp, t: alt({"sport": sp, "titolo": t})
     for sp, t in [("Formula 1", "Gran Premio di Singapore"), ("Motomondiale", "MotoGP: gara"), ("Motori", "WEC 6 Ore del Fuji"),
                   ("Tennis", "ATP Shanghai"), ("Basket", "EuroLeague: Olimpia Milano - Real Madrid"),
@@ -732,8 +734,10 @@ def test_categorie():
          {"nome": "LIGA I (Romania)", "partite": [{"casa": "FCSB", "ospite": "Rapid", "quando": q, "ts": int(q.timestamp()), "canali": []}]}]
     al = [{"sport": "Formula 1", "titolo": "Gara", "ts": int(q.timestamp()), "fine": int(q.timestamp()) + 7200, "emittenti": []}]
     h = p.genera_html(*p.finestra(ora)[:1], ora, g, [], [], [], al)
-    assert "Scegli cosa vuoi vedere:" in h and h.count('data-gruppo="calcio" data-cat=') == 3 and h.count('data-gruppo="altri" data-cat=') == 2
-    assert 'data-cat="elite italia"' in h and 'data-cat=""' in h and 'data-fine="%d" data-giorno' % (int(q.timestamp()) + 7200) in h
+    assert "Scegli cosa vuoi vedere:" in h and h.count('data-gruppo="calcio" data-cat=') == 5 and h.count('data-gruppo="altri" data-cat=') == 2
+    assert 'data-cat="elite italia"' in h and 'data-cat="minore"' in h and 'data-fine="%d" data-giorno' % (int(q.timestamp()) + 7200) in h
+    assert ">SUDAMERICA<" in h and ">CALCIO MINORE<" in h and 'data-sezione="sport"' in h and "Calcio e Sport in TV" in h
+    assert 'id="vista-sport-tipo"' in h and 'data-vista="tipo"' in h and 'data-vista="altri"' not in h
     assert ">ELITE CALCIO<" in h and ">CALCIO ITALIA<" in h and ">ELITE SPORT<" in h
 
 def test_altri_los_nfl():

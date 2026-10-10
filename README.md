@@ -109,3 +109,6 @@ ALTRI SPORT prende anche le pagine LiveOnSat degli altri sport (`liveonsat.json`
 
 ## Niente calcio USA, niente SportyNet+
 Esclusi per sempre dalla sezione calcio i campionati e le coppe degli Stati Uniti (MLS, MLS Next Pro, USL Championship/League One/League Two, NWSL, US Open Cup, Leagues Cup, NISA, NPSL…): sono nello stesso elenco del calcio femminile, `liveonsat.json` → `escludi_competizioni`. NFL, NBA, NHL ecc. in ALTRI SPORT restano. SportyNet+ Brasil (PPV) è stato tolto da `canali.json` e da «Dove vederli» ed è in `escludi_canali`: le partite che avevano solo quel canale spariscono. SportyNet Brasil (gratuito) resta.
+
+## Struttura della pagina: CALCIO e ALTRI SPORT
+In cima due pulsanti grandi, «⚽ CALCIO» e «🏁 ALTRI SPORT», per passare da una sezione all'altra (la scelta resta salvata; link diretto con `?sezione=calcio` o `?sezione=sport`). Ogni sezione ha le sue opzioni: «Scegli cosa vuoi vedere» (calcio: TUTTO / ELITE CALCIO / CALCIO ITALIA / SUDAMERICA / CALCIO MINORE; altri sport: TUTTO / ELITE SPORT), «Ordina» (calcio: per campionato / in ordine di orario; altri sport: per sport / in ordine di orario) e i giorni. CALCIO MINORE è tutto ciò che non è Elite, Italia o Sudamerica; la Liga MX non è Sudamerica. «Dove vederli» in fondo mostra le voci dei canali della sezione attiva. Elenchi modificabili in `categorie.json`.

@@ -92,6 +92,25 @@
     "Bari",
     "Frosinone"
    ]
+  },
+  "sudamerica": {
+   "titolo": "SUDAMERICA",
+   "_nota": "Campionati e coppe del Sudamerica (CONMEBOL). La Liga MX (Messico) è Nord America e NON è qui: va in CALCIO MINORE.",
+   "competizioni": [
+    ".*\\((?:Brasile|Brazil|Brasil|Argentina|Uruguay|Colombia|Cile|Chile|Per[uù]|Ecuador|Paraguay|Bolivia|Venezuela)\\b[^)]*\\).*",
+    ".*\\bBRASIL(?:E|EIR[ÃA]O)?\\b.*",
+    ".*\\bLIBERTADORES\\b.*",
+    ".*\\bSUDAMERICANA\\b.*",
+    ".*\\bCOPA AM[EÉ]RICA\\b.*",
+    ".*\\bCONMEBOL\\b.*",
+    ".*\\bSUDAMERICA\\b.*",
+    ".*\\bRECOPA\\b.*",
+    ".*\\b(?:BRASILE|BRAZIL|BRASIL|ARGENTINA|URUGUAY|COLOMBIA|CILE|CHILE|PER[UÙ]|ECUADOR|PARAGUAY|BOLIVIA|VENEZUELA)\\b.*"
+   ]
+  },
+  "minore": {
+   "titolo": "CALCIO MINORE",
+   "_nota": "Tutto ciò che non è in ELITE CALCIO, CALCIO ITALIA o SUDAMERICA (calcolato da solo)."
   }
  },
  "altri": {
