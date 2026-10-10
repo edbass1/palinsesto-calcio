@@ -72,3 +72,9 @@ Un canale di una partita che è anche su Teleboy viene mostrato (anche se LiveOn
 Terza fonte: la guida pubblica di DAZN (Italia, Spagna, Francia, Germania, Portogallo, Belgio), senza login. Si prendono solo le partite di calcio **senza lucchetto** (gratis con l'account DAZN gratuito), con il canale "DAZN <Paese>" e l'etichetta **DAZN GRATIS**. Se la stessa partita c'è già (stessa logica: orario ±15 min + nomi simili) si aggiunge solo il canale. Le partite già finite (DAZN le segna ancora "Live") spariscono con la solita regola: inizio + 2h15. Se un paese non risponde, compare un avviso nel riquadro delle fonti non lette, senza bloccare l'aggiornamento. I paesi sono in `scraper/dazn.py` (`PAESI`). Prova senza DAZN: `python3 scraper/palinsesto.py --senza-dazn`.
 
 La voce DAZN in "Dove vederli" contiene i link alle versioni dei vari paesi e la nota sulla VPN (serve solo per registrarsi).
+
+### DAZN da un'altra macchina (pronto, non ancora attivo)
+
+Dai server di GitHub la guida DAZN risponde 403 (bloccata): in quel caso la pagina mostra una sola riga "DAZN non raggiungibile in questo aggiornamento" (o l'elenco dei paesi falliti). Se nel repository c'è `dati/dazn.json` generato da meno di 3 ore, il build lo usa al posto dei paesi falliti (se manca o è vecchio, viene ignorato).
+
+Per attivarlo, su un computer sempre acceso dove DAZN risponde (con `python3` e `gh` autenticato): `scripts/aggiorna_dazn.sh` legge DAZN, aggiorna via API solo `dati/dazn.json` e il commit fa ripartire il sito. Da mettere in cron ogni ora (es. `5 * * * *`). Prova senza toccare GitHub: `scripts/aggiorna_dazn.sh --prova`. Un commit all'ora tiene anche vivo il repository, così GitHub non sospende l'aggiornamento automatico dopo 60 giorni (ma riempie la cronologia di piccoli commit).

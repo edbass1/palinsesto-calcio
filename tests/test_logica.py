@@ -292,7 +292,8 @@ def test_dazn():
     st = {}
     gruppi, falliti, _ = p.raccogli(canali, ini, fine, dict(CONF_LOS, pausa_secondi=0), st, None,
                                     {"scarica_fn": finto_dazn})
-    assert "DAZN Francia (HTTP Error 503)" in falliti, falliti
+    assert falliti[-1:] == ["DAZN non raggiungibile per: Francia"], falliti
+    assert st["dazn_dettagli"] == ["DAZN Francia: HTTP Error 503"], st["dazn_dettagli"]
     assert st["dazn"] == {"it": 2, "de": 2, "pt": 10, "be": 2}, st["dazn"]
     tutte = {f'{e["casa"]} - {e["ospite"]}': (g["nome"], e) for g in gruppi for e in g["partite"]}
     nomi = lambda k: [c["nome"] for c in tutte[k][1]["canali"]]  # noqa: E731
@@ -306,7 +307,29 @@ def test_dazn():
     dove = json.loads((QUI.parent / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
     h = p.genera_html(v, dt.datetime(2026, 10, 10, 12, tzinfo=p.ROMA), gruppi, falliti, [], dove)
     assert "DAZN GRATIS</span>" in h and 'href="#dv-dazn"' in h and "https://www.dazn.com/nl-BE/home" in h
-    assert "DAZN Francia (HTTP Error 503)" in h
+    assert "DAZN non raggiungibile per: Francia" in h
+    # tutti i paesi falliti -> una sola riga
+    tutti_ko = lambda paese, primo, giorni: (None, "HTTP Error 403: Forbidden")  # noqa: E731
+    assert DZ.raccogli_dazn(ini, fine, scarica_fn=tutti_ko) == ([], ["DAZN non raggiungibile in questo aggiornamento"])
+    # dati esterni (dati/dazn.json): usati se freschi (< 3 ore), ignorati se vecchi o assenti
+    import tempfile, os  # noqa: E401
+    with tempfile.TemporaryDirectory() as d:
+        f = os.path.join(d, "dazn.json")
+        assert DZ.leggi_esterni(f) == {}  # file mancante: nessun problema
+        ora = dt.datetime(2026, 10, 10, 12, tzinfo=dt.timezone.utc)
+        part = {"it": [{"ts": 1791831600, "casa": "Levante", "ospite": "Siviglia", "comp": "LALIGA EA SPORTS"}]}
+        for ore, attese in ((1, 1), (4, 0)):
+            gen = (ora - dt.timedelta(hours=ore)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            with open(f, "w") as fh:
+                json.dump({"generato": gen, "paesi": part}, fh)
+            est = DZ.leggi_esterni(f, ora)
+            partite, avvisi = DZ.raccogli_dazn(ini, fine, scarica_fn=tutti_ko, esterni=est)
+            assert len(partite) == attese, (ore, partite)
+            assert avvisi == (["DAZN non raggiungibile per: Spagna, Francia, Germania, Portogallo, Belgio"] if attese
+                              else ["DAZN non raggiungibile in questo aggiornamento"]), avvisi
+        with open(f, "w") as fh:
+            fh.write("non json")
+        assert DZ.leggi_esterni(f, ora) == {}
     return st
 
 

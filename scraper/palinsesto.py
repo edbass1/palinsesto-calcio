@@ -323,8 +323,10 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         eventi, st["uniti"] = unisci_fonti(eventi, partite_los, conf_los.get("canali_in_chiaro", []))
         st["solo_liveonsat"] = sum(1 for e in eventi if e["fonti"] == ["LiveOnSat"])
     if conf_dazn is not None:
+        st["dazn_dettagli"] = []
+        esterni = dazn.leggi_esterni(conf_dazn["file_esterno"]) if conf_dazn.get("file_esterno") else {}
         partite_dazn, falliti_dazn = dazn.raccogli_dazn(inizio, fine, conf_dazn.get("paesi") or dazn.PAESI,
-                                                       conf_dazn.get("scarica_fn"))
+                                                       conf_dazn.get("scarica_fn"), esterni, st["dazn_dettagli"])
         falliti += falliti_dazn
         st["dazn"] = {}
         for p in partite_dazn:
@@ -723,7 +725,7 @@ def main():
     if Path(a.teleboy).exists():
         tb = teleboy_mod.carica(a.teleboy, aggiorna=not a.teleboy_offline)
         print(f"Teleboy: {tb.n} canali gratuiti ({tb.fonte})")
-    conf_dazn = None if a.senza_dazn else {}
+    conf_dazn = None if a.senza_dazn else {"file_esterno": str(RADICE / "dati" / "dazn.json")}
     gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st, tb, conf_dazn)
     n_tutte = sum(len(g["partite"]) for g in gruppi)
     gruppi = togli_finite(gruppi, dt.datetime.now(ROMA))
@@ -751,11 +753,13 @@ def main():
     if "dazn" in st:
         print(f"  DAZN gratis per paese: {st['dazn']} · unite a partite già presenti: {len(st['uniti_dazn'])} "
               f"· solo DAZN: {st['solo_dazn']}")
+        for r in st["dazn_dettagli"]:
+            print("  ", r)
     for f in falliti:
         print("  FALLITO:", f)
     # se nessun canale è stato scaricato, esce con errore: così il deploy non sostituisce la pagina buona
     nomi = {c["nome"] for c in canali if "dazn" not in (c["nome"] + c["url"]).lower()}
-    lstv_ko = nomi and len({f.split(" (")[0] for f in falliti if not f.startswith("LiveOnSat")}) >= len(nomi)
+    lstv_ko = nomi and len({f.split(" (")[0] for f in falliti if not f.startswith(("LiveOnSat", "DAZN"))}) >= len(nomi)
     los_ko = not conf_los or st.get("pagine_liveonsat_fallite", 0) >= st.get("pagine_liveonsat", 0)
     if lstv_ko and los_ko:
         print("ERRORE: nessuna fonte scaricata (siti irraggiungibili o bloccati).", file=sys.stderr)
