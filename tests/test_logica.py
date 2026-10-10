@@ -110,6 +110,27 @@ def test_fta():
     assert x["canali_fta"] == ["Rai 1", "RaiPlay"] and x["comp"].startswith("Italian Serie A"), x
 
 
+def test_esclusi():
+    """Megogo (e DAZN) esclusi; partite che avevano solo Megogo tra i canali in chiaro spariscono."""
+    assert "megogo" in [x.lower() for x in CONF_LOS["escludi_canali"]]
+    conf = dict(CONF_LOS, pausa_secondi=0, pagine=["https://liveonsat.com/2day.php", "https://liveonsat.com/europe-france-all-football.php"])
+    ini = dt.datetime(2026, 10, 9, tzinfo=p.ROMA); fine = ini + dt.timedelta(days=4)
+    partite, _ = L.raccogli_los(conf, ini, fine, scarica_fn=finto_los)
+    titoli = {x["titolo"]: x for x in partite}
+    assert not any("megogo" in c.lower() or "dazn" in c.lower() for x in partite for c in x["canali_fta"])
+    # nel file salvato Lille-Le Havre e Monaco-Toulouse avevano solo Megogo Sport Ukraine come canale in chiaro
+    grezzo = {x["titolo"]: x for x in L.analizza(finto_los("2day.php")[0], CONF_LOS["canali_in_chiaro"], CONF_LOS["alias_canali"], ())}
+    assert grezzo["Lille v Le Havre"]["canali_fta"] == ["Megogo Sport Ukraine"]
+    assert "Lille v Le Havre" not in titoli and "Monaco v Toulouse" not in titoli
+    assert "Paris St Germain v Le Mans" in titoli  # ha altri canali in chiaro
+    # HTML sintetico: maiuscole/minuscole indifferenti
+    finto = ('<span class = comp_head>X</span><div class = blockfix ><div class = fLeft style="a">A v B</div>'
+             '<div data-timestamp="1791648000"></div>'
+             '<a href="#" class = chan_live_free onmouseover="x" onmouseout="return nd();">MEGOGO Football HD </a>'
+             '<a href="#" class = chan_live_free onmouseover="x" onmouseout="return nd();">Rai 2 HD </a></div>')
+    assert L.analizza(finto, [], [], ["dazn", "megogo"])[0]["canali_fta"] == ["Rai 2"]
+
+
 def test_orari():
     """data-timestamp = secondi UTC; conversione a Europe/Rome con ora legale/solare."""
     ge = next(x for x in los_pagina("europe-italy-all-football") if x["titolo"] == "Genoa v Fiorentina")
@@ -250,6 +271,7 @@ if __name__ == "__main__":
     test_finestra(); print("finestra: OK")
     print("LiveSoccerTV 9/10/2026:", test_fixture(), "partite – OK")
     test_fta(); print("LiveOnSat canali in chiaro: OK")
+    test_esclusi(); print("LiveOnSat canali esclusi (Megogo/DAZN): OK")
     test_orari(); print("LiveOnSat orari/fuso: OK")
     test_dedup(); print("doppioni (nomi/orari): OK")
     test_ordine(); print("ordine competizioni: OK")

@@ -2,7 +2,7 @@
 
 Pagina web (sfondo nero, caratteri grandi) con le partite trasmesse oggi e nei 3 giorni successivi sui canali scelti, con **orari italiani**. Si aggiorna da sola su GitHub Pages.
 
-- **Periodo**: 4 giorni di calendario, da oggi alle 00:00 (ora italiana) fino alla fine del 3° giorno successivo (es. sabato 10 → *Sab 10 – Mar 13 ottobre*). Le partite di oggi già giocate o in corso restano visibili e sono segnate *GIÀ GIOCATA* / *IN CORSO*.
+- **Periodo**: 4 giorni di calendario, da oggi alle 00:00 (ora italiana) fino alla fine del 3° giorno successivo (es. sabato 10 → *Sab 10 – Mar 13 ottobre*). Le partite finite (iniziate da più di 2h15m) vengono tolte a ogni aggiornamento e spariscono anche dalla pagina aperta; quelle in corso restano con l'etichetta *IN CORSO*.
 - **Fonti**:
   - pagine canale di [LiveSoccerTV](https://www.livesoccertv.com/) (i canali di `canali.json`);
   - [LiveOnSat](https://liveonsat.com/): tutte le partite con almeno un canale **in chiaro** (gratuito), mostrando solo quei canali.
@@ -36,6 +36,7 @@ In `liveonsat.json`:
 - `pagine`: pagine di LiveOnSat da leggere (una per campionato/nazione; `2day.php` = tutte le partite di oggi);
 - `canali_in_chiaro`: canali considerati gratuiti anche se LiveOnSat non li segna in rosso (espressioni regolari sul nome del canale);
 - `alias_canali`: per unire più nomi dello stesso canale (es. tutte le varianti di TV5 Monde).
+- `escludi_canali`: canali da non mostrare mai (basta una parola del nome, es. `megogo`). DAZN è sempre escluso. Se una partita resta senza canali in chiaro, sparisce.
 
 Per usare solo LiveSoccerTV: `python3 scraper/palinsesto.py --senza-liveonsat`.
 

@@ -139,7 +139,7 @@ def in_chiaro(nome: str, regole) -> bool:
     return any(re.search(r["regex"], nome, re.I) for r in regole)
 
 
-def analizza(h: str, regole, alias):
+def analizza(h: str, regole, alias, escludi=("dazn",)):
     """Restituisce le partite della pagina con i soli canali in chiaro (anche liste vuote)."""
     out = []
     comp = None
@@ -177,8 +177,9 @@ def analizza(h: str, regole, alias):
                 continue  # differite / rinviate
             pulito = pulisci_canale(nome, alias)
             tutti.append(pulito)
-            if "dazn" in pulito.lower():
-                continue
+            nome_l = (pulito + " " + nome).lower()
+            if any(x.lower() in nome_l for x in escludi):
+                continue  # canali esclusi (DAZN, Megogo, ... vedi "escludi_canali" in liveonsat.json)
             if classe == "chan_live_free" or in_chiaro(pulito, regole) or in_chiaro(html.unescape(nome).strip(), regole):
                 if pulito not in canali:
                     canali.append(pulito)
@@ -191,13 +192,14 @@ def raccogli_los(conf, inizio, fine, scarica_fn=None):
     scarica_fn = scarica_fn or scarica
     pausa = conf.get("pausa_secondi", 0.7)
     regole, alias = conf.get("canali_in_chiaro", []), conf.get("alias_canali", [])
+    escludi = ["dazn"] + [x for x in conf.get("escludi_canali", []) if x]
     partite, falliti = {}, []
     for url in conf.get("pagine", []):
         h, err = scarica_fn(url)
         if err:
             falliti.append(f"LiveOnSat {url.rsplit('/', 1)[-1]} ({err})")
             continue
-        for p in analizza(h, regole, alias):
+        for p in analizza(h, regole, alias, escludi):
             quando = dt.datetime.fromtimestamp(p["ts"], UTC)
             if not (inizio <= quando < fine) or not p["canali_fta"]:
                 continue
