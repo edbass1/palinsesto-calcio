@@ -90,6 +90,12 @@ class Teleboy:
         self.ids.update(ID_LETTI if nomi_letti else {})
         self.modello_link = conf.get("link_canale") or LINK_CANALE
 
+    def paese(self, nome_teleboy):
+        for n, p in self.canali.values():
+            if n == nome_teleboy:
+                return p
+        return None
+
     def link(self, nome_teleboy):
         """Link diretto al canale nel player Teleboy, se si conosce il numero del canale."""
         i = self.ids.get(nome_teleboy)

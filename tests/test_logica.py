@@ -112,6 +112,39 @@ def test_fta():
     assert x["canali_fta"] == ["Rai 1", "RaiPlay"] and x["comp"].startswith("Italian Serie A"), x
 
 
+def test_russi_iraniani():
+    """Canali russi e iraniani esclusi ovunque (nome, parola di paese, paese Teleboy); Idman TV mai escluso."""
+    f = U.regola_canali(CONF_LOS)
+    for n in ("TV Start Russia HD", "TV Start Triumph HD", "Start TV", "Start", "MATCH! Futbol 1 HD", "MATCH! Premier HD", "Match TV",
+              "Okko Futbol HD", "viju+ Sport HD", "KHL Prime", "Pervyi Kanal", "Rossiya 1", "IRIB Varzesh HD", "IRIB 3", "GEM Sport 1",
+              "Meraj TV", "Persiana Sports 2", "Manoto", "Tapesh TV", "Eurosport Russia"):
+        assert f(n), n
+    for n in ("Idman TV HD", "Idman TV Russia", "Nova Sports Start Hellas HD", "Magenta Hellas Sport Start", "Setanta Sports 1 Eurasia HD",
+              "Match 4 Hungary HD", "Premier Sports 1 UK HD", "TNT Sports 1 HD", "SRF zwei", "Gem Football Club TV", "Solh TV"):
+        assert f(n) is None, (n, f(n))
+    assert f("Canale X", "ru") and f("Canale X", "ir") and f("Canale X", "ch") is None  # paese Teleboy
+    # dati salvati: Seoul-Jeju, Feyenoord-AZ, Ajax-NEC avevano solo TV Start Russia -> spariscono; Arsenal-Leeds resta con Idman TV
+    canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
+    p.scarica, L.scarica = finto_lstv, finto_los
+    ini = dt.datetime(2026, 10, 9, tzinfo=p.ROMA); fine = ini + dt.timedelta(days=4)
+    st = {}
+    gruppi, _, _ = p.raccogli(canali, ini, fine, dict(CONF_LOS, pausa_secondi=0), st)
+    tutte = {f'{e["casa"]} - {e["ospite"]}': e for g in gruppi for e in g["partite"]}
+    nomi = [k["nome"] for e in tutte.values() for k in e["canali"]]
+    assert not any(f(n) for n in nomi), [n for n in nomi if f(n)]
+    assert "TV Start Russia" in st["canali_ru_ir"], st["canali_ru_ir"]
+    for x in ("FC Seoul - Jeju United", "Feyenoord - AZ Alkmaar", "Ajax - NEC Nijmegen"):
+        assert x in st["tolte_esclusi"] and x not in tutte, x
+    ars = [e for k, e in tutte.items() if "Arsenal" in k and "Leeds" in k]
+    assert ars and "Idman TV" in [k["nome"] for k in ars[0]["canali"]], ars
+    # mai_escludere vince anche su escludi_canali
+    finto = ('<span class = comp_head>X</span><div class = blockfix ><div class = fLeft style="a">A v B</div>'
+             '<div data-timestamp="1791648000"></div>'
+             '<a href="#" class = chan_live_free onmouseover="x" onmouseout="return nd();">Idman TV Persiana </a></div>')
+    assert L.analizza(finto, [], [], ["persiana"])[0]["canali_fta"] == ["Idman TV Persiana"]
+    return st
+
+
 def test_esclusi():
     """Megogo (e DAZN) esclusi; partite che avevano solo Megogo tra i canali in chiaro spariscono."""
     assert "megogo" in [x.lower() for x in CONF_LOS["escludi_canali"]]
@@ -515,7 +548,7 @@ def test_unione():
     # pagine non salvate nei fixture -> segnalate, senza bloccare
     assert len(falliti) == len(conf["pagine"]) - 7 and all(f.startswith("LiveOnSat") for f in falliti), falliti
     assert st["livesoccertv"] == 62 and st["liveonsat"] > 0 and st["uniti"] and st["solo_liveonsat"] > 0, st
-    assert st["totale"] == 62 + st["liveonsat"] - len(st["uniti"]), st
+    assert st["totale"] == 62 + st["liveonsat"] - len(st["uniti"]) - len(st["tolte_esclusi"]), st  # 3 solo con TV Start Russia
     # doppioni uniti: canali LiveSoccerTV + canali in chiaro LiveOnSat, una sola riga
     psg = tutte["PSG - Le Mans"]
     assert [(c["nome"], c["fta"]) for c in psg["canali"]] == [("TV5 Monde", True)], psg["canali"]  # Persiana esclusa
@@ -571,6 +604,7 @@ if __name__ == "__main__":
     print("LiveSoccerTV 9/10/2026:", test_fixture(), "partite – OK")
     test_fta(); print("LiveOnSat canali in chiaro: OK")
     test_esclusi(); print("LiveOnSat canali esclusi (Megogo/DAZN): OK")
+    s = test_russi_iraniani(); print(f"canali russi/iraniani esclusi: {sorted(s['canali_ru_ir'])}, partite tolte: {s['tolte_esclusi']} – OK")
     test_orari(); print("LiveOnSat orari/fuso: OK")
     test_dedup(); print("doppioni (nomi/orari): OK")
     test_ordine(); print("ordine competizioni: OK")

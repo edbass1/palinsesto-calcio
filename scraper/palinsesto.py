@@ -395,12 +395,31 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         st["calcio_stream"] = len(calcio_stream)
     # esclusioni permanenti (liveonsat.json -> escludi_canali) applicate a tutte le fonti
     escludi = ["dazn"] + [x.lower() for x in (conf_los or {}).get("escludi_canali", []) if x]
+    mai = [x.lower() for x in (conf_los or {}).get("mai_escludere", ["idman"]) if x]
+    ru_ir = unisci.regola_canali(conf_los or {})
     st["tolte_esclusi"] = []
+    st["canali_ru_ir"] = {}  # nome canale -> motivo
     rimasti = []
+
+    def tieni(k):
+        n = k["nome"].lower()
+        if any(w in n for w in mai):
+            return True  # mai_escludere vince sempre (Idman TV)
+        if k.get("dazn_gratis"):
+            return True
+        if any(x in n for x in escludi):
+            return False
+        tb = teleboy.trova(k["nome"]) if teleboy is not None else None
+        m = ru_ir(k["nome"], teleboy.paese(tb) if tb else None)
+        if m:
+            st["canali_ru_ir"][k["nome"]] = m
+            return False
+        return True
+
     for e in eventi:
-        # i canali DAZN delle altre fonti sono esclusi; restano solo le partite gratis prese dalla guida DAZN
-        e["canali"] = [k for k in e["canali"]
-                       if k.get("dazn_gratis") or not any(x in k["nome"].lower() for x in escludi)]
+        # i canali DAZN delle altre fonti sono esclusi; restano solo le partite gratis prese dalla guida DAZN;
+        # esclusi anche i canali russi e iraniani (liveonsat.json -> escludi_russi_iraniani), tranne "mai_escludere"
+        e["canali"] = [k for k in e["canali"] if tieni(k)]
         if e["canali"]:
             rimasti.append(e)
         else:
@@ -877,6 +896,10 @@ def main():
     if "calcio_stream" in st:
         print(f"  Altri sport: {len(st['altri_sport'])} eventi · calcio in streaming: {st['calcio_stream']} "
               f"(uniti a partite già presenti: {len(st['uniti_stream'])})")
+    for n, m in sorted(st.get("canali_ru_ir", {}).items()):
+        print(f"  canale russo/iraniano escluso: {n} – {m}")
+    for x in st.get("tolte_esclusi", []):
+        print("  partita tolta (nessun canale rimasto):", x)
     for x in st.get("programmi_tolti", []):
         print("  programma sportivo tolto:", x)
     for x in st.get("femminili_tolte", []):

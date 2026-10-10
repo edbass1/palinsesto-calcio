@@ -111,3 +111,28 @@ def femminile(rx, competizione="", squadre=()):
 def chiave_canale(nome: str) -> str:
     s = unicodedata.normalize("NFKD", nome).encode("ascii", "ignore").decode().lower()
     return re.sub(r"[^a-z0-9]+", "", re.sub(r"\b(hd|uk|tv)\b", "", s))
+
+
+def regola_canali(conf):
+    """Funzione nome -> motivo (testo) se il canale è russo/iraniano da escludere, altrimenti None.
+    conf = liveonsat.json (chiavi "escludi_russi_iraniani" e "mai_escludere"); paese_teleboy(nome) -> "ru"/"ir"/... opzionale."""
+    r = (conf or {}).get("escludi_russi_iraniani") or {}
+    paesi = re.compile(r"(?<![\wа-я])(?:" + "|".join(map(re.escape, r.get("paesi") or ["(?!x)x"])) + r")(?![\wа-я])", re.I)
+    nomi = [re.compile(x, re.I) for x in r.get("nomi", [])]
+    pt = {x.lower() for x in r.get("paesi_teleboy", [])}
+    mai = [x.lower() for x in (conf or {}).get("mai_escludere", []) if x]
+
+    def motivo(nome, paese_teleboy=None):
+        n = re.sub(r"\s+", " ", nome or "").strip()
+        if any(x in n.lower() for x in mai):
+            return None
+        m = paesi.search(n)
+        if m:
+            return f"paese «{m.group(0)}» nel nome"
+        for rx in nomi:
+            if rx.search(n):
+                return f"nome noto ({rx.pattern})"
+        if paese_teleboy and paese_teleboy.lower() in pt:
+            return f"paese Teleboy {paese_teleboy}"
+        return None
+    return motivo

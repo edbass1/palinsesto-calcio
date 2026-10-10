@@ -141,6 +141,9 @@ def in_chiaro(nome: str, regole) -> bool:
     return any(re.search(r["regex"], nome, re.I) for r in regole)
 
 
+MAI_ESCLUDERE = ["idman"]  # aggiornato da raccogli_los con liveonsat.json -> mai_escludere
+
+
 def analizza(h: str, regole, alias, escludi=("dazn",), teleboy=None):
     """Restituisce le partite della pagina con i soli canali in chiaro (anche liste vuote)."""
     out = []
@@ -180,7 +183,7 @@ def analizza(h: str, regole, alias, escludi=("dazn",), teleboy=None):
             pulito = pulisci_canale(nome, alias)
             tutti.append(pulito)
             nome_l = (pulito + " " + nome).lower()
-            if any(x.lower() in nome_l for x in escludi):
+            if any(x.lower() in nome_l for x in escludi) and not any(w in nome_l for w in MAI_ESCLUDERE):
                 continue  # canali esclusi (DAZN, Megogo, ... vedi "escludi_canali" in liveonsat.json)
             if classe == "chan_live_free" or in_chiaro(pulito, regole) or in_chiaro(html.unescape(nome).strip(), regole):
                 if pulito not in canali:
@@ -199,6 +202,7 @@ def raccogli_los(conf, inizio, fine, scarica_fn=None, teleboy=None):
     pausa = conf.get("pausa_secondi", 0.7)
     regole, alias = conf.get("canali_in_chiaro", []), conf.get("alias_canali", [])
     escludi = ["dazn"] + [x for x in conf.get("escludi_canali", []) if x]
+    MAI_ESCLUDERE[:] = [x.lower() for x in conf.get("mai_escludere", ["idman"]) if x]
     partite, falliti = {}, []
     for url in conf.get("pagine", []):
         h, err = scarica_fn(url)

@@ -210,5 +210,50 @@
   "feminino",
   "feminina",
   "femenil"
+ ],
+ "_nota_escludi_russi_iraniani": "Canali russi e iraniani esclusi da tutte le fonti. Un canale è escluso se: il nome contiene una parola di 'paesi' (es. 'TV Start Russia'), oppure corrisponde a un'espressione di 'nomi' (regex, maiuscole/minuscole indifferenti), oppure su Teleboy ha paese in 'paesi_teleboy'. 'mai_escludere' vince sempre (es. Idman TV, Azerbaigian). Nomi verificati sui dati LiveOnSat del 10/10/2026: TV Start Russia HD, TV Start Triumph HD, MATCH! Futbol 1-3, MATCH! Premier, MATCH! Russia, MATCH! TV, Okko Futbol, Okko Prime Sport, viju+ Sport (Russia); IRIB Varzesh, GEM Sport 1, Meraj TV, Persiana Sport/Sports 2/3 (Iran). Gli altri nomi sono canali russi/iraniani noti, messi per sicurezza. Attenzione: 'Nova Sports Start' e 'Magenta Hellas Sport Start' sono greci e NON sono esclusi.",
+ "escludi_russi_iraniani": {
+  "paesi": [
+   "russia",
+   "russian",
+   "rossija",
+   "россия",
+   "iran",
+   "iranian"
+  ],
+  "paesi_teleboy": [
+   "ru",
+   "ir"
+  ],
+  "nomi": [
+   "^tv ?start\\b",
+   "^start( tv)?\\b",
+   "\\bstart tv\\b",
+   "\\btv start\\b",
+   "^match!",
+   "^match ?tv\\b",
+   "^match! ?(futbol|premier|arena|igra|strana)",
+   "\\bokko\\b",
+   "\\bviju\\b",
+   "\\bkhl\\b",
+   "\\bpervyi\\b",
+   "\\bperviy kanal\\b",
+   "\\bchannel one russia\\b",
+   "\\brossiya\\b",
+   "\\bnash futbol\\b",
+   "\\bkinopoisk\\b",
+   "\\birib\\b",
+   "\\bvarzesh\\b",
+   "\\bvarzish\\b",
+   "\\bpersiana\\b",
+   "^gem (sport|tv|series|drama|life|kids|bollywood|rubix|onyx|river)\\b",
+   "\\bmeraj\\b",
+   "\\bmanoto\\b",
+   "\\btapesh\\b",
+   "\\bnavahang\\b"
+  ]
+ },
+ "mai_escludere": [
+  "idman"
  ]
 }

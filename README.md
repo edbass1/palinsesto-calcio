@@ -91,3 +91,6 @@ Fonti: API pubbliche SRG (`il.srgssr.ch/integrationlayer/2.0/<srf|rts|rsi>/media
 
 ### Solo dirette di gare, niente programmi
 In ALTRI SPORT (e per le partite di calcio prese da SRF/RTS/RSI/ARD) restano solo le dirette di gare e partite: magazine, studio, highlights, sintesi, repliche e simili (Sportpanorama, Sportschau, Sport aktuell, Telegiornale sportivo…) vengono tolti. Regole e parole sono in `altri_sport.json`: `escludi_programmi` (se una di queste parole è nel titolo, l'elemento è tolto) e `parole_evento` (indizi di gara, usati quando la fonte non lo dice da sola, es. ARD). Il log della build elenca ogni programma tolto.
+
+## Niente canali russi e iraniani
+Esclusi da tutte le fonti i canali russi e iraniani (TV Start, MATCH!, Okko, viju+, IRIB, GEM, Meraj, Persiana…): regole in `liveonsat.json` → `escludi_russi_iraniani` (parole di paese nel nome, nomi noti come espressioni regolari, paese del canale su Teleboy). `mai_escludere` vince sempre: oggi contiene `idman` (Idman TV, Azerbaigian). Se a una partita non resta nessun canale, la partita sparisce. Il log della build elenca canali esclusi e partite tolte.
