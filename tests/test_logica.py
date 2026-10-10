@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test offline: finestra del weekend, LiveSoccerTV (pagine salvate il 9/10/2026, 62 partite attese),
+"""Test offline: finestra di 4 giorni, LiveSoccerTV (pagine salvate il 9/10/2026, 62 partite attese),
 LiveOnSat (pagine salvate il 10/10/2026): canali in chiaro, orari, unione dei doppioni."""
 import datetime as dt, gzip, json, sys
 from pathlib import Path
@@ -30,27 +30,42 @@ def los_pagina(nome):
 
 
 def test_finestra():
-    casi = {  # ora italiana -> venerdì atteso
-        "2026-10-09T10:00": "2026-10-09", "2026-10-10T18:00": "2026-10-09", "2026-10-12T23:59": "2026-10-09",
-        "2026-10-13T00:00": "2026-10-16", "2026-10-15T23:00": "2026-10-16", "2026-10-26T12:00": "2026-10-23",
+    """Finestra mobile: oggi 00:00 -> fine del 3° giorno successivo (4 giorni), ora italiana."""
+    casi = {  # ora italiana -> (primo giorno, ultimo giorno, testo)
+        "2026-10-10T18:30": ("2026-10-10", "2026-10-13", "Sab 10 – Mar 13 ottobre"),
+        "2026-10-10T00:00": ("2026-10-10", "2026-10-13", "Sab 10 – Mar 13 ottobre"),
+        "2026-10-09T23:59": ("2026-10-09", "2026-10-12", "Ven 9 – Lun 12 ottobre"),
+        "2026-10-14T09:00": ("2026-10-14", "2026-10-17", "Mer 14 – Sab 17 ottobre"),
+        "2026-10-30T12:00": ("2026-10-30", "2026-11-02", "Ven 30 ottobre – Lun 2 novembre"),
+        "2026-12-30T12:00": ("2026-12-30", "2027-01-02", "Mer 30 dicembre – Sab 2 gennaio"),
     }
-    for ora, ven in casi.items():
-        v, ini, fine = p.finestra_weekend(dt.datetime.fromisoformat(ora).replace(tzinfo=p.ROMA))
-        assert str(v) == ven, (ora, v)
-        assert ini.hour == 18 and (fine - ini) == dt.timedelta(days=3, hours=6), (ini, fine)
-    # cambio d'ora: weekend 23-26 ottobre 2026 (fine ora legale domenica 25)
-    v, ini, fine = p.finestra_weekend(dt.datetime(2026, 10, 24, 12, tzinfo=p.ROMA))
+    for ora, (primo, ultimo, testo) in casi.items():
+        g, ini, fine = p.finestra(dt.datetime.fromisoformat(ora).replace(tzinfo=p.ROMA))
+        assert str(g) == primo and (ini.hour, ini.minute) == (0, 0) and ini.date() == g, (ora, g, ini)
+        assert str((fine - dt.timedelta(seconds=1)).date()) == ultimo and (fine.hour, fine.minute) == (0, 0), (ora, fine)
+        assert p.periodo(g) == testo, (ora, p.periodo(g))
+    # un'ora UTC tarda è già "domani" in Italia
+    g, _, _ = p.finestra(dt.datetime(2026, 10, 9, 22, 30, tzinfo=dt.timezone.utc))
+    assert str(g) == "2026-10-10"
+    # cambio d'ora (domenica 25/10/2026): la finestra 24-27 ottobre dura 97 ore
+    g, ini, fine = p.finestra(dt.datetime(2026, 10, 24, 12, tzinfo=p.ROMA))
     assert ini.utcoffset() == dt.timedelta(hours=2) and fine.utcoffset() == dt.timedelta(hours=1)
+    assert fine.timestamp() - ini.timestamp() == 97 * 3600
+    # ora legale (domenica 28/3/2027): 95 ore
+    g, ini, fine = p.finestra(dt.datetime(2027, 3, 27, 9, tzinfo=p.ROMA))
+    assert fine.timestamp() - ini.timestamp() == 95 * 3600
 
 
 def test_fixture():
-    """Solo LiveSoccerTV: deve dare lo stesso risultato di prima (62 partite)."""
+    """Solo LiveSoccerTV, finestra ven 9 – lun 12: le 62 partite di prima (da ven 18:00) + 2 di venerdì pomeriggio."""
     canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
     p.scarica = finto_lstv
-    v, ini, fine = p.finestra_weekend(dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA))
+    v, ini, fine = p.finestra(dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA))
     gruppi, falliti, senza = p.raccogli(canali, ini, fine)
     n = sum(len(g["partite"]) for g in gruppi)
-    assert n == 62 and not falliti and not senza, (n, falliti, senza)
+    assert n == 64 and not falliti and not senza, (n, falliti, senza)
+    prima_18 = [e for g in gruppi for e in g["partite"] if e["quando"] < dt.datetime(2026, 10, 9, 18, tzinfo=p.ROMA)]
+    assert sorted(e["casa"] for e in prima_18) == ["Al Fateh", "Corvinul Hunedoara"], prima_18
     nomi = [g["nome"] for g in gruppi]
     assert nomi[:6] == ["SERIE A", "SERIE B", "PREMIER LEAGUE", "LALIGA", "BUNDESLIGA", "LIGUE 1"], nomi
     serie_a = [(e["quando"].strftime("%a %H:%M"), f'{e["casa"]} - {e["ospite"]}', [c["nome"] for c in e["canali"]])
@@ -59,7 +74,7 @@ def test_fixture():
     psg = [e for g in gruppi for e in g["partite"] if "PSG" in e["titolo"]][0]
     assert [c["nome"] for c in psg["canali"]] == ["TV5 Monde"]
     html = p.genera_html(v, dt.datetime(2026, 10, 9, 12, 47, tzinfo=p.ROMA), gruppi, ["Canale X (HTTP 404)"], [])
-    assert "non scaricati" in html and "Canale X" in html and html.count('class="partita"') == 62
+    assert "non scaricati" in html and "Canale X" in html and html.count('class="partita"') == 64
     assert not any("dazn" in c["nome"].lower() for g in gruppi for e in g["partite"] for c in e["canali"])
     return n
 
@@ -127,20 +142,62 @@ def test_dedup():
     assert not U.stessa_partita(t, "Manchester City", "Arsenal", t, "Manchester United", "Chelsea")
 
 
+def test_ordine():
+    """Serie A, Serie B, Coppa Italia, Champions, Europa, Conference, poi i grandi campionati, poi il resto."""
+    lstv = [p.competizione(f"/competitions/{u}", "x")[0] for u in (
+        "italy/serie-a/", "italy/serie-b/", "italy/coppa-italia/", "international/uefa-champions-league/",
+        "international/uefa-europa-league/", "international/uefa-europa-conference-league/",
+        "england/premier-league/", "spain/primera-division/", "germany/bundesliga/", "france/ligue-1/",
+        "england/championship/", "scotland/premiership/")]
+    assert lstv == sorted(lstv) and len(set(lstv[:10])) == 10, lstv
+    los = [L.competizione_los(n) for n in (
+        "Italian Serie A - Week 6", "Italian Serie BKT - Week 7", "Coppa Italia - Round of 16",
+        "UEFA Champions League - League Phase", "UEFA Europa League - League Phase", "UEFA Conference League - League Phase",
+        "English Premier League - Week 6", "Spanish La Liga (Primera) - Week 8", "German 1. Bundesliga - Week 5",
+        "French Ligue 1 - Week 6", "English Championship - Week 9", "Scottish Premiership - Week 8")]
+    assert [o for o, _ in los] == sorted(o for o, _ in los), los
+    assert [e for _, e in los[3:6]] == ["UEFA CHAMPIONS LEAGUE", "UEFA EUROPA LEAGUE", "UEFA CONFERENCE LEAGUE"]
+    assert [e for _, e in los[:6]] == [p.competizione(f"/competitions/{u}", "x")[1] for u in (
+        "italy/serie-a/", "italy/serie-b/", "italy/coppa-italia/", "international/uefa-champions-league/",
+        "international/uefa-europa-league/", "international/uefa-europa-conference-league/")]
+
+
+def test_dove():
+    """'Dove vederli': badge con link alla voce, voci 'utente' sempre presenti, link esterni in nuova scheda."""
+    dove = json.loads((QUI.parent / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    assert all(v["fonte"] in ("utente", "ricerca") for v in dove)
+    voce = lambda n: (p.voce_dove(n, dove) or {}).get("id")
+    assert [voce(n) for n in ("Prima Sport 3", "Golazo Network", "ITV1 UK", "ITV X", "BBC Alba", "BBC One",
+                              "SportyNet Brasil", "SportyNet+ Brasil", "TV5 Monde", "Sporty TV Africa", "RSI La 2 Svizzera",
+                              "Persiana Sports 2")] == [
+        "prima-sport", "golazo", "itv1", "itvx", "bbc-alba", "bbc", "sportynet-brasil", "sportynet-plus", "tv5monde",
+        "sporty-tv-africa", "rsi", None]
+    assert "PPV" in next(v for v in dove if v["id"] == "sportynet-plus")["note"]
+    e = {"ts": 1791648000, "quando": dt.datetime(2026, 10, 10, 18, tzinfo=p.ROMA), "casa": "A", "ospite": "B",
+         "canali": [{"nome": "Prima Sport 2", "fta": False}, {"nome": "RSI La 2 Svizzera", "fta": True},
+                    {"nome": "Persiana Sports 2", "fta": True}]}
+    h = p.genera_html(dt.date(2026, 10, 10), dt.datetime(2026, 10, 10, 18, tzinfo=p.ROMA),
+                      [{"nome": "X", "partite": [e]}], [], [], dove)
+    assert '<a href="#dv-prima-sport"' in h and '<a href="#dv-rsi"' in h and "Persiana Sports 2</li>" in h
+    assert 'id="dv-golazo"' in h and 'id="dv-dazn-europa"' in h and 'id="dv-rsi"' in h  # utente sempre, ricerca se usata
+    assert 'id="dv-zdf"' not in h and 'target="_blank" rel="noopener noreferrer"' in h
+    assert "Calcio in TV · Sab 10 – Mar 13 ottobre" in h and h.count("data-filtro=") == 5 and "eekend" not in h
+
+
 def test_unione():
-    """LiveSoccerTV (9/10) + LiveOnSat (10/10), weekend 9-12 ottobre."""
+    """LiveSoccerTV (9/10) + LiveOnSat (10/10), finestra ven 9 – lun 12 ottobre."""
     canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
     p.scarica = finto_lstv
     L.scarica = finto_los
     conf = dict(CONF_LOS, pausa_secondi=0)
-    v, ini, fine = p.finestra_weekend(dt.datetime(2026, 10, 10, 18, 30, tzinfo=p.ROMA))
+    v, ini, fine = p.finestra(dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA))
     st = {}
     gruppi, falliti, senza = p.raccogli(canali, ini, fine, conf, st)
     tutte = {f'{e["casa"]} - {e["ospite"]}': e for g in gruppi for e in g["partite"]}
     # pagine non salvate nei fixture -> segnalate, senza bloccare
     assert len(falliti) == len(conf["pagine"]) - 7 and all(f.startswith("LiveOnSat") for f in falliti), falliti
-    assert st["livesoccertv"] == 62 and st["liveonsat"] > 0 and st["uniti"] and st["solo_liveonsat"] > 0, st
-    assert st["totale"] == 62 + st["liveonsat"] - len(st["uniti"]), st
+    assert st["livesoccertv"] == 64 and st["liveonsat"] > 0 and st["uniti"] and st["solo_liveonsat"] > 0, st
+    assert st["totale"] == 64 + st["liveonsat"] - len(st["uniti"]), st
     # doppioni uniti: canali LiveSoccerTV + canali in chiaro LiveOnSat, una sola riga
     psg = tutte["PSG - Le Mans"]
     assert [(c["nome"], c["fta"]) for c in psg["canali"]] == [("TV5 Monde", True), ("Persiana Sports 2", True)], psg["canali"]
@@ -168,6 +225,8 @@ if __name__ == "__main__":
     test_fta(); print("LiveOnSat canali in chiaro: OK")
     test_orari(); print("LiveOnSat orari/fuso: OK")
     test_dedup(); print("doppioni (nomi/orari): OK")
+    test_ordine(); print("ordine competizioni: OK")
+    test_dove(); print("dove vederli: OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"
           f" = {st['totale']} – OK")

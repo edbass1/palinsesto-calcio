@@ -21,45 +21,154 @@
     "https://liveonsat.com/club-uefa-europa-league.php",
     "https://liveonsat.com/club-uefa-europa-conference-league.php",
     "https://liveonsat.com/club-asia-africa-all-football.php",
-    "https://liveonsat.com/americas-all-football.php"
+    "https://liveonsat.com/americas-all-football.php",
+    "https://liveonsat.com/europe-poland-elstraklasa.php",
+    "https://liveonsat.com/europe-azerbaijan-premyer-liqa.php",
+    "https://liveonsat.com/womens-televised-football.php"
   ],
   "canali_in_chiaro": [
-    {"regex": "^BBC\\b", "nota": "BBC One/Two/Three/Scotland/Alba/iPlayer/Red Button (UK)"},
-    {"regex": "^ITV\\b", "nota": "ITV1/ITV4/ITVX (UK)"},
-    {"regex": "^STV\\b", "nota": "STV / STV Player (Scozia)"},
-    {"regex": "^Channel ?[45]\\b", "nota": "Channel 4 / Channel 5 (UK)"},
-    {"regex": "^S4C\\b", "nota": "S4C (Galles)"},
-    {"regex": "^RT[ÉE]\\b", "nota": "RTÉ (Irlanda)"},
-    {"regex": "^Virgin Media (One|Two|Three|Player)\\b", "nota": "Virgin Media Television (Irlanda)"},
-    {"regex": "^TG4\\b", "nota": "TG4 (Irlanda)"},
-    {"regex": "^TF1\\b", "nota": "TF1 (Francia)"},
-    {"regex": "^France ?[2345]\\b|^France\\.?tv\\b", "nota": "France Télévisions"},
-    {"regex": "^(M6|W9|TMC|6ter|TFX)\\b", "nota": "canali in chiaro francesi"},
-    {"regex": "^L'?[EÉ]quipe\\b", "nota": "L'Équipe (TNT, in chiaro in Francia)"},
-    {"regex": "^TV5 ?Monde\\b", "nota": "TV5 Monde"},
-    {"regex": "^Rai\\b|^RaiPlay\\b", "nota": "Rai 1/2/3/Rai Sport/RaiPlay"},
-    {"regex": "^(Canale ?5|Italia ?1|Rete ?4|20 Mediaset|TV8 Italia|Cielo|Nove|Sportitalia)\\b", "nota": "canali in chiaro italiani"},
-    {"regex": "^ARD\\b|^Das Erste\\b|^ZDF\\b", "nota": "ARD / ZDF (Germania)"},
-    {"regex": "^(BR|NDR|WDR|MDR|SWR|HR|SR|RBB) Fernsehen\\b", "nota": "terzi programmi ARD"},
-    {"regex": "^Sport ?1 (Deutschland|Germany)\\b|^Sport1\\b", "nota": "Sport1 (in chiaro in Germania)"},
-    {"regex": "^(RTL|Nitro|ProSieben|Sat\\.?1|Kabel ?eins) (Deutschland|Österreich)\\b", "nota": "canali commerciali in chiaro (D/A)"},
-    {"regex": "^ORF\\b|^ServusTV\\b|^Servus TV\\b|^Puls ?(4|24)\\b", "nota": "Austria"},
-    {"regex": "^SRF\\b|^RSI\\b|^Play RTS\\b|^RTS (1|2|Un|Deux)? ?Suisse\\b|^RTS (Un|Deux)\\b|^Play Suisse\\b", "nota": "SRG SSR (Svizzera)"},
-    {"regex": "^NOS\\b|^NPO\\b", "nota": "NOS / NPO (Olanda)"},
-    {"regex": "^VRT\\b|^Sporza\\b|^[EÉ][eé]n\\b|^Canvas\\b|^RTBF\\b|^La Une\\b|^Tipik\\b|^Auvio\\b", "nota": "VRT / RTBF (Belgio)"},
-    {"regex": "^TVE\\b|^RTVE\\b|^La ?1\\b|^La ?2\\b|^Teledeporte\\b|^TV3 Catalunya\\b|^Esport ?3\\b|^3Cat\\b", "nota": "RTVE / TV3 (Spagna)"},
-    {"regex": "^RTP\\b|^TVI\\b|^SIC\\b", "nota": "RTP / TVI / SIC (Portogallo)"},
-    {"regex": "^ERT\\b", "nota": "ERT (Grecia)"},
-    {"regex": "^TVP\\b", "nota": "TVP (Polonia)"},
-    {"regex": "^TRT\\b", "nota": "TRT (Turchia)"},
-    {"regex": "^(DR ?(1|2|TV)|NRK ?\\d?|SVT ?\\d?|Yle)\\b", "nota": "servizio pubblico nordico"},
-    {"regex": "^[ČC]T ?(sport|1|2)\\b", "nota": "Česká televize"},
-    {"regex": "^Sporty ?TV\\b", "nota": "Sporty TV (Africa, in chiaro)"}
+    {
+      "regex": "^BBC\\b",
+      "nota": "BBC One/Two/Three/Scotland/Alba/iPlayer/Red Button (UK)"
+    },
+    {
+      "regex": "^ITV\\b",
+      "nota": "ITV1/ITV4/ITVX (UK)"
+    },
+    {
+      "regex": "^STV\\b",
+      "nota": "STV / STV Player (Scozia)"
+    },
+    {
+      "regex": "^Channel ?[45]\\b",
+      "nota": "Channel 4 / Channel 5 (UK)"
+    },
+    {
+      "regex": "^S4C\\b",
+      "nota": "S4C (Galles)"
+    },
+    {
+      "regex": "^RT[ÉE]\\b",
+      "nota": "RTÉ (Irlanda)"
+    },
+    {
+      "regex": "^Virgin Media (One|Two|Three|Player)\\b",
+      "nota": "Virgin Media Television (Irlanda)"
+    },
+    {
+      "regex": "^TG4\\b",
+      "nota": "TG4 (Irlanda)"
+    },
+    {
+      "regex": "^TF1\\b",
+      "nota": "TF1 (Francia)"
+    },
+    {
+      "regex": "^France ?[2345]\\b|^France\\.?tv\\b",
+      "nota": "France Télévisions"
+    },
+    {
+      "regex": "^(M6|W9|TMC|6ter|TFX)\\b",
+      "nota": "canali in chiaro francesi"
+    },
+    {
+      "regex": "^L'?[EÉ]quipe\\b",
+      "nota": "L'Équipe (TNT, in chiaro in Francia)"
+    },
+    {
+      "regex": "^TV5 ?Monde\\b",
+      "nota": "TV5 Monde"
+    },
+    {
+      "regex": "^Rai\\b|^RaiPlay\\b",
+      "nota": "Rai 1/2/3/Rai Sport/RaiPlay"
+    },
+    {
+      "regex": "^(Canale ?5|Italia ?1|Rete ?4|20 Mediaset|TV8 Italia|Cielo|Nove|Sportitalia)\\b",
+      "nota": "canali in chiaro italiani"
+    },
+    {
+      "regex": "^ARD\\b|^Das Erste\\b|^ZDF\\b",
+      "nota": "ARD / ZDF (Germania)"
+    },
+    {
+      "regex": "^(BR|NDR|WDR|MDR|SWR|HR|SR|RBB) Fernsehen\\b",
+      "nota": "terzi programmi ARD"
+    },
+    {
+      "regex": "^Sport ?1 (Deutschland|Germany)\\b|^Sport1\\b",
+      "nota": "Sport1 (in chiaro in Germania)"
+    },
+    {
+      "regex": "^(RTL|Nitro|ProSieben|Sat\\.?1|Kabel ?eins) (Deutschland|Österreich)\\b",
+      "nota": "canali commerciali in chiaro (D/A)"
+    },
+    {
+      "regex": "^ORF\\b|^ServusTV\\b|^Servus TV\\b|^Puls ?(4|24)\\b",
+      "nota": "Austria"
+    },
+    {
+      "regex": "^SRF\\b|^RSI\\b|^Play RTS\\b|^RTS (1|2|Un|Deux)? ?Suisse\\b|^RTS (Un|Deux)\\b|^Play Suisse\\b",
+      "nota": "SRG SSR (Svizzera)"
+    },
+    {
+      "regex": "^NOS\\b|^NPO\\b",
+      "nota": "NOS / NPO (Olanda)"
+    },
+    {
+      "regex": "^VRT\\b|^Sporza\\b|^[EÉ][eé]n\\b|^Canvas\\b|^RTBF\\b|^La Une\\b|^Tipik\\b|^Auvio\\b",
+      "nota": "VRT / RTBF (Belgio)"
+    },
+    {
+      "regex": "^TVE\\b|^RTVE\\b|^La ?1\\b|^La ?2\\b|^Teledeporte\\b|^TV3 Catalunya\\b|^Esport ?3\\b|^3Cat\\b",
+      "nota": "RTVE / TV3 (Spagna)"
+    },
+    {
+      "regex": "^RTP\\b|^TVI\\b|^SIC\\b",
+      "nota": "RTP / TVI / SIC (Portogallo)"
+    },
+    {
+      "regex": "^ERT\\b",
+      "nota": "ERT (Grecia)"
+    },
+    {
+      "regex": "^TVP\\b",
+      "nota": "TVP (Polonia)"
+    },
+    {
+      "regex": "^TRT\\b",
+      "nota": "TRT (Turchia)"
+    },
+    {
+      "regex": "^(DR ?(1|2|TV)|NRK ?\\d?|SVT ?\\d?|Yle)\\b",
+      "nota": "servizio pubblico nordico"
+    },
+    {
+      "regex": "^[ČC]T ?(sport|1|2)\\b",
+      "nota": "Česká televize"
+    },
+    {
+      "regex": "^Sporty ?TV\\b",
+      "nota": "Sporty TV (Africa, in chiaro)"
+    }
   ],
   "alias_canali": [
-    {"regex": "^TV5 ?Monde\\b", "nome": "TV5 Monde"},
-    {"regex": "^ITV ?1\\b", "nome": "ITV1 UK"},
-    {"regex": "^Sporty ?TV Africa\\b", "nome": "Sporty TV Africa"},
-    {"regex": "^BBC iPlayer\\b", "nome": "BBC iPlayer"}
-  ]
+    {
+      "regex": "^TV5 ?Monde\\b",
+      "nome": "TV5 Monde"
+    },
+    {
+      "regex": "^ITV ?1\\b",
+      "nome": "ITV1 UK"
+    },
+    {
+      "regex": "^Sporty ?TV Africa\\b",
+      "nome": "Sporty TV Africa"
+    },
+    {
+      "regex": "^BBC iPlayer\\b",
+      "nome": "BBC iPlayer"
+    }
+  ],
+  "_nota_pagine": "LiveOnSat non ha pagine per giorno: 2day.php copre solo oggi; per i 3 giorni successivi servono le pagine dei campionati (che elencano diverse settimane)."
 }

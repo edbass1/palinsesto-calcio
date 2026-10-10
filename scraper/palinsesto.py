@@ -28,15 +28,18 @@ RADICE = Path(__file__).resolve().parent.parent
 COMPETIZIONI = [
     ("/italy/serie-a/", "SERIE A", 1),
     ("/italy/serie-b/", "SERIE B", 2),
-    ("/italy/serie-c/", "SERIE C", 3),
-    ("/italy/coppa-italia/", "COPPA ITALIA", 4),
+    ("/italy/serie-c/", "SERIE C", 7),
+    ("/italy/coppa-italia/", "COPPA ITALIA", 3),
+    ("/international/uefa-super-cup/", "SUPERCOPPA EUROPEA", 7),
+    ("/international/uefa-youth-league/", "UEFA YOUTH LEAGUE", 25),
+    ("/international/uefa-womens-champions-league/", "UEFA WOMEN'S CHAMPIONS LEAGUE", 26),
     ("/england/premier-league/", "PREMIER LEAGUE", 10),
     ("/spain/primera-division/", "LALIGA", 11),
     ("/germany/bundesliga/", "BUNDESLIGA", 12),
     ("/france/ligue-1/", "LIGUE 1", 13),
-    ("/international/uefa-champions-league/", "UEFA CHAMPIONS LEAGUE", 20),
-    ("/international/uefa-europa-league/", "UEFA EUROPA LEAGUE", 21),
-    ("/international/uefa-europa-conference-league/", "UEFA CONFERENCE LEAGUE", 22),
+    ("/international/uefa-champions-league/", "UEFA CHAMPIONS LEAGUE", 4),
+    ("/international/uefa-europa-league/", "UEFA EUROPA LEAGUE", 5),
+    ("/international/uefa-europa-conference-league/", "UEFA CONFERENCE LEAGUE", 6),
     ("/international/uefa-nations-league/", "NAZIONALI – UEFA NATIONS LEAGUE", 30),
     ("/international/fifa-womens-world-cup-qualifying/", "NAZIONALI FEMMINILI – QUALIFICAZIONI MONDIALI 2027", 36),
     ("/international/friendly-women/", "NAZIONALI FEMMINILI – AMICHEVOLI", 37),
@@ -89,15 +92,16 @@ MESI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", 
         "settembre", "ottobre", "novembre", "dicembre"]
 
 
-# ---------- finestra del weekend ----------
-def finestra_weekend(ora: dt.datetime):
-    """Venerdì 18:00 -> lunedì 23:59 (Europe/Rome). Da ven a lun: weekend in corso; da mar a gio: il prossimo."""
+# ---------- finestra: oggi + 3 giorni ----------
+GIORNI_FINESTRA = 4
+
+
+def finestra(ora: dt.datetime, giorni: int = GIORNI_FINESTRA):
+    """Da oggi alle 00:00 (Europe/Rome) alla fine del 3° giorno successivo: 4 giorni di calendario."""
     oggi = ora.astimezone(ROMA).date()
-    delta = {4: 0, 5: -1, 6: -2, 0: -3, 1: 3, 2: 2, 3: 1}[oggi.weekday()]
-    venerdi = oggi + dt.timedelta(days=delta)
-    inizio = dt.datetime.combine(venerdi, dt.time(18, 0), ROMA)
-    fine = dt.datetime.combine(venerdi + dt.timedelta(days=4), dt.time(0, 0), ROMA)
-    return venerdi, inizio, fine
+    inizio = dt.datetime.combine(oggi, dt.time(0, 0), ROMA)
+    fine = dt.datetime.combine(oggi + dt.timedelta(days=giorni), dt.time(0, 0), ROMA)
+    return oggi, inizio, fine
 
 
 # ---------- download ----------
@@ -158,7 +162,7 @@ def competizione(url: str, nome: str):
     m = re.search(r"/competitions/([^/]+)/", url)
     paese = m.group(1) if m else ""
     if paese == "italy":
-        return 5, nome.upper()
+        return 8, nome.upper()
     if paese == "international":
         return 35, "NAZIONALI / INTERNAZIONALI – " + nome.upper()
     p = PAESI.get(paese) or paese.replace("-", " ").capitalize()
@@ -186,6 +190,9 @@ def raccogli_lstv(canali, inizio, fine):
         if partite is None:
             falliti.append(f'{c["nome"]} (pagina inattesa, possibile blocco)')
             continue
+        # la pagina canale non ha paginazione: se è piena (>= 20 righe) e finisce prima della finestra, avvisa nel log
+        if len(partite) >= 20 and max(m["ts"] for m in partite) < fine.timestamp():
+            print(f'  NOTA: {c["nome"]}: {len(partite)} partite, l\'elenco potrebbe essere troncato', file=sys.stderr)
         for m in partite:
             quando = dt.datetime.fromtimestamp(m["ts"], ROMA)
             if not (inizio <= quando < fine):
@@ -275,21 +282,25 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None):
 
 
 # ---------- pagina HTML ----------
-def periodo(venerdi: dt.date):
-    lun = venerdi + dt.timedelta(days=3)
-    if venerdi.month == lun.month:
-        return f"{venerdi.day}–{lun.day} {MESI[lun.month - 1]} {lun.year}"
-    return f"{venerdi.day} {MESI[venerdi.month - 1]} – {lun.day} {MESI[lun.month - 1]} {lun.year}"
+def periodo(primo: dt.date, giorni: int = GIORNI_FINESTRA):
+    """Es. "Sab 10 – Mar 13 ottobre", "Ven 30 ottobre – Lun 2 novembre"."""
+    ultimo = primo + dt.timedelta(days=giorni - 1)
+    a = f"{GIORNI[primo.weekday()]} {primo.day}"
+    b = f"{GIORNI[ultimo.weekday()]} {ultimo.day} {MESI[ultimo.month - 1]}"
+    if primo.month != ultimo.month:
+        a += f" {MESI[primo.month - 1]}"
+    return f"{a} – {b}"
 
 
-def genera_html(venerdi, ora, gruppi, falliti, senza):
+def genera_html(primo, ora, gruppi, falliti, senza, dove=None):
     esc = html.escape
     ora_r = ora.astimezone(ROMA)
     aggiornato = f"{GIORNI_LUNGHI[ora_r.weekday()]} {ora_r:%d/%m/%Y} alle {ora_r:%H:%M}"
-    giorni = [(venerdi + dt.timedelta(days=i)) for i in range(4)]
+    giorni = [(primo + dt.timedelta(days=i)) for i in range(GIORNI_FINESTRA)]
+    dove = dove or []
     n_partite = sum(len(g["partite"]) for g in gruppi)
 
-    sezioni = []
+    sezioni, usati = [], set()
     for g in gruppi:
         schede = []
         for e in g["partite"]:
@@ -298,9 +309,7 @@ def genera_html(venerdi, ora, gruppi, falliti, senza):
             squadre = f'<span class="sq">{esc(e["casa"])}</span>'
             if e["ospite"]:
                 squadre += f' <span class="vs">–</span> <span class="sq">{esc(e["ospite"])}</span>'
-            canali = "".join(
-                f'<li class="fta"><span class="tag" aria-label="in chiaro">IN CHIARO</span> {esc(c["nome"])}</li>'
-                if c["fta"] else f'<li>{esc(c["nome"])}</li>' for c in e["canali"])
+            canali = "".join(badge(c, dove, usati) for c in e["canali"])
             schede.append(
                 f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
@@ -312,7 +321,7 @@ def genera_html(venerdi, ora, gruppi, falliti, senza):
         sezioni.append(f'<section class="comp"><h2>{esc(g["nome"])}</h2>'
                        f'<ol class="partite">{"".join(schede)}</ol></section>')
     if not gruppi:
-        sezioni.append('<p class="vuoto">Nessuna partita trovata per questo weekend.</p>')
+        sezioni.append('<p class="vuoto">Nessuna partita trovata in questi giorni.</p>')
 
     avvisi = ""
     if falliti:
@@ -320,7 +329,7 @@ def genera_html(venerdi, ora, gruppi, falliti, senza):
                    + "".join(f"<li>{esc(f)}</li>" for f in falliti) + "</ul></section>")
     note = ""
     if senza:
-        note += f'<p>Canali senza partite in questo weekend: {esc(", ".join(senza))}.</p>'
+        note += f'<p>Canali senza partite in questi giorni: {esc(", ".join(senza))}.</p>'
 
     per_giorno = {}
     for g in gruppi:
@@ -333,8 +342,51 @@ def genera_html(venerdi, ora, gruppi, falliti, senza):
         for d in giorni)
 
     return TEMPLATE.format(
-        periodo=esc(periodo(venerdi)), aggiornato=esc(aggiornato), n=n_partite,
-        bottoni=bottoni, sezioni="\n".join(sezioni), avvisi=avvisi, note=note)
+        periodo=esc(periodo(primo)), aggiornato=esc(aggiornato), n=n_partite,
+        bottoni=bottoni, sezioni="\n".join(sezioni), avvisi=avvisi, note=note,
+        dove=sezione_dove(dove, usati))
+
+
+# ---------- "Dove vederli" ----------
+def voce_dove(nome: str, dove):
+    for v in dove:
+        if any(re.search(rx, nome, re.I) for rx in v.get("canali", [])):
+            return v
+    return None
+
+
+def badge(c, dove, usati):
+    esc = html.escape
+    testo = esc(c["nome"])
+    if c["fta"]:
+        testo = f'<span class="tag" aria-label="in chiaro">IN CHIARO</span> {testo}'
+    v = voce_dove(c["nome"], dove)
+    if v:
+        usati.add(v["id"])
+        testo = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{testo}</a>'
+    return f'<li class="fta">{testo}</li>' if c["fta"] else f'<li>{testo}</li>'
+
+
+def sezione_dove(dove, usati):
+    """Voci inserite dall'utente sempre; quelle trovate con la ricerca solo se servono a qualche partita."""
+    esc = html.escape
+    voci = [v for v in dove if v.get("fonte") == "utente" or v["id"] in usati]
+    if not voci:
+        return ""
+    righe = []
+    for v in voci:
+        link = "".join(
+            f'<li><a href="{esc(l["url"])}" target="_blank" rel="noopener noreferrer">{esc(l.get("testo") or l["url"])}</a>'
+            + ('' if l.get("verificato", v.get("verificato", True)) else ' <span class="verifica">link da verificare</span>')
+            + '</li>' for l in v.get("link", []))
+        righe.append(
+            f'<li class="dove" id="dv-{esc(v["id"])}"><h3>{esc(v["nome"])}</h3>'
+            + (f'<p class="vpn">VPN: <strong>{esc(v["vpn"])}</strong></p>' if v.get("vpn") else '')
+            + (f'<p class="nota">{esc(v["note"])}</p>' if v.get("note") else '')
+            + (f'<ul class="link">{link}</ul>' if link else '') + '</li>')
+    return ('<section class="dove-vederli" id="dove-vederli"><h2>📺 Dove vederli</h2>'
+            '<p class="nota">Tocca il nome di un canale in una partita per arrivare qui. I link si aprono in una nuova scheda.</p>'
+            f'<ol class="dove">{"".join(righe)}</ol></section>')
 
 
 TEMPLATE = """<!doctype html>
@@ -342,8 +394,8 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Calcio in TV – weekend {periodo}</title>
-<meta name="description" content="Partite di calcio in TV nel weekend, orari italiani.">
+<title>Calcio in TV · {periodo}</title>
+<meta name="description" content="Partite di calcio in TV oggi e nei prossimi 3 giorni, orari italiani.">
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -392,6 +444,19 @@ TEMPLATE = """<!doctype html>
   ul.canali li.fta {{ color:var(--verde); border-color:var(--verde); }}
   .tag {{ display:inline-block; background:var(--verde); color:#000; font-size:.7rem; font-weight:900; letter-spacing:.04em;
           padding:1px 5px; border-radius:5px; vertical-align:middle; position:relative; top:-2px; }}
+  .h1p {{ color:var(--giallo); }}
+  ul.canali li a {{ color:inherit; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:4px; }}
+  section.dove-vederli {{ margin-top:48px; }}
+  ol.dove {{ list-style:none; margin:0; padding:0; display:grid; gap:14px; }}
+  li.dove {{ background:#111; border:2px solid #444; border-radius:14px; padding:14px 18px; scroll-margin-top:110px; }}
+  li.dove:target {{ border-color:var(--giallo); box-shadow:0 0 0 3px var(--giallo) inset; }}
+  li.dove h3 {{ margin:0 0 6px; font-size:1.3rem; color:var(--giallo); }}
+  li.dove p {{ margin:4px 0; }}
+  .vpn strong {{ color:var(--azzurro); }}
+  .nota {{ color:#e0e0e0; font-size:.95rem; }}
+  ul.link {{ list-style:none; margin:8px 0 0; padding:0; display:grid; gap:8px; }}
+  ul.link a {{ color:var(--azzurro); font-size:1.05rem; font-weight:700; overflow-wrap:anywhere; text-underline-offset:4px; }}
+  .verifica {{ font-size:.8rem; color:#000; background:var(--giallo); padding:1px 6px; border-radius:6px; font-weight:800; }}
   .legenda {{ margin:10px 0 0; font-size:.9rem; color:var(--grigio); }}
   li.partita.in-corso {{ border-color:var(--verde); box-shadow:0 0 0 2px var(--verde) inset; }}
   li.partita.in-corso .stato {{ background:var(--verde); color:#000; }}
@@ -419,8 +484,7 @@ TEMPLATE = """<!doctype html>
 </head>
 <body>
 <header>
-  <h1>⚽ Calcio in TV</h1>
-  <p class="periodo">Weekend {periodo}</p>
+  <h1>⚽ Calcio in TV <span class="h1p">· {periodo}</span></h1>
   <p class="agg">Aggiornato {aggiornato} · {n} partite · orari italiani</p>
   <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese</p>
 </header>
@@ -428,6 +492,7 @@ TEMPLATE = """<!doctype html>
 <main>
 {sezioni}
 {avvisi}
+{dove}
 </main>
 <footer>
   {note}
@@ -480,6 +545,7 @@ def main():
     ap.add_argument("--canali", default=str(RADICE / "canali.json"))
     ap.add_argument("--liveonsat", default=str(RADICE / "liveonsat.json"), help="configurazione LiveOnSat")
     ap.add_argument("--senza-liveonsat", action="store_true", help="usa solo LiveSoccerTV")
+    ap.add_argument("--dove", default=str(RADICE / "dove_vederli.json"), help="link 'Dove vederli'")
     ap.add_argument("--out", default=str(RADICE / "site"))
     ap.add_argument("--ora", help="data/ora di riferimento ISO (per test), es. 2026-10-10T18:00+02:00")
     ap.add_argument("--json", action="store_true", help="scrive anche palinsesto.json")
@@ -489,7 +555,9 @@ def main():
     if ora.tzinfo is None:
         ora = ora.replace(tzinfo=ROMA)
     canali = json.loads(Path(a.canali).read_text(encoding="utf-8"))["canali"]
-    venerdi, inizio, fine = finestra_weekend(ora)
+    primo, inizio, fine = finestra(ora)
+    file_dove = Path(a.dove)
+    dove = json.loads(file_dove.read_text(encoding="utf-8")).get("voci", []) if file_dove.exists() else []
     conf_los = None if a.senza_liveonsat else json.loads(Path(a.liveonsat).read_text(encoding="utf-8"))
     st = {}
     gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st)
@@ -499,18 +567,18 @@ def main():
     for f in (RADICE / "static").iterdir():
         if f.is_file():
             shutil.copy2(f, out / f.name)
-    (out / "index.html").write_text(genera_html(venerdi, dt.datetime.now(ROMA), gruppi, falliti, senza), encoding="utf-8")
+    (out / "index.html").write_text(genera_html(primo, dt.datetime.now(ROMA), gruppi, falliti, senza, dove), encoding="utf-8")
     if a.json:
         dati = [{"competizione": g["nome"], "partite": [
             {"quando": e["quando"].isoformat(), "partita": f'{e["casa"]} - {e["ospite"]}'.rstrip(" -"),
              "canali": e["canali"], "fonti": e["fonti"]}
             for e in g["partite"]]} for g in gruppi]
         (out / "palinsesto.json").write_text(json.dumps(
-            {"weekend": periodo(venerdi), "gruppi": dati, "falliti": falliti, "senza_partite": senza},
+            {"periodo": periodo(primo), "dal": str(primo), "gruppi": dati, "falliti": falliti, "senza_partite": senza},
             ensure_ascii=False, indent=1), encoding="utf-8")
 
     n = sum(len(g["partite"]) for g in gruppi)
-    print(f"Weekend {periodo(venerdi)}: {n} partite in {len(gruppi)} competizioni; falliti: {len(falliti)}")
+    print(f"{periodo(primo)}: {n} partite in {len(gruppi)} competizioni; falliti: {len(falliti)}")
     print(f"  LiveSoccerTV: {st['livesoccertv']} · LiveOnSat (con canali in chiaro): {st['liveonsat']} · "
           f"doppioni uniti: {len(st['uniti'])} · solo LiveOnSat: {st['solo_liveonsat']}")
     for f in falliti:

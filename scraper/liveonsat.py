@@ -30,15 +30,18 @@ RE_CANALE = re.compile(r'class = (chan_\w+)\b.*?onmouseout="return nd\(\);">([^<
 COMPETIZIONI_LOS = [
     (r"^Italian Serie A$", 1, "SERIE A"),
     (r"^Italian Serie B", 2, "SERIE B"),
-    (r"^Italian Serie C", 3, "SERIE C"),
-    (r"^(Italian )?Coppa Italia", 4, "COPPA ITALIA"),
+    (r"^Italian Serie C", 7, "SERIE C"),
+    (r"^(Italian )?Coppa Italia", 3, "COPPA ITALIA"),
     (r"^English Premier League$", 10, "PREMIER LEAGUE"),
     (r"^Spanish La Liga \(Primera\)$", 11, "LALIGA"),
     (r"^German 1\. Bundesliga$", 12, "BUNDESLIGA"),
     (r"^French Ligue 1$", 13, "LIGUE 1"),
-    (r"^UEFA Champions League", 20, "UEFA CHAMPIONS LEAGUE"),
-    (r"^UEFA Europa League", 21, "UEFA EUROPA LEAGUE"),
-    (r"^UEFA (Europa )?Conference League", 22, "UEFA CONFERENCE LEAGUE"),
+    (r"^UEFA Champions League", 4, "UEFA CHAMPIONS LEAGUE"),
+    (r"^UEFA Europa League", 5, "UEFA EUROPA LEAGUE"),
+    (r"^UEFA (Europa )?Conference League", 6, "UEFA CONFERENCE LEAGUE"),
+    (r"^UEFA Super Cup", 7, "SUPERCOPPA EUROPEA"),
+    (r"^UEFA Youth League", 25, "UEFA YOUTH LEAGUE"),
+    (r"^UEFA Wom[ae]n'?s Champions League", 26, "UEFA WOMEN'S CHAMPIONS LEAGUE"),
     (r"^UEFA Nations League", 30, "NAZIONALI – UEFA NATIONS LEAGUE"),
     (r"Women.*World Cup.*Qualif", 36, "NAZIONALI FEMMINILI – QUALIFICAZIONI MONDIALI 2027"),
     (r"^English Championship$", 40, "CHAMPIONSHIP (Inghilterra)"),
@@ -57,7 +60,8 @@ COMPETIZIONI_LOS = [
     (r"^Mexican Liga MX", 74, "LIGA MX (Messico)"),
     (r"^USL Championship", 75, "USL CHAMPIONSHIP (USA)"),
     (r"^Major League Soccer", 76, "MLS (USA)"),
-    (r"^International Friendl", 31, "NAZIONALI – AMICHEVOLI"),
+    (r"^Friendly International \(W\)", 37, "NAZIONALI FEMMINILI – AMICHEVOLI"),
+    (r"^(International Friendl|Friendly International$)", 31, "NAZIONALI – AMICHEVOLI"),
     (r"^FIFA World Cup.*Qualif", 32, "NAZIONALI – QUALIFICAZIONI MONDIALI"),
 ]
 
@@ -91,7 +95,7 @@ def competizione_los(nome: str):
             resto = base[len(agg):].strip() or base
             if agg == "Cymru":
                 resto = base
-            return (5 if paese == "Italia" else 80), f"{resto.upper()} ({paese})"
+            return (8 if paese == "Italia" else 80), f"{resto.upper()} ({paese})"
     return 80, base.upper()
 
 
