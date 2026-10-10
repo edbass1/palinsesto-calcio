@@ -115,3 +115,5 @@ In cima due pulsanti grandi, «⚽ CALCIO» e «🏁 ALTRI SPORT», per passare 
 
 ## Dirette YouTube di Sporty TV Africa (VPN Brasile)
 Il canale YouTube @sportytvafrica trasmette partite in diretta, alcune non presenti su LiveSoccerTV. Senza chiave API si leggono il feed RSS pubblico del canale e la scheda «Live», poi la pagina di ogni video per l'orario d'inizio (programmato o reale) e per sapere se la diretta è già finita. Si tengono solo i video «LIVE | Squadra A vs Squadra B | Campionato» (niente highlights, repliche ecc.), con le stesse esclusioni del resto (femminile, calcio USA…). Se la partita c'è già, si aggiunge il canale «Sporty TV Africa (YouTube)» con «▶ diretta» al video e l'etichetta VPN BRASILE; altrimenti la partita si aggiunge. Configurazione (canali, parole da saltare, nomi delle competizioni) in `youtube.json`; `--senza-youtube` per saltarlo.
+
+Nella vista PER CAMPIONATO (e PER SPORT in ALTRI SPORT) le sezioni sono in ordine di primo inizio tra le partite visibili con il filtro e il giorno scelti; a parità di orario vale l'ordine fisso. L'ordine si ricalcola quando si cambia filtro o giorno e quando le partite finite spariscono.

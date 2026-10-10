@@ -528,8 +528,9 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
                 f'<ul class="canali" aria-label="Canali">{canali}</ul></li>')
 
     # vista "per campionato"
-    for g in gruppi:
-        sezioni.append(f'<section class="comp"><h2>{esc(g["nome"])}</h2>'
+    # in ordine di primo calcio d'inizio (a parità, l'ordine fisso delle competizioni); la pagina lo ricalcola con i filtri
+    for i, g in sorted(enumerate(gruppi), key=lambda x: (min((e["ts"] for e in x[1]["partite"]), default=0), x[0])):
+        sezioni.append(f'<section class="comp" data-ordine="{i}"><h2>{esc(g["nome"])}</h2>'
                        f'<ol class="partite">{"".join(scheda(e) for e in g["partite"])}</ol></section>')
     # vista "in ordine di orario": tutte le partite per ora d'inizio, con separatori per giorno
     tutte = sorted(((e, g["nome"]) for g in gruppi for e in g["partite"]), key=lambda x: (x[0]["ts"], x[1], x[0]["casa"]))
@@ -569,8 +570,9 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     per_sport = {}
     for e in altri:
         per_sport.setdefault(e["sport"], []).append(e)
-    sez_sport = [f'<section class="comp"><h2>{esc(sp.upper())}</h2><ol class="partite">{"".join(scheda_altro(e) for e in ev)}</ol></section>'
-                 for sp, ev in sorted(per_sport.items(), key=lambda x: (-len(x[1]), x[0]))]
+    fissi = sorted(per_sport.items(), key=lambda x: (-len(x[1]), x[0]))  # a parità di orario: prima gli sport con più eventi
+    sez_sport = [f'<section class="comp" data-ordine="{i}"><h2>{esc(sp.upper())}</h2><ol class="partite">{"".join(scheda_altro(e) for e in ev)}</ol></section>'
+                 for i, (sp, ev) in sorted(enumerate(fissi), key=lambda x: (min(e["ts"] for e in x[1][1]), x[0]))]
     if not sez_altri:
         sez_altri.append('<p class="vuoto">Nessun altro sport in diretta in questi giorni.</p>')
         sez_sport.append('<p class="vuoto">Nessun altro sport in diretta in questi giorni.</p>')
@@ -1018,6 +1020,21 @@ TEMPLATE = """<!doctype html>
       p.hidden = !((g === 'tutti' || p.dataset.giorno === g) && catOk(p));
     }});
     tutti('section.comp, section.giorno-sez').forEach(function (s) {{ s.hidden = !s.querySelector('li.partita:not([hidden])'); }});
+    // PER CAMPIONATO / PER SPORT: sezioni in ordine di primo inizio tra le partite visibili (a parità, ordine fisso)
+    ['vista-campionato', 'vista-sport-tipo'].forEach(function (id) {{
+      var box = document.getElementById(id);
+      var sez = tutti(':scope > section.comp', box);
+      var chiave = function (s) {{
+        var ts = tutti('li.partita:not([hidden])', s).map(function (p) {{ return +p.dataset.ts; }});
+        return [ts.length ? Math.min.apply(null, ts) : Infinity, +s.dataset.ordine];
+      }};
+      var k = sez.map(function (s) {{ return {{ s: s, k: chiave(s) }}; }});
+      k.sort(function (a, b) {{ return (a.k[0] - b.k[0]) || (a.k[1] - b.k[1]); }});
+      if (k.some(function (x, i) {{ return x.s !== sez[i]; }})) {{
+        var dopo = sez.length ? sez[sez.length - 1].nextSibling : null;
+        k.forEach(function (x) {{ box.insertBefore(x.s, dopo); }});
+      }}
+    }});
     var conta = function (sel) {{ return tutti(sel).filter(catOk).length; }};
     document.getElementById('n-partite').textContent = conta('#vista-campionato li.partita');
     document.getElementById('n-eventi').textContent = conta('#vista-sport-orario li.partita');

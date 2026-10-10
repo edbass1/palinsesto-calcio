@@ -738,6 +738,12 @@ def test_categorie():
     assert 'data-cat="elite italia"' in h and 'data-cat="minore"' in h and 'data-fine="%d" data-giorno' % (int(q.timestamp()) + 7200) in h
     assert ">SUDAMERICA<" in h and ">CALCIO MINORE<" in h and 'data-sezione="sport"' in h and "Calcio e Sport in TV" in h
     assert 'id="vista-sport-tipo"' in h and 'data-vista="tipo"' in h and 'data-vista="altri"' not in h
+    # PER CAMPIONATO: sezioni in ordine di primo calcio d'inizio, a parità ordine fisso
+    q2 = q - dt.timedelta(hours=1)
+    g2 = [dict(g[0]), {"nome": "LIGA I (Romania)", "partite": [dict(g[1]["partite"][0], quando=q2, ts=int(q2.timestamp()))]}]
+    h2 = p.genera_html(*p.finestra(ora)[:1], ora, g2, [], [], [], al)
+    assert h2.index("<h2>LIGA I (Romania)</h2>") < h2.index("<h2>SERIE A</h2>") and 'data-ordine="1"' in h2
+    assert h.index("<h2>SERIE A</h2>") < h.index("<h2>LIGA I (Romania)</h2>")  # stesso orario: ordine fisso
     assert ">ELITE CALCIO<" in h and ">CALCIO ITALIA<" in h and ">ELITE SPORT<" in h
 
 def test_altri_los_nfl():
