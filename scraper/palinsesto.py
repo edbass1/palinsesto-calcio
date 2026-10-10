@@ -23,6 +23,7 @@ import dazn  # noqa: E402
 import altri_sport  # noqa: E402
 import epg_teleboy  # noqa: E402
 import altri_los  # noqa: E402
+import euroleague_tv  # noqa: E402
 
 ROMA = ZoneInfo("Europe/Rome")
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -405,6 +406,8 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
             scarica_dazn_fn=conf_altri.get("scarica_dazn_fn", dazn.altri_sport_it if conf_dazn is not None else None),
             scarica_los_fn=conf_altri.get("scarica_los_fn", altri_los.fn_raccogli(
                 conf_los, teleboy, inizio, fine, stat=st.setdefault("altri_los", {})) if conf_los else None),
+            scarica_el_fn=conf_altri.get("scarica_el_fn", euroleague_tv.fn_raccogli(
+                altri_sport.regole_conf().get("euroleague_tv", {}), inizio, fine, stat=st.setdefault("euroleague_tv", {}))),
             scarica_tb_fn=conf_altri.get("scarica_tb_fn", epg_teleboy.fn_raccogli(
                 teleboy, altri_sport.regole_conf().get("teleboy_epg", {}), inizio, fine) if teleboy is not None else None))
         falliti += avvisi
@@ -1118,6 +1121,8 @@ def main():
         for r in st["dazn_dettagli"]:
             print("  ", r)
     if "calcio_stream" in st:
+        if st.get("euroleague_tv"):
+            print(f"  EuroLeague/EuroCup TV Listings: {st['euroleague_tv']}")
         if st.get("altri_los"):
             print(f"  LiveOnSat altri sport: {st['altri_los']}")
         al = st["altri_sport"]

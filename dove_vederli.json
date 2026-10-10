@@ -269,6 +269,70 @@
    ]
   },
   {
+   "id": "trt",
+   "nome": "TRT Spor (Turchia)",
+   "fonte": "utente",
+   "verificato": true,
+   "canali": [
+    "^TRT\\b"
+   ],
+   "vpn": "Turchia",
+   "note": "Gratuito (piattaforma tabii).",
+   "link": [
+    {
+     "url": "https://www.trtspor.com.tr/canli-yayin-izle/trt-spor",
+     "testo": "TRT Spor – diretta (link utente)"
+    },
+    {
+     "url": "https://www.trtizle.com/canli/tv/trt-spor",
+     "testo": "TRT İzle (link alternativo)"
+    }
+   ]
+  },
+  {
+   "id": "dubai-sports",
+   "nome": "Dubai Sports 1",
+   "fonte": "utente",
+   "canali": [
+    "^Dubai Sports?\\b(?! ?[2-9])"
+   ],
+   "vpn": "non serve",
+   "note": "Non serve VPN, serve registrazione al sito.",
+   "link": [
+    {
+     "url": "https://www.dubaiplus.net/epg?channel=702096936062",
+     "testo": "Dubai Sports 1 – Dubai+"
+    }
+   ]
+  },
+  {
+   "id": "x-sports",
+   "nome": "X Sports (Brasile)",
+   "fonte": "utente",
+   "canali": [
+    "^X ?Sports\\b"
+   ],
+   "vpn": "Brasile",
+   "note": "Dirette su YouTube: serve la VPN sul Brasile.",
+   "link": [
+    {
+     "url": "https://www.youtube.com/@xsports.brasil/streams",
+     "testo": "X Sports – dirette su YouTube"
+    }
+   ]
+  },
+  {
+   "id": "rtsh",
+   "nome": "RTSH 1 (Albania)",
+   "fonte": "utente",
+   "canali": [
+    "^RTSH\\b"
+   ],
+   "vpn": "Albania",
+   "note": "Solo via app da scaricare",
+   "link": []
+  },
+  {
    "id": "bbc",
    "nome": "BBC (One, Two, Three, Four, Scotland, iPlayer)",
    "fonte": "ricerca",
@@ -846,43 +910,6 @@
     {
      "url": "https://sport.tvp.pl/transmisje",
      "testo": "TVP Sport – dirette"
-    }
-   ]
-  },
-  {
-   "id": "trt",
-   "nome": "TRT Spor (Turchia)",
-   "fonte": "utente",
-   "verificato": true,
-   "canali": [
-    "^TRT\\b"
-   ],
-   "vpn": "Turchia",
-   "note": "Gratuito (piattaforma tabii).",
-   "link": [
-    {
-     "url": "https://www.trtspor.com.tr/canli-yayin-izle/trt-spor",
-     "testo": "TRT Spor – diretta (link utente)"
-    },
-    {
-     "url": "https://www.trtizle.com/canli/tv/trt-spor",
-     "testo": "TRT İzle (link alternativo)"
-    }
-   ]
-  },
-  {
-   "id": "dubai-sports",
-   "nome": "Dubai Sports 1",
-   "fonte": "utente",
-   "canali": [
-    "^Dubai Sports?\\b(?! ?[2-9])"
-   ],
-   "vpn": "non serve",
-   "note": "Non serve VPN, serve registrazione al sito.",
-   "link": [
-    {
-     "url": "https://www.dubaiplus.net/epg?channel=702096936062",
-     "testo": "Dubai Sports 1 – Dubai+"
     }
    ]
   },

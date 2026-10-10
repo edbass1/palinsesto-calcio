@@ -212,5 +212,39 @@
    "Arte.Français.ch": "Arte fr",
    "BBC.Three./.CBBC.ch": "BBC Three"
   }
+ },
+ "euroleague_tv": {
+  "_nota": "Partite di EuroLeague ed EuroCup trasmesse dai canali qui sotto, lette dalle pagine ufficiali «TV Listings» (canali per partita); l'orario viene dal calendario ufficiale. Chiave = nome del canale come scritto sulla pagina (maiuscolo); 'nome' e 'vpn' = come appare sulle schede. Si possono aggiungere canali (es. 'RTSH SPORT').",
+  "pagine": [
+   {
+    "nome": "EuroLeague",
+    "codice": "E",
+    "url": "https://www.euroleaguebasketball.net/en/euroleague/tv-listings-el/"
+   },
+   {
+    "nome": "EuroCup",
+    "codice": "U",
+    "url": "https://www.euroleaguebasketball.net/en/eurocup/tv-listings-ec/"
+   }
+  ],
+  "durata_min": 120,
+  "canali": {
+   "IDMAN TV": {
+    "nome": "Idman TV",
+    "vpn": "AZERBAIGIAN"
+   },
+   "X SPORTS": {
+    "nome": "X Sports",
+    "vpn": "BRASILE"
+   },
+   "SPORTY TV": {
+    "nome": "Sporty TV",
+    "vpn": "NIGERIA"
+   },
+   "RTSH 1": {
+    "nome": "RTSH 1",
+    "vpn": "ALBANIA"
+   }
+  }
  }
 }

@@ -115,3 +115,6 @@ In cima due pulsanti grandi, «⚽ CALCIO» e «🏁 ALTRI SPORT», per passare 
 
 
 Nella vista PER CAMPIONATO (e PER SPORT in ALTRI SPORT) le sezioni sono in ordine di primo inizio tra le partite visibili con il filtro e il giorno scelti; a parità di orario vale l'ordine fisso. L'ordine si ricalcola quando si cambia filtro o giorno e quando le partite finite spariscono.
+
+## Basket: EuroLeague ed EuroCup su Idman TV, X Sports, Sporty TV, RTSH 1
+Dalle pagine ufficiali «TV Listings» di EuroLeague ed EuroCup (euroleaguebasketball.net) si prendono le partite trasmesse da Idman TV (VPN Azerbaigian), X Sports (VPN Brasile, dirette su YouTube), Sporty TV (VPN Nigeria) e RTSH 1 (VPN Albania, solo app); l'orario viene dal calendario ufficiale (feeds.incrowdsports.com). Il sito ha un controllo anti-bot che blocca le richieste semplici: in quel caso la pagina si apre con Chrome headless (sui runner GitHub c'è). Canali e pagine in `altri_sport.json` → `euroleague_tv`. Le pagine elencano di solito solo il turno della settimana, quindi le partite compaiono quando la lega pubblica l'elenco.

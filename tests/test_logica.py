@@ -443,7 +443,7 @@ def test_altri_sport():
     p.scarica, L.scarica = finto_lstv, finto_los
     st = {}
     gruppi, falliti, _ = p.raccogli(canali, ini, fine, dict(CONF_LOS, pausa_secondi=0), st, None, None,
-                                    {"ora": ora2, "scarica_srg_fn": srg, "scarica_ard_fn": lambda i, f: ([], None), "scarica_los_fn": None})
+                                    {"ora": ora2, "scarica_srg_fn": srg, "scarica_ard_fn": lambda i, f: ([], None), "scarica_los_fn": None, "scarica_el_fn": None})
     tutte = {f'{e["casa"]} - {e["ospite"]}': (g["nome"], e) for g in gruppi for e in g["partite"]}
     nome, lug = tutte["Lugano - Luzern"]
     assert nome == "SUPER LEAGUE (Svizzera)" and [c["nome"] for c in lug["canali"]][-2:] == ["SRF stream", "RSI stream"], lug
@@ -780,6 +780,46 @@ def test_altri_los_nfl():
     assert 'href="#dv-idman"' in h and "▶ sito" in h, "link canali"
     return altri
 
+def test_euroleague_tv():
+    """EuroLeague/EuroCup: partite sui canali scelti (Idman TV, X Sports, Sporty TV, RTSH 1) dalle pagine TV Listings."""
+    import gzip
+    import altri_sport as A
+    import euroleague_tv as E
+    F = QUI / "fixtures_euroleague_2026-10-10"
+    conf = A.regole_conf()["euroleague_tv"]
+    pag = {"/euroleague/": "tv-listings-el.html.gz", "/eurocup/": "tv-listings-ec.html.gz"}
+    fp = lambda u: (gzip.open(F / next(v for k, v in pag.items() if k in u), "rt").read(), None)
+
+    def fj(u):
+        m = re.search(r"competitions/(\w)/seasons/\w+/(rounds|games\?phaseTypeCode=(\w+)&roundNumber=(\d+))", u)
+        f = F / (f"rounds_{m.group(1)}.json.gz" if m.group(2) == "rounds" else f"games_{m.group(1)}_{m.group(3)}_{m.group(4)}.json.gz")
+        return (gzip.open(f, "rt").read(), None) if f.exists() else (None, "404")
+    # finestra di giovedì 8/10: le partite del 4° turno con i canali scelti
+    ini = dt.datetime(2026, 10, 8, tzinfo=p.ROMA); fine = ini + dt.timedelta(days=4)
+    st = {}
+    ev, err = E.raccogli(conf, ini, fine, fp, fj, st)
+    assert err is None, err
+    t = {e["titolo"]: [(x["nome"], x["vpn"]) for x in e["emittenti"]] for e in ev}
+    assert t["EuroLeague: Real Madrid - Partizan Mozzart Bet Belgrade"] == [("Idman TV", "AZERBAIGIAN"), ("X Sports", "BRASILE"), ("Sporty TV", "NIGERIA")], t
+    assert ("RTSH 1", "ALBANIA") in t["EuroLeague: Panathinaikos AKTOR Athens - Fenerbahce Tarfin Istanbul"]
+    rm = next(e for e in ev if "Real Madrid" in e["titolo"])
+    assert rm["ts"] == int(dt.datetime(2026, 10, 8, 18, 45, tzinfo=dt.timezone.utc).timestamp()) and rm["sport"] == "Basket"
+    assert len(ev) == 9 and not any("Paris Basketball" in e["titolo"] for e in ev), sorted(t)  # Paris-ASVEL era il 7/10
+    assert st["EuroCup"]["partite_con_canali"] == 0  # 3° turno EuroCup: nessuno dei canali scelti
+    # nella pagina: link "Dove vederli" (X Sports dell'utente, Sporty TV Africa, RTSH 1 senza link web)
+    dove = json.loads((QUI.parent / "dove_vederli.json").read_text())["voci"]
+    voce = lambda n: (p.voce_dove(n, dove) or {}).get("id")
+    assert [voce(n) for n in ("Idman TV", "X Sports", "Sporty TV", "RTSH 1")] == ["idman", "x-sports", "sporty-tv-africa", "rtsh"]
+    rx = U.regex_femminile(CONF_LOS["escludi_competizioni"])
+    vuoto = lambda *a: ([], None)
+    altri, _, _ = A.raccogli_altri(ini, fine, ini, rx, scarica_srg_fn=vuoto, scarica_ard_fn=vuoto, scarica_el_fn=lambda: (ev, err))
+    h = p.genera_html(ini.date(), ini, [], [], [], dove, altri)
+    assert 'href="#dv-x-sports"' in h and "youtube.com/@xsports.brasil/streams" in h and "VPN BRASILE" in h and "Solo via app da scaricare" in h
+    # pagina non raggiungibile -> avviso, nessun errore
+    _, err = E.raccogli(conf, ini, fine, lambda u: (None, "HTTP Error 429"), fj, {})
+    assert err and "EuroLeague" in err
+    return ev
+
 
 if __name__ == "__main__":
     test_finestra(); print("finestra: OK")
@@ -803,6 +843,7 @@ if __name__ == "__main__":
     al, ca = test_altri_sport(); print(f"altri sport: {len(al)} eventi, calcio in streaming {len(ca)} – OK")
     print(f"DAZN (rail-router): {test_dazn_rail()} – OK")
     print(f"LiveOnSat altri sport + NFL gratis: {len(test_altri_los_nfl())} eventi – OK")
+    print(f"EuroLeague/EuroCup TV Listings: {len(test_euroleague_tv())} partite – OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"
           f" = {st['totale']} – OK")

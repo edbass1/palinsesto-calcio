@@ -386,7 +386,8 @@ def unisci_eventi(eventi):
 
 
 def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None, scarica_ard_fn=None,
-                   conf=None, programmi_tolti=None, scarica_dazn_fn=None, scarica_tb_fn=None, scarica_los_fn=None):
+                   conf=None, programmi_tolti=None, scarica_dazn_fn=None, scarica_tb_fn=None, scarica_los_fn=None,
+                   scarica_el_fn=None):
     """(eventi altri sport, partite di calcio, avvisi). Toglie gli eventi già finiti, i programmi sportivi
     (magazine, highlights, studio...: vedi altri_sport.json) e il calcio femminile.
     programmi_tolti (lista), se data, riceve "Emittente gg/mm hh:mm Titolo – motivo" per ogni programma tolto."""
@@ -407,6 +408,11 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
         ev, err = scarica_los_fn()
         if err:
             falliti.append("LiveOnSat")
+        tutti += ev
+    if scarica_el_fn is not None:  # EuroLeague/EuroCup sui canali scelti (pagine ufficiali TV Listings)
+        ev, err = scarica_el_fn()
+        if err:
+            falliti.append(err)
         tutti += ev
     if scarica_tb_fn is not None:  # canali gratuiti di Teleboy (guida TV pubblica)
         ev, err = scarica_tb_fn()
