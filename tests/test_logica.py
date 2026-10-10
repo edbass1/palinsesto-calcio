@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test offline: finestra di 4 giorni, LiveSoccerTV (pagine salvate il 9/10/2026, 62 partite attese),
 LiveOnSat (pagine salvate il 10/10/2026): canali in chiaro, orari, unione dei doppioni."""
-import datetime as dt, gzip, json, sys
+import datetime as dt, gzip, json, re, sys
 from pathlib import Path
 QUI = Path(__file__).resolve().parent
 sys.path.insert(0, str(QUI.parent / "scraper"))
@@ -333,6 +333,37 @@ def test_dazn():
     return st
 
 
+def test_femminile():
+    """Calcio femminile escluso (competizione o squadre); nessun falso positivo sulle squadre maschili."""
+    rx = U.regex_femminile(CONF_LOS["escludi_competizioni"])
+    si = [("English Women's Super League", ()), ("UEFA Women's Champions League", ()),
+          ("/international/uefa-womens-champions-league/ UEFA Women's Champions League", ()),
+          ("Friendly International (W)", ()), ("Serie A Femminile", ()), ("NAZIONALI FEMMINILI – AMICHEVOLI", ()),
+          ("Liga F", ()), ("Frauen-Bundesliga", ()), ("D1 Arkema", ()), ("Damallsvenskan", ()), ("Barclays WSL", ()),
+          ("NWSL", ()), ("Eredivisie Vrouwen", ()), ("Super League Dames", ()), ("Primera División Femenina", ()),
+          ("Liga MX Femenil", ()), ("Division 1 Féminine", ()), ("Women's World Cup Qualifiers", ()),
+          ("Toppserien", ("Rosenborg Kvinner", "Brann")), ("", ("Arsenal W", "Chelsea W")), ("Altro", ("Lyon W", "PSG (W)")),
+          ("", ("Juventus Women", "Roma")), ("", ("Lyon (W)", "PSG (W)")), ("Barclays Women's Super League", ("Arsenal", "Chelsea"))]
+    no = [("English Premier League", ("Wolves", "West Ham")), ("Championship", ("Bolton Wanderers", "Western Sydney Wanderers")),
+          ("A-League", ("Western United", "Wellington Phoenix")), ("Liga Futve", ()), ("Bundesliga", ("Werder Bremen", "VfL Wolfsburg")),
+          ("NAZIONALI – AMICHEVOLI", ("Wales", "W. Bremen")), ("Ligue 1", ("PSG", "Le Mans")), ("Serie A", ("Inter", "Juventus")),
+          ("UEFA Youth League", ("Leipzig U19", "PSV U19")), ("Eredivisie", ("Willem II", "Go Ahead Eagles")),
+          ("Swiss Super League", ("Winterthur", "Grasshoppers")), ("Altro", ("Arsenal W", "Chelsea")),
+          ("Altro", ("Club W", "Real Madrid")), ("Altro", ("Lyon (W)", "PSG")), ("Premier League", ("Wolverhampton Wanderers", "Newcastle"))]
+    assert all(U.femminile(rx, c, s) for c, s in si), [x for x in si if not U.femminile(rx, *x)]
+    assert not any(U.femminile(rx, c, s) for c, s in no), [x for x in no if U.femminile(rx, *x)]
+    assert not any("women" in u.lower() for u in CONF_LOS["pagine"])
+    # sui dati salvati: nessuna partita femminile resta, quelle maschili sì
+    canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
+    p.scarica, L.scarica = finto_lstv, finto_los
+    v, ini, fine = p.finestra(dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA))
+    st = {}
+    gruppi, _, _ = p.raccogli(canali, ini, fine, dict(CONF_LOS, pausa_secondi=0), st)
+    assert st["femminili_tolte"], st
+    assert not any(re.search(r"FEMMINIL|WOMEN", g["nome"]) for g in gruppi), [g["nome"] for g in gruppi]
+    return st
+
+
 def test_unione():
     """LiveSoccerTV (9/10) + LiveOnSat (10/10), finestra ven 9 – lun 12 ottobre."""
     canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
@@ -345,8 +376,8 @@ def test_unione():
     tutte = {f'{e["casa"]} - {e["ospite"]}': e for g in gruppi for e in g["partite"]}
     # pagine non salvate nei fixture -> segnalate, senza bloccare
     assert len(falliti) == len(conf["pagine"]) - 7 and all(f.startswith("LiveOnSat") for f in falliti), falliti
-    assert st["livesoccertv"] == 64 and st["liveonsat"] > 0 and st["uniti"] and st["solo_liveonsat"] > 0, st
-    assert st["totale"] == 64 + st["liveonsat"] - len(st["uniti"]), st
+    assert st["livesoccertv"] == 62 and st["liveonsat"] > 0 and st["uniti"] and st["solo_liveonsat"] > 0, st
+    assert st["totale"] == 62 + st["liveonsat"] - len(st["uniti"]), st
     # doppioni uniti: canali LiveSoccerTV + canali in chiaro LiveOnSat, una sola riga
     psg = tutte["PSG - Le Mans"]
     assert [(c["nome"], c["fta"]) for c in psg["canali"]] == [("TV5 Monde", True)], psg["canali"]  # Persiana esclusa
@@ -402,6 +433,7 @@ if __name__ == "__main__":
     test_dove(); print("dove vederli: OK")
     tb = test_teleboy(); print(f"Teleboy ({tb.n} canali): OK")
     sd = test_dazn(); print(f"DAZN: gratis {sd['dazn']}, unite {len(sd['uniti_dazn'])}, solo DAZN {sd['solo_dazn']} – OK")
+    sf = test_femminile(); print(f"femminile: {len(sf['femminili_tolte'])} partite escluse nei dati salvati – OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"
           f" = {st['totale']} – OK")

@@ -217,7 +217,8 @@ def raccogli_lstv(canali, inizio, fine):
                 casa, *ospite = partita(m["titolo"])
                 e = eventi[(m["url"], m["ts"])] = {
                     "ts": m["ts"], "quando": quando, "titolo": m["titolo"], "ordine": ordine, "competizione": etichetta,
-                    "casa": casa, "ospite": " - ".join(ospite), "canali": [], "fonti": ["LiveSoccerTV"]}
+                    "casa": casa, "ospite": " - ".join(ospite), "canali": [], "fonti": ["LiveSoccerTV"],
+                    "comp_orig": f'{m["comp_url"]} {m["comp"]}'}
             if c["nome"] not in [k["nome"] for k in e["canali"]]:
                 e["canali"].append({"nome": c["nome"], "fta": False})
             con_partite.add(c["nome"])
@@ -313,9 +314,23 @@ def raggruppa(eventi):
 def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None, conf_dazn=None):
     """Raccoglie da LiveSoccerTV e (se conf_los) da LiveOnSat, unisce e raggruppa per competizione."""
     eventi, falliti, senza = raccogli_lstv(canali, inizio, fine)
-    st = {"livesoccertv": len(eventi), "liveonsat": 0, "uniti": [], "solo_liveonsat": 0}
+    # calcio femminile escluso da tutte le fonti (liveonsat.json -> escludi_competizioni)
+    rx_f = unisci.regex_femminile((conf_los or {}).get("escludi_competizioni", []))
+    tolte_f = []
+
+    def fem(comp, squadre, nome):
+        if unisci.femminile(rx_f, comp, squadre):
+            tolte_f.append(nome)
+            return True
+        return False
+
+    eventi = [e for e in eventi if not fem(e.get("comp_orig", ""), (e["casa"], e["ospite"]),
+                                           f'{e["casa"]} - {e["ospite"]} [{e["competizione"]}]')]
+    st = {"livesoccertv": len(eventi), "liveonsat": 0, "uniti": [], "solo_liveonsat": 0, "femminili_tolte": tolte_f}
     if conf_los:
         partite_los, falliti_los = liveonsat.raccogli_los(conf_los, inizio, fine, teleboy=teleboy)
+        partite_los = [x for x in partite_los
+                       if not fem(x["comp"], [s.strip() for s in x["titolo"].split(" v ", 1)], f'{x["titolo"]} [{x["comp"]}]')]
         falliti += falliti_los
         st["liveonsat"] = len(partite_los)
         st["pagine_liveonsat"] = len(conf_los.get("pagine", []))
@@ -327,6 +342,8 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         esterni = dazn.leggi_esterni(conf_dazn["file_esterno"]) if conf_dazn.get("file_esterno") else {}
         partite_dazn, falliti_dazn = dazn.raccogli_dazn(inizio, fine, conf_dazn.get("paesi") or dazn.PAESI,
                                                        conf_dazn.get("scarica_fn"), esterni, st["dazn_dettagli"])
+        partite_dazn = [x for x in partite_dazn
+                        if not fem(x["comp"], (x["casa"], x["ospite"]), f'{x["casa"]} - {x["ospite"]} [{x["comp"]}] (DAZN)')]
         falliti += falliti_dazn
         st["dazn"] = {}
         for p in partite_dazn:
@@ -755,6 +772,8 @@ def main():
               f"· solo DAZN: {st['solo_dazn']}")
         for r in st["dazn_dettagli"]:
             print("  ", r)
+    for x in st.get("femminili_tolte", []):
+        print("  femminile esclusa:", x)
     for f in falliti:
         print("  FALLITO:", f)
     # se nessun canale è stato scaricato, esce con errore: così il deploy non sostituisce la pagina buona

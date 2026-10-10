@@ -78,3 +78,7 @@ La voce DAZN in "Dove vederli" contiene i link alle versioni dei vari paesi e la
 Dai server di GitHub la guida DAZN risponde 403 (bloccata): in quel caso la pagina mostra una sola riga "DAZN non raggiungibile in questo aggiornamento" (o l'elenco dei paesi falliti). Se nel repository c'è `dati/dazn.json` generato da meno di 3 ore, il build lo usa al posto dei paesi falliti (se manca o è vecchio, viene ignorato).
 
 Per attivarlo, su un computer sempre acceso dove DAZN risponde (con `python3` e `gh` autenticato): `scripts/aggiorna_dazn.sh` legge DAZN, aggiorna via API solo `dati/dazn.json` e il commit fa ripartire il sito. Da mettere in cron ogni ora (es. `5 * * * *`). Prova senza toccare GitHub: `scripts/aggiorna_dazn.sh --prova`. Un commit all'ora tiene anche vivo il repository, così GitHub non sospende l'aggiornamento automatico dopo 60 giorni (ma riempie la cronologia di piccoli commit).
+
+## Niente calcio femminile
+
+Le partite femminili sono escluse da tutte le fonti (LiveSoccerTV, LiveOnSat, DAZN). Le parole che le riconoscono sono in `liveonsat.json` → `escludi_competizioni` (es. women, femminile, frauen, liga f, wsl…): basta che compaiano come parola intera nel nome della competizione o di una squadra. In più: "(W)" nel nome della competizione, oppure entrambe le squadre che finiscono con " W" o "(W)" (es. "Arsenal W - Chelsea W"; una sola squadra non basta). "Wolves", "Wanderers", "Western" ecc. non vengono toccate.

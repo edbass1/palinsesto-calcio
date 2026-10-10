@@ -87,6 +87,27 @@ def stessa_partita(ts1, casa1, osp1, ts2, casa2, osp2) -> float:
     return migliore
 
 
+def regex_femminile(marcatori):
+    """Regex delle parole del calcio femminile: parole intere (anche con s/'s finale)."""
+    parole = "|".join(re.escape(m.lower()) for m in sorted(set(marcatori), key=len, reverse=True) if m.strip())
+    return re.compile(r"(?<![\w])(?:" + parole + r")(?:s|'s|’s)?(?![\w])" if parole else r"(?!x)x", re.I)
+
+
+RE_COMP_W = re.compile(r"\(w\)", re.I)                 # "Friendly International (W)"
+RE_SQUADRA_W = re.compile(r"(?:\sW|\s?\(W\))$")        # "Arsenal W", "Lyon (W)" (W maiuscola, alla fine)
+
+
+def femminile(rx, competizione="", squadre=()):
+    """True se la partita è di calcio femminile: una parola-chiave nella competizione o in una squadra,
+    "(W)" nella competizione, oppure ENTRAMBE le squadre che finiscono con " W" / "(W)"."""
+    competizione = competizione or ""
+    squadre = [(s or "").strip() for s in squadre]
+    if rx.search(competizione) or RE_COMP_W.search(competizione) or any(rx.search(s) for s in squadre):
+        return True
+    casa_osp = [s for s in squadre[:2] if s]
+    return len(casa_osp) == 2 and all(RE_SQUADRA_W.search(s) for s in casa_osp)
+
+
 def chiave_canale(nome: str) -> str:
     s = unicodedata.normalize("NFKD", nome).encode("ascii", "ignore").decode().lower()
     return re.sub(r"[^a-z0-9]+", "", re.sub(r"\b(hd|uk|tv)\b", "", s))
