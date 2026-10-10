@@ -165,6 +165,10 @@
   {
    "regex": "^Sporty ?TV\\b",
    "nota": "Sporty TV (Africa, in chiaro)"
+  },
+  {
+   "regex": "^Dubai Sports?\\b(?! ?[2-9])",
+   "nota": "Dubai Sports 1 (Emirati) – gratis su dubaiplus.net con registrazione (link utente)"
   }
  ],
  "alias_canali": [
@@ -183,6 +187,10 @@
   {
    "regex": "^BBC iPlayer\\b",
    "nome": "BBC iPlayer"
+  },
+  {
+   "regex": "^Dubai Sports?\\b(?! ?[2-9])",
+   "nome": "Dubai Sports 1"
   }
  ],
  "_nota_pagine": "LiveOnSat non ha pagine per giorno: 2day.php copre solo oggi; per i 3 giorni successivi servono le pagine dei campionati (che elencano diverse settimane).",

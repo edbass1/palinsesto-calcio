@@ -242,6 +242,8 @@ def test_dove():
         "prima-sport", "golazo", "itv1", "itvx", "bbc-alba", "bbc", "sportynet-brasil", None, "tv5monde",
         "sporty-tv-africa", "rsi", None]
     assert not any(v["id"] == "sportynet-plus" for v in dove)  # SportyNet+ tolto per sempre
+    assert all(voce(n) == "dubai-sports" for n in ("Dubai Sports 1 HD", "Dubai Sport 1", "Dubai Sports")) and voce("Dubai Sports 2") is None
+    assert L.in_chiaro("Dubai Sports 1 HD", CONF_LOS["canali_in_chiaro"])  # nella lista dei canali gratuiti
     e = {"ts": 1791648000, "quando": dt.datetime(2026, 10, 10, 18, tzinfo=p.ROMA), "casa": "A", "ospite": "B",
          "canali": [{"nome": "Prima Sport 2", "fta": False}, {"nome": "RSI La 2 Svizzera", "fta": True},
                     {"nome": "Persiana Sports 2", "fta": True}]}

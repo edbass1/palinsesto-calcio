@@ -871,6 +871,22 @@
    ]
   },
   {
+   "id": "dubai-sports",
+   "nome": "Dubai Sports 1",
+   "fonte": "utente",
+   "canali": [
+    "^Dubai Sports?\\b(?! ?[2-9])"
+   ],
+   "vpn": "non serve",
+   "note": "Non serve VPN, serve registrazione al sito.",
+   "link": [
+    {
+     "url": "https://www.dubaiplus.net/epg?channel=702096936062",
+     "testo": "Dubai Sports 1 – Dubai+"
+    }
+   ]
+  },
+  {
    "id": "tv8tr",
    "nome": "TV8 (Turchia)",
    "fonte": "ricerca",
