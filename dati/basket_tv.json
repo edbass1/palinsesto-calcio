@@ -1,0 +1,112 @@
+{
+ "_nota": "Scritto da scripts/aggiorna_basket.sh: partite EuroLeague/EuroCup con i canali scelti (altri_sport.json -> euroleague_tv) e orario ufficiale (UTC, epoch). Il build lo usa se non riesce a leggere le pagine.",
+ "aggiornato": "2026-10-10T22:38Z",
+ "partite": [
+  {
+   "comp": "EuroLeague",
+   "codice": "E",
+   "ts": 1791475200,
+   "casa": "Maccabi Rapyd Tel Aviv",
+   "ospite": "Armani Olimpia Milan",
+   "canali": [
+    "IDMAN TV"
+   ]
+  },
+  {
+   "comp": "EuroLeague",
+   "codice": "E",
+   "ts": 1791482400,
+   "casa": "FC Bayern Munich",
+   "ospite": "Virtus Bologna",
+   "canali": [
+    "IDMAN TV"
+   ]
+  },
+  {
+   "comp": "EuroLeague",
+   "codice": "E",
+   "ts": 1791484200,
+   "casa": "Valencia Basketball",
+   "ospite": "Hapoel IBI Tel Aviv",
+   "canali": [
+    "IDMAN TV"
+   ]
+  },
+  {
+   "comp": "EuroLeague",
+   "codice": "E",
+   "ts": 1791485100,
+   "casa": "Real Madrid",
+   "ospite": "Partizan Mozzart Bet Belgrade",
+   "canali": [
+    "IDMAN TV",
+    "X SPORTS",
+    "SPORTY TV"
+   ]
+  },
+  {
+   "comp": "EuroLeague",
+   "codice": "E",
+   "ts": 1791483300,
+   "casa": "Panathinaikos AKTOR Athens",
+   "ospite": "Fenerbahce Tarfin Istanbul",
+   "canali": [
+    "RTSH 1",
+    "IDMAN TV"
+   ]
+  },
+  {
+   "comp": "EuroLeague",
+   "codice": "E",
+   "ts": 1791475200,
+   "casa": "Dubai Basketball",
+   "ospite": "Crvena Zvezda Meridianbet Belgrade",
+   "canali": [
+    "IDMAN TV",
+    "X SPORTS"
+   ]
+  },
+  {
+   "comp": "EuroLeague",
+   "codice": "E",
+   "ts": 1791570600,
+   "casa": "Kosner Baskonia Vitoria-Gasteiz",
+   "ospite": "Besiktas Istanbul",
+   "canali": [
+    "IDMAN TV"
+   ]
+  },
+  {
+   "comp": "EuroLeague",
+   "codice": "E",
+   "ts": 1791570600,
+   "casa": "FC Barcelona",
+   "ospite": "Zalgiris Kaunas",
+   "canali": [
+    "IDMAN TV",
+    "SPORTY TV"
+   ]
+  },
+  {
+   "comp": "EuroLeague",
+   "codice": "E",
+   "ts": 1791569700,
+   "casa": "Olympiacos Piraeus",
+   "ospite": "Anadolu Efes Istanbul",
+   "canali": [
+    "IDMAN TV"
+   ]
+  },
+  {
+   "comp": "EuroLeague",
+   "codice": "E",
+   "ts": 1791398700,
+   "casa": "Paris Basketball",
+   "ospite": "LDLC ASVEL Villeurbanne",
+   "canali": [
+    "IDMAN TV",
+    "X SPORTS"
+   ]
+  }
+ ]
+}
