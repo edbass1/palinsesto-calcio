@@ -82,3 +82,9 @@ Per attivarlo, su un computer sempre acceso dove DAZN risponde (con `python3` e 
 ## Niente calcio femminile
 
 Le partite femminili sono escluse da tutte le fonti (LiveSoccerTV, LiveOnSat, DAZN). Le parole che le riconoscono sono in `liveonsat.json` → `escludi_competizioni` (es. women, femminile, frauen, liga f, wsl…): basta che compaiano come parola intera nel nome della competizione o di una squadra. In più: "(W)" nel nome della competizione, oppure entrambe le squadre che finiscono con " W" o "(W)" (es. "Arsenal W - Chelsea W"; una sola squadra non basta). "Wolves", "Wanderers", "Western" ecc. non vengono toccate.
+
+## Altri sport
+
+Terzo bottone in alto: **ALTRI SPORT**. Dirette streaming gratuite di tutti gli altri sport da SRF, RTS e RSI (Svizzera, etichetta **VPN SVIZZERA**, o **SENZA VPN** se l'emittente le rende visibili anche all'estero) e da ARD Mediathek (Germania, etichetta **VPN GERMANIA**). Ogni evento ha giorno, ora di inizio e fine (orari italiani), sport, titolo ed emittenti; il nome dell'emittente apre direttamente la pagina della diretta. Lo stesso evento su più emittenti (es. GP di F1 su SRF, RTS e RSI) compare una volta sola. Gli eventi finiti spariscono (si usa l'ora di fine data dall'emittente). Le partite di calcio di queste fonti vanno nella sezione calcio (canale "SRF stream", "RSI stream", "ARD Das Erste stream"…); il calcio femminile è escluso anche qui.
+
+Fonti: API pubbliche SRG (`il.srgssr.ch/integrationlayer/2.0/<srf|rts|rsi>/mediaList/video/scheduledLivestreams`) e ARD (`api.ardmediathek.de/page-gateway`, raccolta "Die Sport-Livestreams der ARD"). Codice in `scraper/altri_sport.py`. Teleboy non ha un palinsesto pubblico leggibile senza chiave, quindi i suoi canali non generano eventi qui. Prova senza: `python3 scraper/palinsesto.py --senza-altri-sport`.

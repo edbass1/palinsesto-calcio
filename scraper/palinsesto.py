@@ -20,6 +20,7 @@ import liveonsat  # noqa: E402
 import unisci  # noqa: E402
 import teleboy as teleboy_mod  # noqa: E402
 import dazn  # noqa: E402
+import altri_sport  # noqa: E402
 
 ROMA = ZoneInfo("Europe/Rome")
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -272,6 +273,37 @@ def unisci_dazn(eventi, partite_dazn):
     return eventi, uniti
 
 
+def evento_stream(p):
+    """Partita di calcio da SRF/RTS/RSI/ARD (streaming) -> evento calcio."""
+    ordine, etichetta = altri_sport.competizione_calcio(p["comp"] + " " + " ".join(p["testi"]))
+    return {"ts": p["ts"], "quando": dt.datetime.fromtimestamp(p["ts"], ROMA), "titolo": f'{p["casa"]} v {p["ospite"]}',
+            "ordine": ordine, "competizione": etichetta, "casa": p["casa"], "ospite": p["ospite"],
+            "canali": [{"nome": f'{x["nome"]} stream', "fta": True, "url": x["link"], "vpn": x["vpn"]} for x in p["emittenti"]],
+            "fonti": ["Streaming"]}
+
+
+def unisci_stream(eventi, partite):
+    uniti = []
+    for p in partite:
+        nuovo = evento_stream(p)
+        migliore, punteggio = None, 0.0
+        for e in eventi:
+            # la diretta streaming spesso comincia prima del calcio d'inizio (fino a 45 minuti)
+            ts = e["ts"] if 0 <= e["ts"] - nuovo["ts"] <= 45 * 60 else nuovo["ts"]
+            sc = unisci.stessa_partita(e["ts"], e["casa"], e["ospite"], ts, nuovo["casa"], nuovo["ospite"])
+            if sc > punteggio:
+                migliore, punteggio = e, sc
+        if migliore is None:
+            eventi.append(nuovo)
+            continue
+        for k in nuovo["canali"]:
+            if k["nome"] not in [c["nome"] for c in migliore["canali"]]:
+                migliore["canali"].append(k)
+        migliore["fonti"].append("Streaming")
+        uniti.append(f'{migliore["casa"]} - {migliore["ospite"]}')
+    return eventi, uniti
+
+
 def unisci_fonti(eventi, partite_los, regole_fta=()):
     """Aggiunge le partite LiveOnSat: se è la stessa partita unisce i canali, altrimenti la aggiunge.
     Restituisce (eventi, elenco dei doppioni uniti)."""
@@ -311,7 +343,7 @@ def raggruppa(eventi):
             for (o, nome) in sorted(gruppi)]
 
 
-def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None, conf_dazn=None):
+def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None, conf_dazn=None, conf_altri=None):
     """Raccoglie da LiveSoccerTV e (se conf_los) da LiveOnSat, unisce e raggruppa per competizione."""
     eventi, falliti, senza = raccogli_lstv(canali, inizio, fine)
     # calcio femminile escluso da tutte le fonti (liveonsat.json -> escludi_competizioni)
@@ -350,6 +382,15 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
             st["dazn"][p["paese"]] = st["dazn"].get(p["paese"], 0) + 1
         eventi, st["uniti_dazn"] = unisci_dazn(eventi, partite_dazn)
         st["solo_dazn"] = sum(1 for e in eventi if e["fonti"] == ["DAZN"])
+    st["altri_sport"] = []
+    if conf_altri is not None:
+        altri, calcio_stream, avvisi = altri_sport.raccogli_altri(
+            inizio, fine, conf_altri.get("ora") or dt.datetime.now(ROMA), rx_f,
+            scarica_srg_fn=conf_altri.get("scarica_srg_fn"), scarica_ard_fn=conf_altri.get("scarica_ard_fn"))
+        falliti += avvisi
+        st["altri_sport"] = altri
+        eventi, st["uniti_stream"] = unisci_stream(eventi, calcio_stream)
+        st["calcio_stream"] = len(calcio_stream)
     # esclusioni permanenti (liveonsat.json -> escludi_canali) applicate a tutte le fonti
     escludi = ["dazn"] + [x.lower() for x in (conf_los or {}).get("escludi_canali", []) if x]
     st["tolte_esclusi"] = []
@@ -385,7 +426,7 @@ def periodo(primo: dt.date, giorni: int = GIORNI_FINESTRA):
     return f"{a} – {b}"
 
 
-def genera_html(primo, ora, gruppi, falliti, senza, dove=None):
+def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None):
     esc = html.escape
     ora_r = ora.astimezone(ROMA)
     aggiornato = f"{GIORNI_LUNGHI[ora_r.weekday()]} {ora_r:%d/%m/%Y} alle {ora_r:%H:%M}"
@@ -428,6 +469,33 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None):
                           f'<h2 class="giorno-h">{GIORNI_LUNGHI[d.weekday()].upper()} {d.day} {MESI[d.month - 1].upper()}</h2>'
                           f'<ol class="partite">{"".join(scheda(e, c) for e, c in del_giorno)}</ol></section>')
 
+    # vista "altri sport": eventi in ordine di orario, per giorno, con lo sport in evidenza
+    altri = sorted(altri or [], key=lambda e: (e["ts"], e["sport"]))
+
+    def scheda_altro(e):
+        q = dt.datetime.fromtimestamp(e["ts"], ROMA)
+        f = dt.datetime.fromtimestamp(e["fine"], ROMA)
+        em = "".join(
+            f'<li class="fta"><a href="{esc(x["link"])}" target="_blank" rel="noopener">{esc(x["nome"])}</a> '
+            + (f'<span class="tag vpn">VPN {esc(x["vpn"])}</span>' if x.get("vpn") else '<span class="tag vpn">SENZA VPN</span>')
+            + '</li>' for x in e["emittenti"])
+        return (f'<li class="partita evento" data-ts="{e["ts"]}" data-fine="{e["fine"]}" data-giorno="{q:%Y-%m-%d}">'
+                f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
+                f'<span class="ora">{q:%H:%M}</span><span class="fino">fino alle {f:%H:%M}</span>'
+                '<span class="stato" aria-live="polite"></span></div>'
+                f'<div class="squadre"><span class="comp-tag">{esc(e["sport"].upper())}</span>'
+                f'<span class="sq">{esc(e["titolo"])}</span></div>'
+                f'<ul class="canali" aria-label="Dove">{em}</ul></li>')
+    sez_altri = []
+    for d in giorni:
+        del_giorno = [e for e in altri if dt.datetime.fromtimestamp(e["ts"], ROMA).date() == d]
+        if del_giorno:
+            sez_altri.append(f'<section class="giorno-sez" data-giorno="{d:%Y-%m-%d}">'
+                             f'<h2 class="giorno-h">{GIORNI_LUNGHI[d.weekday()].upper()} {d.day} {MESI[d.month - 1].upper()}</h2>'
+                             f'<ol class="partite">{"".join(scheda_altro(e) for e in del_giorno)}</ol></section>')
+    if not sez_altri:
+        sez_altri.append('<p class="vuoto">Nessun altro sport in diretta streaming in questi giorni.</p>')
+
     avvisi = ""
     if falliti:
         avvisi += ('<section class="avviso"><h2>⚠ Canali o pagine non scaricati</h2><ul>'
@@ -449,6 +517,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None):
     return TEMPLATE.format(
         periodo=esc(periodo(primo)), aggiornato=esc(aggiornato), n=n_partite,
         bottoni=bottoni, sezioni="\n".join(sezioni), orario="\n".join(orario), avvisi=avvisi, note=note,
+        altri="\n".join(sez_altri), n_altri=len(altri),
         dove=sezione_dove(dove, usati), durata=DURATA_PARTITA_S,
         vuoto_nascosto=' hidden' if gruppi else '')
 
@@ -471,6 +540,10 @@ def badge(c, dove, usati):
     if c["fta"]:
         testo = f'<span class="tag" aria-label="in chiaro">IN CHIARO</span> {testo}'
     # priorità: voci dell'utente, poi Teleboy, poi le altre
+    if c.get("url"):  # diretta streaming: link alla pagina dell'evento
+        testo = (f'<a href="{esc(c["url"])}" target="_blank" rel="noopener">{testo}</a>'
+                 + (f' <span class="tag vpn">VPN {esc(c["vpn"])}</span>' if c.get("vpn") else ' <span class="tag vpn">SENZA VPN</span>'))
+        return f'<li class="fta">{testo}</li>' if c["fta"] else f'<li>{testo}</li>'
     v_tb = next((x for x in dove if x["id"] == "teleboy"), None) if c.get("teleboy") else None
     if v_tb is not None:
         v_tb.setdefault("_canali_pagina", set()).add(c["nome"])
@@ -543,6 +616,10 @@ TEMPLATE = """<!doctype html>
   nav.filtri button[aria-pressed="true"] {{ background:var(--giallo); color:#000; border-color:var(--giallo); }}
   nav.filtri button:disabled {{ opacity:.35; cursor:default; }}
   nav.viste {{ max-width:1000px; margin:4px auto 0; display:grid; grid-template-columns:1fr 1fr; gap:10px; }}
+  nav.viste button.altri {{ grid-column:1 / -1; border-color:var(--azzurro); }}
+  .tag.vpn {{ background:#ffd400; color:#000; }}
+  .fino {{ font-size:.85rem; color:#ccc; }}
+  .intro-altri {{ font-size:1.05rem; color:#ddd; }}
   nav.viste button {{ font:inherit; font-size:1.05rem; font-weight:900; letter-spacing:.02em; min-height:72px; padding:8px 10px;
                border-radius:14px; background:#111; color:#fff; border:3px solid #888; cursor:pointer; line-height:1.15; }}
   nav.viste button[aria-pressed="true"] {{ background:#fff; color:#000; border-color:#fff; box-shadow:0 0 0 3px var(--giallo); }}
@@ -620,6 +697,7 @@ TEMPLATE = """<!doctype html>
 <nav class="viste" aria-label="Come ordinare le partite">
   <button type="button" data-vista="campionato" aria-pressed="true">PER CAMPIONATO</button>
   <button type="button" data-vista="orario" aria-pressed="false">IN ORDINE DI ORARIO</button>
+  <button type="button" data-vista="altri" aria-pressed="false" class="altri">ALTRI SPORT <span class="n">({n_altri})</span></button>
 </nav>
 <nav class="filtri" aria-label="Filtra per giorno">{bottoni}</nav>
 <main>
@@ -628,6 +706,10 @@ TEMPLATE = """<!doctype html>
 </div>
 <div id="vista-orario" class="vista" hidden>
 {orario}
+</div>
+<div id="vista-altri" class="vista" hidden>
+<p class="intro-altri">Dirette streaming gratuite di altri sport: SRF, RTS, RSI (Svizzera) e ARD (Germania). Tocca l'emittente per aprire la diretta.</p>
+{altri}
 </div>
 <p class="vuoto" id="vuoto"{vuoto_nascosto}>Nessuna partita in programma in questi giorni.</p>
 {avvisi}
@@ -658,6 +740,8 @@ TEMPLATE = """<!doctype html>
       if (b.disabled) b.title = 'Nessuna partita rimasta'; else b.removeAttribute('title');
     }});
     var n = document.querySelectorAll('#vista-campionato li.partita').length;
+    var na = document.querySelector('nav.viste .altri .n');
+    if (na) na.textContent = '(' + document.querySelectorAll('#vista-altri li.partita').length + ')';
     var cont = document.getElementById('n-partite');
     if (cont) cont.textContent = n;
     var vuoto = document.getElementById('vuoto');
@@ -676,14 +760,15 @@ TEMPLATE = """<!doctype html>
   // due viste: per campionato / in ordine di orario (scelta ricordata nel browser)
   var tastiVista = [].slice.call(document.querySelectorAll('nav.viste button'));
   function vista(v) {{
-    if (v !== 'orario') v = 'campionato';
+    if (v !== 'orario' && v !== 'altri') v = 'campionato';
     tastiVista.forEach(function (b) {{ b.setAttribute('aria-pressed', b.dataset.vista === v ? 'true' : 'false'); }});
     document.getElementById('vista-campionato').hidden = v !== 'campionato';
     document.getElementById('vista-orario').hidden = v !== 'orario';
+    document.getElementById('vista-altri').hidden = v !== 'altri';
     try {{ localStorage.setItem('vista', v); }} catch (e) {{}}
   }}
   tastiVista.forEach(function (b) {{ b.addEventListener('click', function () {{ vista(b.dataset.vista); }}); }});
-  var daUrl = /[?&]vista=(orario|campionato)/.exec(location.search);  // es. ...?vista=orario
+  var daUrl = /[?&]vista=(orario|campionato|altri)/.exec(location.search);  // es. ...?vista=orario
   var scelta = daUrl ? daUrl[1] : null;
   if (!scelta) {{ try {{ scelta = localStorage.getItem('vista'); }} catch (e) {{}} }}
   vista(scelta);
@@ -692,7 +777,8 @@ TEMPLATE = """<!doctype html>
     var ora = Date.now() / 1000, tolte = false;
     partite().forEach(function (p) {{
       var ts = +p.dataset.ts, s = p.querySelector('.stato'), c = '', t = '';
-      if (ora >= ts + DURATA) {{ p.parentNode.removeChild(p); tolte = true; return; }}
+      var fine = p.dataset.fine ? +p.dataset.fine : ts + DURATA;
+      if (ora >= fine) {{ p.parentNode.removeChild(p); tolte = true; return; }}
       if (ora >= ts) {{ c = 'in-corso'; t = 'IN CORSO'; }}
       else if (ts - ora <= 3600) {{ c = 'tra-poco'; t = 'TRA ' + Math.max(1, Math.round((ts - ora) / 60)) + ' MIN'; }}
       p.classList.remove('in-corso', 'tra-poco');
@@ -724,6 +810,7 @@ def main():
     ap.add_argument("--teleboy", default=str(RADICE / "teleboy_canali.json"), help="elenco canali Teleboy")
     ap.add_argument("--teleboy-offline", action="store_true", help="non rilegge la pagina Teleboy, usa solo la copia")
     ap.add_argument("--senza-dazn", action="store_true", help="non legge la guida DAZN")
+    ap.add_argument("--senza-altri-sport", action="store_true", help="non legge SRF/RTS/RSI/ARD")
     ap.add_argument("--out", default=str(RADICE / "site"))
     ap.add_argument("--ora", help="data/ora di riferimento ISO (per test), es. 2026-10-10T18:00+02:00")
     ap.add_argument("--json", action="store_true", help="scrive anche palinsesto.json")
@@ -743,7 +830,8 @@ def main():
         tb = teleboy_mod.carica(a.teleboy, aggiorna=not a.teleboy_offline)
         print(f"Teleboy: {tb.n} canali gratuiti ({tb.fonte})")
     conf_dazn = None if a.senza_dazn else {"file_esterno": str(RADICE / "dati" / "dazn.json")}
-    gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st, tb, conf_dazn)
+    conf_altri = None if a.senza_altri_sport else {}
+    gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st, tb, conf_dazn, conf_altri)
     n_tutte = sum(len(g["partite"]) for g in gruppi)
     gruppi = togli_finite(gruppi, dt.datetime.now(ROMA))
     st["finite_tolte"] = n_tutte - sum(len(g["partite"]) for g in gruppi)
@@ -753,7 +841,7 @@ def main():
     for f in (RADICE / "static").iterdir():
         if f.is_file():
             shutil.copy2(f, out / f.name)
-    (out / "index.html").write_text(genera_html(primo, dt.datetime.now(ROMA), gruppi, falliti, senza, dove), encoding="utf-8")
+    (out / "index.html").write_text(genera_html(primo, dt.datetime.now(ROMA), gruppi, falliti, senza, dove, st.get("altri_sport")), encoding="utf-8")
     if a.json:
         dati = [{"competizione": g["nome"], "partite": [
             {"quando": e["quando"].isoformat(), "partita": f'{e["casa"]} - {e["ospite"]}'.rstrip(" -"),
@@ -772,6 +860,9 @@ def main():
               f"· solo DAZN: {st['solo_dazn']}")
         for r in st["dazn_dettagli"]:
             print("  ", r)
+    if "calcio_stream" in st:
+        print(f"  Altri sport: {len(st['altri_sport'])} eventi · calcio in streaming: {st['calcio_stream']} "
+              f"(uniti a partite già presenti: {len(st['uniti_stream'])})")
     for x in st.get("femminili_tolte", []):
         print("  femminile esclusa:", x)
     for f in falliti:

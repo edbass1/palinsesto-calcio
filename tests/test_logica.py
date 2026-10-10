@@ -364,6 +364,67 @@ def test_femminile():
     return st
 
 
+RISPOSTE_ALTRI = json.loads(gzip.open(QUI / "fixtures_altri_2026-10-10" / "risposte.json.gz", "rt", encoding="utf-8").read())
+
+
+def finto_json(url, tentativi=3):
+    return (RISPOSTE_ALTRI[url], None) if url in RISPOSTE_ALTRI else (None, "HTTP Error 404: Not Found")
+
+
+def test_altri_sport():
+    """SRF/RTS/RSI/ARD: sport riconosciuto, stesso evento unito, calcio femminile tolto, calcio nella sezione calcio."""
+    import altri_sport as A
+    A.json_url = finto_json
+    assert A.titolo_srg("srf", "Formel 1: GP Singapur") == ("Formula 1", "GP Singapur")
+    assert A.titolo_srg("rts", "FORMULE 1 GP de Singapour")[0] == "Formula 1"
+    assert A.titolo_srg("rts", "MOTO3 GP d'Indonésie Moto3")[0] == "Motomondiale"
+    assert A.titolo_srg("rsi", "Ciclismo: Classiche 2026, Il Lombardia")[0] == "Ciclismo"
+    assert A.calcio_squadre({"titolo": "Super League, Lugano - Luzern"}) == ("Lugano", "Luzern", "Super League")
+    assert A.calcio_squadre({"titolo": "Champions League, MD2, Roma-Real Madrid"})[:2] == ("Roma", "Real Madrid")
+    ora = dt.datetime(2026, 10, 10, 22, 0, tzinfo=p.ROMA)  # ora in cui sono state salvate le risposte
+    v, ini, fine = p.finestra(ora)
+    rx = U.regex_femminile(CONF_LOS["escludi_competizioni"])
+    altri, calcio, avvisi = A.raccogli_altri(ini, fine, ora, rx)
+    assert avvisi == [], avvisi
+    f1 = [e for e in altri if e["sport"] == "Formula 1"]
+    assert len(f1) == 1 and {x["nome"] for x in f1[0]["emittenti"]} == {"SRF", "RTS", "RSI"}, f1  # GP di domenica unito
+    assert f1[0]["titolo"] == "GP di Singapore, gara"  # titolo italiano (RSI)
+    assert {e["sport"] for e in altri} >= {"Motomondiale", "Boxe", "Danza sportiva"}
+    assert any(x["nome"] == "ARD Das Erste" and x["vpn"] == "GERMANIA" for e in altri for x in e["emittenti"])
+    assert all(x["vpn"] in ("SVIZZERA", "GERMANIA", None) for e in altri for x in e["emittenti"])
+    # calcio femminile (qualificazioni Mondiali femminili su SRF/RTS/RSI, DFB-Frauen su ARD) mai presente
+    assert not any(re.search(r"frauen|femminil|féminin", " ".join(e["testi"]), re.I) for e in altri + calcio)
+    assert not any("Japan" in e["titolo"] or "Israël" in e["titolo"] for e in altri + calcio), [e["titolo"] for e in altri]
+    # partita di calcio in streaming (finta, stesso formato SRG) -> sezione calcio, unita alla stessa partita
+    finta = {"type": "SCHEDULED_LIVESTREAM", "title": "Fussball: Super League, Lugano - Luzern", "date": "2026-10-10T17:40:00+02:00",
+             "duration": 9000000, "cesimId": "1830000", "urn": "urn:srf:scheduled_livestream:video:x", "playableAbroad": False}
+    finta_rsi = dict(finta, title="Calcio: Super League, Lugano-Lucerna", date="2026-10-10T17:55:00+02:00", cesimId="1830001")
+    srg = lambda bu: (A.analizza_srg(bu, [finta] if bu == "srf" else [finta_rsi] if bu == "rsi" else []), None)  # noqa: E731
+    ora2 = dt.datetime(2026, 10, 10, 18, 0, tzinfo=p.ROMA)
+    _, calcio2, _ = A.raccogli_altri(ini, fine, ora2, rx, scarica_srg_fn=srg, scarica_ard_fn=lambda i, f: ([], None))
+    assert [(e["casa"], e["ospite"], len(e["emittenti"])) for e in calcio2] == [("Lugano", "Luzern", 2)], calcio2
+    canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
+    p.scarica, L.scarica = finto_lstv, finto_los
+    st = {}
+    gruppi, falliti, _ = p.raccogli(canali, ini, fine, dict(CONF_LOS, pausa_secondi=0), st, None, None,
+                                    {"ora": ora2, "scarica_srg_fn": srg, "scarica_ard_fn": lambda i, f: ([], None)})
+    tutte = {f'{e["casa"]} - {e["ospite"]}': (g["nome"], e) for g in gruppi for e in g["partite"]}
+    nome, lug = tutte["Lugano - Luzern"]
+    assert nome == "SUPER LEAGUE (Svizzera)" and [c["nome"] for c in lug["canali"]][-2:] == ["SRF stream", "RSI stream"], lug
+    assert lug["quando"].strftime("%H:%M") == "18:00" and "Streaming" in lug["fonti"]  # unita alla partita LiveOnSat delle 18
+    assert lug["canali"][-2]["url"] == "https://www.srf.ch/play/tv/-/video/-?urn=urn:swisstxt:video:srf:1830000"
+    h = p.genera_html(v, ora, gruppi, falliti, [], [], altri)
+    assert 'data-vista="altri"' in h and 'id="vista-altri"' in h and "VPN SVIZZERA" in h and "VPN GERMANIA" in h
+    assert 'href="https://www.ardmediathek.de/video/' in h and 'data-fine="' in h and "ALTRI SPORT" in h
+    assert 'href="https://www.srf.ch/play/tv/-/video/-?urn=urn:swisstxt:video:srf:1830000" target="_blank"' in h
+    # un'emittente che non risponde: avviso, nessun errore
+    A.json_url = lambda url, tentativi=3: (None, "HTTP Error 403") if "ardmediathek" in url else finto_json(url)
+    _, _, avvisi = A.raccogli_altri(ini, fine, ora, rx)
+    assert avvisi == ["Altri sport: non raggiungibile ARD"], avvisi
+    A.json_url = finto_json
+    return altri, calcio
+
+
 def test_unione():
     """LiveSoccerTV (9/10) + LiveOnSat (10/10), finestra ven 9 – lun 12 ottobre."""
     canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
@@ -434,6 +495,7 @@ if __name__ == "__main__":
     tb = test_teleboy(); print(f"Teleboy ({tb.n} canali): OK")
     sd = test_dazn(); print(f"DAZN: gratis {sd['dazn']}, unite {len(sd['uniti_dazn'])}, solo DAZN {sd['solo_dazn']} – OK")
     sf = test_femminile(); print(f"femminile: {len(sf['femminili_tolte'])} partite escluse nei dati salvati – OK")
+    al, ca = test_altri_sport(); print(f"altri sport: {len(al)} eventi, calcio in streaming {len(ca)} – OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"
           f" = {st['totale']} – OK")
