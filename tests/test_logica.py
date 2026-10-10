@@ -74,7 +74,7 @@ def test_fixture():
     psg = [e for g in gruppi for e in g["partite"] if "PSG" in e["titolo"]][0]
     assert [c["nome"] for c in psg["canali"]] == ["TV5 Monde"]
     html = p.genera_html(v, dt.datetime(2026, 10, 9, 12, 47, tzinfo=p.ROMA), gruppi, ["Canale X (HTTP 404)"], [])
-    assert "non scaricati" in html and "Canale X" in html and html.count('class="partita"') == 64
+    assert "non scaricati" in html and "Canale X" in html and html.count('class="partita"') == 2 * 64
     assert not any("dazn" in c["nome"].lower() for g in gruppi for e in g["partite"] for c in e["canali"])
     return n
 
@@ -215,7 +215,14 @@ def test_unione():
     assert nomi.index("SERIE A") == 0 and nomi.count("PREMIER LEAGUE") == 1 and nomi.count("SERIE A") == 1
     assert not any("dazn" in c["nome"].lower() for e in tutte.values() for c in e["canali"])
     html = p.genera_html(v, dt.datetime(2026, 10, 10, 18, 30, tzinfo=p.ROMA), gruppi, falliti, senza)
-    assert html.count('class="partita"') == st["totale"] and html.count('<li class="fta">') > 50
+    assert html.count('class="partita"') == 2 * st["totale"] and html.count('<li class="fta">') > 50
+    # vista "in ordine di orario": stesse partite, ordinate per ora, con separatori per giorno ed etichetta campionato
+    import re as _re
+    orario = html[html.index('id="vista-orario"'):html.index('</main>')]
+    ts = [int(x) for x in _re.findall(r'data-ts="(\d+)"', orario)]
+    assert len(ts) == st["totale"] and ts == sorted(ts)
+    assert _re.findall(r'class="giorno-h">([^<]+)', orario) == ["VENERDÌ 9 OTTOBRE", "SABATO 10 OTTOBRE", "DOMENICA 11 OTTOBRE", "LUNEDÌ 12 OTTOBRE"]
+    assert orario.count('class="comp-tag"') == st["totale"] and 'data-vista="orario"' in html and "localStorage" in html
     return st
 
 

@@ -301,25 +301,37 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None):
     n_partite = sum(len(g["partite"]) for g in gruppi)
 
     sezioni, usati = [], set()
-    for g in gruppi:
-        schede = []
-        for e in g["partite"]:
-            q = e["quando"]
-            notte = q.hour < 6
-            squadre = f'<span class="sq">{esc(e["casa"])}</span>'
-            if e["ospite"]:
-                squadre += f' <span class="vs">–</span> <span class="sq">{esc(e["ospite"])}</span>'
-            canali = "".join(badge(c, dove, usati) for c in e["canali"])
-            schede.append(
-                f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}">'
+
+    def scheda(e, comp=None):
+        q = e["quando"]
+        notte = q.hour < 6
+        squadre = f'<span class="sq">{esc(e["casa"])}</span>'
+        if e["ospite"]:
+            squadre += f' <span class="vs">–</span> <span class="sq">{esc(e["ospite"])}</span>'
+        if comp:
+            squadre = f'<span class="comp-tag">{esc(comp)}</span>' + squadre
+        canali = "".join(badge(c, dove, usati) for c in e["canali"])
+        return (f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span>'
                 + (f'<span class="notte">notte tra {GIORNI[(q.weekday() - 1) % 7].lower()} e {GIORNI[q.weekday()].lower()}</span>' if notte else '') +
                 '<span class="stato" aria-live="polite"></span></div>'
                 f'<div class="squadre">{squadre}</div>'
                 f'<ul class="canali" aria-label="Canali">{canali}</ul></li>')
+
+    # vista "per campionato"
+    for g in gruppi:
         sezioni.append(f'<section class="comp"><h2>{esc(g["nome"])}</h2>'
-                       f'<ol class="partite">{"".join(schede)}</ol></section>')
+                       f'<ol class="partite">{"".join(scheda(e) for e in g["partite"])}</ol></section>')
+    # vista "in ordine di orario": tutte le partite per ora d'inizio, con separatori per giorno
+    tutte = sorted(((e, g["nome"]) for g in gruppi for e in g["partite"]), key=lambda x: (x[0]["ts"], x[1], x[0]["casa"]))
+    orario = []
+    for d in giorni:
+        del_giorno = [x for x in tutte if x[0]["quando"].date() == d]
+        if del_giorno:
+            orario.append(f'<section class="giorno-sez" data-giorno="{d:%Y-%m-%d}">'
+                          f'<h2 class="giorno-h">{GIORNI_LUNGHI[d.weekday()].upper()} {d.day} {MESI[d.month - 1].upper()}</h2>'
+                          f'<ol class="partite">{"".join(scheda(e, c) for e, c in del_giorno)}</ol></section>')
     if not gruppi:
         sezioni.append('<p class="vuoto">Nessuna partita trovata in questi giorni.</p>')
 
@@ -343,7 +355,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None):
 
     return TEMPLATE.format(
         periodo=esc(periodo(primo)), aggiornato=esc(aggiornato), n=n_partite,
-        bottoni=bottoni, sezioni="\n".join(sezioni), avvisi=avvisi, note=note,
+        bottoni=bottoni, sezioni="\n".join(sezioni), orario="\n".join(orario), avvisi=avvisi, note=note,
         dove=sezione_dove(dove, usati))
 
 
@@ -423,6 +435,16 @@ TEMPLATE = """<!doctype html>
                background:#111; color:#fff; border:3px solid #666; cursor:pointer; flex:1 1 auto; }}
   nav.filtri button[aria-pressed="true"] {{ background:var(--giallo); color:#000; border-color:var(--giallo); }}
   nav.filtri button:disabled {{ opacity:.35; cursor:default; }}
+  nav.viste {{ max-width:1000px; margin:4px auto 0; display:grid; grid-template-columns:1fr 1fr; gap:10px; }}
+  nav.viste button {{ font:inherit; font-size:1.05rem; font-weight:900; letter-spacing:.02em; min-height:72px; padding:8px 10px;
+               border-radius:14px; background:#111; color:#fff; border:3px solid #888; cursor:pointer; line-height:1.15; }}
+  nav.viste button[aria-pressed="true"] {{ background:#fff; color:#000; border-color:#fff; box-shadow:0 0 0 3px var(--giallo); }}
+  nav.viste button[aria-pressed="true"]::before {{ content:"✓ "; }}
+  nav.viste button:focus-visible {{ outline:4px solid var(--azzurro); outline-offset:3px; }}
+  h2.giorno-h {{ background:#fff; color:#000; }}
+  section.giorno-sez {{ margin-top:36px; }}
+  .comp-tag {{ display:block; width:max-content; max-width:100%; background:var(--giallo); color:#000; font-size:.8rem; font-weight:900;
+               padding:2px 10px; border-radius:7px; margin-bottom:6px; letter-spacing:.02em; overflow-wrap:anywhere; }}
   nav.filtri button:focus-visible {{ outline:4px solid var(--azzurro); outline-offset:2px; }}
   section.comp {{ margin-top:36px; }}
   h2 {{ font-size:1.5rem; color:#000; background:var(--giallo); padding:10px 16px; border-radius:10px; margin:0 0 14px;
@@ -488,9 +510,18 @@ TEMPLATE = """<!doctype html>
   <p class="agg">Aggiornato {aggiornato} · {n} partite · orari italiani</p>
   <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese</p>
 </header>
+<nav class="viste" aria-label="Come ordinare le partite">
+  <button type="button" data-vista="campionato" aria-pressed="true">PER CAMPIONATO</button>
+  <button type="button" data-vista="orario" aria-pressed="false">IN ORDINE DI ORARIO</button>
+</nav>
 <nav class="filtri" aria-label="Filtra per giorno">{bottoni}</nav>
 <main>
+<div id="vista-campionato" class="vista">
 {sezioni}
+</div>
+<div id="vista-orario" class="vista" hidden>
+{orario}
+</div>
 {avvisi}
 {dove}
 </main>
@@ -507,12 +538,26 @@ TEMPLATE = """<!doctype html>
   function filtra(f) {{
     bottoni.forEach(function (b) {{ b.setAttribute('aria-pressed', b.dataset.filtro === f ? 'true' : 'false'); }});
     partite.forEach(function (p) {{ p.hidden = !(f === 'tutti' || p.dataset.giorno === f); }});
-    [].forEach.call(document.querySelectorAll('section.comp'), function (s) {{
+    [].forEach.call(document.querySelectorAll('section.comp, section.giorno-sez'), function (s) {{
       s.hidden = !s.querySelector('li.partita:not([hidden])');
     }});
     try {{ sessionStorage.setItem('filtro', f); }} catch (e) {{}}
   }}
   bottoni.forEach(function (b) {{ b.addEventListener('click', function () {{ filtra(b.dataset.filtro); }}); }});
+  // due viste: per campionato / in ordine di orario (scelta ricordata nel browser)
+  var tastiVista = [].slice.call(document.querySelectorAll('nav.viste button'));
+  function vista(v) {{
+    if (v !== 'orario') v = 'campionato';
+    tastiVista.forEach(function (b) {{ b.setAttribute('aria-pressed', b.dataset.vista === v ? 'true' : 'false'); }});
+    document.getElementById('vista-campionato').hidden = v !== 'campionato';
+    document.getElementById('vista-orario').hidden = v !== 'orario';
+    try {{ localStorage.setItem('vista', v); }} catch (e) {{}}
+  }}
+  tastiVista.forEach(function (b) {{ b.addEventListener('click', function () {{ vista(b.dataset.vista); }}); }});
+  var daUrl = /[?&]vista=(orario|campionato)/.exec(location.search);  // es. ...?vista=orario
+  var scelta = daUrl ? daUrl[1] : null;
+  if (!scelta) {{ try {{ scelta = localStorage.getItem('vista'); }} catch (e) {{}} }}
+  vista(scelta);
   // stato: in corso (fino a 2 ore dall'inizio), tra poco (entro 1 ora), già giocata
   function stato() {{
     var ora = Date.now() / 1000;
