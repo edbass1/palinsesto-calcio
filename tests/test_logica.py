@@ -516,6 +516,48 @@ def test_dazn_altri():
     return ev
 
 
+def test_epg_teleboy():
+    """Guida TV pubblica (epgshare01) per i canali gratuiti di Teleboy: solo dirette di sport, unite agli streaming."""
+    import gzip
+    import altri_sport as A
+    import epg_teleboy as E
+    import teleboy as TB
+    tb = TB.carica(str(QUI.parent / "teleboy_canali.json"), aggiorna=False)
+    xml = gzip.open(QUI / "fixtures_epg_2026-10-10" / "epgshare01_CH1_ridotto.xml.gz").read()
+    ora = dt.datetime(2026, 10, 10, 15, 0, tzinfo=p.ROMA)
+    _, ini, fine = p.finestra(ora)
+    conf = A.regole_conf()["teleboy_epg"]
+    ev = E.analizza(xml, tb, conf, ini, fine)
+    tit = {(e["emittenti"][0]["nome"], e["titolo"]) for e in ev}
+    assert ("ServusTV", "GP Indonesien: Rennen") in tit and ("Sport1", "3. Runde, Swiss Darts Trophy, 2026") in tit, sorted(tit)
+    assert ("Eurosport 1 de", "Paris-Tours") in tit and ("RTL", "Philadelphia Eagles - Jacksonville Jaguars") in tit
+    # repliche (senza <premiere/>), presentazioni/analisi, programmi non sportivi, canali italiani: mai
+    assert not any(re.search(r"vorbericht|analyse|highlights|doppelpass|nachbericht|sport aktuell", e["titolo_orig"].split("  ")[0], re.I)
+                   for e in ev), [e["titolo"] for e in ev]
+    assert not any(e["emittenti"][0]["nome"] in ("Comedy Central", "Rai 2") for e in ev)
+    servus = sorted(e["ts"] for e in ev if e["emittenti"][0]["nome"] == "ServusTV" and e["titolo_orig"].startswith("MotoGP: GP Indonesien: Rennen"))
+    assert len(servus) == 1, servus  # la gara MotoGP in diretta sì, la replica delle 13:07 no
+    x = next(e for e in ev if e["emittenti"][0]["nome"] == "ServusTV")
+    assert x["emittenti"][0]["teleboy"] and x["emittenti"][0]["vpn"] == "SVIZZERA" and x["emittenti"][0]["pagina"] == "https://www.teleboy.ch/it/live"
+    # insieme agli streaming SRG/ARD salvati: stesso evento unito, calcio nella sezione calcio, femminile tolto
+    A.json_url = finto_json
+    rx = U.regex_femminile(CONF_LOS["escludi_competizioni"])
+    altri, calcio, avv = A.raccogli_altri(ini, fine, ora, rx, scarica_tb_fn=E.fn_raccogli(tb, conf, ini, fine, lambda u: (xml, None)))
+    assert avv == []
+    f1 = [e for e in altri if e["sport"] == "Formula 1" and e["ts"] > ora.timestamp() + 12 * 3600]
+    assert len(f1) == 1 and {"SRF", "RSI", "ORF 1", "SRF zwei"} <= {x["nome"] for x in f1[0]["emittenti"]}, f1
+    assert f1[0]["emittenti"][0]["nome"] == "SRF"  # prima lo streaming, poi i canali TV di Teleboy
+    assert [(c["casa"], c["ospite"]) for c in calcio] == [("FC Lugano", "FC Luzern")], calcio
+    assert not any("U23" in e["titolo"] for e in altri + calcio)  # "Fussball Frauen" su DF1
+    nfl = [e for e in altri if "Patriots" in e["titolo"]]
+    assert nfl and all("New England Patriots" in e["titolo"] for e in nfl), nfl  # nome proprio, non "New Inghilterra"
+    h = p.genera_html(*p.finestra(ora)[:1], ora, [], [], [], [], altri)
+    assert '<span class="tag tb">TELEBOY</span> <span class="tag vpn">VPN SVIZZERA</span>' in h
+    _, _, avv = A.raccogli_altri(ini, fine, ora, rx, scarica_tb_fn=E.fn_raccogli(tb, conf, ini, fine, lambda u: (None, "HTTP Error 403")))
+    assert avv == ["Altri sport: non raggiungibile guida TV Teleboy"], avv
+    return ev
+
+
 def test_programmi():
     """ALTRI SPORT e calcio in streaming: solo dirette di gare, niente magazine/studio/highlights."""
     import altri_sport as A
@@ -668,6 +710,7 @@ if __name__ == "__main__":
     sf = test_femminile(); print(f"femminile: {len(sf['femminili_tolte'])} partite escluse nei dati salvati – OK")
     test_traduzioni(); print("traduzioni titoli: OK")
     da = test_dazn_altri(); print(f"DAZN Italia altri sport gratis: {len(da)} eventi – OK")
+    ep = test_epg_teleboy(); print(f"guida TV Teleboy (epgshare01): {len(ep)} dirette – OK")
     pr = test_programmi(); print(f"programmi sportivi tolti nei dati salvati: {len(pr)} – OK")
     al, ca = test_altri_sport(); print(f"altri sport: {len(al)} eventi, calcio in streaming {len(ca)} – OK")
     print(f"DAZN (rail-router): {test_dazn_rail()} – OK")

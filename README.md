@@ -97,3 +97,6 @@ Esclusi da tutte le fonti i canali russi e iraniani (TV Start, MATCH!, Okko, vij
 
 ### Titoli in italiano e DAZN Italia
 I titoli tedeschi e francesi di ALTRI SPORT sono tradotti con il glossario `traduzioni.json` (nessun servizio esterno; si possono aggiungere parole e paesi). I nomi propri restano com'erano; se la traduzione è solo parziale, sotto al titolo si vede piccolo l'originale. In ALTRI SPORT ci sono anche gli eventi gratis (senza lucchetto) di DAZN Italia degli sport diversi dal calcio: solo DAZN Italia, non le versioni estere (per il calcio restano tutti e 6 i paesi).
+
+### Teleboy: dirette sportive dalla guida TV
+L'EPG di Teleboy non è pubblico: per i canali gratuiti di Teleboy (svizzeri, tedeschi, austriaci, francesi, inglesi; gli italiani si saltano) si usa la guida XMLTV pubblica di epgshare01 (dati Swisscom). Si tengono solo le dirette (programma marcato come prima messa in onda o con "live" nel titolo) di uno sport riconoscibile, senza magazine, presentazioni e analisi. Etichetta TELEBOY + VPN SVIZZERA, link a teleboy.ch/it/live e al canale. Se lo stesso evento c'è già in streaming (SRF/RTS/RSI/ARD), i canali Teleboy si aggiungono a quello. Configurazione in `altri_sport.json` → `teleboy_epg`.

@@ -506,6 +506,46 @@
  ],
  "frasi": [
   [
+   "re:U ?23-Länderspiel",
+   "partita della nazionale Under 23"
+  ],
+  [
+   "re:^ran racing:\\s*",
+   ""
+  ],
+  [
+   "Ironman-WM",
+   "Mondiali Ironman"
+  ],
+  [
+   "re:(\\d+)\\.\\s*Rennen",
+   "gara \\1"
+  ],
+  [
+   "re:(\\d+)e jour",
+   "\\1ª giornata"
+  ],
+  [
+   "Tour de Lombardie",
+   "Giro di Lombardia"
+  ],
+  [
+   "Qualifying",
+   "qualifiche"
+  ],
+  [
+   "Sprint Race",
+   "gara sprint"
+  ],
+  [
+   "La course",
+   "gara"
+  ],
+  [
+   "Course sprint",
+   "gara sprint"
+  ],
+  [
    "Box-Abend",
    "Serata di boxe"
   ],
@@ -698,8 +738,8 @@
    "staffetta"
   ],
   [
-   "Sprint",
-   "sprint"
+   "Sprint Rennen",
+   "gara sprint"
   ],
   [
    "Teamfinal",
@@ -1176,6 +1216,42 @@
   [
    "re:\\bEM\\b",
    "Europei"
+  ],
+  [
+   "Sprint",
+   "sprint"
+  ],
+  [
+   "Viertelinfale",
+   "quarti di finale"
+  ],
+  [
+   "bis",
+   "fino a"
+  ],
+  [
+   "Elite",
+   "élite"
+  ],
+  [
+   "Lettonie",
+   "Lettonia"
+  ],
+  [
+   "Jour",
+   "giornata"
+  ],
+  [
+   "at",
+   "contro"
+  ],
+  [
+   "London Game",
+   "partita di Londra"
+  ],
+  [
+   "Länderspiel",
+   "partita della nazionale"
   ]
  ],
  "parole_italiane": [

@@ -46,7 +46,51 @@
   "ceremony",
   "auslosung",
   "sorteggio",
-  "tirage"
+  "tirage",
+  "vorbericht",
+  "analyse",
+  "analysis",
+  "countdown",
+  "doppelpass",
+  "nachrichten",
+  "wetter",
+  "classics",
+  "on board",
+  "preview",
+  "avant-match",
+  "après-match",
+  "debrief",
+  "pre-race",
+  "post-race",
+  "sendepause",
+  "teleshopping",
+  "tuning",
+  "quiz",
+  "kids",
+  "journal",
+  "tg sport",
+  "sportflash",
+  "sport-flash",
+  "sport im osten",
+  "sport inside",
+  "sportclub",
+  "sport extra",
+  "l'équipe du soir",
+  "l'equipe du soir",
+  "grand plateau",
+  "stade 2",
+  "téléfoot",
+  "telefoot",
+  "match of the day",
+  "football focus",
+  "final score",
+  "zwischenbericht",
+  "nachbericht",
+  "vorberichte",
+  "rückschau",
+  "previa",
+  "post partita",
+  "pre partita"
  ],
  "parole_evento": [
   "gp",
@@ -142,5 +186,31 @@
   "1/4",
   "1/8",
   "sedicesimi"
- ]
+ ],
+ "teleboy_epg": {
+  "_nota": "Programmi TV di Teleboy (l'EPG di Teleboy non è pubblico): si usa la guida XMLTV pubblica epgshare01 (dati Swisscom, stessi canali svizzeri/tedeschi/austriaci/francesi/inglesi di Teleboy). Si tengono solo le dirette: programma marcato <premiere/> (prima messa in onda) o con 'live'/'en direct'/'in diretta' nel titolo, con uno sport riconoscibile, non nell'elenco 'escludi_programmi', durata almeno 20 minuti. I canali italiani si saltano (si vedono già in Italia). 'alias': id del canale nella guida -> nome Teleboy, quando il nome non coincide.",
+  "fonti": [
+   "https://epgshare01.online/epgshare01/epg_ripper_CH1.xml.gz"
+  ],
+  "salta_paesi": [
+   "it"
+  ],
+  "durata_minima_min": 20,
+  "alias": {
+   "Eurosport.1.D.ch": "Eurosport 1 de",
+   "Servus.TV.ch": "ServusTV",
+   "WDR.ch": "WDR Fernsehen",
+   "NDR.ch": "NDR Fernsehen",
+   "SWR.ch": "SWR Fernsehen BW",
+   "MDR.ch": "MDR Sachsen",
+   "HR.ch": "hr-fernsehen",
+   "RBB.ch": "rbb Berlin",
+   "BR.ch": "BR Fernsehen Süd",
+   "RTL.ZWEI.ch": "RTLZWEI",
+   "ProSieben.ch": "ProSieben Schweiz",
+   "Arte.Deutsch.ch": "Arte de",
+   "Arte.Français.ch": "Arte fr",
+   "BBC.Three./.CBBC.ch": "BBC Three"
+  }
+ }
 }

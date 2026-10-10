@@ -21,6 +21,7 @@ import unisci  # noqa: E402
 import teleboy as teleboy_mod  # noqa: E402
 import dazn  # noqa: E402
 import altri_sport  # noqa: E402
+import epg_teleboy  # noqa: E402
 
 ROMA = ZoneInfo("Europe/Rome")
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -278,7 +279,8 @@ def evento_stream(p):
     ordine, etichetta = altri_sport.competizione_calcio(p["comp"] + " " + " ".join(p["testi"]))
     return {"ts": p["ts"], "quando": dt.datetime.fromtimestamp(p["ts"], ROMA), "titolo": f'{p["casa"]} v {p["ospite"]}',
             "ordine": ordine, "competizione": etichetta, "casa": p["casa"], "ospite": p["ospite"],
-            "canali": [{"nome": f'{x["nome"]} stream', "fta": True, "url": x["pagina"], "diretta": x["link"], "vpn": x["vpn"]}
+            "canali": [{"nome": x["nome"] if x.get("teleboy") else f'{x["nome"]} stream', "fta": True, "url": x["pagina"],
+                        "diretta": x["link"], "vpn": x["vpn"], **({"teleboy": x["nome"]} if x.get("teleboy") else {})}
                        for x in p["emittenti"]],
             "fonti": ["Streaming"]}
 
@@ -298,7 +300,7 @@ def unisci_stream(eventi, partite):
             eventi.append(nuovo)
             continue
         for k in nuovo["canali"]:
-            if k["nome"] not in [c["nome"] for c in migliore["canali"]]:
+            if not any(c["nome"].lower().replace(" ", "") == k["nome"].lower().replace(" ", "") for c in migliore["canali"]):
                 migliore["canali"].append(k)
         migliore["fonti"].append("Streaming")
         uniti.append(f'{migliore["casa"]} - {migliore["ospite"]}')
@@ -389,7 +391,9 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
             inizio, fine, conf_altri.get("ora") or dt.datetime.now(ROMA), rx_f,
             scarica_srg_fn=conf_altri.get("scarica_srg_fn"), scarica_ard_fn=conf_altri.get("scarica_ard_fn"),
             conf=conf_altri.get("conf"), programmi_tolti=st.setdefault("programmi_tolti", []),
-            scarica_dazn_fn=conf_altri.get("scarica_dazn_fn", dazn.altri_sport_it if conf_dazn is not None else None))
+            scarica_dazn_fn=conf_altri.get("scarica_dazn_fn", dazn.altri_sport_it if conf_dazn is not None else None),
+            scarica_tb_fn=conf_altri.get("scarica_tb_fn", epg_teleboy.fn_raccogli(
+                teleboy, altri_sport.regole_conf().get("teleboy_epg", {}), inizio, fine) if teleboy is not None else None))
         falliti += avvisi
         st["altri_sport"] = altri
         eventi, st["uniti_stream"] = unisci_stream(eventi, calcio_stream)
@@ -502,6 +506,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None):
         em = "".join(
             f'<li class="fta"><a href="{esc(x["pagina"])}" target="_blank" rel="noopener">{esc(x["nome"])}</a> '
             + ('<span class="tag dz">DAZN GRATIS</span> ' if x.get("dazn_gratis") else '')
+            + ('<span class="tag tb">TELEBOY</span> ' if x.get("teleboy") else '')
             + (f'<span class="tag vpn">VPN {esc(x["vpn"])}</span>' if x.get("vpn") else '<span class="tag vpn">SENZA VPN</span>')
             + (f' <a class="diretta" href="{esc(x["link"])}" target="_blank" rel="noopener">▶ diretta</a>' if x.get("link") else '')
             + '</li>'
@@ -747,7 +752,7 @@ TEMPLATE = """<!doctype html>
 {orario}
 </div>
 <div id="vista-altri" class="vista" hidden>
-<p class="intro-altri">Dirette streaming gratuite di altri sport: SRF, RTS, RSI (Svizzera), ARD (Germania) e DAZN Italia (eventi senza lucchetto, con account gratuito). Tocca l'emittente per aprire la diretta.</p>
+<p class="intro-altri">Dirette streaming gratuite di altri sport: SRF, RTS, RSI (Svizzera), ARD (Germania) DAZN Italia (eventi senza lucchetto, con account gratuito) e i canali gratuiti di Teleboy (guida TV pubblica). Tocca l'emittente per aprire la diretta.</p>
 {altri}
 </div>
 <p class="vuoto" id="vuoto"{vuoto_nascosto}>Nessuna partita in programma in questi giorni.</p>
@@ -900,6 +905,10 @@ def main():
         for r in st["dazn_dettagli"]:
             print("  ", r)
     if "calcio_stream" in st:
+        al = st["altri_sport"]
+        print(f"  Altri sport per fonte: Teleboy (guida TV) {sum(any(x.get('teleboy') for x in e['emittenti']) for e in al)} · "
+              f"DAZN Italia {sum(any(x.get('dazn_gratis') for x in e['emittenti']) for e in al)} · "
+              f"SRG/ARD {sum(any(not x.get('teleboy') and not x.get('dazn_gratis') for x in e['emittenti']) for e in al)}")
         print(f"  Altri sport: {len(st['altri_sport'])} eventi · calcio in streaming: {st['calcio_stream']} "
               f"(uniti a partite già presenti: {len(st['uniti_stream'])})")
     for n, m in sorted(st.get("canali_ru_ir", {}).items()):

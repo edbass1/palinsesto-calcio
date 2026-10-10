@@ -35,7 +35,9 @@ class Traduttore:
         self.rx_gp = re.compile(
             rf"(?<![{L}])(GP|Gran Premio|Grand Prix|Großer Preis|Grosser Preis)\s+"
             rf"(?:(?:von|de|du|des|of|the|di|del|della)\s+|d['’])?({nomi})(?![{L}])", re.I)
-        self.rx_paese = [(re.compile(rf"(?<![{L}-])" + re.escape(n) + rf"(?![{L}-])", re.I), it) for n, it, _ in self.paesi]
+        # non dentro nomi propri: "New England Patriots", "England Patriots" (parola maiuscola subito dopo)
+        self.rx_paese = [(re.compile(rf"(?<![{L}-])(?<!New )" + re.escape(n) + rf"(?![{L}-])(?!\s+[A-ZÀ-Ü][a-zà-ÿ])"), it)
+                         for n, it, _ in self.paesi]
         self.di = {n.lower(): di for n, _, di in self.paesi}
         self.frasi = [(_rx(a), b, a.startswith("re:")) for a, b in conf.get("frasi", [])]
         self.italiane = {x.lower() for x in conf.get("parole_italiane", [])}

@@ -25,6 +25,7 @@ ARD_SITO = "https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/l
 
 # parola iniziale del titolo (de/fr/it) -> sport in italiano
 SPORT = [
+    (r"nfl|american football|football américain|football americano", "Football americano"),
     (r"fussball|fußball|calcio|football", "Calcio"),
     (r"formel 1|formula 1|formule 1", "Formula 1"),
     (r"motorrad|motomondiale|moto ?gp|moto ?[23]\b", "Motomondiale"),
@@ -33,7 +34,7 @@ SPORT = [
     (r"biathlon", "Biathlon"),
     (r"langlauf|sci di fondo|ski de fond", "Sci di fondo"),
     (r"skispringen|salto con gli sci|saut à ski", "Salto con gli sci"),
-    (r"tennis", "Tennis"),
+    (r"(?<!tisch)tennis(?! de table)", "Tennis"),
     (r"eishockey|hockey su ghiaccio|hockey sur glace|hockey", "Hockey su ghiaccio"),
     (r"unihockey|floorball", "Unihockey"),
     (r"kunstturnen|ginnastica|gymnastique|turnen", "Ginnastica artistica"),
@@ -51,6 +52,18 @@ SPORT = [
     (r"rudern|canottaggio|aviron", "Canottaggio"),
     (r"segeln|vela|voile", "Vela"),
     (r"triathlon", "Triathlon"),
+    (r"uci|gravel|paris-tours|giro d|tour de france|vuelta|radrennen|cyclo-cross|querfeldein|lombardei", "Ciclismo"),
+    (r"snooker", "Snooker"),
+    (r"darts|freccette|fléchettes", "Freccette"),
+    (r"dtm|superbike|motorsport|nascar|rallye|rally|wec|indycar|formel e|formula e|gt masters|motocross|sport auto", "Motori"),
+    (r"rugby", "Rugby"),
+    (r"badminton", "Badminton"),
+    (r"tischtennis|tennistavolo|tennis de table|table tennis", "Tennistavolo"),
+    (r"judo|ringen|lutte|wrestling", "Lotta"),
+    (r"bobsport|bob-weltcup|zweierbob|viererbob|monobob|rodeln|skeleton|slittino", "Bob e slittino"),
+    (r"eiskunstlauf|pattinaggio|patinage", "Pattinaggio"),
+    (r"skicross|snowboard|freeski", "Sport invernali"),
+    (r"nfl|american football|football américain", "Football americano"),
     (r"sportschau|sportpanorama|sport", "Programma sportivo"),
 ]
 # squadre di basket ARD (i titoli dicono solo "A gegen B")
@@ -202,6 +215,10 @@ def _rx_parole(parole):
     return re.compile(r"(?<![\wÀ-ÿ])(?:" + alt + r")(?![\wÀ-ÿ])", re.I)
 
 
+def regole_conf():
+    return json.loads(CONF.read_text(encoding="utf-8")) if CONF.exists() else {}
+
+
 def regole(conf=None):
     """(regex programmi, regex parole-evento) da altri_sport.json."""
     if conf is None:
@@ -241,6 +258,18 @@ def calcio_squadre(ev):
     return None
 
 
+PAROLE_VUOTE = {"live", "rennen", "gara", "course", "race", "finale", "final", "runde", "round", "grand", "prix", "premio",
+                "weltcup", "männer", "frauen", "women", "men's", "damen", "herren", "elite", "world", "championship"}
+
+
+def _parola_comune(a, b):
+    """Gli eventi della guida TV si uniscono solo se hanno una parola in comune (5 lettere iniziali, es. Singapur/Singapore)."""
+    def parole(e):
+        t = " ".join([e.get("titolo") or ""] + list(e.get("testi") or [e.get("titolo_orig") or ""]))
+        return {w[:5] for w in re.findall(r"[\wÀ-ÿ]{4,}", t.lower()) if w not in PAROLE_VUOTE and not w.isdigit()}
+    return bool(parole(a) & parole(b))
+
+
 def unisci_eventi(eventi):
     """Stesso evento su più emittenti: stesso id swisstxt, oppure stesso sport, emittente diversa,
     inizio entro 45 minuti e titoli simili (es. GP di F1 su SRF, RTS e RSI)."""
@@ -254,7 +283,8 @@ def unisci_eventi(eventi):
                 break
             if (u["sport"] == e["sport"] and e["sport"] not in ("Sport", "Programma sportivo", "Calcio")
                     and not {x["nome"] for x in u["emittenti"]} & {x["nome"] for x in e["emittenti"]}
-                    and abs(u["ts"] - e["ts"]) <= 45 * 60):
+                    and abs(u["ts"] - e["ts"]) <= 45 * 60
+                    and (not (u.get("da_epg") or e.get("da_epg")) or _parola_comune(u, e))):
                 gia = u
                 break
             if e["sport"] == "Calcio" == u["sport"] and abs(u["ts"] - e["ts"]) <= 45 * 60:
@@ -264,6 +294,15 @@ def unisci_eventi(eventi):
                     break
         if gia is None:
             uniti.append(dict(e, ids={e["id"]}, emittenti=list(e["emittenti"]), testi=[e["titolo_orig"]]))
+            continue
+        if gia.get("da_epg") and not e.get("da_epg"):  # meglio titolo e link dello streaming che quelli della guida TV
+            for k in ("titolo", "lingua", "titolo_src", "id"):
+                gia[k] = e.get(k, gia.get(k))
+            gia["da_epg"] = False
+            gia["emittenti"] = list(e["emittenti"]) + gia["emittenti"]
+            gia["ids"].add(e["id"])
+            gia["testi"].append(e["titolo_orig"])
+            gia["fine"] = max(gia["fine"], e["fine"])
             continue
         gia["ids"].add(e["id"])
         gia["testi"].append(e["titolo_orig"])
@@ -278,7 +317,7 @@ def unisci_eventi(eventi):
 
 
 def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None, scarica_ard_fn=None,
-                   conf=None, programmi_tolti=None, scarica_dazn_fn=None):
+                   conf=None, programmi_tolti=None, scarica_dazn_fn=None, scarica_tb_fn=None):
     """(eventi altri sport, partite di calcio, avvisi). Toglie gli eventi già finiti, i programmi sportivi
     (magazine, highlights, studio...: vedi altri_sport.json) e il calcio femminile.
     programmi_tolti (lista), se data, riceve "Emittente gg/mm hh:mm Titolo – motivo" per ogni programma tolto."""
@@ -295,6 +334,11 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
     if err:
         falliti.append("ARD")
     tutti += ev
+    if scarica_tb_fn is not None:  # canali gratuiti di Teleboy (guida TV pubblica)
+        ev, err = scarica_tb_fn()
+        if err:
+            falliti.append("guida TV Teleboy")
+        tutti += ev
     if scarica_dazn_fn is not None:  # DAZN Italia, eventi gratis (solo sport diversi dal calcio)
         ev, err = scarica_dazn_fn()
         if err:
