@@ -139,7 +139,7 @@ def in_chiaro(nome: str, regole) -> bool:
     return any(re.search(r["regex"], nome, re.I) for r in regole)
 
 
-def analizza(h: str, regole, alias, escludi=("dazn",)):
+def analizza(h: str, regole, alias, escludi=("dazn",), teleboy=None):
     """Restituisce le partite della pagina con i soli canali in chiaro (anche liste vuote)."""
     out = []
     comp = None
@@ -171,7 +171,7 @@ def analizza(h: str, regole, alias, escludi=("dazn",)):
             except ValueError:
                 continue
             quando = int(d.replace(hour=int(st.group(1)), minute=int(st.group(2)), tzinfo=UTC).timestamp())
-        canali, tutti = [], []
+        canali, extra, tutti = [], [], []
         for classe, nome in RE_CANALE.findall(b):
             if not classe.startswith("chan_live_") or classe == "chan_live_postponed":
                 continue  # differite / rinviate
@@ -183,11 +183,15 @@ def analizza(h: str, regole, alias, escludi=("dazn",)):
             if classe == "chan_live_free" or in_chiaro(pulito, regole) or in_chiaro(html.unescape(nome).strip(), regole):
                 if pulito not in canali:
                     canali.append(pulito)
-        out.append({"ts": quando, "titolo": titolo, "comp": comp or "Altro", "canali_fta": canali, "n_canali": len(tutti)})
+            elif teleboy is not None and teleboy.trova(pulito) and pulito not in extra:
+                extra.append(pulito)  # non in chiaro, ma visibile su Teleboy
+        extra = [c for c in extra if c not in canali]
+        out.append({"ts": quando, "titolo": titolo, "comp": comp or "Altro", "canali_fta": canali,
+                    "canali_teleboy": extra, "n_canali": len(tutti)})
     return out
 
 
-def raccogli_los(conf, inizio, fine, scarica_fn=None):
+def raccogli_los(conf, inizio, fine, scarica_fn=None, teleboy=None):
     """Scarica le pagine LiveOnSat; partite nella finestra con almeno un canale in chiaro, senza doppioni."""
     scarica_fn = scarica_fn or scarica
     pausa = conf.get("pausa_secondi", 0.7)
@@ -199,15 +203,16 @@ def raccogli_los(conf, inizio, fine, scarica_fn=None):
         if err:
             falliti.append(f"LiveOnSat {url.rsplit('/', 1)[-1]} ({err})")
             continue
-        for p in analizza(h, regole, alias, escludi):
+        for p in analizza(h, regole, alias, escludi, teleboy):
             quando = dt.datetime.fromtimestamp(p["ts"], UTC)
-            if not (inizio <= quando < fine) or not p["canali_fta"]:
+            if not (inizio <= quando < fine) or not (p["canali_fta"] or p["canali_teleboy"]):
                 continue
             k = (p["ts"], re.sub(r"\W+", "", p["titolo"].lower()))
             if k in partite:
-                for c in p["canali_fta"]:
-                    if c not in partite[k]["canali_fta"]:
-                        partite[k]["canali_fta"].append(c)
+                for campo in ("canali_fta", "canali_teleboy"):
+                    for c in p[campo]:
+                        if c not in partite[k][campo]:
+                            partite[k][campo].append(c)
             else:
                 partite[k] = p
         if pausa:

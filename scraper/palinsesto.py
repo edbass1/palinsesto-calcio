@@ -18,6 +18,7 @@ from zoneinfo import ZoneInfo
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import liveonsat  # noqa: E402
 import unisci  # noqa: E402
+import teleboy as teleboy_mod  # noqa: E402
 
 ROMA = ZoneInfo("Europe/Rome")
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -233,7 +234,8 @@ def evento_los(p):
     casa, ospite = SQUADRE.get(casa.strip(), casa.strip()), SQUADRE.get(ospite.strip(), ospite.strip())
     return {"ts": p["ts"], "quando": dt.datetime.fromtimestamp(p["ts"], ROMA), "titolo": p["titolo"],
             "ordine": ordine, "competizione": etichetta, "casa": casa, "ospite": ospite,
-            "canali": [{"nome": c, "fta": True} for c in p["canali_fta"]], "fonti": ["LiveOnSat"]}
+            "canali": [{"nome": c, "fta": True} for c in p["canali_fta"]]
+                      + [{"nome": c, "fta": False} for c in p.get("canali_teleboy", [])], "fonti": ["LiveOnSat"]}
 
 
 def unisci_fonti(eventi, partite_los, regole_fta=()):
@@ -257,7 +259,7 @@ def unisci_fonti(eventi, partite_los, regole_fta=()):
         for k in nuovo["canali"]:
             gia = chiavi.get(unisci.chiave_canale(k["nome"]))
             if gia:
-                gia["fta"] = True
+                gia["fta"] = gia["fta"] or k["fta"]
             else:
                 migliore["canali"].append(k)
                 chiavi[unisci.chiave_canale(k["nome"])] = k
@@ -275,12 +277,12 @@ def raggruppa(eventi):
             for (o, nome) in sorted(gruppi)]
 
 
-def raccogli(canali, inizio, fine, conf_los=None, statistiche=None):
+def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None):
     """Raccoglie da LiveSoccerTV e (se conf_los) da LiveOnSat, unisce e raggruppa per competizione."""
     eventi, falliti, senza = raccogli_lstv(canali, inizio, fine)
     st = {"livesoccertv": len(eventi), "liveonsat": 0, "uniti": [], "solo_liveonsat": 0}
     if conf_los:
-        partite_los, falliti_los = liveonsat.raccogli_los(conf_los, inizio, fine)
+        partite_los, falliti_los = liveonsat.raccogli_los(conf_los, inizio, fine, teleboy=teleboy)
         falliti += falliti_los
         st["liveonsat"] = len(partite_los)
         st["pagine_liveonsat"] = len(conf_los.get("pagine", []))
@@ -298,6 +300,11 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None):
         else:
             st["tolte_esclusi"].append(f'{e["casa"]} - {e["ospite"]}')
     eventi = rimasti
+    # canali visibili su Teleboy (tutte le fonti)
+    for e in eventi:
+        for k in e["canali"]:
+            k["teleboy"] = teleboy.trova(k["nome"]) if teleboy is not None else None
+    st["solo_teleboy"] = sum(1 for e in eventi if e["fonti"] == ["LiveOnSat"] and not any(k["fta"] for k in e["canali"]))
     st["totale"] = len(eventi)
     if statistiche is not None:
         statistiche.update(st)
@@ -321,6 +328,8 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None):
     aggiornato = f"{GIORNI_LUNGHI[ora_r.weekday()]} {ora_r:%d/%m/%Y} alle {ora_r:%H:%M}"
     giorni = [(primo + dt.timedelta(days=i)) for i in range(GIORNI_FINESTRA)]
     dove = dove or []
+    for v in dove:
+        v.pop("_canali_pagina", None)
     n_partite = sum(len(g["partite"]) for g in gruppi)
 
     sezioni, usati = [], set()
@@ -392,9 +401,18 @@ def voce_dove(nome: str, dove):
 def badge(c, dove, usati):
     esc = html.escape
     testo = esc(c["nome"])
+    if c.get("teleboy"):
+        testo = f'{testo} <span class="tag tb" aria-label="su Teleboy">TELEBOY</span>'
     if c["fta"]:
         testo = f'<span class="tag" aria-label="in chiaro">IN CHIARO</span> {testo}'
-    v = voce_dove(c["nome"], dove)
+    # priorità: voci dell'utente, poi Teleboy, poi le altre
+    v_tb = next((x for x in dove if x["id"] == "teleboy"), None) if c.get("teleboy") else None
+    if v_tb is not None:
+        v_tb.setdefault("_canali_pagina", set()).add(c["nome"])
+        usati.add("teleboy")
+    v = voce_dove(c["nome"], [x for x in dove if x.get("fonte") == "utente" and x["id"] != "teleboy"]) or v_tb
+    if not v:
+        v = voce_dove(c["nome"], dove)
     if v:
         usati.add(v["id"])
         testo = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{testo}</a>'
@@ -417,6 +435,8 @@ def sezione_dove(dove, usati):
             f'<li class="dove" id="dv-{esc(v["id"])}"><h3>{esc(v["nome"])}</h3>'
             + (f'<p class="vpn">VPN: <strong>{esc(v["vpn"])}</strong></p>' if v.get("vpn") else '')
             + (f'<p class="nota">{esc(v["note"])}</p>' if v.get("note") else '')
+            + (f'<p class="nota">Canali di questa pagina disponibili su Teleboy: <strong>{esc(", ".join(sorted(v["_canali_pagina"], key=str.lower)))}</strong></p>'
+               if v.get("_canali_pagina") else '')
             + (f'<ul class="link">{link}</ul>' if link else '') + '</li>')
     return ('<section class="dove-vederli" id="dove-vederli"><h2>📺 Dove vederli</h2>'
             '<p class="nota">Tocca il nome di un canale in una partita per arrivare qui. I link si aprono in una nuova scheda.</p>'
@@ -501,6 +521,7 @@ TEMPLATE = """<!doctype html>
   ul.link {{ list-style:none; margin:8px 0 0; padding:0; display:grid; gap:8px; }}
   ul.link a {{ color:var(--azzurro); font-size:1.05rem; font-weight:700; overflow-wrap:anywhere; text-underline-offset:4px; }}
   .verifica {{ font-size:.8rem; color:#000; background:var(--giallo); padding:1px 6px; border-radius:6px; font-weight:800; }}
+  .tag.tb {{ background:var(--azzurro); }}
   .legenda {{ margin:10px 0 0; font-size:.9rem; color:var(--grigio); }}
   li.partita.in-corso {{ border-color:var(--verde); box-shadow:0 0 0 2px var(--verde) inset; }}
   li.partita.in-corso .stato {{ background:var(--verde); color:#000; }}
@@ -528,7 +549,7 @@ TEMPLATE = """<!doctype html>
 <header>
   <h1>⚽ Calcio in TV <span class="h1p">· {periodo}</span></h1>
   <p class="agg">Aggiornato {aggiornato} · <span id="n-partite">{n}</span> partite · orari italiani</p>
-  <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese</p>
+  <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera)</p>
 </header>
 <nav class="viste" aria-label="Come ordinare le partite">
   <button type="button" data-vista="campionato" aria-pressed="true">PER CAMPIONATO</button>
@@ -634,6 +655,8 @@ def main():
     ap.add_argument("--liveonsat", default=str(RADICE / "liveonsat.json"), help="configurazione LiveOnSat")
     ap.add_argument("--senza-liveonsat", action="store_true", help="usa solo LiveSoccerTV")
     ap.add_argument("--dove", default=str(RADICE / "dove_vederli.json"), help="link 'Dove vederli'")
+    ap.add_argument("--teleboy", default=str(RADICE / "teleboy_canali.json"), help="elenco canali Teleboy")
+    ap.add_argument("--teleboy-offline", action="store_true", help="non rilegge la pagina Teleboy, usa solo la copia")
     ap.add_argument("--out", default=str(RADICE / "site"))
     ap.add_argument("--ora", help="data/ora di riferimento ISO (per test), es. 2026-10-10T18:00+02:00")
     ap.add_argument("--json", action="store_true", help="scrive anche palinsesto.json")
@@ -648,7 +671,11 @@ def main():
     dove = json.loads(file_dove.read_text(encoding="utf-8")).get("voci", []) if file_dove.exists() else []
     conf_los = None if a.senza_liveonsat else json.loads(Path(a.liveonsat).read_text(encoding="utf-8"))
     st = {}
-    gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st)
+    tb = None
+    if Path(a.teleboy).exists():
+        tb = teleboy_mod.carica(a.teleboy, aggiorna=not a.teleboy_offline)
+        print(f"Teleboy: {tb.n} canali gratuiti ({tb.fonte})")
+    gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st, tb)
     n_tutte = sum(len(g["partite"]) for g in gruppi)
     gruppi = togli_finite(gruppi, dt.datetime.now(ROMA))
     st["finite_tolte"] = n_tutte - sum(len(g["partite"]) for g in gruppi)
@@ -671,7 +698,7 @@ def main():
     n = sum(len(g["partite"]) for g in gruppi)
     print(f"{periodo(primo)}: {n} partite in {len(gruppi)} competizioni; falliti: {len(falliti)}")
     print(f"  LiveSoccerTV: {st['livesoccertv']} · LiveOnSat (con canali in chiaro): {st['liveonsat']} · "
-          f"doppioni uniti: {len(st['uniti'])} · solo LiveOnSat: {st['solo_liveonsat']} · finite tolte: {st['finite_tolte']}")
+          f"doppioni uniti: {len(st['uniti'])} · solo LiveOnSat: {st['solo_liveonsat']} · finite tolte: {st['finite_tolte']} · solo grazie a Teleboy: {st.get('solo_teleboy', 0)}")
     for f in falliti:
         print("  FALLITO:", f)
     # se nessun canale è stato scaricato, esce con errore: così il deploy non sostituisce la pagina buona

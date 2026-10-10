@@ -8,6 +8,7 @@ sys.path.insert(0, str(QUI.parent / "scraper"))
 import palinsesto as p
 import liveonsat as L
 import unisci as U
+import teleboy as TB
 
 CONF_LOS = json.loads((QUI.parent / "liveonsat.json").read_text(encoding="utf-8"))
 DIR_LOS = QUI / "fixtures_liveonsat_2026-10-10"
@@ -237,6 +238,32 @@ def test_finite():
     assert 'id="vuoto">' in vuota
 
 
+def test_teleboy():
+    """Canali Teleboy: confronto dei nomi senza collisioni; pacchetti a pagamento esclusi."""
+    tb = TB.carica(QUI.parent / "teleboy_canali.json", aggiorna=False)
+    assert tb.n > 250, tb.n
+    attesi = {
+        "ITV1 UK": "ITV", "ITV 1 England": "ITV", "ITV 4": "ITV 4", "ITV X": None, "UTV Northern Ireland": None,
+        "BBC One": "BBC One", "BBC Two": "BBC Two", "BBC Scotland": None, "BBC Alba": None, "BBC iPlayer": None,
+        "ARD Das Erste": "Das Erste", "ZDF Deutschland": "ZDF", "RTL Deutschland": "RTL", "RTL Österreich": None,
+        "SRF Zwei Schweiz": "SRF zwei", "RSI La 2 Svizzera": "RSI LA 2", "RTS 2 Suisse": "RTS Deux", "RTS 1 Senegal": None,
+        "TV8 Italia": "TV8", "TV8 Türkiye": None, "Sport1 Deutschland": "Sport1", "Sport 1 Czechia": None, "Sport 1 Israel": None,
+        "Rai Sport": "Rai Sport 1", "Sportitalia SoloCalcio": None, "DMAX Italia": "DMAX Italia", "TV5 Monde": "TV5 Monde FBS",
+        "MDR Fernsehen": "MDR Sachsen", "ORF 1 Austria": "ORF 1", "ServusTV Österreich": "ServusTV", "Nitro Deutschland": "NITRO", "Prima Sport 1": None, "mySports 2": None, "Sport 1+": None,
+    }
+    trovati = {n: tb.trova(n) for n in attesi}
+    assert trovati == attesi, {n: (trovati[n], attesi[n]) for n in attesi if trovati[n] != attesi[n]}
+    # nella pagina: un canale non rosso ma su Teleboy viene incluso e marcato
+    finto = ('<span class = comp_head>Swiss Super League - Week 9</span><div class = blockfix >'
+             '<div class = fLeft style="a">Basel v Servette</div><div data-timestamp="1791648000"></div>'
+             '<a href="#" class = chan_live_not_free onmouseover="x" onmouseout="return nd();">SRF Zwei Schweiz HD </a>'
+             '<a href="#" class = chan_live_not_free onmouseover="x" onmouseout="return nd();">Blue Sport 1 HD </a>'
+             '<a href="#" class = chan_live_not_free onmouseover="x" onmouseout="return nd();">Megogo Sport HD </a></div>')
+    x = L.analizza(finto, [], [], ["dazn", "megogo"], tb)[0]
+    assert x["canali_fta"] == [] and x["canali_teleboy"] == ["SRF Zwei Schweiz"], x
+    return tb
+
+
 def test_unione():
     """LiveSoccerTV (9/10) + LiveOnSat (10/10), finestra ven 9 – lun 12 ottobre."""
     canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
@@ -258,7 +285,7 @@ def test_unione():
     como = tutte["Como - Roma"]
     assert [c["nome"] for c in como["canali"]] == ["Prima Sport 1", "Sporty TV Africa"], como["canali"]
     sot = tutte["Southampton - Portsmouth"]
-    assert sot["canali"][:2] == [{"nome": "Golazo Network", "fta": False}, {"nome": "ITV1 UK", "fta": True}], sot["canali"]
+    assert [(c["nome"], c["fta"]) for c in sot["canali"][:2]] == [("Golazo Network", False), ("ITV1 UK", True)], sot["canali"]
     assert not any(k.startswith("Paris St Germain") or k.startswith("Como 1907") for k in tutte)
     # partite solo LiveOnSat, nelle competizioni giuste
     lu = tutte["Lugano - Luzern"]
@@ -271,6 +298,19 @@ def test_unione():
                    for v in ("megogo", "gem sport", "persiana", "irib", "varz", "meraj"))
     html = p.genera_html(v, dt.datetime(2026, 10, 10, 18, 30, tzinfo=p.ROMA), gruppi, falliti, senza)
     assert html.count('class="partita"') == 2 * st["totale"] and html.count('<li class="fta">') > 50
+    # con Teleboy: in più partite con canali non rossi ma su Teleboy; badge e link alla voce Teleboy
+    tb = TB.carica(QUI.parent / "teleboy_canali.json", aggiorna=False)
+    st2 = {}
+    gruppi2, _, _ = p.raccogli(canali, ini, fine, conf, st2, tb)
+    tutte2 = {f'{e["casa"]} - {e["ospite"]}': e for g in gruppi2 for e in g["partite"]}
+    assert st2["totale"] >= st["totale"] and set(tutte) <= set(tutte2)
+    assert any(k["teleboy"] for e in tutte2.values() for k in e["canali"])
+    assert tutte2["Southampton - Portsmouth"]["canali"][1]["teleboy"] == "ITV"
+    dove = json.loads((QUI.parent / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    h2 = p.genera_html(v, dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA), gruppi2, [], [], dove)
+    assert 'TELEBOY</span>' in h2 and 'id="dv-teleboy"' in h2 and 'href="https://tv.teleboy.ch"' in h2
+    assert "Canali di questa pagina disponibili su Teleboy" in h2 and h2.count('href="#dv-teleboy"') > 0
+    assert not any(x in h2.lower() for x in ("megogo", "persiana", "gem sport"))
     # vista "in ordine di orario": stesse partite, ordinate per ora, con separatori per giorno ed etichetta campionato
     import re as _re
     orario = html[html.index('id="vista-orario"'):html.index('</main>')]
@@ -291,6 +331,7 @@ if __name__ == "__main__":
     test_ordine(); print("ordine competizioni: OK")
     test_finite(); print("partite finite tolte: OK")
     test_dove(); print("dove vederli: OK")
+    tb = test_teleboy(); print(f"Teleboy ({tb.n} canali): OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"
           f" = {st['totale']} – OK")

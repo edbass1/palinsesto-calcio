@@ -60,3 +60,9 @@ Serve solo Python 3.9 o successivo, senza librerie esterne. Pillow serve solo pe
 - LiveOnSat a volte risponde "errore 502": lo script riprova da solo fino a 4 volte.
 - **Copertura**: le pagine canale di LiveSoccerTV non hanno pagine successive; di solito elencano circa una settimana, quindi i 4 giorni sono coperti (se una pagina sembra piena, nel log compare una NOTA). LiveOnSat non ha pagine per giorno: `2day.php` copre solo oggi, i giorni successivi arrivano dalle pagine dei campionati in `liveonsat.json`; le partite di campionati non in elenco compaiono solo nel giorno stesso.
 - **Attenzione**: anche con l'aggiornamento ogni ora, GitHub sospende le esecuzioni programmate dopo **60 giorni senza commit** nel repository (le esecuzioni automatiche non contano). Se la pagina smette di aggiornarsi, riattivale da **Actions** con *Enable workflow*, oppure fai un piccolo commit (anche solo modificare questo file) almeno ogni due mesi.
+
+## Teleboy
+
+`teleboy_canali.json` contiene l'elenco dei canali di [Teleboy](https://tv.teleboy.ch) (TV via internet svizzera, serve la VPN Svizzera, registrazione gratuita). A ogni aggiornamento lo script rilegge la pagina pubblica dei canali (https://www.teleboy.ch/tv/sender) con Chrome headless; se non ci riesce usa la copia salvata. I pacchetti a pagamento (mySports) non contano.
+
+Un canale di una partita che è anche su Teleboy viene mostrato (anche se LiveOnSat non lo segna in chiaro) con l'etichetta **TELEBOY**, e il suo link porta alla voce Teleboy in "Dove vederli". Il confronto dei nomi è prudente: ignora HD/numeri scritti in lettere/nome del paese solo se il paese coincide (es. "SRF Zwei Schweiz" = "SRF zwei", "ITV1 UK" = "ITV", ma "ITV X", "RTL Österreich", "TV8 Türkiye" no). Per aggiungere un'equivalenza usa `alias` nel file. Le esclusioni (`escludi_canali`) valgono sempre.
