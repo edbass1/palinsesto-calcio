@@ -46,6 +46,8 @@ COMPETIZIONI_LOS = [
     (r"Women.*World Cup.*Qualif", 36, "NAZIONALI FEMMINILI – QUALIFICAZIONI MONDIALI 2027"),
     (r"^English Championship$", 40, "CHAMPIONSHIP (Inghilterra)"),
     (r"^German 2\. Bundesliga$", 41, "2. BUNDESLIGA"),
+    (r"^Spanish (La Liga 2|Segunda)", 48, "LALIGA HYPERMOTION (Spagna, 2ª divisione)"),
+    (r"^Portuguese Liga 2", 49, "LIGA PORTUGAL 2 (Portogallo)"),
     (r"^Dutch Eredivisie$", 42, "EREDIVISIE (Olanda)"),
     (r"^Portuguese Liga 1$", 43, "PRIMEIRA LIGA (Portogallo)"),
     (r"^(Türkiye|Turkish) Süper Lig$", 44, "SÜPER LIG (Turchia)"),

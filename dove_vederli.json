@@ -80,13 +80,44 @@
    ]
   },
   {
-   "id": "dazn-europa",
-   "nome": "DAZN versioni europee (solo informazione)",
+   "id": "dazn",
+   "nome": "DAZN (partite gratis)",
    "fonte": "utente",
-   "canali": [],
-   "vpn": "solo per registrarsi",
-   "note": "La VPN serve solo per registrarsi alla versione spagnola, tedesca, belga ecc. Una volta registrati non serve più: si accede dalla TV di casa o dal web come se si fosse in Italia. (Le partite DAZN non sono elencate in questa pagina.)",
-   "link": []
+   "canali": [
+    "^DAZN "
+   ],
+   "vpn": "solo per registrarsi (Spagna, Francia, Germania, Portogallo o Belgio, secondo la versione)",
+   "note": "VPN solo per registrarsi alla versione spagnola, tedesca, belga, eccetera. Una volta registrati la VPN non serve più e ci si può loggare anche dalla TV di casa o dal web senza uso di VPN come se la versione fosse italiana. Partite senza lucchetto: gratis con account gratuito.",
+   "link": [
+    {
+     "url": "https://www.dazn.com/it-IT/home",
+     "testo": "DAZN Italia (senza VPN)"
+    },
+    {
+     "url": "https://www.dazn.com/es-ES/home",
+     "testo": "DAZN Spagna (VPN Spagna per registrarsi)"
+    },
+    {
+     "url": "https://www.dazn.com/fr-FR/home",
+     "testo": "DAZN Francia (VPN Francia per registrarsi)"
+    },
+    {
+     "url": "https://www.dazn.com/de-DE/home",
+     "testo": "DAZN Germania (VPN Germania per registrarsi)"
+    },
+    {
+     "url": "https://www.dazn.com/pt-PT/home",
+     "testo": "DAZN Portogallo (VPN Portogallo per registrarsi)"
+    },
+    {
+     "url": "https://www.dazn.com/nl-BE/home",
+     "testo": "DAZN Belgio, in olandese (VPN Belgio per registrarsi)"
+    },
+    {
+     "url": "https://www.dazn.com/fr-BE/home",
+     "testo": "DAZN Belgio, in francese (VPN Belgio per registrarsi)"
+    }
+   ]
   },
   {
    "id": "sporty-tv-africa",

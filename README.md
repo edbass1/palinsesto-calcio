@@ -36,7 +36,7 @@ In `liveonsat.json`:
 - `pagine`: pagine di LiveOnSat da leggere (una per campionato/nazione; `2day.php` = tutte le partite di oggi);
 - `canali_in_chiaro`: canali considerati gratuiti anche se LiveOnSat non li segna in rosso (espressioni regolari sul nome del canale);
 - `alias_canali`: per unire più nomi dello stesso canale (es. tutte le varianti di TV5 Monde).
-- `escludi_canali`: canali da non mostrare mai, per entrambe le fonti (basta una parola del nome: oggi `megogo`, `gem sport`, `persiana`, `irib`, `varzish`/`varzesh`, `meraj`). DAZN è sempre escluso. Se una partita resta senza canali, sparisce.
+- `escludi_canali`: canali da non mostrare mai, per entrambe le fonti (basta una parola del nome: oggi `megogo`, `gem sport`, `persiana`, `irib`, `varzish`/`varzesh`, `meraj`). I canali DAZN che arrivano da LiveSoccerTV/LiveOnSat sono sempre esclusi (vedi sotto per le partite DAZN gratis). Se una partita resta senza canali, sparisce.
 
 Per usare solo LiveSoccerTV: `python3 scraper/palinsesto.py --senza-liveonsat`.
 
@@ -66,3 +66,9 @@ Serve solo Python 3.9 o successivo, senza librerie esterne. Pillow serve solo pe
 `teleboy_canali.json` contiene l'elenco dei canali di [Teleboy](https://tv.teleboy.ch) (TV via internet svizzera, serve la VPN Svizzera, registrazione gratuita). A ogni aggiornamento lo script rilegge la pagina pubblica dei canali (https://www.teleboy.ch/tv/sender) con Chrome headless; se non ci riesce usa la copia salvata. I pacchetti a pagamento (mySports) non contano.
 
 Un canale di una partita che è anche su Teleboy viene mostrato (anche se LiveOnSat non lo segna in chiaro) con l'etichetta **TELEBOY**, e il suo link porta alla voce Teleboy in "Dove vederli". Il confronto dei nomi è prudente: ignora HD/numeri scritti in lettere/nome del paese solo se il paese coincide (es. "SRF Zwei Schweiz" = "SRF zwei", "ITV1 UK" = "ITV", ma "ITV X", "RTL Österreich", "TV8 Türkiye" no). Per aggiungere un'equivalenza usa `alias` nel file. Le esclusioni (`escludi_canali`) valgono sempre.
+
+## DAZN gratis
+
+Terza fonte: la guida pubblica di DAZN (Italia, Spagna, Francia, Germania, Portogallo, Belgio), senza login. Si prendono solo le partite di calcio **senza lucchetto** (gratis con l'account DAZN gratuito), con il canale "DAZN <Paese>" e l'etichetta **DAZN GRATIS**. Se la stessa partita c'è già (stessa logica: orario ±15 min + nomi simili) si aggiunge solo il canale. Le partite già finite (DAZN le segna ancora "Live") spariscono con la solita regola: inizio + 2h15. Se un paese non risponde, compare un avviso nel riquadro delle fonti non lette, senza bloccare l'aggiornamento. I paesi sono in `scraper/dazn.py` (`PAESI`). Prova senza DAZN: `python3 scraper/palinsesto.py --senza-dazn`.
+
+La voce DAZN in "Dove vederli" contiene i link alle versioni dei vari paesi e la nota sulla VPN (serve solo per registrarsi).

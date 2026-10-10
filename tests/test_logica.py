@@ -9,6 +9,7 @@ import palinsesto as p
 import liveonsat as L
 import unisci as U
 import teleboy as TB
+import dazn as DZ
 
 CONF_LOS = json.loads((QUI.parent / "liveonsat.json").read_text(encoding="utf-8"))
 DIR_LOS = QUI / "fixtures_liveonsat_2026-10-10"
@@ -213,7 +214,7 @@ def test_dove():
     h = p.genera_html(dt.date(2026, 10, 10), dt.datetime(2026, 10, 10, 18, tzinfo=p.ROMA),
                       [{"nome": "X", "partite": [e]}], [], [], dove)
     assert '<a href="#dv-prima-sport"' in h and '<a href="#dv-rsi"' in h and "Persiana Sports 2</li>" in h
-    assert 'id="dv-golazo"' in h and 'id="dv-dazn-europa"' in h and 'id="dv-rsi"' in h  # utente sempre, ricerca se usata
+    assert 'id="dv-golazo"' in h and 'id="dv-dazn"' in h and 'id="dv-rsi"' in h  # utente sempre, ricerca se usata
     assert 'id="dv-zdf"' not in h and 'target="_blank" rel="noopener noreferrer"' in h
     assert "Calcio in TV · Sab 10 – Mar 13 ottobre" in h and h.count("data-filtro=") == 5 and "eekend" not in h
 
@@ -262,6 +263,51 @@ def test_teleboy():
     x = L.analizza(finto, [], [], ["dazn", "megogo"], tb)[0]
     assert x["canali_fta"] == [] and x["canali_teleboy"] == ["SRF Zwei Schweiz"], x
     return tb
+
+
+def finto_dazn(paese, primo, giorni, rotto=("fr",)):
+    """Guida DAZN salvata il 10/10/2026 (sab 10 – mar 13); i paesi in `rotto` simulano un errore."""
+    if paese in rotto:
+        return None, "HTTP Error 503"
+    with gzip.open(QUI / "fixtures_dazn_2026-10-10" / f"{paese}.json.gz", "rt", encoding="utf-8") as f:
+        return json.load(f)["Tiles"], None
+
+
+def test_dazn():
+    """DAZN: solo partite senza lucchetto, unite alle altre fonti; un paese in errore non blocca."""
+    # regola "gratis": EntitlementIds vuoto
+    assert DZ.gratis({"EntitlementIds": []}) and not DZ.gratis({"EntitlementIds": ["e_silver_it"]})
+    v, ini, fine = p.finestra(dt.datetime(2026, 10, 10, 12, tzinfo=p.ROMA))
+    tiles, _ = finto_dazn("it", v, 4, ())
+    it = DZ.analizza(tiles, "it")
+    assert sorted(f'{x["casa"]} - {x["ospite"]}' for x in it) == ["Levante - Siviglia", "Tenerife - Girona"], it
+    assert DZ.competizione("UEFA Youth League") == (25, "UEFA YOUTH LEAGUE")
+    assert DZ.competizione("Serie A Enilive")[1] == "SERIE A" and DZ.competizione("LALIGA EA SPORTS")[1] == "LALIGA"
+    # parametri: offset di Roma (CEST 120, CET 60 dopo il 25/10)
+    assert DZ.parametri("it", dt.date(2026, 10, 10), 4)["timeZoneOffset"] == 120
+    assert DZ.parametri("de", dt.date(2026, 10, 26), 4)["timeZoneOffset"] == 60
+    assert DZ.parametri("de", dt.date(2026, 10, 26), 4)["languageCode"] == "en"
+    canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
+    p.scarica, L.scarica = finto_lstv, finto_los
+    st = {}
+    gruppi, falliti, _ = p.raccogli(canali, ini, fine, dict(CONF_LOS, pausa_secondi=0), st, None,
+                                    {"scarica_fn": finto_dazn})
+    assert "DAZN Francia (HTTP Error 503)" in falliti, falliti
+    assert st["dazn"] == {"it": 2, "de": 2, "pt": 10, "be": 2}, st["dazn"]
+    tutte = {f'{e["casa"]} - {e["ospite"]}': (g["nome"], e) for g in gruppi for e in g["partite"]}
+    nomi = lambda k: [c["nome"] for c in tutte[k][1]["canali"]]  # noqa: E731
+    assert nomi("Levante - Sevilla")[-2:] == ["DAZN Italia", "DAZN Portogallo"], nomi("Levante - Sevilla")
+    assert "DAZN Belgio" in nomi("PSG - Le Mans") and "TV5 Monde" in nomi("PSG - Le Mans")
+    assert tutte["Leipzig U19 - PSV U19"][0] == "UEFA YOUTH LEAGUE"
+    assert nomi("Leipzig U19 - PSV U19") == ["DAZN Portogallo"]
+    # nessun canale DAZN dalle altre fonti: solo quelli "gratis" della guida
+    assert all(c.get("dazn_gratis") for _, e in tutte.values() for c in e["canali"] if "dazn" in c["nome"].lower())
+    assert st["uniti_dazn"] and st["solo_dazn"] > 0
+    dove = json.loads((QUI.parent / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    h = p.genera_html(v, dt.datetime(2026, 10, 10, 12, tzinfo=p.ROMA), gruppi, falliti, [], dove)
+    assert "DAZN GRATIS</span>" in h and 'href="#dv-dazn"' in h and "https://www.dazn.com/nl-BE/home" in h
+    assert "DAZN Francia (HTTP Error 503)" in h
+    return st
 
 
 def test_unione():
@@ -332,6 +378,7 @@ if __name__ == "__main__":
     test_finite(); print("partite finite tolte: OK")
     test_dove(); print("dove vederli: OK")
     tb = test_teleboy(); print(f"Teleboy ({tb.n} canali): OK")
+    sd = test_dazn(); print(f"DAZN: gratis {sd['dazn']}, unite {len(sd['uniti_dazn'])}, solo DAZN {sd['solo_dazn']} – OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"
           f" = {st['totale']} – OK")

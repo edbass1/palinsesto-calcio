@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import liveonsat  # noqa: E402
 import unisci  # noqa: E402
 import teleboy as teleboy_mod  # noqa: E402
+import dazn  # noqa: E402
 
 ROMA = ZoneInfo("Europe/Rome")
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -238,6 +239,38 @@ def evento_los(p):
                       + [{"nome": c, "fta": False} for c in p.get("canali_teleboy", [])], "fonti": ["LiveOnSat"]}
 
 
+def evento_dazn(p):
+    """Partita gratuita DAZN -> stesso formato degli altri eventi."""
+    ordine, etichetta = dazn.competizione(p["comp"])
+    casa, ospite = SQUADRE.get(p["casa"], p["casa"]), SQUADRE.get(p["ospite"], p["ospite"])
+    return {"ts": p["ts"], "quando": dt.datetime.fromtimestamp(p["ts"], ROMA), "titolo": f"{casa} v {ospite}",
+            "ordine": ordine, "competizione": etichetta, "casa": casa, "ospite": ospite,
+            "canali": [{"nome": f"DAZN {dazn.PAESI[p['paese']]}", "fta": False, "dazn_gratis": True}], "fonti": ["DAZN"]}
+
+
+def unisci_dazn(eventi, partite_dazn):
+    """Aggiunge le partite gratuite DAZN (canale "DAZN <Paese>") a quelle già trovate o come nuove."""
+    uniti = []
+    for p in sorted(partite_dazn, key=lambda p: (p["ts"], list(dazn.PAESI).index(p["paese"]))):
+        nuovo = evento_dazn(p)
+        migliore, punteggio = None, 0.0
+        for e in eventi:
+            sc = unisci.stessa_partita(e["ts"], e["casa"], e["ospite"], nuovo["ts"], nuovo["casa"], nuovo["ospite"])
+            if sc > punteggio:
+                migliore, punteggio = e, sc
+        if migliore is None:
+            eventi.append(nuovo)
+            continue
+        k = nuovo["canali"][0]
+        if k["nome"] not in [c["nome"] for c in migliore["canali"]]:
+            migliore["canali"].append(k)
+        if "DAZN" not in migliore["fonti"]:
+            if migliore["fonti"] != ["DAZN"]:
+                uniti.append(f'{migliore["casa"]} - {migliore["ospite"]}')
+            migliore["fonti"].append("DAZN")
+    return eventi, uniti
+
+
 def unisci_fonti(eventi, partite_los, regole_fta=()):
     """Aggiunge le partite LiveOnSat: se è la stessa partita unisce i canali, altrimenti la aggiunge.
     Restituisce (eventi, elenco dei doppioni uniti)."""
@@ -277,7 +310,7 @@ def raggruppa(eventi):
             for (o, nome) in sorted(gruppi)]
 
 
-def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None):
+def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None, conf_dazn=None):
     """Raccoglie da LiveSoccerTV e (se conf_los) da LiveOnSat, unisce e raggruppa per competizione."""
     eventi, falliti, senza = raccogli_lstv(canali, inizio, fine)
     st = {"livesoccertv": len(eventi), "liveonsat": 0, "uniti": [], "solo_liveonsat": 0}
@@ -289,12 +322,23 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         st["pagine_liveonsat_fallite"] = len(falliti_los)
         eventi, st["uniti"] = unisci_fonti(eventi, partite_los, conf_los.get("canali_in_chiaro", []))
         st["solo_liveonsat"] = sum(1 for e in eventi if e["fonti"] == ["LiveOnSat"])
+    if conf_dazn is not None:
+        partite_dazn, falliti_dazn = dazn.raccogli_dazn(inizio, fine, conf_dazn.get("paesi") or dazn.PAESI,
+                                                       conf_dazn.get("scarica_fn"))
+        falliti += falliti_dazn
+        st["dazn"] = {}
+        for p in partite_dazn:
+            st["dazn"][p["paese"]] = st["dazn"].get(p["paese"], 0) + 1
+        eventi, st["uniti_dazn"] = unisci_dazn(eventi, partite_dazn)
+        st["solo_dazn"] = sum(1 for e in eventi if e["fonti"] == ["DAZN"])
     # esclusioni permanenti (liveonsat.json -> escludi_canali) applicate a tutte le fonti
     escludi = ["dazn"] + [x.lower() for x in (conf_los or {}).get("escludi_canali", []) if x]
     st["tolte_esclusi"] = []
     rimasti = []
     for e in eventi:
-        e["canali"] = [k for k in e["canali"] if not any(x in k["nome"].lower() for x in escludi)]
+        # i canali DAZN delle altre fonti sono esclusi; restano solo le partite gratis prese dalla guida DAZN
+        e["canali"] = [k for k in e["canali"]
+                       if k.get("dazn_gratis") or not any(x in k["nome"].lower() for x in escludi)]
         if e["canali"]:
             rimasti.append(e)
         else:
@@ -401,6 +445,8 @@ def voce_dove(nome: str, dove):
 def badge(c, dove, usati):
     esc = html.escape
     testo = esc(c["nome"])
+    if c.get("dazn_gratis"):
+        testo = f'{testo} <span class="tag dz" aria-label="gratis su DAZN con account gratuito">DAZN GRATIS</span>'
     if c.get("teleboy"):
         testo = f'{testo} <span class="tag tb" aria-label="su Teleboy">TELEBOY</span>'
     if c["fta"]:
@@ -522,6 +568,7 @@ TEMPLATE = """<!doctype html>
   ul.link a {{ color:var(--azzurro); font-size:1.05rem; font-weight:700; overflow-wrap:anywhere; text-underline-offset:4px; }}
   .verifica {{ font-size:.8rem; color:#000; background:var(--giallo); padding:1px 6px; border-radius:6px; font-weight:800; }}
   .tag.tb {{ background:var(--azzurro); }}
+  .tag.dz {{ background:#fff; color:#000; outline:2px solid #ff3df5; }}
   .legenda {{ margin:10px 0 0; font-size:.9rem; color:var(--grigio); }}
   li.partita.in-corso {{ border-color:var(--verde); box-shadow:0 0 0 2px var(--verde) inset; }}
   li.partita.in-corso .stato {{ background:var(--verde); color:#000; }}
@@ -549,7 +596,7 @@ TEMPLATE = """<!doctype html>
 <header>
   <h1>⚽ Calcio in TV <span class="h1p">· {periodo}</span></h1>
   <p class="agg">Aggiornato {aggiornato} · <span id="n-partite">{n}</span> partite · orari italiani</p>
-  <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera)</p>
+  <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera) · <span class="tag dz">DAZN GRATIS</span> = partita senza lucchetto su DAZN (account gratuito)</p>
 </header>
 <nav class="viste" aria-label="Come ordinare le partite">
   <button type="button" data-vista="campionato" aria-pressed="true">PER CAMPIONATO</button>
@@ -657,6 +704,7 @@ def main():
     ap.add_argument("--dove", default=str(RADICE / "dove_vederli.json"), help="link 'Dove vederli'")
     ap.add_argument("--teleboy", default=str(RADICE / "teleboy_canali.json"), help="elenco canali Teleboy")
     ap.add_argument("--teleboy-offline", action="store_true", help="non rilegge la pagina Teleboy, usa solo la copia")
+    ap.add_argument("--senza-dazn", action="store_true", help="non legge la guida DAZN")
     ap.add_argument("--out", default=str(RADICE / "site"))
     ap.add_argument("--ora", help="data/ora di riferimento ISO (per test), es. 2026-10-10T18:00+02:00")
     ap.add_argument("--json", action="store_true", help="scrive anche palinsesto.json")
@@ -675,7 +723,8 @@ def main():
     if Path(a.teleboy).exists():
         tb = teleboy_mod.carica(a.teleboy, aggiorna=not a.teleboy_offline)
         print(f"Teleboy: {tb.n} canali gratuiti ({tb.fonte})")
-    gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st, tb)
+    conf_dazn = None if a.senza_dazn else {}
+    gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st, tb, conf_dazn)
     n_tutte = sum(len(g["partite"]) for g in gruppi)
     gruppi = togli_finite(gruppi, dt.datetime.now(ROMA))
     st["finite_tolte"] = n_tutte - sum(len(g["partite"]) for g in gruppi)
@@ -699,6 +748,9 @@ def main():
     print(f"{periodo(primo)}: {n} partite in {len(gruppi)} competizioni; falliti: {len(falliti)}")
     print(f"  LiveSoccerTV: {st['livesoccertv']} · LiveOnSat (con canali in chiaro): {st['liveonsat']} · "
           f"doppioni uniti: {len(st['uniti'])} · solo LiveOnSat: {st['solo_liveonsat']} · finite tolte: {st['finite_tolte']} · solo grazie a Teleboy: {st.get('solo_teleboy', 0)}")
+    if "dazn" in st:
+        print(f"  DAZN gratis per paese: {st['dazn']} · unite a partite già presenti: {len(st['uniti_dazn'])} "
+              f"· solo DAZN: {st['solo_dazn']}")
     for f in falliti:
         print("  FALLITO:", f)
     # se nessun canale è stato scaricato, esce con errore: così il deploy non sostituisce la pagina buona

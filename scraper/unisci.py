@@ -34,6 +34,7 @@ ALIAS = {
     "olympique marseille": "marseille", "olympique de marseille": "marseille", "om": "marseille",
     "olympique lyonnais": "lyon", "olympique lyon": "lyon", "ol": "lyon",
     "celta vigo": "celta", "celta de vigo": "celta", "deportivo la coruna": "deportivo",
+    "siviglia": "sevilla", "slavia praga": "slavia praha", "slavia prague": "slavia praha",
     "real betis": "betis", "betis sevilla": "betis", "sevilla": "sevilla",
     "sporting lisbon": "sporting cp", "sporting": "sporting cp",
     "olympiacos": "olympiakos", "olympiakos piraeus": "olympiakos",
