@@ -34,7 +34,12 @@
   "irib",
   "varzish",
   "varzesh",
-  "meraj"
+  "meraj",
+  "sportynet+",
+  "sportynet +",
+  "sporty net+",
+  "nosso futebol+",
+  "nosso futebol plus"
  ],
  "canali_in_chiaro": [
   {
@@ -181,7 +186,7 @@
   }
  ],
  "_nota_pagine": "LiveOnSat non ha pagine per giorno: 2day.php copre solo oggi; per i 3 giorni successivi servono le pagine dei campionati (che elencano diverse settimane).",
- "_nota_escludi_competizioni": "Calcio femminile escluso da tutte le fonti: si scarta la partita se il nome della competizione o di una squadra contiene una di queste parole intere (maiuscole/minuscole indifferenti; vale anche con 's' o \"'s\" finale, es. women -> womens, women's). In più, sempre: squadra che finisce con ' W' (es. 'Arsenal W') e '(W)' ovunque.",
+ "_nota_escludi_competizioni": "Calcio femminile escluso da tutte le fonti: si scarta la partita se il nome della competizione o di una squadra contiene una di queste parole intere (maiuscole/minuscole indifferenti; vale anche con 's' o \"'s\" finale, es. women -> womens, women's). In più, sempre: squadra che finisce con ' W' (es. 'Arsenal W') e '(W)' ovunque. Nello stesso elenco ci sono anche i campionati e le coppe di calcio degli Stati Uniti (MLS, USL, NWSL, US Open Cup, Leagues Cup, NISA, MLS Next Pro...), esclusi dalla sezione calcio. Gli sport americani di ALTRI SPORT (NFL, NBA, NHL...) non sono toccati.",
  "escludi_competizioni": [
   "women",
   "woman",
@@ -209,7 +214,25 @@
   "femmes",
   "feminino",
   "feminina",
-  "femenil"
+  "femenil",
+  "mls",
+  "major league soccer",
+  "mls next pro",
+  "mls next",
+  "usl",
+  "usl championship",
+  "usl league one",
+  "usl league two",
+  "usl super league",
+  "us open cup",
+  "u.s. open cup",
+  "lamar hunt",
+  "leagues cup",
+  "nisa",
+  "national independent soccer association",
+  "npsl",
+  "mls is back",
+  "campeones cup"
  ],
  "_nota_escludi_russi_iraniani": "Canali russi e iraniani esclusi da tutte le fonti. Un canale è escluso se: il nome contiene una parola di 'paesi' (es. 'TV Start Russia'), oppure corrisponde a un'espressione di 'nomi' (regex, maiuscole/minuscole indifferenti), oppure su Teleboy ha paese in 'paesi_teleboy'. 'mai_escludere' vince sempre (es. Idman TV, Azerbaigian). Nomi verificati sui dati LiveOnSat del 10/10/2026: TV Start Russia HD, TV Start Triumph HD, MATCH! Futbol 1-3, MATCH! Premier, MATCH! Russia, MATCH! TV, Okko Futbol, Okko Prime Sport, viju+ Sport (Russia); IRIB Varzesh, GEM Sport 1, Meraj TV, Persiana Sport/Sports 2/3 (Iran). Gli altri nomi sono canali russi/iraniani noti, messi per sicurezza. Attenzione: 'Nova Sports Start' e 'Magenta Hellas Sport Start' sono greci e NON sono esclusi.",
  "escludi_russi_iraniani": {

@@ -59,13 +59,14 @@ def test_finestra():
 
 
 def test_fixture():
-    """Solo LiveSoccerTV, finestra ven 9 – lun 12: le 62 partite di prima (da ven 18:00) + 2 di venerdì pomeriggio."""
+    """Solo LiveSoccerTV, finestra ven 9 – lun 12: 64 partite, meno le 2 di Serie C Brasile che erano solo su SportyNet+ (tolto)."""
     canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
     p.scarica = finto_lstv
     v, ini, fine = p.finestra(dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA))
     gruppi, falliti, senza = p.raccogli(canali, ini, fine)
     n = sum(len(g["partite"]) for g in gruppi)
-    assert n == 64 and not falliti and not senza, (n, falliti, senza)
+    assert n == 62 and not falliti and not senza, (n, falliti, senza)
+    assert not any("SportyNet+" in k["nome"] for g in gruppi for e in g["partite"] for k in e["canali"])
     prima_18 = [e for g in gruppi for e in g["partite"] if e["quando"] < dt.datetime(2026, 10, 9, 18, tzinfo=p.ROMA)]
     assert sorted(e["casa"] for e in prima_18) == ["Al Fateh", "Corvinul Hunedoara"], prima_18
     nomi = [g["nome"] for g in gruppi]
@@ -76,7 +77,7 @@ def test_fixture():
     psg = [e for g in gruppi for e in g["partite"] if "PSG" in e["titolo"]][0]
     assert [c["nome"] for c in psg["canali"]] == ["TV5 Monde"]
     html = p.genera_html(v, dt.datetime(2026, 10, 9, 12, 47, tzinfo=p.ROMA), gruppi, ["Canale X (HTTP 404)"], [])
-    assert "non scaricati" in html and "Canale X" in html and html.count('class="partita"') == 2 * 64
+    assert "non scaricati" in html and "Canale X" in html and html.count('class="partita"') == 2 * 62
     assert not any("dazn" in c["nome"].lower() for g in gruppi for e in g["partite"] for c in e["canali"])
     return n
 
@@ -238,9 +239,9 @@ def test_dove():
     assert [voce(n) for n in ("Prima Sport 3", "Golazo Network", "ITV1 UK", "ITV X", "BBC Alba", "BBC One",
                               "SportyNet Brasil", "SportyNet+ Brasil", "TV5 Monde", "Sporty TV Africa", "RSI La 2 Svizzera",
                               "Persiana Sports 2")] == [
-        "prima-sport", "golazo", "itv1", "itvx", "bbc-alba", "bbc", "sportynet-brasil", "sportynet-plus", "tv5monde",
+        "prima-sport", "golazo", "itv1", "itvx", "bbc-alba", "bbc", "sportynet-brasil", None, "tv5monde",
         "sporty-tv-africa", "rsi", None]
-    assert "PPV" in next(v for v in dove if v["id"] == "sportynet-plus")["note"]
+    assert not any(v["id"] == "sportynet-plus" for v in dove)  # SportyNet+ tolto per sempre
     e = {"ts": 1791648000, "quando": dt.datetime(2026, 10, 10, 18, tzinfo=p.ROMA), "casa": "A", "ospite": "B",
          "canali": [{"nome": "Prima Sport 2", "fta": False}, {"nome": "RSI La 2 Svizzera", "fta": True},
                     {"nome": "Persiana Sports 2", "fta": True}]}
@@ -642,8 +643,10 @@ def test_unione():
     tutte = {f'{e["casa"]} - {e["ospite"]}': e for g in gruppi for e in g["partite"]}
     # pagine non salvate nei fixture -> segnalate, senza bloccare
     assert len(falliti) == len(conf["pagine"]) - 7 and all(f.startswith("LiveOnSat") for f in falliti), falliti
-    assert st["livesoccertv"] == 62 and st["liveonsat"] > 0 and st["uniti"] and st["solo_liveonsat"] > 0, st
-    assert st["totale"] == 62 + st["liveonsat"] - len(st["uniti"]) - len(st["tolte_esclusi"]), st  # 3 solo con TV Start Russia
+    # 62 - 3 di USL Championship (calcio USA escluso) - 2 di Serie C Brasile solo su SportyNet+ (tolto) = 57
+    assert sum("(USA)" in x for x in st["femminili_tolte"]) == 3, st["femminili_tolte"]
+    assert st["livesoccertv"] == 57 and st["liveonsat"] > 0 and st["uniti"] and st["solo_liveonsat"] > 0, st
+    assert st["totale"] == 57 + st["liveonsat"] - len(st["uniti"]) - len(st["tolte_esclusi"]), st  # 3 solo con TV Start Russia
     # doppioni uniti: canali LiveSoccerTV + canali in chiaro LiveOnSat, una sola riga
     psg = tutte["PSG - Le Mans"]
     assert [(c["nome"], c["fta"]) for c in psg["canali"]] == [("TV5 Monde", True)], psg["canali"]  # Persiana esclusa

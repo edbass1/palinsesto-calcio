@@ -1,21 +1,65 @@
 {
   "_nota": "Elenco canali: nome visualizzato + URL della pagina canale su LiveSoccerTV. Righe con lo stesso nome vengono unite. I canali DAZN vengono ignorati.",
   "canali": [
-    {"nome": "Prima Sport 1", "url": "https://www.livesoccertv.com/channels/look-plus-romania/"},
-    {"nome": "Prima Sport 2", "url": "https://www.livesoccertv.com/channels/look-tv-romania/"},
-    {"nome": "Prima Sport 3", "url": "https://www.livesoccertv.com/channels/look-sport-2/"},
-    {"nome": "Prima Sport 4", "url": "https://www.livesoccertv.com/channels/look-sport-3/"},
-    {"nome": "Prima Sport 5", "url": "https://www.livesoccertv.com/channels/prima-sport-5/"},
-    {"nome": "Golazo Network", "url": "https://www.livesoccertv.com/channels/cbs-sports-golazo/"},
-    {"nome": "Sporty TV Africa", "url": "https://www.livesoccertv.com/channels/sporty-tv-st/"},
-    {"nome": "SportyNet Brasil", "url": "https://www.livesoccertv.com/channels/nosso-futebol/"},
-    {"nome": "SportyNet+ Brasil", "url": "https://www.livesoccertv.com/channels/nosso-futebolplus/"},
-    {"nome": "TV5 Monde", "url": "https://www.livesoccertv.com/channels/tv5monde-europe/"},
-    {"nome": "TV5 Monde", "url": "https://www.livesoccertv.com/channels/tv5monde-usa/"},
-    {"nome": "TV5 Monde", "url": "https://www.livesoccertv.com/channels/tv5monde-afrique/"},
-    {"nome": "TV5 Monde", "url": "https://www.livesoccertv.com/channels/tv5monde-amerique-latine/"},
-    {"nome": "TV5 Monde", "url": "https://www.livesoccertv.com/channels/tv5monde-asie/"},
-    {"nome": "TV5 Monde", "url": "https://www.livesoccertv.com/channels/tv5monde-maghreb/"},
-    {"nome": "ITV1 UK", "url": "https://www.livesoccertv.com/channels/itv-1/"}
+    {
+      "nome": "Prima Sport 1",
+      "url": "https://www.livesoccertv.com/channels/look-plus-romania/"
+    },
+    {
+      "nome": "Prima Sport 2",
+      "url": "https://www.livesoccertv.com/channels/look-tv-romania/"
+    },
+    {
+      "nome": "Prima Sport 3",
+      "url": "https://www.livesoccertv.com/channels/look-sport-2/"
+    },
+    {
+      "nome": "Prima Sport 4",
+      "url": "https://www.livesoccertv.com/channels/look-sport-3/"
+    },
+    {
+      "nome": "Prima Sport 5",
+      "url": "https://www.livesoccertv.com/channels/prima-sport-5/"
+    },
+    {
+      "nome": "Golazo Network",
+      "url": "https://www.livesoccertv.com/channels/cbs-sports-golazo/"
+    },
+    {
+      "nome": "Sporty TV Africa",
+      "url": "https://www.livesoccertv.com/channels/sporty-tv-st/"
+    },
+    {
+      "nome": "SportyNet Brasil",
+      "url": "https://www.livesoccertv.com/channels/nosso-futebol/"
+    },
+    {
+      "nome": "TV5 Monde",
+      "url": "https://www.livesoccertv.com/channels/tv5monde-europe/"
+    },
+    {
+      "nome": "TV5 Monde",
+      "url": "https://www.livesoccertv.com/channels/tv5monde-usa/"
+    },
+    {
+      "nome": "TV5 Monde",
+      "url": "https://www.livesoccertv.com/channels/tv5monde-afrique/"
+    },
+    {
+      "nome": "TV5 Monde",
+      "url": "https://www.livesoccertv.com/channels/tv5monde-amerique-latine/"
+    },
+    {
+      "nome": "TV5 Monde",
+      "url": "https://www.livesoccertv.com/channels/tv5monde-asie/"
+    },
+    {
+      "nome": "TV5 Monde",
+      "url": "https://www.livesoccertv.com/channels/tv5monde-maghreb/"
+    },
+    {
+      "nome": "ITV1 UK",
+      "url": "https://www.livesoccertv.com/channels/itv-1/"
+    }
   ]
 }

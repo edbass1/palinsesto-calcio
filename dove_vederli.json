@@ -221,17 +221,6 @@
    ]
   },
   {
-   "id": "sportynet-plus",
-   "nome": "SportyNet+ Brasil",
-   "fonte": "utente",
-   "canali": [
-    "^SportyNet\\+"
-   ],
-   "vpn": "Brasile",
-   "note": "Attenzione: SportyNet+ è PPV (a pagamento), non gratuito.",
-   "link": []
-  },
-  {
    "id": "bbc-alba",
    "nome": "BBC Alba",
    "fonte": "utente",

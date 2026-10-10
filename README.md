@@ -106,3 +106,6 @@ In cima alla pagina, la riga «Scegli cosa vuoi vedere:» ha dei pulsanti. Per i
 
 ## Altri sport da LiveOnSat e NFL gratis
 ALTRI SPORT prende anche le pagine LiveOnSat degli altri sport (`liveonsat.json` → `pagine_altri_sport`: NFL, NBA, NHL, basket, hockey, rugby, Formula 1, boxe, pallamano, pallavolo…), con la stessa regola del calcio: solo canali in chiaro (rossi), Teleboy o in elenco; stesse esclusioni. Le partite NFL gratis nel mondo (Channel 5, Virgin Media, 7plus, TVNZ+, Twitch) vengono dalla guida di TechRadar (`nfl_gratis.json`, che fa anche da copia di riserva). Ogni canale in chiaro sulle schede porta alla sua voce in «Dove vederli» e, con «▶ sito», direttamente al sito di streaming (`dove_vederli.json`).
+
+## Niente calcio USA, niente SportyNet+
+Esclusi per sempre dalla sezione calcio i campionati e le coppe degli Stati Uniti (MLS, MLS Next Pro, USL Championship/League One/League Two, NWSL, US Open Cup, Leagues Cup, NISA, NPSL…): sono nello stesso elenco del calcio femminile, `liveonsat.json` → `escludi_competizioni`. NFL, NBA, NHL ecc. in ALTRI SPORT restano. SportyNet+ Brasil (PPV) è stato tolto da `canali.json` e da «Dove vederli» ed è in `escludi_canali`: le partite che avevano solo quel canale spariscono. SportyNet Brasil (gratuito) resta.

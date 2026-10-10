@@ -350,7 +350,7 @@ def raggruppa(eventi):
 def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None, conf_dazn=None, conf_altri=None):
     """Raccoglie da LiveSoccerTV e (se conf_los) da LiveOnSat, unisce e raggruppa per competizione."""
     eventi, falliti, senza = raccogli_lstv(canali, inizio, fine)
-    # calcio femminile escluso da tutte le fonti (liveonsat.json -> escludi_competizioni)
+    # calcio femminile e calcio USA (MLS, USL, NWSL...) esclusi da tutte le fonti (liveonsat.json -> escludi_competizioni)
     rx_f = unisci.regex_femminile((conf_los or {}).get("escludi_competizioni", []))
     tolte_f = []
 
@@ -360,7 +360,7 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
             return True
         return False
 
-    eventi = [e for e in eventi if not fem(e.get("comp_orig", ""), (e["casa"], e["ospite"]),
+    eventi = [e for e in eventi if not fem(f'{e.get("comp_orig", "")} | {e.get("competizione", "")}', (e["casa"], e["ospite"]),
                                            f'{e["casa"]} - {e["ospite"]} [{e["competizione"]}]')]
     st = {"livesoccertv": len(eventi), "liveonsat": 0, "uniti": [], "solo_liveonsat": 0, "femminili_tolte": tolte_f}
     if conf_los:
@@ -1073,7 +1073,7 @@ def main():
     for x in st.get("programmi_tolti", []):
         print("  programma sportivo tolto:", x)
     for x in st.get("femminili_tolte", []):
-        print("  femminile esclusa:", x)
+        print("  esclusa (calcio femminile o USA):", x)
     for f in falliti:
         print("  FALLITO:", f)
     # se nessun canale è stato scaricato, esce con errore: così il deploy non sostituisce la pagina buona
