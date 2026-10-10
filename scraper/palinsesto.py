@@ -387,7 +387,8 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
     if conf_altri is not None:
         altri, calcio_stream, avvisi = altri_sport.raccogli_altri(
             inizio, fine, conf_altri.get("ora") or dt.datetime.now(ROMA), rx_f,
-            scarica_srg_fn=conf_altri.get("scarica_srg_fn"), scarica_ard_fn=conf_altri.get("scarica_ard_fn"))
+            scarica_srg_fn=conf_altri.get("scarica_srg_fn"), scarica_ard_fn=conf_altri.get("scarica_ard_fn"),
+            conf=conf_altri.get("conf"), programmi_tolti=st.setdefault("programmi_tolti", []))
         falliti += avvisi
         st["altri_sport"] = altri
         eventi, st["uniti_stream"] = unisci_stream(eventi, calcio_stream)
@@ -876,6 +877,8 @@ def main():
     if "calcio_stream" in st:
         print(f"  Altri sport: {len(st['altri_sport'])} eventi · calcio in streaming: {st['calcio_stream']} "
               f"(uniti a partite già presenti: {len(st['uniti_stream'])})")
+    for x in st.get("programmi_tolti", []):
+        print("  programma sportivo tolto:", x)
     for x in st.get("femminili_tolte", []):
         print("  femminile esclusa:", x)
     for f in falliti:

@@ -4,6 +4,7 @@ sezione calcio; tutto il resto nella sezione "Altri sport"."""
 import datetime as dt
 import json
 import re
+from pathlib import Path
 import time
 import urllib.request
 from zoneinfo import ZoneInfo
@@ -22,7 +23,7 @@ ARD_SITO = "https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/l
 
 # parola iniziale del titolo (de/fr/it) -> sport in italiano
 SPORT = [
-    (r"fussball|calcio|football", "Calcio"),
+    (r"fussball|fußball|calcio|football", "Calcio"),
     (r"formel 1|formula 1|formule 1", "Formula 1"),
     (r"motorrad|motomondiale|moto ?gp|moto ?[23]\b", "Motomondiale"),
     (r"rad\b|radsport|ciclismo|cyclisme", "Ciclismo"),
@@ -106,8 +107,10 @@ def analizza_srg(bu, media, solo_sport=True):
         durata = (m.get("duration") or 0) // 1000
         fine = inizio + durata if 0 < durata <= 14 * 3600 else (_ts(m["validTo"]) if m.get("validTo") else inizio + 3 * 3600)
         idx = str(m.get("cesimId") or m["urn"].rsplit(":", 1)[-1])
+        # id evento sportivo swisstxt: c'è solo per le gare (mai per i programmi), ma RTS/RSI spesso non lo mettono
+        evento = bool(m.get("cesimId")) or ":swisstxt:" in (m.get("urn") or "")
         out.append({"id": f"swisstxt:{idx}", "ts": inizio, "fine": fine, "sport": sport or "Sport", "titolo": resto,
-                    "titolo_orig": m.get("title") or "",
+                    "titolo_orig": m.get("title") or "", "titolo_src": m.get("title") or "", "evento": evento,
                     "emittenti": [{"nome": SRG[bu], "pagina": PAGINE[SRG[bu]],
                                    "link": f"https://www.{bu}.ch/play/tv/-/video/-?urn=urn:swisstxt:video:{bu}:{idx}",
                                    "vpn": None if m.get("playableAbroad") else "SVIZZERA"}]})
@@ -154,10 +157,14 @@ def analizza_ard(pagina, dettaglio_fn):
         fine = _ts(det["availableTo"]) if det.get("availableTo") else x["ts"] + 3 * 3600
         if fine - x["ts"] > 14 * 3600:
             fine = x["ts"] + 3 * 3600
-        sport = sport_di(titolo) or (("Calcio" if re.search(r"3\. Liga|Bundesliga|Fußball|DFB", show + " " + sinossi) else None)
-                                     or ("Basket" if BASKET_ARD.search(titolo) else None) or sport_di(sinossi) or sport_di(show))
+        sp_sinossi = sport_di(sinossi)
+        sport = (sport_di(titolo) or ("Basket" if BASKET_ARD.search(titolo) else None)
+                 or (sp_sinossi if sp_sinossi not in (None, "Programma sportivo") else None)  # es. "Handball Bundesliga"
+                 or ("Calcio" if re.search(r"3\. Liga|Bundesliga|Fußball|DFB", show + " " + sinossi) else None)
+                 or sp_sinossi or sport_di(show))
         eventi.append({"id": f"ard:{t['id']}", "ts": x["ts"], "fine": fine, "sport": sport or "Sport", "titolo": titolo,
-                       "titolo_orig": f"{titolo} {show} {sinossi}",
+                       "titolo_orig": f"{titolo} {show} {sinossi}", "titolo_src": titolo,
+                       "descrizione": sinossi, "evento": None,  # ARD: nessun campo che distingua gara e programma
                        "emittenti": [{"nome": "ARD " + ((t.get("publicationService") or {}).get("name") or "").strip(),
                                       "pagina": PAGINE["ARD"], "link": f"https://www.ardmediathek.de/video/{t['id']}",
                                       "vpn": "GERMANIA"}]})
@@ -178,6 +185,43 @@ def scarica_ard(inizio, fine):
         w = (d or {}).get("widgets") or [{}]
         return w[0]
     return analizza_ard(pagina, dettaglio), None
+
+
+# ---------- solo dirette di gare, niente programmi ----------
+CONF = Path(__file__).resolve().parent.parent / "altri_sport.json"
+
+
+def _rx_parole(parole):
+    parole = [p for p in parole if p]
+    if not parole:
+        return re.compile(r"(?!x)x")
+    alt = "|".join(p if re.search(r"[?\\\[]", p) else re.escape(p) for p in parole)
+    return re.compile(r"(?<![\wÀ-ÿ])(?:" + alt + r")(?![\wÀ-ÿ])", re.I)
+
+
+def regole(conf=None):
+    """(regex programmi, regex parole-evento) da altri_sport.json."""
+    if conf is None:
+        conf = json.loads(CONF.read_text(encoding="utf-8")) if CONF.exists() else {}
+    return _rx_parole(conf.get("escludi_programmi", [])), _rx_parole(conf.get("parole_evento", []))
+
+
+RE_PARTECIPANTI = re.compile(r"\S\s+(?:-|–|gegen|vs\.?|contre|contro)\s+\S|[A-Za-zÀ-ÿ]-[A-ZÀ-Ü][a-zà-ÿ]", re.I)
+
+
+def e_programma(e, rx_prog, rx_ev):
+    """Motivo (testo) se l'elemento è un programma sportivo e non la diretta di una gara, altrimenti None."""
+    titolo = e.get("titolo_src") or e.get("titolo") or ""
+    m = rx_prog.search(titolo)
+    if m:
+        return f"parola «{m.group(0)}» nel titolo"
+    if e.get("evento") is False and e.get("sport") not in ("Sport", "Programma sportivo"):
+        return None  # SRG: il titolo inizia con uno sport preciso ("TENNIS ...", "Sci alpino: ...")
+    if not e.get("evento"):  # ARD, o SRG senza id evento: serve un indizio di gara nel titolo o nella descrizione
+        testo = titolo + " " + (e.get("descrizione") or "")
+        if not (RE_PARTECIPANTI.search(titolo) or rx_ev.search(testo)):
+            return "nessuna gara/partita riconoscibile"
+    return None
 
 
 # ---------- unione ----------
@@ -229,8 +273,12 @@ def unisci_eventi(eventi):
     return uniti
 
 
-def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None, scarica_ard_fn=None):
-    """(eventi altri sport, partite di calcio, avvisi). Toglie gli eventi già finiti e il calcio femminile."""
+def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None, scarica_ard_fn=None,
+                   conf=None, programmi_tolti=None):
+    """(eventi altri sport, partite di calcio, avvisi). Toglie gli eventi già finiti, i programmi sportivi
+    (magazine, highlights, studio...: vedi altri_sport.json) e il calcio femminile.
+    programmi_tolti (lista), se data, riceve "Emittente gg/mm hh:mm Titolo – motivo" per ogni programma tolto."""
+    rx_prog, rx_ev = regole(conf)
     scarica_srg_fn = scarica_srg_fn or scarica_srg
     scarica_ard_fn = scarica_ard_fn or scarica_ard
     tutti, falliti = [], []
@@ -244,6 +292,15 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
         falliti.append("ARD")
     tutti += ev
     tutti = [e for e in tutti if inizio.timestamp() <= e["ts"] < fine.timestamp() and e["fine"] > ora.timestamp()]
+    tenuti = []
+    for e in tutti:
+        motivo = e_programma(e, rx_prog, rx_ev)
+        if motivo is None:
+            tenuti.append(e)
+        elif programmi_tolti is not None:
+            quando = dt.datetime.fromtimestamp(e["ts"], ROMA).strftime("%d/%m %H:%M")
+            programmi_tolti.append(f'{e["emittenti"][0]["nome"]} {quando} {e.get("titolo_src") or e["titolo"]} – {motivo}')
+    tutti = tenuti
     altri, calcio = [], []
     for e in unisci_eventi(tutti):
         testi = " ".join(e["testi"])

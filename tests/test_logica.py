@@ -430,6 +430,48 @@ def test_altri_sport():
     return altri, calcio
 
 
+def test_programmi():
+    """ALTRI SPORT e calcio in streaming: solo dirette di gare, niente magazine/studio/highlights."""
+    import altri_sport as A
+    A.json_url = finto_json
+    rp, rev = A.regole()
+    srg = lambda t, cesim=None, bu="srf": A.analizza_srg(bu, [{"type": "SCHEDULED_LIVESTREAM", "title": t,  # noqa: E731
+        "date": "2026-10-11T18:00:00+02:00", "duration": 3600000, "cesimId": cesim, "urn": "urn:srf:scheduled_livestream:video:x"}],
+        solo_sport=False)[0]
+    ard = lambda t, sin="": {"titolo": t, "titolo_src": t, "descrizione": sin, "evento": None, "sport": A.sport_di(t) or "Sport"}  # noqa: E731
+    tolti = [srg("«Sportpanorama» vom 11. Oktober"), srg("Sport aktuell"), srg("Sportlounge"), srg("Telegiornale sportivo", bu="rsi"),
+             srg("Fussball: Super League, Highlights", "123"), srg("Ski Alpin: Zusammenfassung Riesenslalom", "1"),
+             srg("TENNIS Swiss Indoors  Cérémonie d'ouverture", bu="rts"), srg("Rad: Tour de Suisse, Wiederholung", "9"),
+             srg("Formule 1: le résumé", bu="rts"), srg("Ciclismo: sintesi del Giro", bu="rsi"),
+             ard("Sportschau am Sonntag"), ard("Die Sportschau am Sonntag mit der Bundesliga", "mit den Highlights"),
+             ard("Wintersport im Ersten", "unter anderem mit Skispringen"), ard("Sportschau Club", "Talk mit Gästen")]
+    for e in tolti:
+        assert A.e_programma(e, rp, rev), e["titolo_src"]
+    tenuti = [srg("Formel 1: GP Singapur", "1828086"), srg("FORMULE 1 GP de Singapour", bu="rts"),
+              srg("TENNIS Swiss Indoors 1e tour", bu="rts"), srg("Sci alpino: CdM da Sölden, slalom gigante", bu="rsi"),
+              srg("HOCKEY SUR GLACE Finlande - Suisse", bu="rts"), srg("Fussball: Super League, Lugano - Luzern", "1"),
+              ard("Alemannia Aachen gegen Hansa Rostock", "3. Liga"), ard("Die Tanz-WM 2026"),
+              ard("Box-Abend mit Artur Reis und Julian Vogel", "zeigt die Sportschau diverse Kämpfe"),
+              ard("Der Marathon in Frankfurt am Main"), ard("Sommer-Biathlon in München mit dem Massenstart"),
+              ard("Riesenslalom in Sölden - 1. Lauf der Frauen")]
+    for e in tenuti:
+        assert A.e_programma(e, rp, rev) is None, e["titolo_src"]
+    # dati salvati: Sportpanorama (SRF) e le due Sportschau (ARD) tolte, le gare restano
+    ora = dt.datetime(2026, 10, 10, 22, 0, tzinfo=p.ROMA)
+    _, ini, fine = p.finestra(ora)
+    lista = []
+    altri, calcio, _ = A.raccogli_altri(ini, fine, ora, U.regex_femminile(CONF_LOS["escludi_competizioni"]), programmi_tolti=lista)
+    assert any("Sportpanorama" in x for x in lista) and sum("Sportschau" in x for x in lista) == 2, lista
+    assert not any(re.search(r"sportschau|sportpanorama", e["titolo"], re.I) for e in altri + calcio)
+    assert {e["sport"] for e in altri} >= {"Formula 1", "Motomondiale", "Boxe", "Danza sportiva"}
+    # pallamano ARD ("Handball Bundesliga" nella descrizione) non finisce nel calcio
+    pag = {"widgets": [{"teasers": [{"id": "h1", "broadcastedOn": "2026-10-11T14:00:00Z", "longTitle": "SG Flensburg Handewitt gegen Füchse Berlin",
+                                     "show": {"title": "Sportschau"}, "publicationService": {"name": "NDR"}}]}]}
+    ev = A.analizza_ard(pag, lambda t: {"synopsis": "Am 9. Spieltag in der Handball Bundesliga empfängt Flensburg die Füchse."})
+    assert ev[0]["sport"] == "Pallamano" and A.e_programma(ev[0], rp, rev) is None, ev
+    return lista
+
+
 def test_dazn_rail():
     """DAZN dalle file "Live"/"ComingUp" (rail-router): stesse partite gratis della guida; guida come riserva."""
     assert DZ.squadre_da_titolo("Fuoriclasse | Cagliari - Juventus") == ("Cagliari", "Juventus")
@@ -537,6 +579,7 @@ if __name__ == "__main__":
     tb = test_teleboy(); print(f"Teleboy ({tb.n} canali): OK")
     sd = test_dazn(); print(f"DAZN: gratis {sd['dazn']}, unite {len(sd['uniti_dazn'])}, solo DAZN {sd['solo_dazn']} – OK")
     sf = test_femminile(); print(f"femminile: {len(sf['femminili_tolte'])} partite escluse nei dati salvati – OK")
+    pr = test_programmi(); print(f"programmi sportivi tolti nei dati salvati: {len(pr)} – OK")
     al, ca = test_altri_sport(); print(f"altri sport: {len(al)} eventi, calcio in streaming {len(ca)} – OK")
     print(f"DAZN (rail-router): {test_dazn_rail()} – OK")
     st = test_unione()
