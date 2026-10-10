@@ -114,34 +114,39 @@
    "note": "Serve una registrazione veloce. Dopo la registrazione su Prima Play i canali si vedono senza VPN; l'app c'è anche per TV LG (e probabilmente Samsung).",
    "link": [
     {
+     "url": "https://www.primaplay.ro",
+     "testo": "Prima Play (consigliato)"
+    },
+    {
      "url": "https://tvgo.orange.ro/authentication",
      "testo": "Orange TV Go (registrazione)"
     },
     {
-     "url": "https://www.primaplay.ro",
-     "testo": "Prima Play"
-    },
-    {
      "url": "https://rds.live/primasport-1hd-ro2/",
-     "testo": "Prima Sport 1 (sito ufficiale)"
+     "testo": "Prima Sport 1 (link web alternativo)"
     },
     {
      "url": "https://rds.live/primasport-2-hd-ro1/",
-     "testo": "Prima Sport 2 (sito ufficiale)"
+     "testo": "Prima Sport 2 (link web alternativo)"
     },
     {
      "url": "https://rds.live/primasport-3-hd-ro1/",
-     "testo": "Prima Sport 3 (sito ufficiale)"
+     "testo": "Prima Sport 3 (link web alternativo)"
     },
     {
      "url": "https://rds.live/primasport-4-hd/",
-     "testo": "Prima Sport 4 (sito ufficiale)"
+     "testo": "Prima Sport 4 (link web alternativo)"
     },
     {
      "url": "https://rds.live/primasport-5-hd/",
-     "testo": "Prima Sport 5 (sito ufficiale)"
+     "testo": "Prima Sport 5 (link web alternativo)"
     }
-   ]
+   ],
+   "consiglio": {
+    "testo": "Per una maggiore stabilità consigliamo di registrarsi su primaplay.ro e poi scaricare l'app sulla TV di casa.",
+    "url": "https://www.primaplay.ro",
+    "testo_link": "primaplay.ro"
+   }
   },
   {
    "id": "dazn",

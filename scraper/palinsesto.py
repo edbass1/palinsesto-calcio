@@ -579,6 +579,9 @@ def sezione_dove(dove, usati):
             + '</li>' for l in v.get("link", []))
         righe.append(
             f'<li class="dove" id="dv-{esc(v["id"])}"><h3>{esc(v["nome"])}</h3>'
+            + (f'<p class="consiglio">⭐ {esc(v["consiglio"]["testo"])} <a href="{esc(v["consiglio"]["url"])}" target="_blank" '
+               f'rel="noopener noreferrer">{esc(v["consiglio"].get("testo_link") or v["consiglio"]["url"])}</a></p>'
+               if v.get("consiglio") else '')
             + (f'<p class="vpn">VPN: <strong>{esc(v["vpn"])}</strong></p>' if v.get("vpn") else '')
             + (f'<p class="nota">{esc(v["note"])}</p>' if v.get("note") else '')
             + (f'<p class="nota">Canali di questa pagina disponibili su Teleboy: <strong>{esc(", ".join(sorted(v["_canali_pagina"], key=str.lower)))}</strong></p>'
@@ -626,6 +629,7 @@ TEMPLATE = """<!doctype html>
   nav.viste {{ max-width:1000px; margin:4px auto 0; display:grid; grid-template-columns:1fr 1fr; gap:10px; }}
   nav.viste button.altri {{ grid-column:1 / -1; border-color:var(--azzurro); }}
   .tag.vpn {{ background:#ffd400; color:#000; }}
+  .consiglio {{ font-size:1.1rem; font-weight:700; background:#1d1d00; border:2px solid var(--giallo); border-radius:10px; padding:10px 12px; }}
   .fino {{ font-size:.85rem; color:#ccc; }}
   a.diretta {{ font-size:.85rem; color:#fff; }}
   .intro-altri {{ font-size:1.05rem; color:#ddd; }}

@@ -504,6 +504,11 @@ def test_unione():
     assert tutte2["Southampton - Portsmouth"]["canali"][1]["teleboy"] == "ITV"
     dove = json.loads((QUI.parent / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
     h2 = p.genera_html(v, dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA), gruppi2, [], [], dove)
+    i = h2.index('id="dv-prima-sport"')
+    blocco = h2[i:h2.index("</li></ul></li>", i)]
+    assert "sito ufficiale" not in h2 and "Prima Sport 1 (link web alternativo)" in blocco
+    assert blocco.index('class="consiglio"') < blocco.index("rds.live") and "Per una maggiore stabilità" in blocco
+    assert "tvgo.orange.ro" in blocco
     assert 'TELEBOY</span>' in h2 and 'id="dv-teleboy"' in h2 and 'href="https://www.teleboy.ch/it/live"' in h2
     assert tb.link("ITV") == "https://tv.teleboy.ch/live(player:live/346)"  # come l'esempio dell'utente
     assert 'href="https://tv.teleboy.ch/live(player:live/346)"' in h2 and "▶ Teleboy" in h2
