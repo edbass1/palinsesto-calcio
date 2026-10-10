@@ -1,0 +1,47 @@
+name: Aggiorna palinsesto
+
+on:
+  schedule:
+    # orari in UTC (ora italiana = UTC+2 d'estate, UTC+1 d'inverno)
+    - cron: "17 * * * *"           # ogni ora, al minuto 17 (GitHub può ritardare di qualche minuto)
+  workflow_dispatch:                # avvio manuale da Actions > Aggiorna palinsesto > Run workflow
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Test logica (offline)
+        run: python tests/test_logica.py
+      - name: Scarica palinsesto (LiveSoccerTV + LiveOnSat) e genera la pagina
+        run: python scraper/palinsesto.py --out site --json
+        timeout-minutes: 15
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
