@@ -239,3 +239,83 @@ if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "--esporta":
         sys.exit(0 if esporta(sys.argv[2]) else 1)
     print(__doc__)
+
+
+# ---------- altri sport gratis (solo DAZN Italia) ----------
+SPORT_ALTRI = {"volley": "Pallavolo", "motori": "Motori", "football americano": "Football americano", "basket": "Basket",
+               "tennistavolo": "Tennistavolo", "boxe": "Boxe", "ciclismo": "Ciclismo", "hockey su ghiaccio": "Hockey su ghiaccio",
+               "baseball": "Baseball", "golf": "Golf", "triathlon": "Triathlon", "sport estremi": "Sport estremi",
+               "equitazione | salto ostacoli": "Equitazione", "tennis": "Tennis", "rugby": "Rugby", "pallamano": "Pallamano",
+               "atletica": "Atletica", "freccette": "Freccette", "mma": "MMA", "padel": "Padel", "biliardo": "Biliardo"}
+PAGINA_IT = "https://www.dazn.com/it-IT/home"
+
+
+def _rail(rid, params, paese="it", tentativi=3):
+    q = urllib.parse.urlencode({"id": rid, "params": params, "languageCode": "it" if paese == "it" else "en",
+                                "country": paese, "platform": "web", "brand": "dazn"})
+    err = None
+    for i in range(tentativi):
+        try:
+            req = urllib.request.Request(f"{RAIL}?{q}", headers={"User-Agent": UA, "Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=40) as r:
+                return json.load(r).get("Tiles") or [], None
+        except Exception as e:  # noqa: BLE001
+            err = str(e)[:80]
+            time.sleep(2 * (i + 1))
+    return None, err
+
+
+def scarica_altri_it():
+    """Riquadri DAZN Italia di tutti gli sport tranne il calcio: file Live/ComingUp della home e di ogni sport
+    (la home arriva solo a ~24 ore, le pagine dei singoli sport più avanti). (tiles, errore)"""
+    home, err = [], None
+    for rid in ("Live", "ComingUp"):
+        t, e = _rail(rid, "PageType:Home;ContentType:None")
+        home += t or []
+        err = err or e
+    if not home:
+        return None, err
+    tiles = list(home)
+    for sid in sorted({(t.get("Sport") or {}).get("Id") for t in home} - {None, CALCIO}):
+        t, _ = _rail("ComingUp", f"PageType:Sport;ContentType:Sport;ContentId:{sid}")
+        tiles += t or []
+    return tiles, None
+
+
+def analizza_altri(tiles):
+    """Eventi gratis non di calcio, nel formato di altri_sport (una voce per EventId)."""
+    out = {}
+    for t in tiles:
+        sp = t.get("Sport") or {}
+        if not sp.get("Id") or sp["Id"] == CALCIO or t.get("Type") not in ("UpComing", "Live") or not gratis(t):
+            continue
+        k = t.get("EventId") or t.get("Id")
+        if k in out:
+            continue
+        inizio = t.get("EventStartTime") or t["Start"]
+        ts = int(dt.datetime.fromisoformat(inizio.replace("Z", "+00:00")).timestamp())
+        fine = None
+        if t.get("End"):
+            fine = int(dt.datetime.fromisoformat(t["End"].replace("Z", "+00:00")).timestamp())
+        elif t.get("DurationInMillis"):
+            fine = ts + int(t["DurationInMillis"]) // 1000
+        if not fine or fine <= ts or fine - ts > 12 * 3600:
+            fine = ts + 3 * 3600
+        titolo = re.sub(r"\s*\|\s*", " – ", (t.get("Title") or "").strip())
+        comp = ((t.get("Competition") or {}).get("Title") or "").strip()
+        sfida = len(t.get("Contestants") or []) >= 2 or re.search(r"\svs?\.?\s|\s@\s", t.get("Title") or "")
+        testa = " ".join(comp.lower().split()[:2])
+        if comp and comp.lower() not in titolo.lower() and testa not in titolo.lower() and not sfida:
+            titolo = f"{comp}, {titolo}"
+        nome_sport = SPORT_ALTRI.get(sp.get("Title", "").strip().lower()) or sp.get("Title", "Sport").split("|")[0].strip()
+        out[k] = {"id": f"dazn:{k}", "ts": ts, "fine": fine, "sport": nome_sport, "titolo": titolo,
+                  "titolo_orig": f'{t.get("Title") or ""} {comp}', "titolo_src": t.get("Title") or "", "evento": True,
+                  "lingua": "it", "descrizione": t.get("Description") or "",
+                  "emittenti": [{"nome": "DAZN Italia", "pagina": PAGINA_IT, "link": None, "vpn": None, "dazn_gratis": True}]}
+    return list(out.values())
+
+
+def altri_sport_it():
+    """(eventi, errore) per altri_sport.raccogli_altri."""
+    tiles, err = scarica_altri_it()
+    return (analizza_altri(tiles), None) if tiles is not None else ([], err)

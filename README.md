@@ -94,3 +94,6 @@ In ALTRI SPORT (e per le partite di calcio prese da SRF/RTS/RSI/ARD) restano sol
 
 ## Niente canali russi e iraniani
 Esclusi da tutte le fonti i canali russi e iraniani (TV Start, MATCH!, Okko, viju+, IRIB, GEM, Meraj, Persiana…): regole in `liveonsat.json` → `escludi_russi_iraniani` (parole di paese nel nome, nomi noti come espressioni regolari, paese del canale su Teleboy). `mai_escludere` vince sempre: oggi contiene `idman` (Idman TV, Azerbaigian). Se a una partita non resta nessun canale, la partita sparisce. Il log della build elenca canali esclusi e partite tolte.
+
+### Titoli in italiano e DAZN Italia
+I titoli tedeschi e francesi di ALTRI SPORT sono tradotti con il glossario `traduzioni.json` (nessun servizio esterno; si possono aggiungere parole e paesi). I nomi propri restano com'erano; se la traduzione è solo parziale, sotto al titolo si vede piccolo l'originale. In ALTRI SPORT ci sono anche gli eventi gratis (senza lucchetto) di DAZN Italia degli sport diversi dal calcio: solo DAZN Italia, non le versioni estere (per il calcio restano tutti e 6 i paesi).

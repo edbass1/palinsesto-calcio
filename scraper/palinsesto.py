@@ -388,7 +388,8 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         altri, calcio_stream, avvisi = altri_sport.raccogli_altri(
             inizio, fine, conf_altri.get("ora") or dt.datetime.now(ROMA), rx_f,
             scarica_srg_fn=conf_altri.get("scarica_srg_fn"), scarica_ard_fn=conf_altri.get("scarica_ard_fn"),
-            conf=conf_altri.get("conf"), programmi_tolti=st.setdefault("programmi_tolti", []))
+            conf=conf_altri.get("conf"), programmi_tolti=st.setdefault("programmi_tolti", []),
+            scarica_dazn_fn=conf_altri.get("scarica_dazn_fn", dazn.altri_sport_it if conf_dazn is not None else None))
         falliti += avvisi
         st["altri_sport"] = altri
         eventi, st["uniti_stream"] = unisci_stream(eventi, calcio_stream)
@@ -500,15 +501,19 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None):
         f = dt.datetime.fromtimestamp(e["fine"], ROMA)
         em = "".join(
             f'<li class="fta"><a href="{esc(x["pagina"])}" target="_blank" rel="noopener">{esc(x["nome"])}</a> '
+            + ('<span class="tag dz">DAZN GRATIS</span> ' if x.get("dazn_gratis") else '')
             + (f'<span class="tag vpn">VPN {esc(x["vpn"])}</span>' if x.get("vpn") else '<span class="tag vpn">SENZA VPN</span>')
-            + f' <a class="diretta" href="{esc(x["link"])}" target="_blank" rel="noopener">▶ diretta</a></li>'
+            + (f' <a class="diretta" href="{esc(x["link"])}" target="_blank" rel="noopener">▶ diretta</a>' if x.get("link") else '')
+            + '</li>'
             for x in e["emittenti"])
         return (f'<li class="partita evento" data-ts="{e["ts"]}" data-fine="{e["fine"]}" data-giorno="{q:%Y-%m-%d}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span><span class="fino">fino alle {f:%H:%M}</span>'
                 '<span class="stato" aria-live="polite"></span></div>'
                 f'<div class="squadre"><span class="comp-tag">{esc(e["sport"].upper())}</span>'
-                f'<span class="sq">{esc(e["titolo"])}</span></div>'
+                f'<span class="sq">{esc(e["titolo"])}</span>'
+                + (f'<span class="orig" lang="{esc(e.get("lingua") or "de")}">{esc(e["titolo_originale"])}</span>'
+                   if e.get("titolo_originale") else '') + '</div>'
                 f'<ul class="canali" aria-label="Dove">{em}</ul></li>')
     sez_altri = []
     for d in giorni:
@@ -649,6 +654,7 @@ TEMPLATE = """<!doctype html>
   nav.viste {{ max-width:1000px; margin:4px auto 0; display:grid; grid-template-columns:1fr 1fr; gap:10px; }}
   nav.viste button.altri {{ grid-column:1 / -1; border-color:var(--azzurro); }}
   .tag.vpn {{ background:#ffd400; color:#000; }}
+  .orig {{ display:block; font-size:.95rem; font-weight:400; color:#bbb; margin-top:4px; }}
   .consiglio {{ font-size:1.1rem; font-weight:700; background:#1d1d00; border:2px solid var(--giallo); border-radius:10px; padding:10px 12px; }}
   .fino {{ font-size:.85rem; color:#ccc; }}
   a.diretta {{ font-size:.85rem; color:#fff; }}
@@ -741,7 +747,7 @@ TEMPLATE = """<!doctype html>
 {orario}
 </div>
 <div id="vista-altri" class="vista" hidden>
-<p class="intro-altri">Dirette streaming gratuite di altri sport: SRF, RTS, RSI (Svizzera) e ARD (Germania). Tocca l'emittente per aprire la diretta.</p>
+<p class="intro-altri">Dirette streaming gratuite di altri sport: SRF, RTS, RSI (Svizzera), ARD (Germania) e DAZN Italia (eventi senza lucchetto, con account gratuito). Tocca l'emittente per aprire la diretta.</p>
 {altri}
 </div>
 <p class="vuoto" id="vuoto"{vuoto_nascosto}>Nessuna partita in programma in questi giorni.</p>

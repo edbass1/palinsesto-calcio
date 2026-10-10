@@ -1,0 +1,1203 @@
+{
+ "_nota": "Traduzione in italiano dei titoli di ALTRI SPORT (SRF, RTS, ARD...) senza servizi esterni. 'paesi': nome italiano, forma con 'di' (per 'GP di ...'), e i nomi stranieri. 'frasi': [testo straniero, italiano], si applicano prima le più lunghe; parole intere, maiuscole/minuscole indifferenti; il testo straniero può essere un'espressione regolare se inizia con 're:'. I nomi propri (atleti, squadre, città) restano come sono. Se dopo la traduzione restano parole straniere, sotto al titolo si vede piccolo l'originale. 'citta': true = città/regione: si traduce nei titoli ma non nei nomi delle squadre (es. Luzern resta Luzern).",
+ "paesi": [
+  {
+   "it": "Indonesia",
+   "di": "d'Indonesia",
+   "nomi": [
+    "Indonesien",
+    "Indonésie",
+    "Indonesia"
+   ]
+  },
+  {
+   "it": "Singapore",
+   "di": "di Singapore",
+   "nomi": [
+    "Singapur",
+    "Singapour",
+    "Singapore"
+   ]
+  },
+  {
+   "it": "Australia",
+   "di": "d'Australia",
+   "nomi": [
+    "Australien",
+    "Australie",
+    "Australia"
+   ]
+  },
+  {
+   "it": "Malesia",
+   "di": "della Malesia",
+   "nomi": [
+    "Malaysia",
+    "Malaisie"
+   ]
+  },
+  {
+   "it": "Thailandia",
+   "di": "di Thailandia",
+   "nomi": [
+    "Thailand",
+    "Thaïlande"
+   ]
+  },
+  {
+   "it": "Giappone",
+   "di": "del Giappone",
+   "nomi": [
+    "Japan",
+    "Japon"
+   ]
+  },
+  {
+   "it": "Cina",
+   "di": "di Cina",
+   "nomi": [
+    "China",
+    "Chine"
+   ]
+  },
+  {
+   "it": "Stati Uniti",
+   "di": "degli Stati Uniti",
+   "nomi": [
+    "USA",
+    "Vereinigte Staaten",
+    "États-Unis",
+    "Etats-Unis",
+    "United States"
+   ]
+  },
+  {
+   "it": "Messico",
+   "di": "del Messico",
+   "nomi": [
+    "Mexiko",
+    "Mexique",
+    "Mexico"
+   ]
+  },
+  {
+   "it": "Brasile",
+   "di": "del Brasile",
+   "nomi": [
+    "Brasilien",
+    "Brésil",
+    "Brazil",
+    "São Paulo"
+   ]
+  },
+  {
+   "it": "Las Vegas",
+   "di": "di Las Vegas",
+   "nomi": [
+    "Las Vegas"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Qatar",
+   "di": "del Qatar",
+   "nomi": [
+    "Katar",
+    "Qatar"
+   ]
+  },
+  {
+   "it": "Abu Dhabi",
+   "di": "di Abu Dhabi",
+   "nomi": [
+    "Abu Dhabi"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Portogallo",
+   "di": "del Portogallo",
+   "nomi": [
+    "Portugal"
+   ]
+  },
+  {
+   "it": "Valencia",
+   "di": "di Valencia",
+   "nomi": [
+    "Valencia",
+    "Valence"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Svizzera",
+   "di": "di Svizzera",
+   "nomi": [
+    "Schweiz",
+    "Suisse",
+    "Switzerland"
+   ]
+  },
+  {
+   "it": "Germania",
+   "di": "di Germania",
+   "nomi": [
+    "Deutschland",
+    "Allemagne",
+    "Germany"
+   ]
+  },
+  {
+   "it": "Austria",
+   "di": "d'Austria",
+   "nomi": [
+    "Österreich",
+    "Autriche"
+   ]
+  },
+  {
+   "it": "Francia",
+   "di": "di Francia",
+   "nomi": [
+    "Frankreich",
+    "France"
+   ]
+  },
+  {
+   "it": "Italia",
+   "di": "d'Italia",
+   "nomi": [
+    "Italien",
+    "Italie",
+    "Italy"
+   ]
+  },
+  {
+   "it": "Spagna",
+   "di": "di Spagna",
+   "nomi": [
+    "Spanien",
+    "Espagne",
+    "Spain"
+   ]
+  },
+  {
+   "it": "Inghilterra",
+   "di": "d'Inghilterra",
+   "nomi": [
+    "England",
+    "Angleterre"
+   ]
+  },
+  {
+   "it": "Olanda",
+   "di": "d'Olanda",
+   "nomi": [
+    "Niederlande",
+    "Pays-Bas",
+    "Netherlands"
+   ]
+  },
+  {
+   "it": "Belgio",
+   "di": "del Belgio",
+   "nomi": [
+    "Belgien",
+    "Belgique"
+   ]
+  },
+  {
+   "it": "Svezia",
+   "di": "di Svezia",
+   "nomi": [
+    "Schweden",
+    "Suède",
+    "Sweden"
+   ]
+  },
+  {
+   "it": "Norvegia",
+   "di": "di Norvegia",
+   "nomi": [
+    "Norwegen",
+    "Norvège",
+    "Norway"
+   ]
+  },
+  {
+   "it": "Finlandia",
+   "di": "di Finlandia",
+   "nomi": [
+    "Finnland",
+    "Finlande",
+    "Finland"
+   ]
+  },
+  {
+   "it": "Danimarca",
+   "di": "di Danimarca",
+   "nomi": [
+    "Dänemark",
+    "Danemark",
+    "Denmark"
+   ]
+  },
+  {
+   "it": "Repubblica Ceca",
+   "di": "della Repubblica Ceca",
+   "nomi": [
+    "Tschechien",
+    "Tchéquie",
+    "Czechia"
+   ]
+  },
+  {
+   "it": "Polonia",
+   "di": "di Polonia",
+   "nomi": [
+    "Polen",
+    "Pologne",
+    "Poland"
+   ]
+  },
+  {
+   "it": "Ungheria",
+   "di": "d'Ungheria",
+   "nomi": [
+    "Ungarn",
+    "Hongrie",
+    "Hungary"
+   ]
+  },
+  {
+   "it": "Croazia",
+   "di": "di Croazia",
+   "nomi": [
+    "Kroatien",
+    "Croatie",
+    "Croatia"
+   ]
+  },
+  {
+   "it": "Serbia",
+   "di": "di Serbia",
+   "nomi": [
+    "Serbien",
+    "Serbie"
+   ]
+  },
+  {
+   "it": "Grecia",
+   "di": "di Grecia",
+   "nomi": [
+    "Griechenland",
+    "Grèce",
+    "Greece"
+   ]
+  },
+  {
+   "it": "Turchia",
+   "di": "di Turchia",
+   "nomi": [
+    "Türkei",
+    "Turquie",
+    "Turkey"
+   ]
+  },
+  {
+   "it": "Israele",
+   "di": "d'Israele",
+   "nomi": [
+    "Israel",
+    "Israël"
+   ]
+  },
+  {
+   "it": "Kosovo",
+   "di": "del Kosovo",
+   "nomi": [
+    "Kosovo"
+   ]
+  },
+  {
+   "it": "Slovenia",
+   "di": "di Slovenia",
+   "nomi": [
+    "Slowenien",
+    "Slovénie"
+   ]
+  },
+  {
+   "it": "Slovacchia",
+   "di": "di Slovacchia",
+   "nomi": [
+    "Slowakei",
+    "Slovaquie"
+   ]
+  },
+  {
+   "it": "Scozia",
+   "di": "di Scozia",
+   "nomi": [
+    "Schottland",
+    "Écosse",
+    "Scotland"
+   ]
+  },
+  {
+   "it": "Galles",
+   "di": "del Galles",
+   "nomi": [
+    "Wales",
+    "Pays de Galles"
+   ]
+  },
+  {
+   "it": "Irlanda",
+   "di": "d'Irlanda",
+   "nomi": [
+    "Irland",
+    "Irlande",
+    "Ireland"
+   ]
+  },
+  {
+   "it": "Canada",
+   "di": "del Canada",
+   "nomi": [
+    "Kanada"
+   ]
+  },
+  {
+   "it": "Argentina",
+   "di": "d'Argentina",
+   "nomi": [
+    "Argentinien",
+    "Argentine"
+   ]
+  },
+  {
+   "it": "Azerbaigian",
+   "di": "dell'Azerbaigian",
+   "nomi": [
+    "Aserbaidschan",
+    "Azerbaïdjan",
+    "Azerbaijan"
+   ]
+  },
+  {
+   "it": "Arabia Saudita",
+   "di": "dell'Arabia Saudita",
+   "nomi": [
+    "Saudi-Arabien",
+    "Arabie saoudite",
+    "Saudi Arabia"
+   ]
+  },
+  {
+   "it": "Emilia-Romagna",
+   "di": "dell'Emilia-Romagna",
+   "nomi": [
+    "Emilia-Romagna"
+   ],
+   "citta": true
+  },
+  {
+   "it": "San Marino",
+   "di": "di San Marino",
+   "nomi": [
+    "San Marino",
+    "Saint-Marin"
+   ]
+  },
+  {
+   "it": "Shanghai",
+   "di": "di Shanghai",
+   "nomi": [
+    "Schanghai"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Monaco di Baviera",
+   "di": "di Monaco di Baviera",
+   "nomi": [
+    "München"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Basilea",
+   "di": "di Basilea",
+   "nomi": [
+    "Basel",
+    "Bâle"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Ginevra",
+   "di": "di Ginevra",
+   "nomi": [
+    "Genf",
+    "Genève"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Zurigo",
+   "di": "di Zurigo",
+   "nomi": [
+    "Zürich"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Berna",
+   "di": "di Berna",
+   "nomi": [
+    "Bern",
+    "Berne"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Lucerna",
+   "di": "di Lucerna",
+   "nomi": [
+    "Luzern",
+    "Lucerne"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Francoforte sul Meno",
+   "di": "di Francoforte sul Meno",
+   "nomi": [
+    "Frankfurt am Main"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Lipsia",
+   "di": "di Lipsia",
+   "nomi": [
+    "Leipzig"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Colonia",
+   "di": "di Colonia",
+   "nomi": [
+    "Köln"
+   ],
+   "citta": true
+  },
+  {
+   "it": "Lombardia",
+   "di": "di Lombardia",
+   "nomi": [
+    "Lombardei"
+   ],
+   "citta": true
+  }
+ ],
+ "frasi": [
+  [
+   "Box-Abend",
+   "Serata di boxe"
+  ],
+  [
+   "Boxabend",
+   "Serata di boxe"
+  ],
+  [
+   "soirée de boxe",
+   "serata di boxe"
+  ],
+  [
+   "Tanz-WM",
+   "Mondiali di danza sportiva"
+  ],
+  [
+   "Tanz-EM",
+   "Europei di danza sportiva"
+  ],
+  [
+   "Bahn-WM",
+   "Mondiali su pista"
+  ],
+  [
+   "Bahn-EM",
+   "Europei su pista"
+  ],
+  [
+   "Rad-WM",
+   "Mondiali di ciclismo"
+  ],
+  [
+   "Ski-WM",
+   "Mondiali di sci"
+  ],
+  [
+   "Turn-WM",
+   "Mondiali di ginnastica"
+  ],
+  [
+   "Eishockey-WM",
+   "Mondiali di hockey su ghiaccio"
+  ],
+  [
+   "Leichtathletik-WM",
+   "Mondiali di atletica"
+  ],
+  [
+   "Leichtathletik-EM",
+   "Europei di atletica"
+  ],
+  [
+   "Schwimm-WM",
+   "Mondiali di nuoto"
+  ],
+  [
+   "Lombardei-Rundfahrt",
+   "Giro di Lombardia"
+  ],
+  [
+   "Tour de Romandie",
+   "Giro di Romandia"
+  ],
+  [
+   "Tour de Suisse",
+   "Giro di Svizzera"
+  ],
+  [
+   "Sommer-Biathlon",
+   "biathlon estivo"
+  ],
+  [
+   "Frankfurt-Marathon",
+   "Maratona di Francoforte"
+  ],
+  [
+   "Berlin-Marathon",
+   "Maratona di Berlino"
+  ],
+  [
+   "Coupe du monde",
+   "Coppa del Mondo"
+  ],
+  [
+   "Championnats du monde",
+   "Mondiali"
+  ],
+  [
+   "Championnat du monde",
+   "Mondiali"
+  ],
+  [
+   "Championnats d'Europe",
+   "Europei"
+  ],
+  [
+   "Championnat d'Europe",
+   "Europei"
+  ],
+  [
+   "Coupe de Suisse",
+   "Coppa Svizzera"
+  ],
+  [
+   "Schweizer Cup",
+   "Coppa Svizzera"
+  ],
+  [
+   "Super League",
+   "Super League"
+  ],
+  [
+   "Champions League",
+   "Champions League"
+  ],
+  [
+   "Conference League",
+   "Conference League"
+  ],
+  [
+   "Europa League",
+   "Europa League"
+  ],
+  [
+   "WM-Qualifikation",
+   "qualificazioni ai Mondiali"
+  ],
+  [
+   "EM-Qualifikation",
+   "qualificazioni agli Europei"
+  ],
+  [
+   "Weltmeisterschaft",
+   "Mondiali"
+  ],
+  [
+   "Europameisterschaft",
+   "Europei"
+  ],
+  [
+   "Weltcup",
+   "Coppa del Mondo"
+  ],
+  [
+   "re:Großer Preis",
+   "Gran Premio"
+  ],
+  [
+   "Grand Prix",
+   "Gran Premio"
+  ],
+  [
+   "Riesenslalom",
+   "slalom gigante"
+  ],
+  [
+   "Slalom géant",
+   "slalom gigante"
+  ],
+  [
+   "Abfahrt",
+   "discesa libera"
+  ],
+  [
+   "Descente",
+   "discesa libera"
+  ],
+  [
+   "Super-G",
+   "superG"
+  ],
+  [
+   "Kombination",
+   "combinata"
+  ],
+  [
+   "Massenstart",
+   "partenza in linea"
+  ],
+  [
+   "Verfolgung",
+   "inseguimento"
+  ],
+  [
+   "Einzel",
+   "individuale"
+  ],
+  [
+   "Staffel",
+   "staffetta"
+  ],
+  [
+   "Sprint",
+   "sprint"
+  ],
+  [
+   "Teamfinal",
+   "finale a squadre"
+  ],
+  [
+   "Finale par équipes",
+   "finale a squadre"
+  ],
+  [
+   "Mehrkampf",
+   "concorso generale"
+  ],
+  [
+   "Concours général",
+   "concorso generale"
+  ],
+  [
+   "Gerätefinals",
+   "finali di specialità"
+  ],
+  [
+   "Gerätefinal",
+   "finale di specialità"
+  ],
+  [
+   "Mannschaft",
+   "squadra"
+  ],
+  [
+   "Viertelfinale",
+   "quarti di finale"
+  ],
+  [
+   "Viertelfinal",
+   "quarti di finale"
+  ],
+  [
+   "Halbfinale",
+   "semifinale"
+  ],
+  [
+   "Halbfinal",
+   "semifinale"
+  ],
+  [
+   "Achtelfinale",
+   "ottavi di finale"
+  ],
+  [
+   "Achtelfinal",
+   "ottavi di finale"
+  ],
+  [
+   "1/4 de finale",
+   "quarti di finale"
+  ],
+  [
+   "1/2 finales",
+   "semifinali"
+  ],
+  [
+   "1/2 finale",
+   "semifinale"
+  ],
+  [
+   "1/8 de finale",
+   "ottavi di finale"
+  ],
+  [
+   "demi-finale",
+   "semifinale"
+  ],
+  [
+   "Finale",
+   "finale"
+  ],
+  [
+   "Final",
+   "finale"
+  ],
+  [
+   "finales",
+   "finali"
+  ],
+  [
+   "Qualifying",
+   "qualifiche"
+  ],
+  [
+   "Qualifikation",
+   "qualificazione"
+  ],
+  [
+   "Qualifications",
+   "qualifiche"
+  ],
+  [
+   "Training",
+   "prove libere"
+  ],
+  [
+   "Rennen",
+   "gara"
+  ],
+  [
+   "course",
+   "gara"
+  ],
+  [
+   "Lauf",
+   "manche"
+  ],
+  [
+   "manche",
+   "manche"
+  ],
+  [
+   "Spieltag",
+   "giornata"
+  ],
+  [
+   "Spiel",
+   "partita"
+  ],
+  [
+   "Ligaphase",
+   "fase campionato"
+  ],
+  [
+   "Playoffs",
+   "playoff"
+  ],
+  [
+   "Rückspiel",
+   "ritorno"
+  ],
+  [
+   "Hinspiel",
+   "andata"
+  ],
+  [
+   "re:(\\d+)\\.\\s*Runde",
+   "\\1° turno"
+  ],
+  [
+   "Runde",
+   "turno"
+  ],
+  [
+   "re:(\\d+)e tour",
+   "\\1° turno"
+  ],
+  [
+   "tour",
+   "turno"
+  ],
+  [
+   "re:(\\d+)\\.\\s*Tag",
+   "\\1ª giornata"
+  ],
+  [
+   "Tag",
+   "giornata"
+  ],
+  [
+   "Etappe",
+   "tappa"
+  ],
+  [
+   "étape",
+   "tappa"
+  ],
+  [
+   "Rundfahrt",
+   "giro"
+  ],
+  [
+   "Marathon",
+   "maratona"
+  ],
+  [
+   "Kämpfe",
+   "incontri"
+  ],
+  [
+   "der Frauen",
+   "femminile"
+  ],
+  [
+   "der Männer",
+   "maschile"
+  ],
+  [
+   "Frauen",
+   "femminile"
+  ],
+  [
+   "Männer",
+   "maschile"
+  ],
+  [
+   "Damen",
+   "femminile"
+  ],
+  [
+   "Herren",
+   "maschile"
+  ],
+  [
+   "Dames",
+   "femminile"
+  ],
+  [
+   "Messieurs",
+   "maschile"
+  ],
+  [
+   "Hommes",
+   "maschile"
+  ],
+  [
+   "Femmes",
+   "femminile"
+  ],
+  [
+   "Boxen",
+   "boxe"
+  ],
+  [
+   "Box",
+   "boxe"
+  ],
+  [
+   "Tanz",
+   "danza sportiva"
+  ],
+  [
+   "Tennis",
+   "tennis"
+  ],
+  [
+   "Eishockey",
+   "hockey su ghiaccio"
+  ],
+  [
+   "Hockey sur glace",
+   "hockey su ghiaccio"
+  ],
+  [
+   "Kunstturnen",
+   "ginnastica artistica"
+  ],
+  [
+   "Gymnastique artistique",
+   "ginnastica artistica"
+  ],
+  [
+   "Leichtathletik",
+   "atletica"
+  ],
+  [
+   "Schwimmen",
+   "nuoto"
+  ],
+  [
+   "Radsport",
+   "ciclismo"
+  ],
+  [
+   "Rad",
+   "ciclismo"
+  ],
+  [
+   "Ski Alpin",
+   "sci alpino"
+  ],
+  [
+   "Ski alpin",
+   "sci alpino"
+  ],
+  [
+   "Langlauf",
+   "sci di fondo"
+  ],
+  [
+   "Skispringen",
+   "salto con gli sci"
+  ],
+  [
+   "Fussball",
+   "calcio"
+  ],
+  [
+   "Fußball",
+   "calcio"
+  ],
+  [
+   "Handball",
+   "pallamano"
+  ],
+  [
+   "Basketball",
+   "basket"
+  ],
+  [
+   "Volleyball",
+   "pallavolo"
+  ],
+  [
+   "Formel 1",
+   "Formula 1"
+  ],
+  [
+   "Formule 1",
+   "Formula 1"
+  ],
+  [
+   "Motorrad",
+   "motociclismo"
+  ],
+  [
+   "Cérémonie d'ouverture",
+   "cerimonia d'apertura"
+  ],
+  [
+   "Länderspiel",
+   "partita della nazionale"
+  ],
+  [
+   "Testspiel",
+   "amichevole"
+  ],
+  [
+   "Freundschaftsspiel",
+   "amichevole"
+  ],
+  [
+   "match amical",
+   "amichevole"
+  ],
+  [
+   "re:\\bmit (de[mnr]|die|das)\\b",
+   "con"
+  ],
+  [
+   "mit",
+   "con"
+  ],
+  [
+   "und",
+   "e"
+  ],
+  [
+   "gegen",
+   "contro"
+  ],
+  [
+   "contre",
+   "contro"
+  ],
+  [
+   "vs\\.?",
+   "contro"
+  ],
+  [
+   "re:\\bin der\\b",
+   "nella"
+  ],
+  [
+   "re:\\bim\\b",
+   "nel"
+  ],
+  [
+   "in",
+   "a"
+  ],
+  [
+   "à",
+   "a"
+  ],
+  [
+   "aus",
+   "da"
+  ],
+  [
+   "vom",
+   "del"
+  ],
+  [
+   "von",
+   "di"
+  ],
+  [
+   "bei",
+   "a"
+  ],
+  [
+   "re:\\bde la\\b",
+   "della"
+  ],
+  [
+   "du",
+   "del"
+  ],
+  [
+   "des",
+   "dei"
+  ],
+  [
+   "de",
+   "di"
+  ],
+  [
+   "d'",
+   "di "
+  ],
+  [
+   "et",
+   "e"
+  ],
+  [
+   "le",
+   ""
+  ],
+  [
+   "la",
+   "la"
+  ],
+  [
+   "les",
+   ""
+  ],
+  [
+   "re:^(Die|Der|Das)\\b",
+   ""
+  ],
+  [
+   "der",
+   "del"
+  ],
+  [
+   "die",
+   ""
+  ],
+  [
+   "das",
+   ""
+  ],
+  [
+   "den",
+   ""
+  ],
+  [
+   "the",
+   ""
+  ],
+  [
+   "and",
+   "e"
+  ],
+  [
+   "of",
+   "di"
+  ],
+  [
+   "World Cup",
+   "Coppa del Mondo"
+  ],
+  [
+   "re:\\bWM\\b",
+   "Mondiali"
+  ],
+  [
+   "re:\\bEM\\b",
+   "Europei"
+  ]
+ ],
+ "parole_italiane": [
+  "e",
+  "di",
+  "a",
+  "da",
+  "con",
+  "contro",
+  "del",
+  "della",
+  "dei",
+  "nel",
+  "nella",
+  "su",
+  "gara",
+  "GP",
+  "MotoGP",
+  "Moto2",
+  "Moto3",
+  "Moto",
+  "sprint",
+  "superG"
+ ]
+}

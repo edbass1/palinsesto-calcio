@@ -463,6 +463,59 @@ def test_altri_sport():
     return altri, calcio
 
 
+def test_traduzioni():
+    """Titoli tedeschi/francesi -> italiano con il glossario; originale mostrato se la traduzione è parziale."""
+    import traduci as Tr
+    casi = {"Box-Abend mit Artur Reis und Julian Vogel": "Serata di boxe con Artur Reis e Julian Vogel",
+            "Die Tanz-WM 2026": "Mondiali di danza sportiva 2026", "GP Indonesien, MotoGP": "GP d'Indonesia, MotoGP",
+            "GP d'Indonésie MotoGP": "GP d'Indonesia MotoGP", "GP de Singapour": "GP di Singapore",
+            "Großer Preis von Mexiko": "Gran Premio del Messico",
+            "Riesenslalom in Sölden - 1. Lauf der Frauen": "Slalom gigante a Sölden - 1. manche femminile",
+            "Weltcup in Sölden, Riesenslalom, Männer": "Coppa del Mondo a Sölden, slalom gigante, maschile",
+            "Bahn-WM in Schanghai, 1. Tag": "Mondiali su pista a Shanghai, 1ª giornata",
+            "Swiss Indoors in Basel, Viertelfinal": "Swiss Indoors a Basilea, quarti di finale",
+            "Finlande - Suisse": "Finlandia - Svizzera", "Lombardei-Rundfahrt": "Giro di Lombardia",
+            "Coupe du monde, Slalom géant Dames": "Coppa del Mondo, slalom gigante femminile",
+            "Der Marathon in Frankfurt am Main": "Maratona a Francoforte sul Meno",
+            "Promitheas Patras gegen Gladiators Trier": "Promitheas Patras contro Gladiators Trier"}
+    for de, it in casi.items():
+        assert Tr.traduci(de) == (it, True), (de, Tr.traduci(de))
+    assert Tr.traduci("Weltcup-Auftakt mit Überraschungen")[1] is False  # parziale -> si mostra l'originale
+    assert Tr.nazione("Schweiz") == "Svizzera" and Tr.nazione("Luzern") == "Luzern"
+    ev = {"titolo": "Box-Abend mit Artur Reis und Julian Vogel", "titolo_originale": "Weltcup-Auftakt", "ts": 1791650000, "fine": 1791660000,
+          "sport": "Boxe", "lingua": "de", "emittenti": [{"nome": "ARD Das Erste", "pagina": "https://x", "link": "https://y", "vpn": "GERMANIA"}]}
+    v, _, _ = p.finestra(dt.datetime(2026, 10, 10, 15, 0, tzinfo=p.ROMA))
+    h = p.genera_html(v, dt.datetime(2026, 10, 10, 15, 0, tzinfo=p.ROMA), [], [], [], [], [ev])
+    assert '<span class="orig" lang="de">Weltcup-Auftakt</span>' in h
+
+
+def test_dazn_altri():
+    """DAZN Italia: eventi gratis di altri sport (no calcio, no a pagamento) nella sezione ALTRI SPORT."""
+    import gzip
+    import altri_sport as A
+    import dazn as D
+    tiles = json.loads(gzip.open(QUI / "fixtures_dazn_altri_2026-10-10" / "tiles_it.json.gz").read())
+    ev = D.analizza_altri(tiles)
+    assert ev and all(e["sport"] != "Calcio" and e["emittenti"][0]["dazn_gratis"] for e in ev)
+    assert not any((t.get("Sport") or {}).get("Id") == D.CALCIO for t in tiles if f'dazn:{t.get("EventId")}' in {e["id"] for e in ev})
+    titoli = [e["titolo"] for e in ev]
+    assert "WBSC Premier12, Spagna - Italia" in titoli and "Porsche Carrera Cup Germany, Hockenheimring - Race 2" in titoli, titoli
+    pagati = {f'dazn:{t.get("EventId")}' for t in tiles if not D.gratis(t)}
+    assert not pagati & {e["id"] for e in ev}
+    ora = dt.datetime(2026, 10, 10, 22, 0, tzinfo=p.ROMA)
+    _, ini, fine = p.finestra(ora)
+    A.json_url = finto_json
+    altri, _, avv = A.raccogli_altri(ini, fine, ora, U.regex_femminile(CONF_LOS["escludi_competizioni"]),
+                                     scarica_dazn_fn=lambda: (ev, None))
+    assert avv == [] and sum(1 for e in altri if e["emittenti"][0]["nome"] == "DAZN Italia") > 10
+    h = p.genera_html(*p.finestra(ora)[:1], ora, [], [], [], [], altri)
+    assert 'DAZN Italia</a> <span class="tag dz">DAZN GRATIS</span>' in h
+    _, _, avv = A.raccogli_altri(ini, fine, ora, U.regex_femminile(CONF_LOS["escludi_competizioni"]),
+                                 scarica_dazn_fn=lambda: ([], "HTTP Error 403"))
+    assert avv == ["Altri sport: non raggiungibile DAZN Italia"], avv
+    return ev
+
+
 def test_programmi():
     """ALTRI SPORT e calcio in streaming: solo dirette di gare, niente magazine/studio/highlights."""
     import altri_sport as A
@@ -613,6 +666,8 @@ if __name__ == "__main__":
     tb = test_teleboy(); print(f"Teleboy ({tb.n} canali): OK")
     sd = test_dazn(); print(f"DAZN: gratis {sd['dazn']}, unite {len(sd['uniti_dazn'])}, solo DAZN {sd['solo_dazn']} – OK")
     sf = test_femminile(); print(f"femminile: {len(sf['femminili_tolte'])} partite escluse nei dati salvati – OK")
+    test_traduzioni(); print("traduzioni titoli: OK")
+    da = test_dazn_altri(); print(f"DAZN Italia altri sport gratis: {len(da)} eventi – OK")
     pr = test_programmi(); print(f"programmi sportivi tolti nei dati salvati: {len(pr)} – OK")
     al, ca = test_altri_sport(); print(f"altri sport: {len(al)} eventi, calcio in streaming {len(ca)} – OK")
     print(f"DAZN (rail-router): {test_dazn_rail()} – OK")

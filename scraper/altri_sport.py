@@ -7,6 +7,8 @@ import re
 from pathlib import Path
 import time
 import urllib.request
+
+import traduci
 from zoneinfo import ZoneInfo
 
 ROMA = ZoneInfo("Europe/Rome")
@@ -111,6 +113,7 @@ def analizza_srg(bu, media, solo_sport=True):
         evento = bool(m.get("cesimId")) or ":swisstxt:" in (m.get("urn") or "")
         out.append({"id": f"swisstxt:{idx}", "ts": inizio, "fine": fine, "sport": sport or "Sport", "titolo": resto,
                     "titolo_orig": m.get("title") or "", "titolo_src": m.get("title") or "", "evento": evento,
+                    "lingua": {"srf": "de", "rts": "fr", "rsi": "it"}.get(bu, "de"),
                     "emittenti": [{"nome": SRG[bu], "pagina": PAGINE[SRG[bu]],
                                    "link": f"https://www.{bu}.ch/play/tv/-/video/-?urn=urn:swisstxt:video:{bu}:{idx}",
                                    "vpn": None if m.get("playableAbroad") else "SVIZZERA"}]})
@@ -164,7 +167,7 @@ def analizza_ard(pagina, dettaglio_fn):
                  or sp_sinossi or sport_di(show))
         eventi.append({"id": f"ard:{t['id']}", "ts": x["ts"], "fine": fine, "sport": sport or "Sport", "titolo": titolo,
                        "titolo_orig": f"{titolo} {show} {sinossi}", "titolo_src": titolo,
-                       "descrizione": sinossi, "evento": None,  # ARD: nessun campo che distingua gara e programma
+                       "descrizione": sinossi, "evento": None, "lingua": "de",  # ARD: nessun campo che distingua gara e programma
                        "emittenti": [{"nome": "ARD " + ((t.get("publicationService") or {}).get("name") or "").strip(),
                                       "pagina": PAGINE["ARD"], "link": f"https://www.ardmediathek.de/video/{t['id']}",
                                       "vpn": "GERMANIA"}]})
@@ -270,11 +273,12 @@ def unisci_eventi(eventi):
                 gia["emittenti"].append(x)
         if e["emittenti"][0]["nome"] == "RSI" and e["sport"] != "Calcio":  # titolo in italiano, se c'è
             gia["titolo"] = e["titolo"]
+            gia["lingua"] = "it"
     return uniti
 
 
 def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None, scarica_ard_fn=None,
-                   conf=None, programmi_tolti=None):
+                   conf=None, programmi_tolti=None, scarica_dazn_fn=None):
     """(eventi altri sport, partite di calcio, avvisi). Toglie gli eventi già finiti, i programmi sportivi
     (magazine, highlights, studio...: vedi altri_sport.json) e il calcio femminile.
     programmi_tolti (lista), se data, riceve "Emittente gg/mm hh:mm Titolo – motivo" per ogni programma tolto."""
@@ -291,6 +295,11 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
     if err:
         falliti.append("ARD")
     tutti += ev
+    if scarica_dazn_fn is not None:  # DAZN Italia, eventi gratis (solo sport diversi dal calcio)
+        ev, err = scarica_dazn_fn()
+        if err:
+            falliti.append("DAZN Italia")
+        tutti += [e for e in ev if e["sport"] != "Calcio"]
     tutti = [e for e in tutti if inizio.timestamp() <= e["ts"] < fine.timestamp() and e["fine"] > ora.timestamp()]
     tenuti = []
     for e in tutti:
@@ -302,14 +311,22 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
             programmi_tolti.append(f'{e["emittenti"][0]["nome"]} {quando} {e.get("titolo_src") or e["titolo"]} – {motivo}')
     tutti = tenuti
     altri, calcio = [], []
-    for e in unisci_eventi(tutti):
+    uniti = unisci_eventi(tutti)
+    for e in uniti:  # titoli in italiano (glossario traduzioni.json); l'originale resta se la traduzione è parziale
+        if e.get("lingua", "it") != "it" and e["sport"] != "Calcio":
+            it, completa = traduci.traduci(e["titolo"])
+            if it != e["titolo"]:
+                e["titolo_originale"] = None if completa else e["titolo"]
+                e["titolo"] = it
+    for e in uniti:
         testi = " ".join(e["testi"])
         if e["sport"] == "Calcio":
             if rx_femminile.search(testi) or re.search(r"\bfrauen|\bfemminil|\bféminin|\bwomen", testi, re.I):
                 continue  # niente calcio femminile
             sq = calcio_squadre(e)
             if sq:
-                calcio.append(dict(e, casa=sq[0], ospite=sq[1], comp=sq[2]))
+                casa, ospite = (traduci.nazione(x) for x in sq[:2])  # nazionali: "Schweiz" -> "Svizzera"
+                calcio.append(dict(e, casa=casa, ospite=ospite, comp=sq[2]))
                 continue
         altri.append(e)
     avvisi = [f"Altri sport: non raggiungibile {', '.join(falliti)}"] if falliti else []
