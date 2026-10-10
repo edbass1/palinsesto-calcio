@@ -772,6 +772,62 @@ def test_altri_los_nfl():
     assert 'href="#dv-idman"' in h and "▶ sito" in h, "link canali"
     return altri
 
+def test_youtube():
+    """Dirette di calcio dal canale YouTube di Sporty TV Africa (feed RSS + pagina del video), VPN Brasile."""
+    import gzip
+    import youtube_sporty as Y
+    F = QUI / "fixtures_youtube_2026-10-10"
+    idx = json.loads((F / "indice.json").read_text())
+    rss_url = next(u for u in idx if "feeds/videos.xml" in u)
+    salvate = {u: gzip.open(F / n, "rt").read() for u, n in idx.items()}
+    # titoli veri del 10/10/2026
+    assert Y.analizza_titolo("LIVE | Bolton Wanderers vs Stoke City | EFL Championship | SportyTV")[:2] == ("Bolton Wanderers", "Stoke City")
+    assert Y.analizza_titolo("Barcelona 3-0 Getafe | 26/27 | LaLiga - Game highlights | SportyTV") is None
+    assert Y.analizza_titolo("LIVE | PFL Casablanca | MMA | SportyTV") is None
+    assert Y.analizza_titolo("🔴 AO VIVO: Flamengo x Palmeiras - Brasileirão") == ("Flamengo", "Palmeiras", "Brasileirão")
+    # dati salvati: tutte le dirette di calcio erano già finite -> nessuna partita
+    ini = dt.datetime(2026, 10, 10, tzinfo=p.ROMA); fine = ini + dt.timedelta(days=4)
+    st = {}
+    r, avv = Y.raccogli(ini, fine, ini, scarica_fn=lambda u: (salvate.get(u), None if u in salvate else "404"), stat=st)
+    assert r == [] and avv == [] and len(st["finite"]) == 6 and st["video"] == 15, st
+    # più tre dirette in programma (finte): una già su LiveSoccerTV, una nuova, una femminile
+    finti = {"aaaaaaaaaaa": ("LIVE | Como vs Roma | Serie A | SportyTV", "2026-10-11T10:15:00+00:00"),
+             "bbbbbbbbbbb": ("LIVE | Flamengo vs Palmeiras | Brasileirão | SportyTV", "2026-10-11T19:00:00+00:00"),
+             "ccccccccccc": ("LIVE | Arsenal W vs Chelsea W | WSL | SportyTV", "2026-10-11T12:00:00+00:00")}
+    rss = salvate[rss_url].replace("<entry>", "".join(
+        f"<entry><yt:videoId>{v}</yt:videoId><yt:channelId>x</yt:channelId><title>{t}</title></entry>" for v, (t, _) in finti.items())
+        + "<entry>", 1)
+
+    def finto(u):
+        if u == rss_url:
+            return rss, None
+        m = re.search(r"v=([\w-]{11})", u)
+        if m and m.group(1) in finti:
+            t, ts = finti[m.group(1)]
+            return f'<meta name="title" content="{t}">"liveBroadcastDetails":{{"isLiveNow":false,"startTimestamp":"{ts}"}}', None
+        return salvate.get(u), None if u in salvate else "404"
+    canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
+    p.scarica, L.scarica = finto_lstv, finto_los
+    ini9 = dt.datetime(2026, 10, 9, tzinfo=p.ROMA)
+    st = {}
+    gruppi, falliti, _ = p.raccogli(canali, ini9, ini9 + dt.timedelta(days=4), dict(CONF_LOS, pausa_secondi=0), st,
+                                    conf_youtube={"scarica_fn": finto})
+    tutte = {f'{e["casa"]} - {e["ospite"]}': (g["nome"], e) for g in gruppi for e in g["partite"]}
+    y = st["youtube"]
+    assert y["dirette"] == 3 and y["unite"] == ["Como - Roma"] and y["nuove"] == ["Flamengo - Palmeiras"], y
+    assert any("Arsenal W" in x for x in st["femminili_tolte"])
+    comp, como = tutte["Como - Roma"]
+    k = [c for c in como["canali"] if c["nome"] == "Sporty TV Africa (YouTube)"]
+    assert k and k[0]["diretta"] == "https://www.youtube.com/watch?v=aaaaaaaaaaa" and k[0]["vpn"] == "BRASILE", como["canali"]
+    assert como["ts"] == int(dt.datetime(2026, 10, 11, 12, 30, tzinfo=p.ROMA).timestamp())  # resta l'orario del calcio d'inizio
+    assert tutte["Flamengo - Palmeiras"][0] == "BRASILEIRÃO SERIE A (Brasile)"
+    dove = json.loads((QUI.parent / "dove_vederli.json").read_text())["voci"]
+    h = p.genera_html(ini9.date(), ini9, gruppi, [], [], dove, [])
+    assert 'href="https://www.youtube.com/watch?v=aaaaaaaaaaa"' in h and "VPN BRASILE" in h and "youtube.com/@sportytvafrica" in h
+    sp = next(v for v in dove if v["id"] == "sporty-tv-africa")
+    assert "Nigeria o Ghana" in sp["vpn"] and "Brasile" in sp["vpn"]
+    return y
+
 
 if __name__ == "__main__":
     test_finestra(); print("finestra: OK")
@@ -795,6 +851,7 @@ if __name__ == "__main__":
     al, ca = test_altri_sport(); print(f"altri sport: {len(al)} eventi, calcio in streaming {len(ca)} – OK")
     print(f"DAZN (rail-router): {test_dazn_rail()} – OK")
     print(f"LiveOnSat altri sport + NFL gratis: {len(test_altri_los_nfl())} eventi – OK")
+    y = test_youtube(); print(f"YouTube Sporty TV Africa: unite {y['unite']}, nuove {y['nuove']} – OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"
           f" = {st['totale']} – OK")

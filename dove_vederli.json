@@ -195,12 +195,16 @@
    "canali": [
     "^Sporty ?TV"
    ],
-   "vpn": "Nigeria o Ghana",
-   "note": "C'è l'app per dispositivi Android.",
+   "vpn": "Nigeria o Ghana (sporty.com); Brasile (YouTube)",
+   "note": "C'è l'app per dispositivi Android. Le dirette sul canale YouTube @sportytvafrica si vedono solo con la VPN sul Brasile; su sporty.com vpn su Nigeria o Ghana.",
    "link": [
     {
      "url": "https://sporty.com/football/matches",
      "testo": "Sporty – partite"
+    },
+    {
+     "url": "https://www.youtube.com/@sportytvafrica/streams",
+     "testo": "YouTube – dirette Sporty TV Africa (VPN Brasile)"
     }
    ]
   },

@@ -1,0 +1,58 @@
+{
+ "_nota": "Canali YouTube con dirette di calcio. Si leggono il feed RSS pubblico del canale e la scheda 'Live' (senza chiave API), poi la pagina di ogni video per l'orario d'inizio programmato. Si tengono solo le dirette (in programma o in corso) con due squadre nel titolo ('LIVE | A vs B | Campionato'); highlights, repliche e video normali si saltano. 'salta': parole che escludono un video. 'competizioni': nome nel titolo (espressione regolare) -> etichetta italiana della pagina (stessa delle altre fonti, così le partite finiscono nello stesso gruppo). Se non c'è, il nome resta com'è, in maiuscolo.",
+ "canali": [
+  {
+   "nome": "Sporty TV Africa (YouTube)",
+   "channel_id": "UCwu87p766uwEyzG1p8dEMlg",
+   "handle": "@sportytvafrica",
+   "pagina": "https://www.youtube.com/@sportytvafrica/streams",
+   "vpn": "BRASILE"
+  }
+ ],
+ "salta": [
+  "highlights",
+  "highlight",
+  "melhores momentos",
+  "resumo",
+  "replay",
+  "reprise",
+  "full match",
+  "jogo completo",
+  "press conference",
+  "coletiva",
+  "preview",
+  "pré-jogo",
+  "pre-match",
+  "post-match",
+  "pós-jogo",
+  "goals",
+  "gols",
+  "best of",
+  "compilation",
+  "trailer",
+  "shorts"
+ ],
+ "competizioni": {
+  "^(EFL )?Championship$": "CHAMPIONSHIP (Inghilterra)",
+  "^(Primeira Liga|Liga Portugal)( Portuguesa)?$": "PRIMEIRA LIGA (Portogallo)",
+  "^Greek Super ?league( 1)?$": "SUPER LEAGUE (Grecia)",
+  "^Saudi Pro League$": "SAUDI PRO LEAGUE (Arabia Saudita)",
+  "^Bundesliga$": "BUNDESLIGA",
+  "^2\\. Bundesliga$": "2. BUNDESLIGA",
+  "^LaLiga( EA Sports)?$": "LALIGA",
+  "^Ligue 1$": "LIGUE 1",
+  "^Serie A$": "SERIE A",
+  "^Serie B$": "SERIE B",
+  "^Premier League$": "PREMIER LEAGUE",
+  "^Eredivisie$": "EREDIVISIE (Olanda)",
+  "^(UEFA )?Champions League$": "UEFA CHAMPIONS LEAGUE",
+  "^(UEFA )?Europa League$": "UEFA EUROPA LEAGUE",
+  "^(UEFA )?Conference League$": "UEFA CONFERENCE LEAGUE",
+  "^Brasileir[ãa]o( S[ée]rie A)?$": "BRASILEIRÃO SERIE A (Brasile)",
+  "^(Brasileir[ãa]o )?S[ée]rie B$": "SERIE B BRASILE",
+  "^(Liga Profesional|Primera Divisi[óo]n Argentina)$": "LIGA PROFESIONAL (Argentina)",
+  "^Copa Libertadores$": "COPA LIBERTADORES",
+  "^Copa Sudamericana$": "COPA SUDAMERICANA",
+  "^(International )?Friendl(y|ies)$": "NAZIONALI – AMICHEVOLI"
+ }
+}
