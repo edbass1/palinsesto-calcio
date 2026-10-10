@@ -94,6 +94,18 @@ MESI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", 
 
 # ---------- finestra: oggi + 3 giorni ----------
 GIORNI_FINESTRA = 4
+DURATA_PARTITA_S = 2 * 3600 + 15 * 60  # dopo 2h15m dal calcio d'inizio la partita è considerata finita
+
+
+def togli_finite(gruppi, ora: dt.datetime, durata: int = DURATA_PARTITA_S):
+    """Toglie le partite finite (inizio più di 2h15m fa); restano quelle in corso. Gruppi vuoti eliminati."""
+    limite = ora.timestamp() - durata
+    out = []
+    for g in gruppi:
+        restano = [e for e in g["partite"] if e["ts"] > limite]
+        if restano:
+            out.append({**g, "partite": restano})
+    return out
 
 
 def finestra(ora: dt.datetime, giorni: int = GIORNI_FINESTRA):
@@ -332,8 +344,6 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None):
             orario.append(f'<section class="giorno-sez" data-giorno="{d:%Y-%m-%d}">'
                           f'<h2 class="giorno-h">{GIORNI_LUNGHI[d.weekday()].upper()} {d.day} {MESI[d.month - 1].upper()}</h2>'
                           f'<ol class="partite">{"".join(scheda(e, c) for e, c in del_giorno)}</ol></section>')
-    if not gruppi:
-        sezioni.append('<p class="vuoto">Nessuna partita trovata in questi giorni.</p>')
 
     avvisi = ""
     if falliti:
@@ -356,7 +366,8 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None):
     return TEMPLATE.format(
         periodo=esc(periodo(primo)), aggiornato=esc(aggiornato), n=n_partite,
         bottoni=bottoni, sezioni="\n".join(sezioni), orario="\n".join(orario), avvisi=avvisi, note=note,
-        dove=sezione_dove(dove, usati))
+        dove=sezione_dove(dove, usati), durata=DURATA_PARTITA_S,
+        vuoto_nascosto=' hidden' if gruppi else '')
 
 
 # ---------- "Dove vederli" ----------
@@ -484,8 +495,6 @@ TEMPLATE = """<!doctype html>
   li.partita.in-corso .stato {{ background:var(--verde); color:#000; }}
   li.partita.tra-poco {{ border-color:var(--giallo); }}
   li.partita.tra-poco .stato {{ background:var(--giallo); color:#000; }}
-  li.partita.giocata {{ opacity:.45; }}
-  li.partita.giocata .stato {{ background:#333; color:#fff; }}
   .avviso {{ margin-top:40px; border:3px solid var(--rosso); border-radius:14px; padding:12px 18px; }}
   .avviso h2 {{ background:none; color:var(--rosso); padding:0; }}
   footer {{ margin-top:40px; color:var(--grigio); font-size:.85rem; border-top:2px solid #333; padding-top:16px; }}
@@ -507,7 +516,7 @@ TEMPLATE = """<!doctype html>
 <body>
 <header>
   <h1>⚽ Calcio in TV <span class="h1p">· {periodo}</span></h1>
-  <p class="agg">Aggiornato {aggiornato} · {n} partite · orari italiani</p>
+  <p class="agg">Aggiornato {aggiornato} · <span id="n-partite">{n}</span> partite · orari italiani</p>
   <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese</p>
 </header>
 <nav class="viste" aria-label="Come ordinare le partite">
@@ -522,6 +531,7 @@ TEMPLATE = """<!doctype html>
 <div id="vista-orario" class="vista" hidden>
 {orario}
 </div>
+<p class="vuoto" id="vuoto"{vuoto_nascosto}>Nessuna partita in programma in questi giorni.</p>
 {avvisi}
 {dove}
 </main>
@@ -533,14 +543,35 @@ TEMPLATE = """<!doctype html>
 </footer>
 <script>
 (function () {{
-  var partite = [].slice.call(document.querySelectorAll('li.partita'));
+  var DURATA = {durata};  // secondi dopo il calcio d'inizio oltre i quali la partita sparisce (2h15m)
   var bottoni = [].slice.call(document.querySelectorAll('nav.filtri button'));
-  function filtra(f) {{
-    bottoni.forEach(function (b) {{ b.setAttribute('aria-pressed', b.dataset.filtro === f ? 'true' : 'false'); }});
-    partite.forEach(function (p) {{ p.hidden = !(f === 'tutti' || p.dataset.giorno === f); }});
+  var filtroAttivo = 'tutti';
+  function partite() {{ return [].slice.call(document.querySelectorAll('li.partita')); }}
+  function aggiornaSezioni() {{
     [].forEach.call(document.querySelectorAll('section.comp, section.giorno-sez'), function (s) {{
       s.hidden = !s.querySelector('li.partita:not([hidden])');
     }});
+    // giorni senza più partite: bottone disattivato
+    var restano = {{}};
+    partite().forEach(function (p) {{ restano[p.dataset.giorno] = true; }});
+    bottoni.forEach(function (b) {{
+      if (b.dataset.filtro === 'tutti') return;
+      b.disabled = !restano[b.dataset.filtro];
+      if (b.disabled) b.title = 'Nessuna partita rimasta'; else b.removeAttribute('title');
+    }});
+    var n = document.querySelectorAll('#vista-campionato li.partita').length;
+    var cont = document.getElementById('n-partite');
+    if (cont) cont.textContent = n;
+    var vuoto = document.getElementById('vuoto');
+    if (vuoto) vuoto.hidden = n > 0;
+  }}
+  function filtra(f) {{
+    var b0 = bottoni.filter(function (b) {{ return b.dataset.filtro === f; }})[0];
+    if (!b0 || b0.disabled) f = 'tutti';
+    filtroAttivo = f;
+    bottoni.forEach(function (b) {{ b.setAttribute('aria-pressed', b.dataset.filtro === f ? 'true' : 'false'); }});
+    partite().forEach(function (p) {{ p.hidden = !(f === 'tutti' || p.dataset.giorno === f); }});
+    aggiornaSezioni();
     try {{ sessionStorage.setItem('filtro', f); }} catch (e) {{}}
   }}
   bottoni.forEach(function (b) {{ b.addEventListener('click', function () {{ filtra(b.dataset.filtro); }}); }});
@@ -558,23 +589,24 @@ TEMPLATE = """<!doctype html>
   var scelta = daUrl ? daUrl[1] : null;
   if (!scelta) {{ try {{ scelta = localStorage.getItem('vista'); }} catch (e) {{}} }}
   vista(scelta);
-  // stato: in corso (fino a 2 ore dall'inizio), tra poco (entro 1 ora), già giocata
+  // stato: in corso (fino a 2h15m dall'inizio), tra poco (entro 1 ora); finite -> tolte dalla pagina
   function stato() {{
-    var ora = Date.now() / 1000;
-    partite.forEach(function (p) {{
+    var ora = Date.now() / 1000, tolte = false;
+    partite().forEach(function (p) {{
       var ts = +p.dataset.ts, s = p.querySelector('.stato'), c = '', t = '';
-      if (ora >= ts && ora < ts + 7200) {{ c = 'in-corso'; t = 'IN CORSO'; }}
-      else if (ora < ts && ts - ora <= 3600) {{ c = 'tra-poco'; t = 'TRA ' + Math.max(1, Math.round((ts - ora) / 60)) + ' MIN'; }}
-      else if (ora >= ts + 7200) {{ c = 'giocata'; t = 'GIÀ GIOCATA'; }}
-      p.classList.remove('in-corso', 'tra-poco', 'giocata');
+      if (ora >= ts + DURATA) {{ p.parentNode.removeChild(p); tolte = true; return; }}
+      if (ora >= ts) {{ c = 'in-corso'; t = 'IN CORSO'; }}
+      else if (ts - ora <= 3600) {{ c = 'tra-poco'; t = 'TRA ' + Math.max(1, Math.round((ts - ora) / 60)) + ' MIN'; }}
+      p.classList.remove('in-corso', 'tra-poco');
       if (c) p.classList.add(c);
       s.textContent = t;
     }});
+    if (tolte) filtra(filtroAttivo); else aggiornaSezioni();
   }}
+  stato();
   var salvato = null;
   try {{ salvato = sessionStorage.getItem('filtro'); }} catch (e) {{}}
-  if (salvato && bottoni.some(function (b) {{ return b.dataset.filtro === salvato; }})) filtra(salvato);
-  stato();
+  filtra(salvato || 'tutti');
   setInterval(stato, 60000);
   // ricarica la pagina ogni 30 minuti per prendere gli aggiornamenti
   setTimeout(function () {{ location.reload(); }}, 30 * 60 * 1000);
@@ -606,6 +638,9 @@ def main():
     conf_los = None if a.senza_liveonsat else json.loads(Path(a.liveonsat).read_text(encoding="utf-8"))
     st = {}
     gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st)
+    n_tutte = sum(len(g["partite"]) for g in gruppi)
+    gruppi = togli_finite(gruppi, dt.datetime.now(ROMA))
+    st["finite_tolte"] = n_tutte - sum(len(g["partite"]) for g in gruppi)
 
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -625,7 +660,7 @@ def main():
     n = sum(len(g["partite"]) for g in gruppi)
     print(f"{periodo(primo)}: {n} partite in {len(gruppi)} competizioni; falliti: {len(falliti)}")
     print(f"  LiveSoccerTV: {st['livesoccertv']} · LiveOnSat (con canali in chiaro): {st['liveonsat']} · "
-          f"doppioni uniti: {len(st['uniti'])} · solo LiveOnSat: {st['solo_liveonsat']}")
+          f"doppioni uniti: {len(st['uniti'])} · solo LiveOnSat: {st['solo_liveonsat']} · finite tolte: {st['finite_tolte']}")
     for f in falliti:
         print("  FALLITO:", f)
     # se nessun canale è stato scaricato, esce con errore: così il deploy non sostituisce la pagina buona

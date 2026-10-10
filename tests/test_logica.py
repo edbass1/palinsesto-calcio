@@ -184,6 +184,26 @@ def test_dove():
     assert "Calcio in TV · Sab 10 – Mar 13 ottobre" in h and h.count("data-filtro=") == 5 and "eekend" not in h
 
 
+def test_finite():
+    """Partite finite (inizio > 2h15m fa) tolte lato server; quelle in corso restano; niente 'GIÀ GIOCATA'."""
+    def ev(ts, casa):
+        return {"ts": ts, "quando": dt.datetime.fromtimestamp(ts, p.ROMA), "casa": casa, "ospite": "B",
+                "canali": [{"nome": "Prima Sport 1", "fta": False}]}
+    ora = dt.datetime(2026, 10, 10, 21, 0, tzinfo=p.ROMA)
+    t = int(ora.timestamp())
+    gruppi = [{"nome": "SERIE A", "partite": [ev(t - 3 * 3600, "Finita"), ev(t - 8100 - 60, "Appena finita"),
+                                               ev(t - 8100 + 60, "Ultimi minuti"), ev(t - 1800, "In corso"), ev(t + 1800, "Tra poco")]},
+              {"nome": "SERIE B", "partite": [ev(t - 4 * 3600, "Vecchia")]}]
+    rest = p.togli_finite(gruppi, ora)
+    assert [g["nome"] for g in rest] == ["SERIE A"]
+    assert [e["casa"] for e in rest[0]["partite"]] == ["Ultimi minuti", "In corso", "Tra poco"]
+    h = p.genera_html(ora.date(), ora, rest, [], [])
+    assert "GIÀ GIOCATA" not in h and "giocata" not in h and "var DURATA = 8100;" in h and "removeChild" in h
+    assert h.count('class="partita"') == 2 * 3 and 'id="vuoto" hidden' in h
+    vuota = p.genera_html(ora.date(), ora, [], [], [])
+    assert 'id="vuoto">' in vuota
+
+
 def test_unione():
     """LiveSoccerTV (9/10) + LiveOnSat (10/10), finestra ven 9 – lun 12 ottobre."""
     canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
@@ -233,6 +253,7 @@ if __name__ == "__main__":
     test_orari(); print("LiveOnSat orari/fuso: OK")
     test_dedup(); print("doppioni (nomi/orari): OK")
     test_ordine(); print("ordine competizioni: OK")
+    test_finite(); print("partite finite tolte: OK")
     test_dove(); print("dove vederli: OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"
