@@ -23,7 +23,6 @@ import dazn  # noqa: E402
 import altri_sport  # noqa: E402
 import epg_teleboy  # noqa: E402
 import altri_los  # noqa: E402
-import youtube_sporty  # noqa: E402
 
 ROMA = ZoneInfo("Europe/Rome")
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -296,23 +295,8 @@ def ordine_di(etichetta):
     return 80
 
 
-def evento_youtube(p, c=None):
-    """Diretta YouTube (es. Sporty TV Africa) -> evento calcio, con link al video e VPN."""
-    c = c if c is not None else youtube_sporty.conf()
-    etichetta = next((e for rx, e in c.get("competizioni", {}).items() if re.search(rx, p["comp"] or "", re.I)), None)
-    if etichetta is None:
-        ordine, etichetta = liveonsat.competizione_los(p["comp"]) if p["comp"] else (80, "ALTRE PARTITE")
-    else:
-        ordine = ordine_di(etichetta)
-    casa, ospite = SQUADRE.get(p["casa"], p["casa"]), SQUADRE.get(p["ospite"], p["ospite"])
-    return {"ts": p["ts"], "quando": dt.datetime.fromtimestamp(p["ts"], ROMA), "titolo": f"{casa} v {ospite}",
-            "ordine": ordine, "competizione": etichetta, "casa": casa, "ospite": ospite,
-            "canali": [{"nome": p["canale"], "fta": True, "url": p["pagina"], "diretta": p["video"], "vpn": p.get("vpn")}],
-            "fonti": ["YouTube"]}
-
-
 def unisci_stream(eventi, partite, converti=None, fonte="Streaming"):
-    """Dirette streaming (SRG/ARD/YouTube): se la partita c'è già si aggiunge il canale, altrimenti si aggiunge la partita."""
+    """Dirette streaming (SRG/ARD): se la partita c'è già si aggiunge il canale, altrimenti si aggiunge la partita."""
     uniti = []
     for p in partite:
         nuovo = (converti or evento_stream)(p)
@@ -373,8 +357,7 @@ def raggruppa(eventi):
             for (o, nome) in sorted(gruppi)]
 
 
-def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None, conf_dazn=None, conf_altri=None,
-             conf_youtube=None):
+def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None, conf_dazn=None, conf_altri=None):
     """Raccoglie da LiveSoccerTV e (se conf_los) da LiveOnSat, unisce e raggruppa per competizione."""
     eventi, falliti, senza = raccogli_lstv(canali, inizio, fine)
     # calcio femminile e calcio USA (MLS, USL, NWSL...) esclusi da tutte le fonti (liveonsat.json -> escludi_competizioni)
@@ -428,16 +411,6 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         st["altri_sport"] = altri
         eventi, st["uniti_stream"] = unisci_stream(eventi, calcio_stream)
         st["calcio_stream"] = len(calcio_stream)
-    if conf_youtube is not None:
-        # dirette di calcio dai canali YouTube (youtube.json); stesse esclusioni (femminile, calcio USA...)
-        sty = st.setdefault("youtube", {})
-        yt, avv = youtube_sporty.raccogli(inizio, fine, conf_youtube.get("ora") or dt.datetime.now(ROMA),
-                                          conf_youtube.get("conf"), conf_youtube.get("scarica_fn"), sty)
-        falliti += avv
-        yt = [x for x in yt if not fem(x["comp"], (x["casa"], x["ospite"]), f'{x["casa"]} - {x["ospite"]} [{x["comp"]}] (YouTube)')]
-        prima = len(eventi)
-        eventi, sty["unite"] = unisci_stream(eventi, yt, lambda p: evento_youtube(p, conf_youtube.get("conf")), "YouTube")
-        sty["nuove"] = [f'{e["casa"]} - {e["ospite"]}' for e in eventi[prima:]]
     # esclusioni permanenti (liveonsat.json -> escludi_canali) applicate a tutte le fonti
     escludi = ["dazn"] + [x.lower() for x in (conf_los or {}).get("escludi_canali", []) if x]
     mai = [x.lower() for x in (conf_los or {}).get("mai_escludere", ["idman"]) if x]
@@ -1095,7 +1068,6 @@ def main():
     ap.add_argument("--teleboy-offline", action="store_true", help="non rilegge la pagina Teleboy, usa solo la copia")
     ap.add_argument("--senza-dazn", action="store_true", help="non legge la guida DAZN")
     ap.add_argument("--senza-altri-sport", action="store_true", help="non legge SRF/RTS/RSI/ARD")
-    ap.add_argument("--senza-youtube", action="store_true", help="non legge i canali YouTube (youtube.json)")
     ap.add_argument("--out", default=str(RADICE / "site"))
     ap.add_argument("--ora", help="data/ora di riferimento ISO (per test), es. 2026-10-10T18:00+02:00")
     ap.add_argument("--json", action="store_true", help="scrive anche palinsesto.json")
@@ -1116,8 +1088,7 @@ def main():
         print(f"Teleboy: {tb.n} canali gratuiti ({tb.fonte})")
     conf_dazn = None if a.senza_dazn else {"file_esterno": str(RADICE / "dati" / "dazn.json")}
     conf_altri = None if a.senza_altri_sport else {}
-    conf_yt = None if a.senza_youtube else {}
-    gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st, tb, conf_dazn, conf_altri, conf_yt)
+    gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st, tb, conf_dazn, conf_altri)
     n_tutte = sum(len(g["partite"]) for g in gruppi)
     gruppi = togli_finite(gruppi, dt.datetime.now(ROMA))
     st["finite_tolte"] = n_tutte - sum(len(g["partite"]) for g in gruppi)
@@ -1146,15 +1117,6 @@ def main():
               f"· solo DAZN: {st['solo_dazn']}")
         for r in st["dazn_dettagli"]:
             print("  ", r)
-    if st.get("youtube"):
-        y = st["youtube"]
-        print(f"  YouTube: {y.get('video', 0)} video letti · {y.get('dirette', 0)} dirette di calcio in programma/in corso"
-              f" · unite a partite già presenti: {len(y.get('unite', []))} · nuove: {len(y.get('nuove', []))}"
-              f" · dirette già finite saltate: {len(y.get('finite', []))}")
-        for x in y.get("nuove", []):
-            print("    nuova da YouTube:", x)
-        for x in y.get("unite", []):
-            print("    YouTube aggiunto a:", x)
     if "calcio_stream" in st:
         if st.get("altri_los"):
             print(f"  LiveOnSat altri sport: {st['altri_los']}")
