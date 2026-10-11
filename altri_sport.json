@@ -209,7 +209,9 @@
    "Arte.Deutsch.ch": "Arte de",
    "Arte.Français.ch": "Arte fr",
    "BBC.Three./.CBBC.ch": "BBC Three",
-   "Rai.Sport.+.ch": "Rai Sport 1"
+   "Rai.Sport.+.ch": "Rai Sport 1",
+   "blue.Zoom.D.ch": "blue Zoom de",
+   "blue.Zoom.F.ch": "blue Zoom fr"
   },
   "canali_sport": [
    "supertennis",
@@ -291,7 +293,11 @@
     }
    }
   ],
-  "_nota_altre_guide": "Guide XMLTV di canali gratuiti che NON sono su Teleboy (es. VTM in Belgio, guida epgshare01 BE2): stesse regole di diretta/replica; 'canali' = id nella guida -> nome mostrato; 'squadre_da_desc' prende 'A - B' dalla descrizione quando il titolo è solo 'Live: UEFA Champions League'. Se la guida non si scarica: solo log."
+  "_nota_altre_guide": "Guide XMLTV di canali gratuiti che NON sono su Teleboy (es. VTM in Belgio, guida epgshare01 BE2): stesse regole di diretta/replica; 'canali' = id nella guida -> nome mostrato; 'squadre_da_desc' prende 'A - B' dalla descrizione quando il titolo è solo 'Live: UEFA Champions League'. Se la guida non si scarica: solo log.",
+  "_nota_canali_live_solo_titolo": "Canali con frasi promozionali tipo 'en direct sur blue Zoom' in tutte le descrizioni (anche nelle repliche notturne): 'live/diretta' conta solo nel titolo/sottotitolo, oppure serve il segno di prima visione.",
+  "canali_live_solo_titolo": [
+   "^blue zoom"
+  ]
  },
  "euroleague_tv": {
   "_nota": "Partite di EuroLeague ed EuroCup trasmesse dai canali qui sotto, lette dalle pagine ufficiali «TV Listings» (canali per partita); l'orario viene dal calendario ufficiale. Chiave = nome del canale come scritto sulla pagina (maiuscolo); 'nome' e 'vpn' = come appare sulle schede. Si possono aggiungere canali (es. 'RTSH SPORT').",

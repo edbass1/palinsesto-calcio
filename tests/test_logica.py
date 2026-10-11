@@ -1181,3 +1181,89 @@ def test_vtm_trt():
 
 
 test_vtm_trt(); print("VTM (guida BE) e TRT 1/TRT Spor: OK")
+
+
+def test_digisport():
+    import digisport as D
+    cart = QUI / "fixtures_digisport_2026-10-12"
+    pagine = {f"https://www.digisport.ro/program-tv/digisport-{i}": gzip.decompress((cart / f"digisport-{i}.html.gz").read_bytes()).decode()
+              for i in range(1, 5)}
+    ini, fine = dt.datetime(2026, 10, 11, 23, tzinfo=p.ROMA), dt.datetime(2026, 10, 15, 0, tzinfo=p.ROMA)
+    st = {}
+    cal, alt, err = D.raccogli(D.carica_conf(), ini, fine, lambda u: (pagine[u], None), dt.date(2026, 10, 12), st)
+    assert err is None
+    partite = {f'{x["casa"]} - {x["ospite"]}': x for x in cal}
+    # Champions League alle 19:40 in Romania = 18:40 a Roma (EEST -> CEST)
+    lens = partite["Lens - Sporting"]
+    assert dt.datetime.fromtimestamp(lens["ts"], p.ROMA).strftime("%d %H:%M") == "13 18:40" and lens["canale"] == "Digi Sport 1"
+    assert "Manchester City - PSG" in partite and "Atlético Madrid - Manchester United" in partite
+    assert sum(1 for x in cal if x["casa"] == "Lens") == 1  # partita spezzata su più righe: una sola
+    assert not any("Superliga" in x["comp"] or "Liga a 2-a" in x["comp"] for x in cal)  # calcio romeno escluso
+    assert any("Superliga" in x for x in st["calcio_escluso"])
+    assert {x["sport"] for x in alt} <= {"Tennis", "Basket", "Motori", "Motomondiale", "Formula 1", "Football americano"}
+    assert any("WTA Wuhan" in x["titolo"] and x["emittenti"][0]["link"].endswith("digisport-2") for x in alt)
+    assert not any(re.search(r"Digi Sport Special|Fotbal Club|Rezumat|Stirile", x["titolo_src"]) for x in alt)
+    # unione: Inter - Club Brugge (Digi Sport 3) con la partita già presente; Youth League esclusa
+    e = [{"ts": partite["Inter - Club Brugge"]["ts"], "quando": None, "titolo": "Inter v Club Brugge", "ordine": 1,
+          "competizione": "UEFA CHAMPIONS LEAGUE", "casa": "Inter", "ospite": "Club Brugge", "canali": [{"nome": "VTM 2", "fta": True}],
+          "fonti": ["LiveOnSat"]}]
+    conf = json.loads((p.RADICE / "liveonsat.json").read_text(encoding="utf-8"))
+    rx = U.regex_femminile(conf["escludi_competizioni"])
+    ev, uniti, nuove = p.unisci_primaplay(e, cal, (), lambda c, s, n: U.femminile(rx, c, s), "Digi Sport", "ALTRE PARTITE (Digi Sport)")
+    assert [c["nome"] for c in ev[0]["canali"]] == ["VTM 2", "Digi Sport 3"] and "Digi Sport" in ev[0]["fonti"]
+    assert not any(x["casa"] == "Manchester City" and "Youth" in (x.get("comp_orig") or "") for x in ev)
+    dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    h = p.badge({"nome": "Digi Sport 3", "fta": False}, dove, set())
+    assert "digisport.ro/live/digisport-3" in h and "flags/ro.svg" in h, h
+    h = p.badge({"nome": "RTL tvi", "fta": True}, dove, set())
+    assert "rtlplay.be/rtlplay/direct" in h and "flags/be.svg" in h, h
+    assert p.voce_dove("RTL Deutschland", dove)["id"] == "rtl" and p.voce_dove("Club RTL", dove)["id"] == "rtl-belgio"
+    assert LL_in_chiaro("RTL Club", conf) and not LL_in_chiaro("RTL Zwei", conf) and not LL_in_chiaro("RTL", conf)
+    return st
+
+
+def LL_in_chiaro(nome, conf):
+    return L.in_chiaro(L.pulisci_canale(nome, conf["alias_canali"]), conf["canali_in_chiaro"])
+
+
+sdg = test_digisport(); print(f"Digi Sport: {sdg['calcio']} partite, {sdg['altri']} altri sport – OK")
+
+
+def test_blue_zoom():
+    import epg_teleboy as E, altri_sport as A
+    tb = TB.carica(str(p.RADICE / "teleboy_canali.json"), aggiorna=False)
+    conf = A.regole_conf()["teleboy_epg"]
+    assert conf["alias"]["blue.Zoom.D.ch"] == "blue Zoom de" and tb.trova("blue Zoom de") == "blue Zoom de"
+    xml = """<tv><channel id="blue.Zoom.D.ch"><display-name>blue Zoom D</display-name></channel>
+<channel id="blue.Zoom.F.ch"><display-name>blue Zoom F</display-name></channel>
+<programme channel="blue.Zoom.D.ch" start="20261012164500 +0000" stop="20261012190000 +0000"><title>Fussball: FC Stade Nyonnais - FC Aarau</title><desc>Challenge League</desc><premiere/></programme>
+<programme channel="blue.Zoom.D.ch" start="20261013013000 +0000" stop="20261013033000 +0000"><title>Fussball: FC Zürich - FC Thun</title><desc>Super League</desc></programme>
+<programme channel="blue.Zoom.F.ch" start="20261012061000 +0000" stop="20261012080000 +0000"><title>Basketball: KK Roter Stern Belgrad - Anadolu Efes Istanbul</title><desc>EuroLeague - Vivez toute la passion de l'EuroLeague de basket en direct sur blue Zoom!</desc></programme>
+</tv>""".encode()
+    ini = dt.datetime(2026, 10, 12, 0, tzinfo=p.ROMA)
+    ev = E.analizza(xml, tb, conf, ini, ini + dt.timedelta(days=3))
+    assert len(ev) == 1 and ev[0]["sport"] == "Calcio" and "Nyonnais" in ev[0]["titolo"], ev
+    assert ev[0]["emittenti"][0]["nome"] == "blue Zoom de" and ev[0]["emittenti"][0]["vpn"] == "SVIZZERA"
+
+
+test_blue_zoom(); print("blue Zoom (guida CH1): dirette sì, repliche no – OK")
+
+
+def test_scooore():
+    import scooore as S
+    xml = gzip.decompress((QUI / "fixtures_scooore_2026-10-11" / "ch.xml.gz").read_bytes())
+    part = S.partite(xml)
+    assert any(x["casa"] == "Santos FC" and x["ospite"] == "Flamengo" for x in part)
+    assert not any("Alle Tore" in x["casa"] for x in part)  # highlights tolti
+    santos = next(x for x in part if x["casa"] == "Santos FC")
+    e = [{"ts": santos["ts"] + 5 * 60, "casa": "Santos", "ospite": "Flamengo", "canali": [{"nome": "SportyNet Brasil", "fta": False}], "fonti": ["LiveSoccerTV"]},
+         {"ts": santos["ts"] + 2 * 3600, "casa": "Saudi Arabia", "ospite": "Qatar", "canali": [], "fonti": []}]
+    uniti = p.unisci_conferma(e, part, "Scooore", "Scooore")
+    assert uniti == ["Santos - Flamengo"] and e[0]["canali"][-1]["nome"] == "Scooore", uniti
+    assert len(e) == 2  # nessuna partita nuova solo da Scooore (la guida non dice se è diretta)
+    dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    h = p.badge({"nome": "Scooore", "fta": True}, dove, set())
+    assert "zattoo.com/guide/sports?channel=scooore_de" in h and "flags/ch.svg" in h, h
+
+
+test_scooore(); print("Scooore (solo conferma di partite già presenti): OK")

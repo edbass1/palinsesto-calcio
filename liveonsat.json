@@ -174,6 +174,10 @@
   {
    "regex": "^VTM\\b",
    "nota": "VTM, VTM 2, VTM 3, VTM 4, VTM GOLD, VTM Non-Stop (Belgio, gratis su VTM GO)"
+  },
+  {
+   "regex": "^RTL ?(TVI|Club|Plug|District|Play)\\b|^(Club|Plug) ?RTL\\b",
+   "nota": "RTL Belgium: RTL tvi, RTL Club, RTL Plug, RTL District (gratis su RTL Play). Non RTL Germania/Lussemburgo."
   }
  ],
  "alias_canali": [
@@ -220,6 +224,22 @@
   {
    "regex": "^VTM ?Non-?Stop",
    "nome": "VTM Non-Stop"
+  },
+  {
+   "regex": "^RTL ?TVI\\b",
+   "nome": "RTL tvi"
+  },
+  {
+   "regex": "^(RTL ?Club|Club ?RTL)\\b",
+   "nome": "RTL Club"
+  },
+  {
+   "regex": "^(RTL ?Plug|Plug ?RTL)\\b",
+   "nome": "RTL Plug"
+  },
+  {
+   "regex": "^RTL ?District\\b",
+   "nome": "RTL District"
   }
  ],
  "_nota_pagine": "LiveOnSat non ha pagine per giorno: 2day.php copre solo oggi; per i 3 giorni successivi servono le pagine dei campionati (che elencano diverse settimane).",

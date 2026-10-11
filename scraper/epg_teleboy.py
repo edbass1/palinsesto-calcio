@@ -66,6 +66,7 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None, guida=None):
     canali_sport = [re.compile(x, re.I) for x in conf.get("canali_sport", [])]
     sport_canale = conf.get("sport_del_canale", {})
     solo_esplicita = [re.compile(x, re.I) for x in conf.get("canali_solo_diretta_esplicita", [])]
+    live_solo_titolo = [re.compile(x, re.I) for x in conf.get("canali_live_solo_titolo", [])]
     radice = ET.fromstring(xml)
     alias = conf.get("alias", {})
     salta = set(conf.get("salta_paesi", []))
@@ -129,7 +130,7 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None, guida=None):
             continue  # non è sport (o è un programma generico)
         testo = f"{titolo} {sotto}"
         tutto = f"{testo} {desc}"
-        live_parola = bool(rx_live.search(tutto))
+        live_parola = bool(rx_live.search(testo if any(r.search(n) for r in live_solo_titolo) else tutto))
         live_titolo = bool(rx_live.search(testo))  # 'Live-Übertragung' nella descrizione resta anche nelle repliche
         data = (p.findtext("date") or "")[:4]
         anni = [int(x) for x in RE_ANNO.findall(titolo)] + ([int(data)] if data.isdigit() else [])

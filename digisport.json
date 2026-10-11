@@ -1,0 +1,21 @@
+{
+ "_nota": "Digi Sport Romania (Digi Sport 1-4): programma da www.digisport.ro/program-tv/digisport-N (HTML statico, ore della Romania). Solo dirette (etichetta LIVE/Live); 'Premiera' (prima visione in differita), repliche senza etichetta, rezumat, magazine e studio sono saltati.",
+ "canali": [
+  {"nome": "Digi Sport 1", "programma": "https://www.digisport.ro/program-tv/digisport-1", "live": "https://www.digisport.ro/live/digisport-1"},
+  {"nome": "Digi Sport 2", "programma": "https://www.digisport.ro/program-tv/digisport-2", "live": "https://www.digisport.ro/live/digisport-2"},
+  {"nome": "Digi Sport 3", "programma": "https://www.digisport.ro/program-tv/digisport-3", "live": "https://www.digisport.ro/live/digisport-3"},
+  {"nome": "Digi Sport 4", "programma": "https://www.digisport.ro/program-tv/digisport-4", "live": "https://www.digisport.ro/live/digisport-4"}
+ ],
+ "_nota_salta": "Titoli da saltare (senza accenti, maiuscole/minuscole indifferenti): programmi di studio, notiziari, sintesi, magazine.",
+ "salta": ["^Stirile", "^Digi Sport Special", "^Digi Sport Matinal", "^Digi Gol", "^Digi Show", "^Fotbal Club", "^Fotbal European", "^Euro Fotbal", "^Liga Digi ?Sport", "^Ora exacta", "^Asii Tenisului", "Rezumat", "Avanpremiera", "Magazin", "Full Impact", "Reluare", "Highlights", "Studio", "Emisiune", "Analiza", "Talk", "Gala"],
+ "_nota_calcio_escluso": "Calcio: niente campionati/coppe della Romania e dell'Europa dell'Est (le coppe europee e le nazionali restano). Espressioni regolari sul nome della competizione.",
+ "calcio_escluso": ["^Superliga", "^Liga (I|1|a 2-a|2|3|a 3-a)\\b", "^Liga 2", "Cupa Romaniei", "Supercupa Romaniei", "Romania", "Moldova", "Bulgaria", "Serbia", "Croatia", "Croatia", "Ungaria", "Hungary", "NB I", "Polonia", "Ekstraklasa", "Cehia", "Czech", "Slovacia", "Slovakia", "Ucraina", "Ukraine", "Rusia", "Russia", "Belarus", "Bosnia", "Slovenia", "Macedonia", "Albania", "Muntenegru", "Montenegro", "Lituania", "Letonia", "Estonia", "Kosovo", "Georgia", "Armenia", "Azerbaidjan", "Kazahstan"],
+ "_nota_comp": "Competizioni di calcio (nome romeno -> nome LiveOnSat per l'etichetta italiana).",
+ "competizioni_calcio": {"Champions League": "UEFA Champions League", "Europa League": "UEFA Europa League", "Conference League": "UEFA Conference League", "Serie A": "Italian Serie A", "La Liga": "Spanish La Liga", "Bundesliga": "German Bundesliga", "Bundesliga 2": "German 2. Bundesliga", "Premier League": "English Premier League", "Ligue 1": "French Ligue 1", "Youth League": "UEFA Youth League"},
+ "_nota_sport": "Altri sport: solo sport ELITE (prefisso romeno -> sport). Il basket passa poi dal filtro basket_ammessi.",
+ "sport_elite": {"tenis": "Tennis", "baschet": "Basket", "moto": "Motori", "motogp": "Motomondiale", "formula 1": "Formula 1", "f1": "Formula 1", "nfl": "Football americano", "fotbal american": "Football americano"},
+ "moto_motogp": "MotoGP|Moto ?2|Moto ?3|Marele Premiu|Grand Prix",
+ "squadre": {"Bayern Munchen": "Bayern München", "Sahtior Donetk": "Shakhtar Donetsk", "AEK Atena": "AEK Athens", "Slavia Praga": "Slavia Prague", "Koln": "Köln", "Nuremberg": "Nürnberg", "Atletico Madrid": "Atlético Madrid", "Deportivo": "Deportivo La Coruña"},
+ "parole_unite": ["Saint", "St", "Sankt", "Paris Saint", "Union Saint", "Bosnia", "Hertha"],
+ "durata_min": {"Tennis": 120, "Basket": 120, "Motori": 60, "Motomondiale": 60, "Formula 1": 120, "Football americano": 210, "default": 120}
+}

@@ -410,7 +410,7 @@ def unisci_eventi(eventi):
                     u[k] = migliore.get(k)
         u.pop("_fonti", None)
         # un canale LiveOnSat che è anche su Teleboy: basta una riga (quella con il link Teleboy)
-        u["emittenti"] = [x for x in u["emittenti"] if x.get("fta") is not False or x.get("teleboy") or x.get("pp")]
+        u["emittenti"] = [x for x in u["emittenti"] if x.get("fta") is not False or x.get("teleboy") or x.get("pp") or x.get("ufficiale")]
     return uniti
 
 

@@ -17,6 +17,24 @@
    "vpn_tag": "VPN Svizzera"
   },
   {
+   "id": "scooore",
+   "nome": "Scooore (Zattoo)",
+   "fonte": "utente",
+   "verificato": true,
+   "canali": [
+    "^Scooore\\b"
+   ],
+   "vpn": "Svizzera",
+   "vpn_tag": "VPN Svizzera",
+   "note": "Serve registrazione gratuita su Zattoo.",
+   "link": [
+    {
+     "url": "https://zattoo.com/guide/sports?channel=scooore_de",
+     "testo": "Zattoo – Scooore"
+    }
+   ]
+  },
+  {
    "id": "srf-sport",
    "nome": "SRF Play – Sport-Livestreams",
    "fonte": "utente",
@@ -125,6 +143,42 @@
     }
    ],
    "vpn_tag": "Solo app · SENZA VPN"
+  },
+  {
+   "id": "digi-sport",
+   "nome": "Digi Sport 1-4 (Romania)",
+   "fonte": "utente",
+   "verificato": true,
+   "canali": [
+    "^Digi ?Sport ?[1-4]\\b"
+   ],
+   "vpn": "Romania",
+   "vpn_tag": "VPN Romania",
+   "note": "Funziona meglio con Chrome e con l'adblock disattivato.",
+   "link": [
+    {
+     "url": "https://www.digisport.ro/live/digisport-1",
+     "testo": "Digi Sport 1 – live"
+    },
+    {
+     "url": "https://www.digisport.ro/live/digisport-2",
+     "testo": "Digi Sport 2 – live"
+    },
+    {
+     "url": "https://www.digisport.ro/live/digisport-3",
+     "testo": "Digi Sport 3 – live"
+    },
+    {
+     "url": "https://www.digisport.ro/live/digisport-4",
+     "testo": "Digi Sport 4 – live"
+    }
+   ],
+   "link_canale": {
+    "^Digi ?Sport ?1\\b": "https://www.digisport.ro/live/digisport-1",
+    "^Digi ?Sport ?2\\b": "https://www.digisport.ro/live/digisport-2",
+    "^Digi ?Sport ?3\\b": "https://www.digisport.ro/live/digisport-3",
+    "^Digi ?Sport ?4\\b": "https://www.digisport.ro/live/digisport-4"
+   }
   },
   {
    "id": "prima-sport",
@@ -906,6 +960,30 @@
     {
      "url": "https://www.vtmgo.be/vtmgo/live-kijken/vtm",
      "testo": "VTM GO – live kijken"
+    }
+   ]
+  },
+  {
+   "id": "rtl-belgio",
+   "nome": "RTL Belgio",
+   "fonte": "utente",
+   "verificato": true,
+   "canali": [
+    "^RTL ?TVI\\b",
+    "^RTL ?Club\\b",
+    "^Club ?RTL\\b",
+    "^RTL ?Plug\\b",
+    "^Plug ?RTL\\b",
+    "^RTL ?District\\b",
+    "^RTL ?Play\\b"
+   ],
+   "vpn": "Belgio",
+   "vpn_tag": "VPN Belgio",
+   "note": "Serve registrazione gratuita su RTL Play.",
+   "link": [
+    {
+     "url": "https://www.rtlplay.be/rtlplay/direct",
+     "testo": "RTL Play – direct"
     }
    ]
   },
