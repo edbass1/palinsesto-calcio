@@ -270,7 +270,7 @@ def test_ordine_tutto():
     assert [b(n) for n in ("UEFA CHAMPIONS LEAGUE", "UEFA YOUTH LEAGUE", "NAZIONALI – QUALIFICAZIONI MONDIALI 2026",
                            "NAZIONALI – QUALIFICAZIONI EUROPEI U21", "SERIE A", "PREMIER LEAGUE", "PREMIER LEAGUE (Azerbaigian)",
                            "LALIGA", "2. BUNDESLIGA", "LIGUE 1", "SERIE B", "BRASILEIRÃO SERIE A (Brasile)")] == [
-        "a", "a", "a", "c", "b0", "b", "c", "b", "c", "b", "c", "c"]
+        "a", "c", "a", "c", "b0", "b", "c", "b", "c", "b", "c", "c"]
     import shutil, subprocess, tempfile, time
     chrome = shutil.which("google-chrome") or shutil.which("chromium")
     if not chrome:
@@ -546,13 +546,12 @@ def test_dazn():
                                     {"scarica_fn": finto_dazn})
     assert falliti[-1:] == ["DAZN non raggiungibile per: Francia"], falliti
     assert st["dazn_dettagli"] == ["DAZN Francia: HTTP Error 503"], st["dazn_dettagli"]
-    assert st["dazn"] == {"it": 2, "de": 2, "pt": 10, "be": 2}, st["dazn"]
+    assert st["dazn"] == {"it": 2, "de": 2, "pt": 8, "be": 2}, st["dazn"]  # 2 partite di Youth League (U19) escluse
     tutte = {f'{e["casa"]} - {e["ospite"]}': (g["nome"], e) for g in gruppi for e in g["partite"]}
     nomi = lambda k: [c["nome"] for c in tutte[k][1]["canali"]]  # noqa: E731
     assert nomi("Levante - Sevilla")[-2:] == ["DAZN Italia", "DAZN Portogallo"], nomi("Levante - Sevilla")
     assert "DAZN Belgio" in nomi("PSG - Le Mans") and "TV5 Monde" in nomi("PSG - Le Mans")
-    assert tutte["Leipzig U19 - PSV U19"][0] == "UEFA YOUTH LEAGUE"
-    assert nomi("Leipzig U19 - PSV U19") == ["DAZN Portogallo"]
+    assert not any("U19" in k or g == "UEFA YOUTH LEAGUE" for k, (g, _) in tutte.items())  # Youth League esclusa
     # nessun canale DAZN dalle altre fonti: solo quelli "gratis" della guida
     assert all(c.get("dazn_gratis") for _, e in tutte.values() for c in e["canali"] if "dazn" in c["nome"].lower())
     assert st["uniti_dazn"] and st["solo_dazn"] > 0
@@ -599,7 +598,7 @@ def test_femminile():
     no = [("English Premier League", ("Wolves", "West Ham")), ("Championship", ("Bolton Wanderers", "Western Sydney Wanderers")),
           ("A-League", ("Western United", "Wellington Phoenix")), ("Liga Futve", ()), ("Bundesliga", ("Werder Bremen", "VfL Wolfsburg")),
           ("NAZIONALI – AMICHEVOLI", ("Wales", "W. Bremen")), ("Ligue 1", ("PSG", "Le Mans")), ("Serie A", ("Inter", "Juventus")),
-          ("UEFA Youth League", ("Leipzig U19", "PSV U19")), ("Eredivisie", ("Willem II", "Go Ahead Eagles")),
+          ("Eredivisie", ("Willem II", "Go Ahead Eagles")),
           ("Swiss Super League", ("Winterthur", "Grasshoppers")), ("Altro", ("Arsenal W", "Chelsea")),
           ("Altro", ("Club W", "Real Madrid")), ("Altro", ("Lyon (W)", "PSG")), ("Premier League", ("Wolverhampton Wanderers", "Newcastle"))]
     assert all(U.femminile(rx, c, s) for c, s in si), [x for x in si if not U.femminile(rx, *x)]
