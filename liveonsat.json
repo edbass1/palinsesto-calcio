@@ -170,6 +170,10 @@
   {
    "regex": "^Dubai Sports?\\b(?! ?[2-9])",
    "nota": "Dubai Sports 1 (Emirati) – gratis su dubaiplus.net con registrazione (link utente)"
+  },
+  {
+   "regex": "^VTM\\b",
+   "nota": "VTM, VTM 2, VTM 3, VTM 4, VTM GOLD, VTM Non-Stop (Belgio, gratis su VTM GO)"
   }
  ],
  "alias_canali": [
@@ -192,6 +196,30 @@
   {
    "regex": "^Dubai Sports?\\b(?! ?[2-9])",
    "nome": "Dubai Sports 1"
+  },
+  {
+   "regex": "^VTM ?GO\\b|^VTM( HD)?( Belgium| Belgi[eë])?$",
+   "nome": "VTM"
+  },
+  {
+   "regex": "^VTM ?2\\b",
+   "nome": "VTM 2"
+  },
+  {
+   "regex": "^VTM ?3\\b",
+   "nome": "VTM 3"
+  },
+  {
+   "regex": "^VTM ?4\\b",
+   "nome": "VTM 4"
+  },
+  {
+   "regex": "^VTM ?Gold\\b",
+   "nome": "VTM GOLD"
+  },
+  {
+   "regex": "^VTM ?Non-?Stop",
+   "nome": "VTM Non-Stop"
   }
  ],
  "_nota_pagine": "LiveOnSat non ha pagine per giorno: 2day.php copre solo oggi; per i 3 giorni successivi servono le pagine dei campionati (che elencano diverse settimane).",

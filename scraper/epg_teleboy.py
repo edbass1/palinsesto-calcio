@@ -45,12 +45,14 @@ def _norm(t):
     return re.sub(r"\W+", " ", t.lower()).strip()
 
 
-def analizza(xml, teleboy, conf, inizio, fine, diag=None):
+def analizza(xml, teleboy, conf, inizio, fine, diag=None, guida=None):
     """Eventi in diretta (formato altri_sport) sui canali gratuiti di Teleboy.
     La guida non ha <category>: diretta = <premiere/>, oppure 'live/diretta/direkt/en direct' in titolo, sottotitolo o
     descrizione, oppure (solo sui canali sportivi, conf 'canali_sport') una gara riconoscibile (squadre 'A - B' / 'vs',
     nome di torneo). Tolti: repliche/sintesi/magazine/show, programmi con anno vecchio (<date> o anno nel titolo),
     lo stesso titolo già andato in onda prima sullo stesso canale, durata < durata_minima_min.
+    guida (dict), se data: guida di canali non Teleboy (es. VTM Belgio) con "canali" {id guida: nome}, "pagina", "link",
+    "vpn", "lingua", "squadre_da_desc" [regex con un gruppo 'A - B' preso dalla descrizione].
     diag (lista), se data, riceve (canale, inizio, titolo, motivo o None se tenuto) per ogni programma con uno sport."""
     rx_prog, rx_ev = A.regole()
     rx_salvo = A._rx_salvo()
@@ -70,10 +72,15 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None):
     minimo = int(conf.get("durata_minima_min", 20)) * 60
     anno = inizio.year
     canali = {}
-    for c in radice.findall("channel"):
-        n = alias.get(c.get("id")) or teleboy.trova(c.findtext("display-name") or "")
-        if n and teleboy.paese(n) not in salta:
-            canali[c.get("id")] = n
+    if guida:
+        canali = {k: v for k, v in (guida.get("canali") or {}).items()}
+        rx_desc = [re.compile(x, re.I) for x in guida.get("squadre_da_desc", [])]
+    else:
+        rx_desc = []
+        for c in radice.findall("channel"):
+            n = alias.get(c.get("id")) or teleboy.trova(c.findtext("display-name") or "")
+            if n and teleboy.paese(n) not in salta:
+                canali[c.get("id")] = n
     prima_volta = {}  # (canale, titolo normalizzato) -> fine della prima messa in onda nella guida
     programmi = []
     dirette_altrove = {}  # titolo normalizzato -> inizi delle messe in onda in diretta (<premiere/> o 'live') su qualsiasi canale
@@ -91,6 +98,10 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None):
             continue
         titolo = (p.findtext("title") or "").strip()
         sotto = (p.findtext("sub-title") or "").strip()
+        for r in rx_desc:  # "Verslag van de wedstrijd Internazionale - Club Brugge, ..." -> sottotitolo con le squadre
+            m_d = r.search(p.findtext("desc") or "")
+            if m_d and not sotto:
+                sotto = m_d.group(1).strip()
         if p.find("premiere") is not None or rx_live.search(titolo):
             dirette_altrove.setdefault(_norm(titolo), []).append(ts)
         k = (p.get("channel"), _norm(f"{titolo} {sotto}"))
@@ -112,6 +123,8 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None):
         sport = A.sport_di(titolo) or A.sport_di(sotto) or next((v for c, v in sport_canale.items() if re.search(c, n, re.I)), None)
         if not sport and sportivo:
             sport = A.sport_di(desc)
+        if not sport and guida:  # guide extra (es. VTM, in olandese): parole -> sport
+            sport = next((v for r, v in (guida.get("sport_da_testo") or {}).items() if re.search(r, f"{titolo} {sotto}", re.I)), None)
         if not sport or sport == "Programma sportivo":
             continue  # non è sport (o è un programma generico)
         testo = f"{titolo} {sotto}"
@@ -158,29 +171,48 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None):
             tit = f"{tit}, {sotto}"
         if sport == "Calcio":  # "Super League: Lugano - Luzern" -> "Super League, Lugano - Luzern" (come SRF)
             tit = tit.replace(": ", ", ")
-        tenuti[k] = {"id": f"teleboy:{p.get('channel')}:{ts}", "ts": ts, "fine": ts_fine, "sport": sport, "titolo": tit,
+        if guida:
+            em = {"nome": n, "pagina": guida.get("pagina"), "link": guida.get("link") or guida.get("pagina"),
+                  "vpn": guida.get("vpn"), "fta": True, "da_guida": True}
+        else:
+            em = {"nome": n, "pagina": PAGINA, "link": teleboy.link(n) or PAGINA, "vpn": "SVIZZERA",
+                  "teleboy": True, "teleboy_nome": n}
+        tenuti[k] = {"id": f"{'epg' if guida else 'teleboy'}:{p.get('channel')}:{ts}", "ts": ts, "fine": ts_fine, "sport": sport, "titolo": tit,
                        "titolo_orig": f"{titolo} {sotto} {desc}", "titolo_src": titolo, "evento": True,
-                       "lingua": LINGUE.get(teleboy.paese(n) or "", "de"), "descrizione": desc, "da_epg": True,
-                       "emittenti": [{"nome": n, "pagina": PAGINA, "link": teleboy.link(n) or PAGINA, "vpn": "SVIZZERA",
-                                      "teleboy": True, "teleboy_nome": n}]}
+                       "lingua": (guida or {}).get("lingua") or LINGUE.get(teleboy.paese(n) or "", "de"),
+                       "descrizione": desc, "da_epg": True, "emittenti": [em]}
         eventi.append(tenuti[k])
     return eventi
 
 
 def fn_raccogli(teleboy, conf, inizio, fine, scarica_fn=None):
-    """Funzione senza argomenti per altri_sport.raccogli_altri -> (eventi, errore)."""
+    """Funzione senza argomenti per altri_sport.raccogli_altri -> (eventi, errore).
+    Oltre alla guida Teleboy legge le guide in conf["altre_guide"] (canali gratuiti non Teleboy, es. VTM in Belgio):
+    se una di queste non si scarica si scrive solo nel log (STAT_GUIDE), senza avviso rosso."""
     scarica_fn = scarica_fn or scarica
 
-    def f():
+    def una(urls, guida=None):
         errori = []
-        for url in conf.get("fonti", []):
+        for url in urls:
             xml, err = scarica_fn(url)
             if xml:
                 try:
-                    return analizza(xml, teleboy, conf, inizio, fine), None
+                    return analizza(xml, teleboy, conf, inizio, fine, guida=guida), None
                 except ET.ParseError as e:
                     errori.append(f"XML non valido: {e}"[:80])
             else:
                 errori.append(err)
         return [], (errori[0] if errori else "nessuna fonte")
+
+    def f():
+        eventi, err = una(conf.get("fonti", [])) if teleboy is not None else ([], None)
+        STAT_GUIDE.clear()
+        for g in conf.get("altre_guide", []):
+            ev, e2 = una(g.get("fonti", []), g)
+            STAT_GUIDE[g.get("nome", "?")] = e2 or len(ev)
+            eventi += ev
+        return eventi, err
     return f
+
+
+STAT_GUIDE = {}  # ultima raccolta: nome guida extra -> numero di dirette o errore

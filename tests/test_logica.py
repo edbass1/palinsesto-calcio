@@ -1149,3 +1149,35 @@ def test_youtube_link():
 
 
 test_youtube_link(); print("link YouTube con icona: OK")
+
+
+def test_vtm_trt():
+    import epg_teleboy as E, altri_sport as A, liveonsat as LL
+    conf = A.regole_conf()["teleboy_epg"]
+    g = next(x for x in conf["altre_guide"] if x["nome"].startswith("VTM"))
+    xml = b"""<tv><channel id="VTM.2.be"><display-name>VTM 2</display-name></channel>
+<programme channel="VTM.2.be" start="20261013183000 +0000" stop="20261013212000 +0000"><title>Live: UEFA Champions League</title>
+<desc>Verslag van de wedstrijd Internazionale - Club Brugge, gespeeld in de competitiefase van de UEFA Champions League.</desc><premiere/></programme>
+<programme channel="VTM.2.be" start="20261013212000 +0000" stop="20261013215000 +0000"><title>Live: UEFA Champions League samenvattingen</title>
+<desc>Alle hoogtepunten van de vanavond gespeelde wedstrijden.</desc><premiere/></programme>
+<programme channel="VTM.2.be" start="20261011101500 +0000" stop="20261011104500 +0000"><title>Champions League Magazine</title><desc>Voetbalmagazine.</desc></programme>
+</tv>"""
+    ini = dt.datetime(2026, 10, 11, 12, tzinfo=p.ROMA)
+    ev = E.analizza(xml, None, conf, ini, ini + dt.timedelta(days=4), guida=g)
+    assert len(ev) == 1 and ev[0]["sport"] == "Calcio" and "Internazionale - Club Brugge" in ev[0]["titolo"], ev
+    em = ev[0]["emittenti"][0]
+    assert em["nome"] == "VTM 2" and em["vpn"] == "BELGIO" and "vtmgo.be" in em["link"] and not em.get("teleboy")
+    los = json.loads((p.RADICE / "liveonsat.json").read_text(encoding="utf-8"))
+    for n, atteso in [("VTM HD", "VTM"), ("VTM2", "VTM 2"), ("VTM GO", "VTM"), ("VTM Gold", "VTM GOLD")]:
+        x = LL.pulisci_canale(n, los["alias_canali"])
+        assert x == atteso and LL.in_chiaro(x, los["canali_in_chiaro"]), (n, x)
+    dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    h = p.badge({"nome": "VTM 2", "fta": True}, dove, set())
+    assert "vtmgo.be/vtmgo/live-kijken/vtm" in h and "flags/be.svg" in h, h
+    assert p.voce_dove("TRT Spor", dove)["id"] == "trt" and p.voce_dove("TRT Spor Yildiz", dove)["id"] == "trt"
+    assert p.voce_dove("TRT 1", dove)["id"] == "trt1" and p.voce_dove("TRT 1 HD", dove)["id"] == "trt1"
+    assert p.voce_dove("TRT Haber", dove)["id"] == "trt-altri"
+    assert "com.com.tr/canli-tv/trt-1" in p.badge({"nome": "TRT 1", "fta": True}, dove, set())
+
+
+test_vtm_trt(); print("VTM (guida BE) e TRT 1/TRT Spor: OK")

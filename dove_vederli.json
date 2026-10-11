@@ -304,10 +304,10 @@
    "fonte": "utente",
    "verificato": true,
    "canali": [
-    "^TRT\\b"
+    "^TRT ?Spor\\b"
    ],
    "vpn": "Turchia",
-   "note": "Gratuito (piattaforma tabii).",
+   "note": "Gratuito (piattaforma tabii). Vale per TRT Spor e TRT Spor Yıldız.",
    "link": [
     {
      "url": "https://www.trtspor.com.tr/canli-yayin-izle/trt-spor",
@@ -319,6 +319,46 @@
     }
    ],
    "vpn_tag": "VPN Turchia"
+  },
+  {
+   "id": "trt1",
+   "nome": "TRT 1 (Turchia)",
+   "fonte": "utente",
+   "verificato": true,
+   "canali": [
+    "^TRT ?1\\b"
+   ],
+   "vpn": "Turchia",
+   "vpn_tag": "VPN Turchia",
+   "note": "Diretta gratuita.",
+   "link": [
+    {
+     "url": "https://com.com.tr/canli-tv/trt-1",
+     "testo": "TRT 1 – diretta (link utente)"
+    },
+    {
+     "url": "https://www.trtizle.com/canli/tv/trt-1",
+     "testo": "TRT İzle / tabii (link ufficiale alternativo)"
+    }
+   ]
+  },
+  {
+   "id": "trt-altri",
+   "nome": "TRT – altri canali (Turchia)",
+   "fonte": "ricerca",
+   "verificato": true,
+   "canali": [
+    "^TRT\\b"
+   ],
+   "vpn": "Turchia",
+   "vpn_tag": "VPN Turchia",
+   "note": "Tutti i canali TRT in diretta gratuita su TRT İzle / tabii.",
+   "link": [
+    {
+     "url": "https://www.trtizle.com/canli",
+     "testo": "TRT İzle – dirette"
+    }
+   ]
   },
   {
    "id": "dubai-sports",
@@ -850,6 +890,24 @@
     }
    ],
    "vpn_tag": "VPN Olanda"
+  },
+  {
+   "id": "vtm",
+   "nome": "VTM (Belgio)",
+   "fonte": "utente",
+   "verificato": true,
+   "canali": [
+    "^VTM\\b"
+   ],
+   "vpn": "Belgio",
+   "vpn_tag": "VPN Belgio",
+   "note": "Serve registrazione gratuita su VTM GO.",
+   "link": [
+    {
+     "url": "https://www.vtmgo.be/vtmgo/live-kijken/vtm",
+     "testo": "VTM GO – live kijken"
+    }
+   ]
   },
   {
    "id": "vrt",

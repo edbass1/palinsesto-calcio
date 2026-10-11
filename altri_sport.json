@@ -244,7 +244,54 @@
   "_nota_canali_solo_diretta_esplicita": "Canali la cui guida è quasi tutta repliche senza segnalarle (SuperTennis): si tengono solo i programmi con 'live/diretta' o marcati prima visione.",
   "canali_solo_diretta_esplicita": [
    "supertennis"
-  ]
+  ],
+  "parole_replica": [
+   "replica",
+   "highlights?",
+   "sintesi",
+   "wiederholung",
+   "zusammenfassung",
+   "magazin",
+   "r[ée]sum[ée]",
+   "rediffusion",
+   "differita",
+   "riviviamo",
+   "momenti salienti",
+   "samenvattingen?",
+   "hoogtepunten",
+   "herhaling",
+   "magazine"
+  ],
+  "altre_guide": [
+   {
+    "nome": "VTM (Belgio)",
+    "fonti": [
+     "https://epgshare01.online/epgshare01/epg_ripper_BE2.xml.gz"
+    ],
+    "canali": {
+     "VTM.be": "VTM",
+     "VTM.HD.be": "VTM",
+     "VTM.2.be": "VTM 2",
+     "VTM.3.be": "VTM 3",
+     "VTM.4.be": "VTM 4",
+     "VTM.GOLD.be": "VTM GOLD",
+     "VTM.NON-STOP.DOKTERS.be": "VTM Non-Stop",
+     "VTM.Series.be": "VTM Series"
+    },
+    "pagina": "https://www.vtmgo.be/vtmgo/live-kijken/vtm",
+    "vpn": "BELGIO",
+    "lingua": "nl",
+    "squadre_da_desc": [
+     "wedstrijd (?:tussen )?([^,.]+? - [^,.]+?)(?:,|\\.|$)"
+    ],
+    "sport_da_testo": {
+     "UEFA|Champions League|Europa League|Conference League|voetbal|Jupiler|Pro League|Rode Duivels": "Calcio",
+     "wielren|koers": "Ciclismo",
+     "Formule 1|F1": "Formula 1"
+    }
+   }
+  ],
+  "_nota_altre_guide": "Guide XMLTV di canali gratuiti che NON sono su Teleboy (es. VTM in Belgio, guida epgshare01 BE2): stesse regole di diretta/replica; 'canali' = id nella guida -> nome mostrato; 'squadre_da_desc' prende 'A - B' dalla descrizione quando il titolo è solo 'Live: UEFA Champions League'. Se la guida non si scarica: solo log."
  },
  "euroleague_tv": {
   "_nota": "Partite di EuroLeague ed EuroCup trasmesse dai canali qui sotto, lette dalle pagine ufficiali «TV Listings» (canali per partita); l'orario viene dal calendario ufficiale. Chiave = nome del canale come scritto sulla pagina (maiuscolo); 'nome' e 'vpn' = come appare sulle schede. Si possono aggiungere canali (es. 'RTSH SPORT').",

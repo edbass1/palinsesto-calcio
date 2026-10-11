@@ -282,7 +282,8 @@ def evento_stream(p):
     ordine, etichetta = altri_sport.competizione_calcio(p["comp"] + " " + " ".join(p["testi"]))
     return {"ts": p["ts"], "quando": dt.datetime.fromtimestamp(p["ts"], ROMA), "titolo": f'{p["casa"]} v {p["ospite"]}',
             "ordine": ordine, "competizione": etichetta, "casa": p["casa"], "ospite": p["ospite"],
-            "canali": [{"nome": x["nome"] if x.get("teleboy") else f'{x["nome"]} stream', "fta": True, "url": x["pagina"],
+            "canali": [{"nome": x["nome"], "fta": True} if x.get("da_guida") else  # canale TV da guida extra (es. VTM 2)
+                       {"nome": x["nome"] if x.get("teleboy") else f'{x["nome"]} stream', "fta": True, "url": x["pagina"],
                         "diretta": x["link"], "vpn": x["vpn"], **({"teleboy": x["nome"]} if x.get("teleboy") else {})}
                        for x in p["emittenti"]],
             "fonti": ["Streaming"]}
@@ -313,7 +314,7 @@ def unisci_stream(eventi, partite, converti=None, fonte="Streaming"):
             eventi.append(nuovo)
             continue
         for k in nuovo["canali"]:
-            if not any(c["nome"].lower().replace(" ", "") == k["nome"].lower().replace(" ", "") for c in migliore["canali"]):
+            if not any(unisci.chiave_canale(c["nome"]) == unisci.chiave_canale(k["nome"]) for c in migliore["canali"]):
                 migliore["canali"].append(k)
         migliore["fonti"].append(fonte)
         uniti.append(f'{migliore["casa"]} - {migliore["ospite"]}')
@@ -376,7 +377,10 @@ def unisci_primaplay(eventi, partite, tutte_los=(), escludi=None):
         comp = p.get("comp_los") or ""
         if not comp:
             sc_l, comp = 0.0, ""
+            giovanili = re.compile(r"\b(U-?\d\d|Under[ -]?\d\d|Youth|Women|W)\b", re.I)
             for x in tutte_los:
+                if giovanili.search(f'{x["titolo"]} {x.get("comp", "")}') and not giovanili.search(f'{p["casa"]} {p["ospite"]}'):
+                    continue  # la competizione non si prende da una partita giovanile/femminile con le stesse squadre
                 c_, _, o_ = x["titolo"].partition(" v ")
                 sc = unisci.stessa_partita(x["ts"], c_.strip(), o_.strip(), p["ts"], p["casa"], p["ospite"])
                 if sc > sc_l:
@@ -1318,6 +1322,8 @@ def main():
     print(f"{periodo(primo)}: {n} partite in {len(gruppi)} competizioni; falliti: {len(falliti)}")
     print(f"  LiveSoccerTV: {st['livesoccertv']} · LiveOnSat (con canali in chiaro): {st['liveonsat']} · "
           f"doppioni uniti: {len(st['uniti'])} · solo LiveOnSat: {st['solo_liveonsat']} · finite tolte: {st['finite_tolte']} · solo grazie a Teleboy: {st.get('solo_teleboy', 0)}")
+    for k, x in epg_teleboy.STAT_GUIDE.items():
+        print(f"  guida extra {k}: {x if isinstance(x, str) else str(x) + ' dirette'}")
     for x in sorted(set(VPN_MANCANTI)):
         print("  link senza VPN:", x)
     for x in altri_sport.BASKET_TOLTI:
