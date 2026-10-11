@@ -819,6 +819,13 @@ def riga_dtt(dtt):
     return f'<span class="dtt-riga">{pill_dtt(dtt)}</span>' if dtt else ""
 
 
+def testo_link(url, predefinito):
+    """Testo del link ▶: per YouTube l'icona (SVG locale) + 'YouTube', altrimenti il testo predefinito."""
+    if re.search(r"(?:^|//)(?:www\.|m\.)?(?:youtube\.com|youtu\.be)/", url or "", re.I):
+        return '<img class="yt" src="youtube.svg" alt="" width="28" height="20"> YouTube'
+    return predefinito
+
+
 def emittente_altro(x, dove, usati):
     """Riga di un'emittente in ALTRI SPORT: nome (link al sito o a "Dove vederli"), etichette, link, VPN accanto al link."""
     esc = html.escape
@@ -846,7 +853,7 @@ def emittente_altro(x, dove, usati):
     if dtt and not link:
         vt = None
     return (f'<li class="fta">{tag}{nome} {tag2}'.rstrip()
-            + (f' <a class="diretta" href="{esc(link)}" target="_blank" rel="noopener">{etichetta}</a>' if link else '')
+            + (f' <a class="diretta" href="{esc(link)}" target="_blank" rel="noopener">{testo_link(link, etichetta)}</a>' if link else '')
             + pill_vpn(vt, x["nome"], link)
             + riga_dtt(dtt)
             + '</li>')
@@ -868,7 +875,7 @@ def badge(c, dove, usati):
         tb = "teleboy.ch" in (link or "") or "teleboy.ch" in (c.get("url") or "")
         vt = testo_vpn(c["nome"], c.get("vpn"), voce_dove(c["nome"], dove), tb) or "SENZA VPN"
         testo = (f'<a href="{esc(c["url"])}" target="_blank" rel="noopener">{testo}</a>'
-                 + (f' <a class="diretta" href="{esc(link)}" target="_blank" rel="noopener">{"▶ Teleboy" if tb else "▶ diretta"}</a>' if link else '')
+                 + (f' <a class="diretta" href="{esc(link)}" target="_blank" rel="noopener">{testo_link(link, "▶ Teleboy" if tb else "▶ diretta")}</a>' if link else '')
                  + pill_vpn(vt, c["nome"], link or c["url"]))
         return f'<li class="fta">{testo}</li>' if c["fta"] else f'<li>{testo}</li>'
     v_tb = next((x for x in dove if x["id"] == "teleboy"), None) if c.get("teleboy") else None
@@ -887,7 +894,7 @@ def badge(c, dove, usati):
         testo = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{testo}</a>'
         sito = sito_ufficiale(v)
         if sito and not extra and v["id"] != "teleboy" and not dtt:
-            extra = f' <a class="diretta" href="{esc(sito)}" target="_blank" rel="noopener" title="Sito di streaming">▶ sito</a>'
+            extra = f' <a class="diretta" href="{esc(sito)}" target="_blank" rel="noopener" title="Sito di streaming">{testo_link(sito, "▶ sito")}</a>'
             link = sito
     vt = testo_vpn(c["nome"], None, v, tb) if (v or tb or link) else testo_vpn(c["nome"])
     if dtt and not link:
@@ -991,6 +998,7 @@ TEMPLATE = """<!doctype html>
   .tag.vpn.no {{ background:#00e676; color:#000; }}
   .tag.vpn img.fl {{ height:1.1em; width:auto; vertical-align:-0.2em; margin:0 .1em; border:1px solid #000; border-radius:2px; }}
   .tag.vpn .sep {{ margin:0 .05em; }}
+  a.diretta img.yt {{ height:1em; width:auto; vertical-align:-0.15em; }}
   .dtt-riga {{ display:block; margin-top:.3em; }}
   .tag.dtt {{ background:#fff; color:#000; font-weight:800; font-size:.8em; padding:.1em .45em; border-radius:999px; white-space:nowrap; }}
   .tag.dtt img.fl {{ height:1.1em; width:auto; vertical-align:-0.2em; border:1px solid #000; border-radius:2px; }}

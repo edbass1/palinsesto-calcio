@@ -1276,17 +1276,17 @@
   {
    "id": "sifir",
    "nome": "Sıfır TV (Turchia)",
-   "fonte": "ricerca",
-   "verificato": false,
+   "fonte": "utente",
+   "verificato": true,
    "canali": [
     "^S[iı]f[iı]r TV\\b"
    ],
    "vpn": "Turchia",
-   "note": "Gratuito.",
+   "note": "Dirette sul canale YouTube: serve la VPN sulla Turchia.",
    "link": [
     {
-     "url": "https://www.sifirtv.com.tr",
-     "testo": "Sıfır TV"
+     "url": "https://www.youtube.com/@sifirtv",
+     "testo": "Sıfır TV – YouTube"
     }
    ],
    "vpn_tag": "VPN Turchia"

@@ -18,7 +18,7 @@ DIR_LOS = QUI / "fixtures_liveonsat_2026-10-10"
 
 def ogni_link_ha_vpn(h):
     """Ogni riga canale con un link ▶ deve avere l'etichetta VPN subito accanto."""
-    righe = re.findall(r"<li[^>]*>(?:(?!</li>).)*?▶(?:(?!</li>).)*</li>", h, re.S)
+    righe = re.findall(r"<li[^>]*>(?:(?!</li>).)*?class=\"diretta\"(?:(?!</li>).)*</li>", h, re.S)
     senza = [r for r in righe if 'class="tag vpn' not in r]
     assert not senza, senza[:3]
     return True
@@ -1135,3 +1135,17 @@ def test_solh():
 
 
 test_solh(); print("Solh escluso: OK")
+
+
+def test_youtube_link():
+    dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    s = next(x for x in dove if x["id"] == "sifir")
+    assert s["link"][0]["url"] == "https://www.youtube.com/@sifirtv" and s["vpn_tag"] == "VPN Turchia" and s.get("verificato", True)
+    for nome in ("Sifir TV", "SportyNet Brasil", "X Sports"):
+        h = p.badge({"nome": nome, "fta": True}, dove, set())
+        assert 'src="youtube.svg"' in h and "YouTube</a>" in h and "▶ sito" not in h and 'class="tag vpn' in h, h
+    assert 'flags/tr.svg' in p.badge({"nome": "Sifir TV", "fta": True}, dove, set())
+    assert (p.RADICE / "static" / "youtube.svg").exists()
+
+
+test_youtube_link(); print("link YouTube con icona: OK")
