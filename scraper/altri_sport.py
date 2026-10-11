@@ -385,9 +385,39 @@ def unisci_eventi(eventi):
     return uniti
 
 
+BASKET_TOLTI = []  # ultima raccolta: "titolo – motivo" delle partite di basket tolte (per il log)
+
+
+def filtro_basket(cat=None):
+    """Funzione evento -> None (tenere) o motivo (togliere), secondo categorie.json -> basket_ammessi / basket_esclusi."""
+    if cat is None:
+        try:
+            cat = json.loads((Path(__file__).resolve().parent.parent / "categorie.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            cat = {}
+    ammessi = [(v["nome"], [re.compile(r, re.I) for r in v.get("regex", [])], v.get("solo_titolo", False))
+               for v in cat.get("basket_ammessi", [])]
+    esclusi = [re.compile(r, re.I) for r in cat.get("basket_esclusi", [])]
+
+    def fn(e):
+        if e.get("sport") != "Basket" or not ammessi:
+            return None
+        testo = " | ".join(str(x) for x in [e.get("titolo"), e.get("titolo_orig"), e.get("titolo_src"), e.get("comp"),
+                                            e.get("descrizione"), *(e.get("testi") or [])] if x)
+        for r in esclusi:
+            if r.search(testo):
+                return f"escluso ({r.pattern})"
+        titoli = " | ".join(str(x) for x in [e.get("titolo"), e.get("titolo_src")] if x)
+        for nome, rxs, solo_t in ammessi:
+            if any(r.search(titoli if solo_t else testo) for r in rxs):
+                return None
+        return "competizione non nella lista basket_ammessi"
+    return fn
+
+
 def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None, scarica_ard_fn=None,
                    conf=None, programmi_tolti=None, scarica_dazn_fn=None, scarica_tb_fn=None, scarica_los_fn=None,
-                   scarica_el_fn=None, scarica_pp_fn=None):
+                   scarica_el_fn=None, scarica_pp_fn=None, categorie=None):
     """(eventi altri sport, partite di calcio, avvisi). Toglie gli eventi già finiti, i programmi sportivi
     (magazine, highlights, studio...: vedi altri_sport.json) e il calcio femminile.
     programmi_tolti (lista), se data, riceve "Emittente gg/mm hh:mm Titolo – motivo" per ogni programma tolto."""
@@ -442,6 +472,16 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
     altri, calcio = [], []
     uniti = unisci_eventi(tutti)
     uniti = [e for e in uniti if e["emittenti"]]  # partite LiveOnSat senza nessun canale gratis: via
+    basket = filtro_basket(categorie)  # basket: solo le competizioni ammesse (categorie.json -> basket_ammessi)
+    BASKET_TOLTI[:] = []
+    tenuti = []
+    for e in uniti:
+        motivo = basket(e)
+        if motivo:
+            BASKET_TOLTI.append(f'{dt.datetime.fromtimestamp(e["ts"], ROMA):%d/%m %H:%M} {e["titolo"]} [{e.get("comp") or e.get("descrizione") or ""}] – {motivo}')
+        else:
+            tenuti.append(e)
+    uniti = tenuti
     for e in uniti:  # titoli in italiano (glossario traduzioni.json); l'originale resta se la traduzione è parziale
         if e.get("lingua", "it") != "it" and e["sport"] != "Calcio":
             it, completa = traduci.traduci(e["titolo"])

@@ -193,5 +193,84 @@
    "Motomondiale",
    "Superbike"
   ]
- }
+ },
+ "_nota_basket_ammessi": "Basket: si tengono SOLO le partite che corrispondono a una di queste voci (regex, maiuscole/minuscole indifferenti, cercate in titolo, titolo originale, competizione e descrizione di tutte le fonti unite). Tutto il resto del basket viene tolto. 'basket_esclusi' vince sempre (basket femminile, NBA G League...).",
+ "basket_ammessi": [
+  {
+   "nome": "NBA",
+   "regex": [
+    "\\bNBA\\b"
+   ]
+  },
+  {
+   "nome": "Serie A (LBA)",
+   "regex": [
+    "\\bLBA\\b",
+    "Lega Basket",
+    "\\bSerie A ?[12]?\\b",
+    "\\bSerie A2\\b",
+    "\\bLega A\\b",
+    "Serie A Basket",
+    "Lega Basket Serie A"
+   ]
+  },
+  {
+   "nome": "Liga ACB",
+   "regex": [
+    "\\bACB\\b",
+    "Liga Endesa"
+   ]
+  },
+  {
+   "nome": "Coppe europee",
+   "regex": [
+    "Euro ?League",
+    "Eurolega",
+    "Euroliga",
+    "Euro ?Cup\\b",
+    "Eurocoppa",
+    "Basketball Champions League",
+    "\\bBCL\\b",
+    "Champions League",
+    "FIBA Europe Cup",
+    "Europe Cup"
+   ]
+  },
+  {
+   "nome": "Nazionali Italia, Grecia, Spagna",
+   "regex": [
+    "\\b(Italia|Italy|Italien|Italie|Grecia|Greece|Griechenland|Grèce|Hellas|Spagna|Spain|España|Espagne|Spanien)\\b"
+   ],
+   "solo_titolo": true,
+   "_nota": "Cercato solo nel titolo (nomi delle squadre), non nelle descrizioni ('in Griechenland zu Gast')."
+  },
+  {
+   "nome": "EuroBasket e Mondiali FIBA (anche qualificazioni)",
+   "regex": [
+    "Euro ?Basket",
+    "FIBA World Cup",
+    "Basketball World Cup",
+    "Coppa del Mondo",
+    "Mondiali",
+    "World Cup",
+    "Weltmeisterschaft",
+    "\\bWM\\b",
+    "Coupe du monde"
+   ]
+  }
+ ],
+ "basket_esclusi": [
+  "femminil",
+  "\\bwomen",
+  "\\bwoman",
+  "frauen",
+  "damen",
+  "féminin",
+  "\\bWNBA\\b",
+  "Liga Femenina",
+  "\\bLBF\\b",
+  "\\(W\\)",
+  "\\bG ?League\\b",
+  "\\b3x3\\b"
+ ]
 }

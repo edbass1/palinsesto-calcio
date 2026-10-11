@@ -395,6 +395,29 @@ def test_primaplay():
     return f"{len(cal)} calcio, {len(alt)} altri sport, {len(nuove)} nuove"
 
 
+def test_basket():
+    """Basket: solo NBA, Serie A/A2, ACB, coppe europee, nazionali ITA/GRE/SPA, EuroBasket e Mondiali (categorie.json)."""
+    import altri_sport
+    f = altri_sport.filtro_basket(p.carica_categorie())
+    B = lambda t, comp="", **k: f({"sport": "Basket", "titolo": t, "comp": comp, **k})
+    for t, comp in [("Los Angeles Lakers - Boston Celtics", "NBA Regular Season"), ("EuroLeague: Milano - Real", ""),
+                    ("EuroCup: Siauliai - U Cluj", ""), ("Virtus Bologna v Trento", "Italian Serie A"), ("Rieti - Cantù", "Serie A2"),
+                    ("Real Madrid v Baskonia", "Spanish ACB"), ("Unicaja - Tenerife", "Liga Endesa"), ("BCL: AEK - Tenerife", ""),
+                    ("Italia - Islanda", "Qualificazioni Mondiali FIBA"), ("Greece v Serbia", "Friendly"), ("Spagna - Francia", ""),
+                    ("Germania - Lettonia", "EuroBasket 2029 Qualifiers"), ("Brindisi - Karsiyaka", "FIBA Europe Cup")]:
+        assert B(t, comp) is None, (t, comp)
+    for t, comp in [("U Cluj - Dubai", ""), ("Liga Națională (Romania): Steaua - Rapid", "Liga Națională (Romania)"),
+                    ("Basket 3x3: World Tour Bucharest", "Basket 3x3"), ("Sheffield Sharks - Leicester Riders", "Super League Basketball"),
+                    ("Italia - Spagna", "EuroBasket Women"), ("Schio - Venezia", "Serie A1 femminile"), ("Las Vegas Aces - NY Liberty", "WNBA"),
+                    ("ALBA Berlin - Bayern", "BBL"), ("Olympiacos - Panathinaikos", "Greek Basket League")]:
+        assert B(t, comp), (t, comp)
+    assert f({"sport": "Tennis", "titolo": "ATP Shanghai"}) is None  # solo basket
+    # nazionali solo dal titolo: "in Griechenland zu Gast" nella descrizione non basta
+    assert B("Promitheas Patras gegen Gladiators Trier", descrizione="Die Gladiators sind in Griechenland zu Gast.")
+    assert B("Promitheas Patras gegen Gladiators Trier", descrizione="Im Basketball Europe Cup sind die Gladiators in Griechenland.") is None
+    return "ok"
+
+
 def test_finite():
     """Partite finite (inizio > 2h15m fa) tolte lato server; quelle in corso restano; niente 'GIÀ GIOCATA'."""
     def ev(ts, casa):
@@ -1007,6 +1030,7 @@ if __name__ == "__main__":
     print(f"Ordine TUTTO (blocchi A/B/C): {test_ordine_tutto()} – OK")
     print(f"Ordine ALTRI SPORT TUTTO (elite prima): {test_ordine_sport()} – OK")
     print(f"Prima Play: {test_primaplay()} – OK")
+    print(f"Basket solo competizioni ammesse: {test_basket()} – OK")
     print(f"EuroLeague/EuroCup TV Listings: {len(test_euroleague_tv())} partite – OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"

@@ -1203,6 +1203,8 @@ def main():
     print(f"{periodo(primo)}: {n} partite in {len(gruppi)} competizioni; falliti: {len(falliti)}")
     print(f"  LiveSoccerTV: {st['livesoccertv']} · LiveOnSat (con canali in chiaro): {st['liveonsat']} · "
           f"doppioni uniti: {len(st['uniti'])} · solo LiveOnSat: {st['solo_liveonsat']} · finite tolte: {st['finite_tolte']} · solo grazie a Teleboy: {st.get('solo_teleboy', 0)}")
+    for x in altri_sport.BASKET_TOLTI:
+        print("  basket tolto:", x)
     if "primaplay" in st:
         pp = st["primaplay"]
         print(f"  Prima Play (programma Prima Sport): {pp.get('errore') or str(pp.get('calcio', 0)) + ' partite di calcio, ' + str(pp.get('altri', 0)) + ' altri sport'}"

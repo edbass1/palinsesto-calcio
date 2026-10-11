@@ -129,3 +129,7 @@ Fonte: `https://www.primaplay.ro/transmisiuni` (HTML statico, nessuna API: una s
 - **Altri sport** (tennis, basket, pallamano…): in ALTRI SPORT, con sport e sigle tradotti (es. «Handbal F - CL» → «EHF Champions League femminile»).
 - Configurazione in `primaplay.json` (canali, parole romene degli sport, sigle delle competizioni, nomi romeni delle squadre).
 - In «Dove vederli» la voce **Prima Sport PPV** (fonte: utente): «Solo via app sulla TV, senza VPN», link `https://www.primaplay.ro`. Prima Sport 1-5 restano sulla voce di sempre.
+
+## Basket: solo alcune competizioni
+
+Per il basket (tutte le fonti) restano solo: NBA; Serie A (LBA) e Serie A2; Liga ACB (Liga Endesa); coppe europee (EuroLeague, EuroCup, Basketball Champions League, FIBA Europe Cup, anche le qualificazioni); nazionali maschili di Italia, Grecia e Spagna; EuroBasket e Mondiali FIBA (anche le qualificazioni). Basket femminile, 3x3, NBA G League e tutti gli altri campionati vengono tolti (nel log: «basket tolto: … – motivo»). Elenco modificabile in `categorie.json` → `basket_ammessi` (regex con i nomi alternativi: LBA, Lega A, Liga Endesa, ACB, BCL, Eurolega…) e `basket_esclusi`.
