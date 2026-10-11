@@ -790,9 +790,49 @@ def pill_vpn(t, nome="", link=None):
     return f' <span class="tag vpn" title="{esc(t)}" aria-label="{esc(t)}">{corpo}</span>'
 
 
+_DTT = None
+
+
+def dtt_di(*nomi):
+    """Voce di dtt_italia.json (canale italiano in chiaro sul digitale terrestre) per uno dei nomi, o None."""
+    global _DTT
+    if _DTT is None:
+        f = RADICE / "dtt_italia.json"
+        voci = json.loads(f.read_text(encoding="utf-8")).get("canali", []) if f.exists() else []
+        _DTT = [(v, [re.compile(x, re.I) for x in v.get("canali", [])]) for v in voci]
+    for n in nomi:
+        n = (n or "").strip()
+        for v, rx in _DTT:
+            if n and any(r.search(n) for r in rx):
+                return v
+    return None
+
+
+def pill_dtt(dtt):
+    """Pillola dei canali italiani: bandiera italiana + 'DTT <n>' (niente Teleboy, niente VPN, niente RaiPlay sulle schede)."""
+    return (f' <span class="tag dtt" title="Digitale terrestre italiano, canale {dtt["lcn"]} (senza VPN)">'
+            f'<img class="fl" src="flags/it.svg" alt="Italia" width="22" height="16"> DTT {dtt["lcn"]}</span>')
+
+
+def riga_italiana(nome, fta, dove, usati):
+    """Riga completa di un canale italiano in chiaro: [IN CHIARO] nome (-> Dove vederli) + 🇮🇹 DTT n."""
+    esc = html.escape
+    dtt = dtt_di(nome)
+    v = voce_dove(dtt["nome"], dove) or voce_dove(nome, dove)
+    testo = esc(nome)
+    if fta:
+        testo = f'<span class="tag" aria-label="in chiaro">IN CHIARO</span> {testo}'
+    if v:
+        usati.add(v["id"])
+        testo = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{testo}</a>'
+    return f'<li class="fta">{testo}{pill_dtt(dtt)}</li>'
+
+
 def emittente_altro(x, dove, usati):
     """Riga di un'emittente in ALTRI SPORT: nome (link al sito o a "Dove vederli"), etichette, link, VPN accanto al link."""
     esc = html.escape
+    if dtt_di(x["nome"]):  # canale italiano: solo la riga DTT
+        return riga_italiana(x["nome"], x.get("fta"), dove, usati)
     v = None if x.get("pagina") else voce_dove(x["nome"], dove)
     if v:
         usati.add(v["id"])
@@ -819,6 +859,8 @@ def emittente_altro(x, dove, usati):
 
 def badge(c, dove, usati):
     esc = html.escape
+    if not c.get("url") and dtt_di(c["nome"], c.get("teleboy") or ""):  # canale italiano: solo la riga DTT
+        return riga_italiana(c["nome"] if dtt_di(c["nome"]) else c["teleboy"], c["fta"], dove, usati)
     testo = esc(c["nome"])
     if c.get("dazn_gratis"):
         testo = f'{testo} <span class="tag dz" aria-label="gratis su DAZN con account gratuito">DAZN GRATIS</span>'
@@ -953,6 +995,8 @@ TEMPLATE = """<!doctype html>
   .tag.vpn.no {{ background:#00e676; color:#000; }}
   .tag.vpn img.fl {{ height:1.1em; width:auto; vertical-align:-0.2em; margin:0 .1em; border:1px solid #000; border-radius:2px; }}
   .tag.vpn .sep {{ margin:0 .05em; }}
+  .tag.dtt {{ background:#fff; color:#000; font-weight:800; font-size:.8em; padding:.1em .45em; border-radius:999px; white-space:nowrap; }}
+  .tag.dtt img.fl {{ height:1.1em; width:auto; vertical-align:-0.2em; border:1px solid #000; border-radius:2px; }}
   .orig {{ display:block; font-size:.95rem; font-weight:400; color:#bbb; margin-top:4px; }}
   .consiglio {{ font-size:1.1rem; font-weight:700; background:#1d1d00; border:2px solid var(--giallo); border-radius:10px; padding:10px 12px; }}
   .fino {{ font-size:.85rem; color:#ccc; }}

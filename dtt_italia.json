@@ -1,0 +1,238 @@
+{
+ "_nota": "Canali italiani in chiaro sul digitale terrestre: su ogni scheda in cui compaiono (qualsiasi fonte, anche Teleboy) la riga del canale mostra solo la pillola con bandiera italiana 'DTT <numero>' (niente link Teleboy, niente VPN, niente RaiPlay sulle schede; RaiPlay resta in Dove vederli). 'raiplay' è solo informativo. Numeri LCN verificati su Wikipedia 'Servizi televisivi digitali terrestri nazionali in Italia' (revisione dell'11/10/2026; numerazione AGCOM 116/21/CONS). 'canali' = espressioni regolari sul nome del canale (ancorate, per non confondere es. TV8 turca o DMAX tedesca). Link RaiPlay verificati (HTTP 200) l'11/10/2026.",
+ "fonte": "https://it.wikipedia.org/wiki/Servizi_televisivi_digitali_terrestri_nazionali_in_Italia",
+ "canali": [
+  {
+   "nome": "Rai 1",
+   "lcn": 1,
+   "canali": [
+    "^Rai ?1( HD)?( Italia| Italy)?$",
+    "^Rai Uno\\b"
+   ],
+   "raiplay": "https://www.raiplay.it/dirette/rai1"
+  },
+  {
+   "nome": "Rai 2",
+   "lcn": 2,
+   "canali": [
+    "^Rai ?2( HD)?( Italia| Italy)?$",
+    "^Rai Due\\b"
+   ],
+   "raiplay": "https://www.raiplay.it/dirette/rai2"
+  },
+  {
+   "nome": "Rai 3",
+   "lcn": 3,
+   "canali": [
+    "^Rai ?3( HD| TGR.*)?( Italia| Italy)?$",
+    "^Rai Tre\\b"
+   ],
+   "raiplay": "https://www.raiplay.it/dirette/rai3"
+  },
+  {
+   "nome": "Rete 4",
+   "lcn": 4,
+   "canali": [
+    "^Rete ?4( HD)?( Italia| Italy)?$"
+   ]
+  },
+  {
+   "nome": "Canale 5",
+   "lcn": 5,
+   "canali": [
+    "^Canale ?5( HD)?( Italia| Italy)?$"
+   ]
+  },
+  {
+   "nome": "Italia 1",
+   "lcn": 6,
+   "canali": [
+    "^Italia ?1( HD)?$"
+   ]
+  },
+  {
+   "nome": "La7",
+   "lcn": 7,
+   "canali": [
+    "^La ?7( HD)?( Italia| Italy)?$"
+   ]
+  },
+  {
+   "nome": "TV8",
+   "lcn": 8,
+   "canali": [
+    "^TV ?8( HD)?( Italia| Italy)?$"
+   ]
+  },
+  {
+   "nome": "Nove",
+   "lcn": 9,
+   "canali": [
+    "^Nove( HD)?( Italia| Italy)?$"
+   ]
+  },
+  {
+   "nome": "20 Mediaset",
+   "lcn": 20,
+   "canali": [
+    "^(20 ?Mediaset|Venti)( HD)?$"
+   ]
+  },
+  {
+   "nome": "Rai 4",
+   "lcn": 21,
+   "canali": [
+    "^Rai ?4( HD)?$"
+   ],
+   "raiplay": "https://www.raiplay.it/dirette/rai4"
+  },
+  {
+   "nome": "Iris",
+   "lcn": 22,
+   "canali": [
+    "^Iris( HD)?( Italia| Italy)?$"
+   ]
+  },
+  {
+   "nome": "Rai 5",
+   "lcn": 23,
+   "canali": [
+    "^Rai ?5( HD)?$"
+   ],
+   "raiplay": "https://www.raiplay.it/dirette/rai5"
+  },
+  {
+   "nome": "Rai Movie",
+   "lcn": 24,
+   "canali": [
+    "^Rai Movie( HD)?$"
+   ],
+   "raiplay": "https://www.raiplay.it/dirette/raimovie"
+  },
+  {
+   "nome": "Rai Premium",
+   "lcn": 25,
+   "canali": [
+    "^Rai Premium( HD)?$"
+   ],
+   "raiplay": "https://www.raiplay.it/dirette/raipremium"
+  },
+  {
+   "nome": "Cielo",
+   "lcn": 26,
+   "canali": [
+    "^Cielo( HD| TV)?( Italia| Italy)?$"
+   ]
+  },
+  {
+   "nome": "27 Twentyseven",
+   "lcn": 27,
+   "canali": [
+    "^27 ?Twentyseven( HD)?$"
+   ]
+  },
+  {
+   "nome": "TV2000",
+   "lcn": 28,
+   "canali": [
+    "^TV ?2000$"
+   ]
+  },
+  {
+   "nome": "La5",
+   "lcn": 30,
+   "canali": [
+    "^La ?5( HD)?$"
+   ]
+  },
+  {
+   "nome": "Real Time",
+   "lcn": 31,
+   "canali": [
+    "^Real Time( HD)?( Italia| Italy)?$"
+   ]
+  },
+  {
+   "nome": "Focus",
+   "lcn": 35,
+   "canali": [
+    "^Focus( HD)?( Italia| Italy)?$"
+   ]
+  },
+  {
+   "nome": "Rai Gulp",
+   "lcn": 42,
+   "canali": [
+    "^Rai Gulp( HD)?$"
+   ],
+   "raiplay": "https://www.raiplay.it/dirette/raigulp"
+  },
+  {
+   "nome": "Rai Yoyo",
+   "lcn": 43,
+   "canali": [
+    "^Rai Yoyo( HD)?$"
+   ],
+   "raiplay": "https://www.raiplay.it/dirette/raiyoyo"
+  },
+  {
+   "nome": "Rai News 24",
+   "lcn": 48,
+   "canali": [
+    "^Rai ?News ?24( HD)?$"
+   ],
+   "raiplay": "https://www.raiplay.it/dirette/rainews24"
+  },
+  {
+   "nome": "Italia 2",
+   "lcn": 49,
+   "canali": [
+    "^(Mediaset )?Italia ?2( HD)?$"
+   ]
+  },
+  {
+   "nome": "DMAX",
+   "lcn": 52,
+   "canali": [
+    "^DMAX (Italia|Italy|IT)( HD)?$"
+   ]
+  },
+  {
+   "nome": "Rai Storia",
+   "lcn": 54,
+   "canali": [
+    "^Rai Storia( HD)?$"
+   ],
+   "raiplay": "https://www.raiplay.it/dirette/raistoria"
+  },
+  {
+   "nome": "Mediaset Extra",
+   "lcn": 55,
+   "canali": [
+    "^Mediaset Extra( HD)?$"
+   ]
+  },
+  {
+   "nome": "Rai Sport",
+   "lcn": 58,
+   "canali": [
+    "^Rai ?Sport( ?\\+| ?1| Plus)?( HD)?( Italia| Italy)?$"
+   ],
+   "raiplay": "https://www.raiplay.it/dirette/raisport"
+  },
+  {
+   "nome": "Sportitalia",
+   "lcn": 60,
+   "canali": [
+    "^Sport ?Italia( HD)?( Italia| Italy)?$"
+   ]
+  },
+  {
+   "nome": "SuperTennis",
+   "lcn": 64,
+   "canali": [
+    "^Super ?Tennis( HD| TV)?( Italia| Italy)?$"
+   ]
+  }
+ ]
+}
