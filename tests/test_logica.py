@@ -1092,3 +1092,17 @@ if __name__ == "__main__":
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"
           f" = {st['totale']} – OK")
+
+
+def test_youth_league():
+    conf = json.loads((p.RADICE / "liveonsat.json").read_text(encoding="utf-8"))
+    rx = U.regex_femminile(conf["escludi_competizioni"])
+    assert U.femminile(rx, "UEFA Youth League | UEFA YOUTH LEAGUE", ("Leipzig", "PSV"))
+    assert U.femminile(rx, "", ("Leipzig U19", "PSV U19"))
+    assert U.femminile(rx, "UYL", ("A", "B"))
+    assert not U.femminile(rx, "UEFA Champions League", ("Leipzig", "PSV"))
+    cat = json.loads((p.RADICE / "categorie.json").read_text(encoding="utf-8"))
+    assert not any("YOUTH" in x for x in cat["calcio"]["ordine_tutto"]["blocco_a"])
+
+
+test_youth_league(); print("UEFA Youth League / U19 escluse: OK")
