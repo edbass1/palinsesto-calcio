@@ -20,6 +20,7 @@ import liveonsat  # noqa: E402
 import unisci  # noqa: E402
 import teleboy as teleboy_mod  # noqa: E402
 import dazn  # noqa: E402
+import primaplay  # noqa: E402
 import altri_sport  # noqa: E402
 import epg_teleboy  # noqa: E402
 import altri_los  # noqa: E402
@@ -350,6 +351,47 @@ def unisci_fonti(eventi, partite_los, regole_fta=()):
     return eventi, uniti
 
 
+def unisci_primaplay(eventi, partite, tutte_los=(), escludi=None):
+    """Partite di calcio dal programma Prima Sport: se la partita c'è già si aggiunge il canale (es. PPV2),
+    altrimenti si aggiunge; la competizione viene dal titolo o da LiveOnSat (tutte le partite, anche a pagamento).
+    escludi(comp, squadre, nome) -> True per calcio femminile / USA. Restituisce (eventi, uniti, nuove)."""
+    uniti, nuove = [], []
+    for p in sorted(partite, key=lambda p: p["ts"]):
+        if p.get("genere") == "F":
+            continue
+        migliore, punteggio = None, 0.0
+        for e in eventi:
+            sc = max(unisci.stessa_partita(e["ts"], e["casa"], e["ospite"], p["ts"], p["casa"], p["ospite"]),
+                     unisci.stessa_partita(e["ts"], e["casa"], e["ospite"], p["ts"], p["casa_ro"], p["ospite_ro"]))
+            if sc > punteggio:
+                migliore, punteggio = e, sc
+        k = {"nome": p["canale"], "fta": False}
+        if migliore is not None:
+            if unisci.chiave_canale(k["nome"]) not in {unisci.chiave_canale(c["nome"]) for c in migliore["canali"]}:
+                migliore["canali"].append(k)
+            if "Prima Play" not in migliore["fonti"]:
+                migliore["fonti"].append("Prima Play")
+            uniti.append(f'{migliore["casa"]} - {migliore["ospite"]} ({p["canale"]})')
+            continue
+        comp = p.get("comp_los") or ""
+        if not comp:
+            sc_l, comp = 0.0, ""
+            for x in tutte_los:
+                c_, _, o_ = x["titolo"].partition(" v ")
+                sc = unisci.stessa_partita(x["ts"], c_.strip(), o_.strip(), p["ts"], p["casa"], p["ospite"])
+                if sc > sc_l:
+                    sc_l, comp = sc, x["comp"]
+        ordine, etichetta = liveonsat.competizione_los(comp) if comp else (90, "ALTRE PARTITE (Prima Sport)")
+        if escludi and escludi(f"{comp} | {etichetta}", (p["casa"], p["ospite"]), f'{p["casa"]} - {p["ospite"]} [{comp}] (Prima Play)'):
+            continue
+        nuovo = {"ts": p["ts"], "quando": dt.datetime.fromtimestamp(p["ts"], ROMA), "titolo": f'{p["casa"]} v {p["ospite"]}',
+                 "ordine": ordine, "competizione": etichetta, "casa": p["casa"], "ospite": p["ospite"], "comp_orig": comp,
+                 "canali": [k], "fonti": ["Prima Play"]}
+        eventi.append(nuovo)
+        nuove.append(f'{p["casa"]} - {p["ospite"]} [{etichetta}] ({p["canale"]})')
+    return eventi, uniti, nuove
+
+
 def raggruppa(eventi):
     gruppi = {}
     for e in eventi:
@@ -358,7 +400,7 @@ def raggruppa(eventi):
             for (o, nome) in sorted(gruppi)]
 
 
-def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None, conf_dazn=None, conf_altri=None):
+def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None, conf_dazn=None, conf_altri=None, conf_pp=None):
     """Raccoglie da LiveSoccerTV e (se conf_los) da LiveOnSat, unisce e raggruppa per competizione."""
     eventi, falliti, senza = raccogli_lstv(canali, inizio, fine)
     # calcio femminile e calcio USA (MLS, USL, NWSL...) esclusi da tutte le fonti (liveonsat.json -> escludi_competizioni)
@@ -397,6 +439,14 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
             st["dazn"][p["paese"]] = st["dazn"].get(p["paese"], 0) + 1
         eventi, st["uniti_dazn"] = unisci_dazn(eventi, partite_dazn)
         st["solo_dazn"] = sum(1 for e in eventi if e["fonti"] == ["DAZN"])
+    altri_pp = []
+    if conf_pp is not None:  # programma ufficiale Prima Sport (Prima Play)
+        st["primaplay"] = {}
+        calcio_pp, altri_pp, err_pp = primaplay.raccogli(conf_pp.get("conf") or primaplay.carica_conf(), inizio, fine,
+                                                         conf_pp.get("scarica_fn"), conf_pp.get("oggi"), st["primaplay"])
+        if err_pp:
+            falliti.append(err_pp)
+        eventi, st["uniti_pp"], st["nuove_pp"] = unisci_primaplay(eventi, calcio_pp, liveonsat.TUTTE if conf_los else (), fem)
     st["altri_sport"] = []
     if conf_altri is not None:
         altri, calcio_stream, avvisi = altri_sport.raccogli_altri(
@@ -406,6 +456,7 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
             scarica_dazn_fn=conf_altri.get("scarica_dazn_fn", dazn.altri_sport_it if conf_dazn is not None else None),
             scarica_los_fn=conf_altri.get("scarica_los_fn", altri_los.fn_raccogli(
                 conf_los, teleboy, inizio, fine, stat=st.setdefault("altri_los", {})) if conf_los else None),
+            scarica_pp_fn=(lambda: (altri_pp, None)) if conf_pp is not None else None,
             scarica_el_fn=conf_altri.get("scarica_el_fn", euroleague_tv.fn_raccogli(
                 altri_sport.regole_conf().get("euroleague_tv", {}), inizio, fine, stat=st.setdefault("euroleague_tv", {}))),
             scarica_tb_fn=conf_altri.get("scarica_tb_fn", epg_teleboy.fn_raccogli(
@@ -1101,6 +1152,7 @@ def main():
     ap.add_argument("--teleboy", default=str(RADICE / "teleboy_canali.json"), help="elenco canali Teleboy")
     ap.add_argument("--teleboy-offline", action="store_true", help="non rilegge la pagina Teleboy, usa solo la copia")
     ap.add_argument("--senza-dazn", action="store_true", help="non legge la guida DAZN")
+    ap.add_argument("--senza-primaplay", action="store_true", help="non legge il programma Prima Sport (Prima Play)")
     ap.add_argument("--senza-altri-sport", action="store_true", help="non legge SRF/RTS/RSI/ARD")
     ap.add_argument("--out", default=str(RADICE / "site"))
     ap.add_argument("--ora", help="data/ora di riferimento ISO (per test), es. 2026-10-10T18:00+02:00")
@@ -1122,7 +1174,8 @@ def main():
         print(f"Teleboy: {tb.n} canali gratuiti ({tb.fonte})")
     conf_dazn = None if a.senza_dazn else {"file_esterno": str(RADICE / "dati" / "dazn.json")}
     conf_altri = None if a.senza_altri_sport else {}
-    gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st, tb, conf_dazn, conf_altri)
+    conf_pp = None if a.senza_primaplay else {}
+    gruppi, falliti, senza = raccogli(canali, inizio, fine, conf_los, st, tb, conf_dazn, conf_altri, conf_pp)
     n_tutte = sum(len(g["partite"]) for g in gruppi)
     gruppi = togli_finite(gruppi, dt.datetime.now(ROMA))
     st["finite_tolte"] = n_tutte - sum(len(g["partite"]) for g in gruppi)
@@ -1146,6 +1199,12 @@ def main():
     print(f"{periodo(primo)}: {n} partite in {len(gruppi)} competizioni; falliti: {len(falliti)}")
     print(f"  LiveSoccerTV: {st['livesoccertv']} · LiveOnSat (con canali in chiaro): {st['liveonsat']} · "
           f"doppioni uniti: {len(st['uniti'])} · solo LiveOnSat: {st['solo_liveonsat']} · finite tolte: {st['finite_tolte']} · solo grazie a Teleboy: {st.get('solo_teleboy', 0)}")
+    if "primaplay" in st:
+        pp = st["primaplay"]
+        print(f"  Prima Play (programma Prima Sport): {pp.get('errore') or str(pp.get('calcio', 0)) + ' partite di calcio, ' + str(pp.get('altri', 0)) + ' altri sport'}"
+              f" · unite: {len(st.get('uniti_pp', []))} · nuove: {len(st.get('nuove_pp', []))}")
+        for x in st.get("nuove_pp", []):
+            print("    nuova:", x)
     if "dazn" in st:
         print(f"  DAZN gratis per paese: {st['dazn']} · unite a partite già presenti: {len(st['uniti_dazn'])} "
               f"· solo DAZN: {st['solo_dazn']}")
@@ -1162,7 +1221,8 @@ def main():
         al = st["altri_sport"]
         print(f"  Altri sport per fonte: Teleboy (guida TV) {sum(any(x.get('teleboy') for x in e['emittenti']) for e in al)} · "
               f"DAZN Italia {sum(any(x.get('dazn_gratis') for x in e['emittenti']) for e in al)} · "
-              f"SRG/ARD {sum(any(not x.get('teleboy') and not x.get('dazn_gratis') for x in e['emittenti']) for e in al)}")
+              f"SRG/ARD {sum(any(not x.get('teleboy') and not x.get('dazn_gratis') and not x.get('pp') for x in e['emittenti']) for e in al)} · "
+              f"Prima Play {sum(any(x.get('pp') for x in e['emittenti']) for e in al)}")
         print(f"  Altri sport: {len(st['altri_sport'])} eventi · calcio in streaming: {st['calcio_stream']} "
               f"(uniti a partite già presenti: {len(st['uniti_stream'])})")
     for n, m in sorted(st.get("canali_ru_ir", {}).items()):

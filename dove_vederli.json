@@ -104,11 +104,27 @@
    ]
   },
   {
+   "id": "prima-sport-ppv",
+   "nome": "Prima Sport PPV (PPV1, PPV2, PPV3)",
+   "fonte": "utente",
+   "canali": [
+    "^Prima Sport ?PPV"
+   ],
+   "vpn": "non serve",
+   "note": "Solo via app sulla TV, senza VPN.",
+   "link": [
+    {
+     "url": "https://www.primaplay.ro",
+     "testo": "Prima Play"
+    }
+   ]
+  },
+  {
    "id": "prima-sport",
    "nome": "Prima Sport (1-5)",
    "fonte": "utente",
    "canali": [
-    "^Prima Sport"
+    "^Prima Sport(?! ?PPV)"
    ],
    "vpn": "non serve",
    "note": "Serve una registrazione veloce. Dopo la registrazione su Prima Play i canali si vedono senza VPN; l'app c'è anche per TV LG (e probabilmente Samsung).",

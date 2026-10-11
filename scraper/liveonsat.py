@@ -198,6 +198,9 @@ def analizza(h: str, regole, alias, escludi=("dazn",), teleboy=None):
     return out
 
 
+TUTTE = []  # tutte le partite dell'ultima raccolta nella finestra (con o senza canali in chiaro)
+
+
 def raccogli_los(conf, inizio, fine, scarica_fn=None, teleboy=None):
     """Scarica le pagine LiveOnSat; partite nella finestra con almeno un canale in chiaro, senza doppioni."""
     scarica_fn = scarica_fn or scarica
@@ -206,6 +209,7 @@ def raccogli_los(conf, inizio, fine, scarica_fn=None, teleboy=None):
     escludi = ["dazn"] + [x for x in conf.get("escludi_canali", []) if x]
     MAI_ESCLUDERE[:] = [x.lower() for x in conf.get("mai_escludere", ["idman"]) if x]
     partite, falliti = {}, []
+    TUTTE[:] = []
     for url in conf.get("pagine", []):
         h, err = scarica_fn(url)
         if err:
@@ -213,6 +217,8 @@ def raccogli_los(conf, inizio, fine, scarica_fn=None, teleboy=None):
             continue
         for p in analizza(h, regole, alias, escludi, teleboy):
             quando = dt.datetime.fromtimestamp(p["ts"], UTC)
+            if inizio <= quando < fine:
+                TUTTE.append(p)  # anche senza canali in chiaro: servono per la competizione di altre fonti (Prima Play)
             if not (inizio <= quando < fine) or not (p["canali_fta"] or p["canali_teleboy"]):
                 continue
             k = (p["ts"], re.sub(r"\W+", "", p["titolo"].lower()))

@@ -336,6 +336,62 @@ def test_ordine_sport():
     return tipo
 
 
+def test_primaplay():
+    """Programma ufficiale Prima Sport (primaplay.ro/transmisiuni): ora romena -> italiana, PPV, calcio unito, altri sport."""
+    import primaplay as PP
+    h = gzip.open(Path(__file__).parent / "fixtures_primaplay_2026-10-11" / "transmisiuni.html.gz", "rt", encoding="utf-8").read()
+    conf = PP.carica_conf()
+    ini, fine = dt.datetime(2026, 10, 11, tzinfo=p.ROMA), dt.datetime(2026, 10, 15, tzinfo=p.ROMA)
+    st = {}
+    cal, alt, err = PP.raccogli(conf, ini, fine, lambda u: (h, None), dt.date(2026, 10, 11), st)
+    assert err is None and st["righe"] == 71 and len(cal) == 45 and len(alt) == 14, st
+    assert all(x.startswith("Prima News") for x in st["saltate_canale"]) and len(st["saltate_canale"]) == 3
+    ora = lambda x: dt.datetime.fromtimestamp(x["ts"], p.ROMA).strftime("%d %H:%M")
+    como = next(x for x in cal if x["casa"] == "Como")
+    assert (ora(como), como["canale"], como["ospite"]) == ("11 12:30", "Prima Sport 1", "Roma")  # 13:30 in Romania
+    assert {x["canale"] for x in cal} >= {"Prima Sport PPV1", "Prima Sport PPV2", "Prima Sport PPV3"}
+    assert any(x["ospite"] == "Sporting CP" for x in cal) and any(x["ospite"] == "Bayern Munich" for x in cal)  # nomi romeni
+    uyl = next(x for x in cal if x["comp"] == "UYL")
+    assert uyl["comp_los"] == "UEFA Youth League" and uyl["ospite"] == "Paris Saint-Germain"
+    tit = {(ora(e), e["emittenti"][0]["nome"]): (e["sport"], e["titolo"]) for e in alt}
+    assert tit[("11 16:00", "Prima Sport 2")] == ("Pallamano", "EHF Champions League femminile: CSM București - Esbjerg")
+    assert tit[("14 17:30", "Prima Sport 3")] == ("Basket", "EuroCup: Siauliai - U Cluj")
+    assert tit[("11 14:00", "Prima Sport PPV4")] == ("Basket", "Basket 3x3: World Tour Bucharest")
+    assert tit[("11 12:00", "Prima Sport 4")] == ("Tennis", "ATP: Shanghai Masters")
+    # titoli: repliche saltate, "Fotbal: ..., Serie A", calcio femminile
+    a = PP.analizza_titolo
+    assert a("Fotbal: Roma - Inter (reluare)", conf) is None and a("Rezumat: Lazio - Monza", conf) is None
+    assert a("Fotbal: Roma - Inter, Serie A (live)", conf) == {"sport": "Calcio", "genere": "", "comp": "", "resto": "Roma - Inter, Serie A"}
+    assert a("Volei F - CL: Alba Blaj - Conegliano", conf)["sport"] == "Pallavolo"
+    # ora legale / ora solare: sempre un'ora in meno rispetto alla Romania
+    h2 = ('<a href="#tab1">Astăzi <span>31.10</span></a><a href="#tab2">D<span>01.11</span></a>'
+          '<div class="tab-pane fade" id="tab1"><table class="program-live"><tr><td>22:00<br/>PPV2</td><td>Fotbal: A - B, Serie A</td></tr></table></div>'
+          '<div class="tab-pane fade" id="tab2"><table class="program-live"><tr><td>22:00<br/>Prima Sport 1</td><td>Fotbal F: C - D</td></tr>'
+          '<tr><td>18:00<br/>Prima Sport 2</td><td>Fotbal: E - F (reluare)</td></tr></table></div></section>')
+    c2, _, _ = PP.raccogli(conf, dt.datetime(2026, 10, 30, tzinfo=p.ROMA), dt.datetime(2026, 11, 3, tzinfo=p.ROMA),
+                           lambda u: (h2, None), dt.date(2026, 10, 31), {})
+    assert [(ora(x), x["canale"], x["comp_los"], x["genere"]) for x in c2] == [
+        ("31 21:00", "Prima Sport PPV2", "Italian Serie A", ""), ("01 21:00", "Prima Sport 1", "", "F")]
+    # unione con le partite già trovate: canale aggiunto; nuove partite con la competizione da LiveOnSat; femminile via
+    q = dt.datetime(2026, 10, 11, 12, 30, tzinfo=p.ROMA)
+    ev = [{"ts": int(q.timestamp()), "quando": q, "casa": "Como", "ospite": "AS Roma", "competizione": "SERIE A", "ordine": 1,
+           "canali": [{"nome": "Prima Sport 1", "fta": False}], "fonti": ["LiveSoccerTV"]}]
+    t_al = int(dt.datetime(2026, 10, 11, 16, 15, tzinfo=p.ROMA).timestamp())
+    los = [{"ts": t_al, "titolo": "Almeria v Leganes", "comp": "Spanish La Liga 2"}]
+    ev, uniti, nuove = p.unisci_primaplay(ev, cal + c2, los, lambda c, s_, n: "Serie A" in c and s_[0] == "A")
+    assert [c["nome"] for c in ev[0]["canali"]] == ["Prima Sport 1"] and ev[0]["fonti"] == ["LiveSoccerTV", "Prima Play"]
+    al = next(e for e in ev if e["casa"] == "Almeria")
+    assert al["competizione"].startswith("LALIGA HYPERMOTION") and al["canali"] == [{"nome": "Prima Sport PPV2", "fta": False}]
+    assert not any(e["casa"] in ("A", "C") for e in ev)  # esclusa (finta regola) e femminile
+    assert any(e["competizione"] == "UEFA YOUTH LEAGUE" for e in ev)
+    # Dove vederli: PPV -> voce PPV dell'utente, Prima Sport 1-5 -> voce di sempre
+    dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    assert p.voce_dove("Prima Sport PPV2", dove)["id"] == "prima-sport-ppv" and p.voce_dove("Prima Sport 3", dove)["id"] == "prima-sport"
+    v = p.voce_dove("Prima Sport PPV1", dove)
+    assert v["note"] == "Solo via app sulla TV, senza VPN." and v["link"][0]["url"] == "https://www.primaplay.ro" and v["fonte"] == "utente"
+    return f"{len(cal)} calcio, {len(alt)} altri sport, {len(nuove)} nuove"
+
+
 def test_finite():
     """Partite finite (inizio > 2h15m fa) tolte lato server; quelle in corso restano; niente 'GIÀ GIOCATA'."""
     def ev(ts, casa):
@@ -947,6 +1003,7 @@ if __name__ == "__main__":
     print(f"LiveOnSat altri sport + NFL gratis: {len(test_altri_los_nfl())} eventi – OK")
     print(f"Ordine TUTTO (blocchi A/B/C): {test_ordine_tutto()} – OK")
     print(f"Ordine ALTRI SPORT TUTTO (elite prima): {test_ordine_sport()} – OK")
+    print(f"Prima Play: {test_primaplay()} – OK")
     print(f"EuroLeague/EuroCup TV Listings: {len(test_euroleague_tv())} partite – OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"

@@ -1,0 +1,151 @@
+{
+ "_nota": "Programma ufficiale Prima Sport (www.primaplay.ro/transmisiuni): orari in ora della Romania. Calcio nella sezione calcio (unito alle partite già trovate), altri sport in ALTRI SPORT. Le righe 'reluare' (replica) sono saltate.",
+ "url": "https://www.primaplay.ro/transmisiuni",
+ "_nota_canali": "Canali tenuti (regex sul nome nella tabella) e nome mostrato.",
+ "canali": [
+  {
+   "regex": "^Prima Sport (\\d)$",
+   "nome": "Prima Sport \\1"
+  },
+  {
+   "regex": "^(?:Prima Sport )?PPV ?(\\d)$",
+   "nome": "Prima Sport PPV\\1"
+  }
+ ],
+ "_nota_salta": "Titoli da saltare (repliche, sintesi...).",
+ "salta": [
+  "\\breluare\\b",
+  "\\brezumat",
+  "\\bhighlights?\\b",
+  "\\bmagazin\\b",
+  "\\bstudio\\b"
+ ],
+ "_nota_sport": "Parola romena all'inizio del titolo -> sport (come nelle altre fonti di ALTRI SPORT). 'Fotbal' = calcio.",
+ "sport": {
+  "fotbal": "Calcio",
+  "tenis": "Tennis",
+  "tenis de masa": "Tennistavolo",
+  "baschet": "Basket",
+  "baschet 3x3": "Basket",
+  "handbal": "Pallamano",
+  "volei": "Pallavolo",
+  "volei pe plaja": "Beach volley",
+  "hochei": "Hockey su ghiaccio",
+  "hochei pe gheata": "Hockey su ghiaccio",
+  "box": "Boxe",
+  "kickbox": "Kickboxing",
+  "mma": "MMA",
+  "snooker": "Snooker",
+  "darts": "Freccette",
+  "ciclism": "Ciclismo",
+  "atletism": "Atletica",
+  "inot": "Nuoto",
+  "polo": "Pallanuoto",
+  "polo pe apa": "Pallanuoto",
+  "futsal": "Calcio a 5",
+  "rugby": "Rugby",
+  "golf": "Golf",
+  "formula 1": "Formula 1",
+  "motogp": "Motomondiale",
+  "raliu": "Motori",
+  "fotbal american": "Football americano",
+  "nfl": "Football americano",
+  "gimnastica": "Ginnastica",
+  "lupte": "Lotta",
+  "judo": "Judo",
+  "scrima": "Scherma",
+  "sah": "Scacchi",
+  "esports": "eSport"
+ },
+ "_nota_durata": "Durata in minuti per sport (serve a togliere gli eventi finiti).",
+ "durata_min": {
+  "Tennis": 480,
+  "Ciclismo": 300,
+  "default": 120
+ },
+ "_nota_comp": "Sigle di competizione dopo lo sport (es. 'Handbal F - CL: ...') -> nome in italiano, per sport.",
+ "competizioni": {
+  "Pallamano": {
+   "CL": "EHF Champions League",
+   "EL": "EHF European League",
+   "LN": "Liga Națională (Romania)"
+  },
+  "Basket": {
+   "EL": "EuroLeague",
+   "EC": "EuroCup",
+   "LN": "Liga Națională (Romania)",
+   "CL": "Basketball Champions League",
+   "FE": "FIBA Europe Cup"
+  },
+  "Pallavolo": {
+   "CL": "CEV Champions League",
+   "LN": "Divizia A1 (Romania)"
+  },
+  "*": {
+   "CL": "Champions League",
+   "EL": "European League",
+   "LN": "Liga Națională (Romania)"
+  }
+ },
+ "_nota_comp_calcio": "Sigla/nome di competizione nei titoli di calcio ('UYL: ...', '..., Serie A') -> nome stile LiveOnSat (per l'etichetta italiana).",
+ "competizioni_calcio": {
+  "UYL": "UEFA Youth League",
+  "UCL": "UEFA Champions League",
+  "CL": "UEFA Champions League",
+  "UEL": "UEFA Europa League",
+  "EL": "UEFA Europa League",
+  "UECL": "UEFA Conference League",
+  "ECL": "UEFA Conference League",
+  "Serie A": "Italian Serie A",
+  "Serie B": "Italian Serie B",
+  "Coppa Italia": "Italian Coppa Italia",
+  "La Liga": "Spanish La Liga",
+  "LaLiga": "Spanish La Liga",
+  "Premier League": "English Premier League",
+  "Bundesliga": "German Bundesliga",
+  "Ligue 1": "French Ligue 1",
+  "Liga 1": "Romanian Liga I",
+  "Superliga": "Romanian Liga I",
+  "Liga 2": "Romanian Liga II",
+  "Cupa Romaniei": "Romanian Cup"
+ },
+ "_nota_squadre": "Nomi romeni di squadre -> nome usato dalle altre fonti (per unire le partite). Parola per parola dopo questa tabella: vedi 'parole_squadre'.",
+ "squadre": {
+  "Inter Milano": "Inter",
+  "Barca": "Barcelona",
+  "Sporting Lisabona": "Sporting CP",
+  "Bayern Munchen": "Bayern Munich",
+  "AEK Atena": "AEK Athens",
+  "Slavia Praga": "Slavia Prague",
+  "Șahtior Donțk": "Shakhtar Donetsk",
+  "Sahtior Donetk": "Shakhtar Donetsk",
+  "Șahtior Donețk": "Shakhtar Donetsk",
+  "Steaua Roșie": "Crvena Zvezda",
+  "Steaua Rosie": "Crvena Zvezda",
+  "Gladbach": "Borussia Mönchengladbach",
+  "Koln": "Köln",
+  "Greuther Furth": "Greuther Fürth",
+  "St. Gilloise": "Union Saint-Gilloise",
+  "PSG": "Paris Saint-Germain",
+  "La Coruna": "Deportivo La Coruña",
+  "Sporting": "Sporting Gijón",
+  "Lask Linz": "LASK",
+  "Bodo/Glimt": "Bodø/Glimt",
+  "Brugge": "Club Brugge",
+  "Karlsruher": "Karlsruher SC",
+  "Kocaelispor": "Kocaelispor"
+ },
+ "parole_squadre": {
+  "Lisabona": "Lisbon",
+  "Praga": "Prague",
+  "Atena": "Athens",
+  "Munchen": "Munich",
+  "Milano": "Milan",
+  "Viena": "Vienna",
+  "Varsovia": "Warsaw"
+ },
+ "_nota_titolo_sport": "Prefisso del titolo quando lo sport da solo non basta (es. basket 3x3).",
+ "titolo_sport": {
+  "baschet 3x3": "Basket 3x3"
+ }
+}

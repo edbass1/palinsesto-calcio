@@ -381,13 +381,13 @@ def unisci_eventi(eventi):
                     u[k] = migliore.get(k)
         u.pop("_fonti", None)
         # un canale LiveOnSat che è anche su Teleboy: basta una riga (quella con il link Teleboy)
-        u["emittenti"] = [x for x in u["emittenti"] if x.get("fta") is not False or x.get("teleboy")]
+        u["emittenti"] = [x for x in u["emittenti"] if x.get("fta") is not False or x.get("teleboy") or x.get("pp")]
     return uniti
 
 
 def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None, scarica_ard_fn=None,
                    conf=None, programmi_tolti=None, scarica_dazn_fn=None, scarica_tb_fn=None, scarica_los_fn=None,
-                   scarica_el_fn=None):
+                   scarica_el_fn=None, scarica_pp_fn=None):
     """(eventi altri sport, partite di calcio, avvisi). Toglie gli eventi già finiti, i programmi sportivi
     (magazine, highlights, studio...: vedi altri_sport.json) e il calcio femminile.
     programmi_tolti (lista), se data, riceve "Emittente gg/mm hh:mm Titolo – motivo" per ogni programma tolto."""
@@ -408,6 +408,11 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
         ev, err = scarica_los_fn()
         if err:
             falliti.append("LiveOnSat")
+        tutti += ev
+    if scarica_pp_fn is not None:  # programma ufficiale Prima Sport (Prima Play), sport diversi dal calcio
+        ev, err = scarica_pp_fn()
+        if err:
+            falliti.append("Prima Play")
         tutti += ev
     if scarica_el_fn is not None:  # EuroLeague/EuroCup sui canali scelti (pagine ufficiali TV Listings)
         ev, err = scarica_el_fn()
