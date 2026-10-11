@@ -731,7 +731,7 @@ def sito_ufficiale(v):
 
 
 VPN_MANCANTI = []  # ultima generazione: righe con un link ▶ ma senza indicazione VPN (per il log)
-SENZA_VPN_NOMI = re.compile(r"^(DAZN Italia|Rai\b|Sportitalia|SuperTennis)", re.I)
+SENZA_VPN_NOMI = re.compile(r"^(DAZN\b|Rai\b|Sportitalia|SuperTennis)", re.I)
 
 
 def vpn_breve(v):
