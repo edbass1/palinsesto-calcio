@@ -309,7 +309,8 @@ def test_ordine_sport():
         return {"id": titolo, "ts": ts, "fine": ts + 7200, "sport": sport, "titolo": titolo, "titolo_orig": titolo, "evento": True,
                 "lingua": "it", "descrizione": "", "emittenti": [{"nome": "RSI La 2", "pagina": None, "link": None, "vpn": "SVIZZERA", "fta": True}]}
     altri = [ev("Ciclismo", "Paris-Tours", 0.5), ev("Pallavolo", "Lube - Trento", 1), ev("Tennis", "ATP Shanghai", 3),
-             ev("Formula 1", "Gran Premio di Singapore", 2), ev("Hockey su ghiaccio", "Lugano - Zug", 2.5), ev("Basket", "EuroLeague: Milano - Real", 4)]
+             ev("Formula 1", "Gran Premio di Singapore", 2), ev("Hockey su ghiaccio", "Lugano - Zug", 2.5), ev("Basket", "EuroLeague: Milano - Real", 4),
+             ev("Motori", "WEC 6 Ore del Fuji", 0.7), ev("Motomondiale", "MotoGP: gara", 5)]
     def dom(dopo=""):
         h = p.genera_html(ora.date(), ora, [], [], [], altri=altri).replace("</body>", f"<script>{dopo}</script></body>")
         with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False) as f:
@@ -325,11 +326,13 @@ def test_ordine_sport():
                  for m in re.finditer(r'<li class="(sotto-sep)"(?![^>]*hidden)[^>]*>|<li class="partita evento[^"]*"(?![^>]*hidden)[^>]*>.*?<span class="sq">([^<]*)', orario, re.S)]
         return sezioni, righe
     tipo, orario = viste(dom())
-    assert tipo == ["FORMULA 1", "TENNIS", "BASKET", "CICLISMO", "PALLAVOLO", "HOCKEY SU GHIACCIO"], tipo
-    assert orario == ["Paris-Tours", "Lube - Trento", "Gran Premio di Singapore", "Lugano - Zug", "ATP Shanghai", "EuroLeague: Milano - Real"], orario
+    # F1 e motomondiale prima (tra loro per orario), poi gli altri elite (MOTORI compreso) per orario, poi il resto
+    assert tipo == ["FORMULA 1", "MOTOMONDIALE", "MOTORI", "TENNIS", "BASKET", "CICLISMO", "PALLAVOLO", "HOCKEY SU GHIACCIO"], tipo
+    assert orario == ["Paris-Tours", "WEC 6 Ore del Fuji", "Lube - Trento", "Gran Premio di Singapore", "Lugano - Zug", "ATP Shanghai",
+                      "EuroLeague: Milano - Real", "MotoGP: gara"], orario
     # ELITE SPORT: solo gli sport elite
     tipo2, orario2 = viste(dom("document.querySelector('.scelta-b button[data-gruppo=\\'altri\\'][data-cat=\\'elite\\']').click();"))
-    assert tipo2 == ["FORMULA 1", "TENNIS", "BASKET"] and "SEP" not in orario2, (tipo2, orario2)
+    assert tipo2 == ["FORMULA 1", "MOTOMONDIALE", "MOTORI", "TENNIS", "BASKET"], (tipo2, orario2)
     # di nuovo TUTTO dopo ELITE: l'ordine torna
     t3 = viste(dom("var q=function(c){return document.querySelector('.scelta-b button[data-gruppo=\\'altri\\'][data-cat=\\''+c+'\\']')};q('elite').click();q('tutto').click();"))
     assert t3 == (tipo, orario), t3

@@ -186,6 +186,12 @@
     "Programma sportivo",
     ""
    ]
-  }
+  },
+  "_nota_sport_in_testa": "Vista PER SPORT (TUTTO ed ELITE SPORT): questi sport vengono prima di tutti gli altri sport elite (tra loro per primo inizio). MOTORI (DTM, WEC, IndyCar, NASCAR, rally, Formula E...) segue con gli altri elite.",
+  "sport_in_testa": [
+   "Formula 1",
+   "Motomondiale",
+   "Superbike"
+  ]
  }
 }

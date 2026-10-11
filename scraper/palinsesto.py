@@ -599,7 +599,8 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     for e in altri:
         per_sport.setdefault(e["sport"], []).append(e)
     fissi = sorted(per_sport.items(), key=lambda x: (-len(x[1]), x[0]))  # a parità di orario: prima gli sport con più eventi
-    sez_sport = [f'<section class="comp" data-ordine="{i}"><h2>{esc(sp.upper())}</h2><ol class="partite">{"".join(scheda_altro(e) for e in ev)}</ol></section>'
+    in_testa = {x.lower() for x in (categorie if categorie is not None else carica_categorie()).get("altri", {}).get("sport_in_testa", [])}
+    sez_sport = [f'<section class="comp" data-ordine="{i}"' + (' data-testa="1"' if sp.lower() in in_testa else '') + f'><h2>{esc(sp.upper())}</h2><ol class="partite">{"".join(scheda_altro(e) for e in ev)}</ol></section>'
                  for i, (sp, ev) in sorted(enumerate(fissi), key=lambda x: (min(e["ts"] for e in x[1][1]), x[0]))]
     if not sez_altri:
         sez_altri.append('<p class="vuoto">Nessun altro sport in diretta in questi giorni.</p>')
@@ -1073,9 +1074,12 @@ TEMPLATE = """<!doctype html>
       }};
       var k = sez.map(function (s) {{ return {{ s: s, k: chiave(s), b: s.dataset.blocco || 'c' }}; }});
       var elite = function (s) {{ return tutti('li.partita:not([hidden])', s).some(function (p) {{ return (' ' + (p.dataset.cat || '') + ' ').indexOf(' elite ') >= 0; }}); }};
-      if (id === 'vista-sport-tipo' && S.cat.altri === 'tutto') {{
-        // TUTTO: prima gli sport ELITE (con almeno un evento elite visibile), poi gli altri; dentro: primo inizio
-        k.forEach(function (x) {{ x.k = [elite(x.s) ? 0 : 1].concat(x.k); }});
+      if (id === 'vista-sport-tipo') {{
+        // F1 e motomondiale (data-testa) prima degli altri sport elite; con TUTTO poi gli altri elite e infine i non elite;
+        // dentro ogni gruppo: primo inizio
+        var tt = S.cat.altri === 'tutto';
+        var gr = function (s) {{ var el = !tt || elite(s); return el && s.dataset.testa ? 0 : el ? 1 : 2; }};
+        k.forEach(function (x) {{ x.k = [gr(x.s)].concat(x.k); }});
         k.sort(function (a, b) {{ return (a.k[0] - b.k[0]) || (a.k[1] - b.k[1]) || (a.k[2] - b.k[2]); }});
       }} else if (id === 'vista-campionato' && S.cat.calcio === 'tutto') {{
         // TUTTO: blocco A (coppe europee + nazionali) e blocco B (Serie A, poi gli altri grandi campionati):
