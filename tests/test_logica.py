@@ -176,7 +176,7 @@ def test_esclusi():
     # Arsenal-Leeds (sab 13:30) aveva solo GEM/Idman/IRIB/Meraj/Persiana/Solh: resta solo con Idman TV e Solh TV
     ars = grezzo["Arsenal v Leeds United"]["canali_fta"]
     assert ars == ["GEM Sport 1", "Idman TV", "IRIB Varzesh", "Meraj TV", "Persiana Sport", "Solh TV"], ars
-    assert titoli["Arsenal v Leeds United"]["canali_fta"] == ["Idman TV", "Solh TV"]
+    assert titoli["Arsenal v Leeds United"]["canali_fta"] == ["Idman TV"]  # Solh escluso
     # Rayo-Athletic aveva solo Persiana Sports 3 (+ DAZN): sparisce
     assert grezzo["Rayo Vallecano v Athletic Bilbao"]["canali_fta"] == ["DAZN España HD FTA", "Persiana Sports 3"]
     assert "Rayo Vallecano v Athletic Bilbao" not in titoli
@@ -1123,3 +1123,15 @@ def test_dtt_italia():
 
 
 test_dtt_italia(); print("DTT Italia (numeri LCN, RaiPlay): OK")
+
+
+def test_solh():
+    conf = json.loads((p.RADICE / "liveonsat.json").read_text(encoding="utf-8"))
+    esc = [x.lower() for x in conf["escludi_canali"]]
+    for n in ("Solh Sports", "Solh TV", "SOLH Sport HD"):
+        assert any(x in n.lower() for x in esc), n
+    dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))
+    assert "solh" not in json.dumps(dove).lower()
+
+
+test_solh(); print("Solh escluso: OK")
