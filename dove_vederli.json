@@ -1,5 +1,5 @@
 {
- "_nota": "Sezione 'Dove vederli' in fondo alla pagina. Ogni voce: id, nome, canali (espressioni regolari sui nomi dei canali che portano a questa voce), vpn, note, link. fonte = 'utente' (indicati dall'utente, sempre mostrati) oppure 'ricerca' (link ufficiali trovati e controllati il 10/10/2026, mostrati solo se il canale compare in qualche partita). verificato=false -> sulla pagina compare 'link da verificare'.",
+ "_nota": "Sezione 'Dove vederli' in fondo alla pagina. Ogni voce: id, nome, canali (espressioni regolari sui nomi dei canali che portano a questa voce), vpn, note, link. fonte = 'utente' (indicati dall'utente, sempre mostrati) oppure 'ricerca' (link ufficiali trovati e controllati il 10/10/2026, mostrati solo se il canale compare in qualche partita). verificato=false -> sulla pagina compare 'link da verificare'. Ogni voce ha 'vpn_tag': l'etichetta breve mostrata accanto al link su ogni partita (es. 'VPN Svizzera', 'SENZA VPN', 'Solo app · VPN Albania').",
  "voci": [
   {
    "id": "teleboy",
@@ -13,7 +13,8 @@
      "url": "https://www.teleboy.ch/it/live",
      "testo": "Teleboy TV"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Svizzera"
   },
   {
    "id": "srf-sport",
@@ -29,7 +30,8 @@
      "url": "https://www.srf.ch/play/tv/sport-livestreams",
      "testo": "SRF Sport-Livestreams"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Svizzera"
   },
   {
    "id": "rts-sport",
@@ -45,7 +47,8 @@
      "url": "https://www.rts.ch/play/tv/rts-livestreams",
      "testo": "RTS Livestreams"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Svizzera"
   },
   {
    "id": "rsi-sport",
@@ -61,7 +64,8 @@
      "url": "https://www.rsi.ch/palinsesto/streaming/",
      "testo": "RSI Streaming"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Svizzera"
   },
   {
    "id": "ard-sport",
@@ -77,7 +81,8 @@
      "url": "https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/livestreams-ard-",
      "testo": "ARD Sport-Livestreams"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Germania"
   },
   {
    "id": "golazo",
@@ -101,7 +106,8 @@
      "url": "https://localnow.com/channels/cbs-sports-golazo-network",
      "testo": "Local Now – Golazo Network"
     }
-   ]
+   ],
+   "vpn_tag": "VPN USA"
   },
   {
    "id": "prima-sport-ppv",
@@ -117,7 +123,8 @@
      "url": "https://www.primaplay.ro",
      "testo": "Prima Play"
     }
-   ]
+   ],
+   "vpn_tag": "Solo app · SENZA VPN"
   },
   {
    "id": "prima-sport",
@@ -162,7 +169,8 @@
     "testo": "Per una maggiore stabilità consigliamo di registrarsi su primaplay.ro e poi scaricare l'app sulla TV di casa.",
     "url": "https://www.primaplay.ro",
     "testo_link": "primaplay.ro"
-   }
+   },
+   "vpn_tag": "SENZA VPN (registrazione)"
   },
   {
    "id": "dazn",
@@ -202,7 +210,8 @@
      "url": "https://www.dazn.com/fr-BE/home",
      "testo": "DAZN Belgio, in francese (VPN Belgio per registrarsi)"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Spagna/Francia/Germania/Portogallo/Belgio (solo registrazione)"
   },
   {
    "id": "sporty-tv-africa",
@@ -218,7 +227,8 @@
      "url": "https://sporty.com/football/matches",
      "testo": "sporty.com – partite (icona S-TV)"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Nigeria o Ghana"
   },
   {
    "id": "sportynet-brasil",
@@ -234,7 +244,8 @@
      "url": "https://www.youtube.com/@SportyNetBrasil",
      "testo": "YouTube – SportyNet Brasil"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Brasile"
   },
   {
    "id": "bbc-alba",
@@ -250,7 +261,8 @@
      "url": "https://www.bbc.co.uk/tv/bbcalba",
      "testo": "BBC Alba"
     }
-   ]
+   ],
+   "vpn_tag": "VPN UK"
   },
   {
    "id": "itv1",
@@ -266,7 +278,8 @@
      "url": "https://tv.teleboy.ch/live(player:live/346)",
      "testo": "Teleboy – ITV 1"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Svizzera"
   },
   {
    "id": "tv5monde",
@@ -282,7 +295,8 @@
      "url": "https://europe.tv5monde.com/en/live",
      "testo": "TV5 Monde – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Francia"
   },
   {
    "id": "trt",
@@ -303,7 +317,8 @@
      "url": "https://www.trtizle.com/canli/tv/trt-spor",
      "testo": "TRT İzle (link alternativo)"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Turchia"
   },
   {
    "id": "dubai-sports",
@@ -319,7 +334,8 @@
      "url": "https://www.dubaiplus.net/epg?channel=702096936062",
      "testo": "Dubai Sports 1 – Dubai+"
     }
-   ]
+   ],
+   "vpn_tag": "SENZA VPN (registrazione)"
   },
   {
    "id": "x-sports",
@@ -335,7 +351,8 @@
      "url": "https://www.youtube.com/@xsports.brasil/streams",
      "testo": "X Sports – dirette su YouTube"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Brasile"
   },
   {
    "id": "rtsh",
@@ -346,7 +363,8 @@
    ],
    "vpn": "Albania",
    "note": "Solo via app da scaricare",
-   "link": []
+   "link": [],
+   "vpn_tag": "VPN Albania"
   },
   {
    "id": "bbc",
@@ -375,7 +393,8 @@
      "url": "https://www.bbc.co.uk/iplayer/live/bbcscotland",
      "testo": "BBC Scotland – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN UK"
   },
   {
    "id": "itvx",
@@ -395,7 +414,8 @@
      "testo": "ITVX – diretta",
      "verificato": false
     }
-   ]
+   ],
+   "vpn_tag": "VPN UK"
   },
   {
    "id": "stv",
@@ -412,7 +432,8 @@
      "url": "https://player.stv.tv/live",
      "testo": "STV Player – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN UK"
   },
   {
    "id": "s4c",
@@ -429,7 +450,8 @@
      "url": "https://www.s4c.cymru/clic",
      "testo": "S4C Clic"
     }
-   ]
+   ],
+   "vpn_tag": "VPN UK"
   },
   {
    "id": "channel4",
@@ -446,7 +468,8 @@
      "url": "https://www.channel4.com/now/C4",
      "testo": "Channel 4 – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN UK"
   },
   {
    "id": "channel5",
@@ -464,7 +487,8 @@
      "url": "https://www.channel5.com/",
      "testo": "Channel 5"
     }
-   ]
+   ],
+   "vpn_tag": "VPN UK"
   },
   {
    "id": "rte",
@@ -481,7 +505,8 @@
      "url": "https://www.rte.ie/player/live",
      "testo": "RTÉ Player – dirette"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Irlanda"
   },
   {
    "id": "tf1",
@@ -504,7 +529,8 @@
      "url": "https://www.tf1.fr/tmc/direct",
      "testo": "TMC – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Francia"
   },
   {
    "id": "francetv",
@@ -526,7 +552,8 @@
      "url": "https://www.france.tv/france-3/direct.html",
      "testo": "France 3 – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Francia"
   },
   {
    "id": "m6",
@@ -544,7 +571,8 @@
      "url": "https://www.m6.fr/m6/direct",
      "testo": "M6 – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Francia"
   },
   {
    "id": "lequipe",
@@ -562,7 +590,8 @@
      "testo": "L'Équipe TV",
      "verificato": false
     }
-   ]
+   ],
+   "vpn_tag": "VPN Francia"
   },
   {
    "id": "rai",
@@ -592,7 +621,8 @@
      "url": "https://www.raiplay.it/dirette/raisport",
      "testo": "Rai Sport – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "SENZA VPN"
   },
   {
    "id": "sportitalia",
@@ -609,7 +639,8 @@
      "url": "https://sportitalialive.it/sisolocalcio/",
      "testo": "Sportitalia SoloCalcio – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "SENZA VPN"
   },
   {
    "id": "zdf",
@@ -626,7 +657,8 @@
      "url": "https://www.zdf.de/live-tv",
      "testo": "ZDF – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Germania"
   },
   {
    "id": "ard",
@@ -645,7 +677,8 @@
      "url": "https://www.ardmediathek.de/live",
      "testo": "ARD Mediathek – dirette"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Germania"
   },
   {
    "id": "sport1",
@@ -663,7 +696,8 @@
      "url": "https://www.sport1.de/livestream",
      "testo": "Sport1 – livestream"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Germania"
   },
   {
    "id": "rtl",
@@ -687,7 +721,8 @@
      "testo": "RTL+ – Nitro",
      "verificato": false
     }
-   ]
+   ],
+   "vpn_tag": "VPN Germania"
   },
   {
    "id": "orf",
@@ -704,7 +739,8 @@
      "url": "https://on.orf.at/livestreams",
      "testo": "ORF ON – dirette"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Austria"
   },
   {
    "id": "srf",
@@ -725,7 +761,8 @@
      "url": "https://www.srf.ch/play/tv/sport-livestreams",
      "testo": "Play SRF – sport"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Svizzera"
   },
   {
    "id": "rts-senegal",
@@ -742,7 +779,8 @@
      "url": "https://www.rts.sn",
      "testo": "RTS Sénégal"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Senegal"
   },
   {
    "id": "rts",
@@ -765,7 +803,8 @@
      "url": "https://www.rts.ch/play/tv/categories/sport",
      "testo": "Play RTS – sport"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Svizzera"
   },
   {
    "id": "rsi",
@@ -786,7 +825,8 @@
      "url": "https://www.rsi.ch/play/tv/live",
      "testo": "RSI – dirette"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Svizzera"
   },
   {
    "id": "npo",
@@ -808,7 +848,8 @@
      "url": "https://nos.nl/live",
      "testo": "NOS – live"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Olanda"
   },
   {
    "id": "vrt",
@@ -828,7 +869,8 @@
      "url": "https://www.vrt.be/vrtmax/livestream/",
      "testo": "VRT MAX – livestream"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Belgio"
   },
   {
    "id": "rtbf",
@@ -848,7 +890,8 @@
      "url": "https://auvio.rtbf.be/direct",
      "testo": "Auvio – dirette"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Belgio"
   },
   {
    "id": "rtve",
@@ -872,7 +915,8 @@
      "url": "https://www.rtve.es/play/videos/directo/canales-lineales/tdp/",
      "testo": "Teledeporte – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Spagna"
   },
   {
    "id": "rtp",
@@ -893,7 +937,8 @@
      "url": "https://www.rtp.pt/play/direto/rtp2",
      "testo": "RTP 2 – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Portogallo"
   },
   {
    "id": "ert",
@@ -910,7 +955,8 @@
      "url": "https://www.ertflix.gr/en/live-tv",
      "testo": "ERTFLIX – dirette"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Grecia"
   },
   {
    "id": "tvp",
@@ -927,7 +973,8 @@
      "url": "https://sport.tvp.pl/transmisje",
      "testo": "TVP Sport – dirette"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Polonia"
   },
   {
    "id": "tv8tr",
@@ -944,7 +991,8 @@
      "url": "https://www.tv8.com.tr/canli-yayin",
      "testo": "TV8 – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Turchia"
   },
   {
    "id": "ct",
@@ -961,7 +1009,8 @@
      "url": "https://sport.ceskatelevize.cz/zive-vysilani",
      "testo": "ČT sport – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Rep. Ceca"
   },
   {
    "id": "virgin-media",
@@ -983,7 +1032,8 @@
      "url": "https://play.virginmediatelevision.ie/",
      "testo": "Virgin Media Play – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Irlanda"
   },
   {
    "id": "7plus",
@@ -1002,7 +1052,8 @@
      "url": "https://7plus.com.au/live-tv",
      "testo": "7plus – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Australia"
   },
   {
    "id": "tvnz",
@@ -1020,7 +1071,8 @@
      "url": "https://www.tvnz.co.nz/livetv",
      "testo": "TVNZ+ – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Nuova Zelanda"
   },
   {
    "id": "twitch-nfl",
@@ -1037,7 +1089,8 @@
      "url": "https://www.twitch.tv/nfl",
      "testo": "twitch.tv/nfl"
     }
-   ]
+   ],
+   "vpn_tag": "VPN USA"
   },
   {
    "id": "idman",
@@ -1054,7 +1107,8 @@
      "url": "https://idmantv.az/az",
      "testo": "Idman TV"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Azerbaigian"
   },
   {
    "id": "cbc-sport",
@@ -1071,7 +1125,8 @@
      "url": "https://cbcsport.az",
      "testo": "CBC Sport"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Azerbaigian"
   },
   {
    "id": "mbc-action",
@@ -1088,7 +1143,8 @@
      "url": "https://shahid.mbc.net/ar/livestream",
      "testo": "Shahid – dirette MBC"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Emirati Arabi"
   },
   {
    "id": "crtv",
@@ -1105,7 +1161,8 @@
      "url": "https://www.crtv.cm",
      "testo": "CRTV"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Camerun"
   },
   {
    "id": "nci",
@@ -1123,7 +1180,8 @@
      "url": "https://www.nci.ci",
      "testo": "NCI"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Costa d'Avorio"
   },
   {
    "id": "ortb",
@@ -1140,7 +1198,8 @@
      "url": "https://ortb.bj",
      "testo": "ORTB"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Benin"
   },
   {
    "id": "znbc",
@@ -1157,7 +1216,8 @@
      "url": "https://www.znbc.co.zm",
      "testo": "ZNBC"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Zambia"
   },
   {
    "id": "miramar",
@@ -1174,7 +1234,8 @@
      "url": "https://www.tvmiramar.co.mz",
      "testo": "TV Miramar"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Mozambico"
   },
   {
    "id": "bein-haber",
@@ -1191,7 +1252,8 @@
      "url": "https://www.beinsports.com.tr",
      "testo": "beIN Sports Türkiye"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Turchia"
   },
   {
    "id": "htspor",
@@ -1208,7 +1270,8 @@
      "url": "https://www.htspor.com/canli-yayin",
      "testo": "HT Spor – diretta"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Turchia"
   },
   {
    "id": "sifir",
@@ -1225,7 +1288,8 @@
      "url": "https://www.sifirtv.com.tr",
      "testo": "Sıfır TV"
     }
-   ]
+   ],
+   "vpn_tag": "VPN Turchia"
   }
  ]
 }

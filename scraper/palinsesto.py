@@ -522,6 +522,7 @@ def periodo(primo: dt.date, giorni: int = GIORNI_FINESTRA):
 
 
 def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categorie=None):
+    VPN_MANCANTI[:] = []
     esc = html.escape
     cat_calcio, cat_altro = classificatore(categorie if categorie is not None else carica_categorie())
     for g in gruppi:
@@ -729,13 +730,68 @@ def sito_ufficiale(v):
     return None
 
 
+VPN_MANCANTI = []  # ultima generazione: righe con un link ▶ ma senza indicazione VPN (per il log)
+SENZA_VPN_NOMI = re.compile(r"^(DAZN Italia|Rai\b|Sportitalia|SuperTennis)", re.I)
+
+
 def vpn_breve(v):
-    t = ((v or {}).get("vpn") or "").strip()
-    return t.upper() if t and len(t) <= 22 and not re.search(r"serve|solo|registr", t, re.I) else None
+    return ((v or {}).get("vpn_tag") or "").strip() or None
+
+
+def testo_vpn(nome, vpn_src=None, v=None, teleboy=False):
+    """Etichetta VPN della riga di un canale: Teleboy => Svizzera; poi la VPN data dalla fonte; poi dove_vederli.json."""
+    if teleboy:
+        return "VPN Svizzera"
+    if vpn_src:
+        t = str(vpn_src).strip()
+        if re.match(r"(VPN|SENZA|Solo)\b", t, re.I):
+            return t
+        if t.isupper():
+            t = " ".join(w.lower() if w.lower() in ("o", "e", "di") else (w if w in ("USA", "UK") else w.capitalize()) for w in t.split())
+        return "VPN " + t
+    if SENZA_VPN_NOMI.search(nome or ""):  # canali italiani / DAZN Italia: dall'Italia senza VPN
+        return "SENZA VPN"
+    if v and vpn_breve(v):
+        return vpn_breve(v)
+    return None
+
+
+BANDIERE = {"Svizzera": "ch", "Irlanda": "ie", "UK": "gb", "Regno Unito": "gb", "Germania": "de", "Francia": "fr",
+            "Nigeria": "ng", "Ghana": "gh", "Brasile": "br", "Turchia": "tr", "Azerbaigian": "az", "Albania": "al",
+            "USA": "us", "Stati Uniti": "us", "Australia": "au", "Nuova Zelanda": "nz", "Austria": "at", "Belgio": "be",
+            "Benin": "bj", "Camerun": "cm", "Costa d'Avorio": "ci", "Emirati Arabi": "ae", "Grecia": "gr", "Mozambico": "mz",
+            "Olanda": "nl", "Paesi Bassi": "nl", "Polonia": "pl", "Portogallo": "pt", "Rep. Ceca": "cz", "Senegal": "sn",
+            "Spagna": "es", "Zambia": "zm", "Italia": "it", "Romania": "ro", "Canada": "ca", "Argentina": "ar", "Messico": "mx"}
+RE_PAESI = re.compile(r"(?:%s)(?:\s*(?:/|,|\bo\b)\s*(?:%s))*" % (("|".join(map(re.escape, sorted(BANDIERE, key=len, reverse=True))),) * 2), re.I)
+
+
+def bandiera(paese):
+    iso = next((v for k, v in BANDIERE.items() if k.lower() == paese.lower()), None)
+    return (f'<img class="fl" src="flags/{iso}.svg" alt="{html.escape(paese)}" title="{html.escape(paese)}" width="22" height="16">'
+            if iso else html.escape(paese))
+
+
+def pill_vpn(t, nome="", link=None):
+    """Pillola VPN accanto al link: 'VPN' + bandiere (SVG locali, i Windows non mostrano le emoji bandiera), o SENZA VPN."""
+    esc = html.escape
+    if not t:
+        if link:
+            VPN_MANCANTI.append(f"{nome} -> {link}")
+        return ""
+    if re.match(r"(Solo app · )?SENZA VPN", t, re.I) or re.match(r"SENZA", t, re.I):
+        return f' <span class="tag vpn no" title="{esc(t)}">{esc(t)}</span>'
+    m = RE_PAESI.search(t)
+    if not m:
+        return f' <span class="tag vpn" title="{esc(t)}">{esc(t)}</span>'
+    paesi = [x.strip() for x in re.split(r"\s*(?:/|,|\bo\b)\s*", m.group(0)) if x.strip()]
+    prima = re.sub(r"\bVPN\s*$", "", t[:m.start()].strip()).strip()
+    dopo = t[m.end():].strip()
+    corpo = ((esc(prima) + " ") if prima else "") + "VPN " + '<span class="sep">/</span>'.join(bandiera(x) for x in paesi) + ((" " + esc(dopo)) if dopo else "")
+    return f' <span class="tag vpn" title="{esc(t)}" aria-label="{esc(t)}">{corpo}</span>'
 
 
 def emittente_altro(x, dove, usati):
-    """Riga di un'emittente in ALTRI SPORT: nome (link al sito o a "Dove vederli"), etichette, VPN, link diretta."""
+    """Riga di un'emittente in ALTRI SPORT: nome (link al sito o a "Dove vederli"), etichette, link, VPN accanto al link."""
     esc = html.escape
     v = None if x.get("pagina") else voce_dove(x["nome"], dove)
     if v:
@@ -749,17 +805,15 @@ def emittente_altro(x, dove, usati):
     tag = ('<span class="tag" aria-label="in chiaro">IN CHIARO</span> ' if x.get("fta") else '')
     tag2 = (('<span class="tag dz">DAZN GRATIS</span> ' if x.get("dazn_gratis") else '')
             + ('<span class="tag tb">TELEBOY</span> ' if x.get("teleboy") else ''))
-    vpn = x.get("vpn") or (vpn_breve(v) if v else None)
-    if vpn:
-        vpn_t = f'<span class="tag vpn">VPN {esc(vpn)}</span>'
-    elif x.get("vpn") is None and not x.get("fta"):
-        vpn_t = '<span class="tag vpn">SENZA VPN</span>'
-    else:
-        vpn_t = ''
-    link = x.get("link") or (sito_ufficiale(v) if v else None)
+    link = x.get("link") or (sito_ufficiale(v) if v else None) or x.get("pagina")
     etichetta = "▶ diretta" if x.get("link") else "▶ sito"
-    return (f'<li class="fta">{tag}{nome} {tag2}{vpn_t}'
+    tb = bool(x.get("teleboy")) or "teleboy.ch" in (link or "")
+    if tb and x.get("link"):
+        etichetta = "▶ Teleboy"
+    vt = testo_vpn(x["nome"], x.get("vpn"), v or voce_dove(x["nome"], dove), tb)
+    return (f'<li class="fta">{tag}{nome} {tag2}'.rstrip()
             + (f' <a class="diretta" href="{esc(link)}" target="_blank" rel="noopener">{etichetta}</a>' if link else '')
+            + pill_vpn(vt, x["nome"], link)
             + '</li>')
 
 
@@ -774,9 +828,12 @@ def badge(c, dove, usati):
         testo = f'<span class="tag" aria-label="in chiaro">IN CHIARO</span> {testo}'
     # priorità: voci dell'utente, poi Teleboy, poi le altre
     if c.get("url"):  # diretta streaming: link alla pagina dell'evento
+        link = c.get("diretta")
+        tb = "teleboy.ch" in (link or "") or "teleboy.ch" in (c.get("url") or "")
+        vt = testo_vpn(c["nome"], c.get("vpn"), voce_dove(c["nome"], dove), tb) or "SENZA VPN"
         testo = (f'<a href="{esc(c["url"])}" target="_blank" rel="noopener">{testo}</a>'
-                 + (f' <span class="tag vpn">VPN {esc(c["vpn"])}</span>' if c.get("vpn") else ' <span class="tag vpn">SENZA VPN</span>')
-                 + (f' <a class="diretta" href="{esc(c["diretta"])}" target="_blank" rel="noopener">▶ diretta</a>' if c.get("diretta") else ''))
+                 + (f' <a class="diretta" href="{esc(link)}" target="_blank" rel="noopener">{"▶ Teleboy" if tb else "▶ diretta"}</a>' if link else '')
+                 + pill_vpn(vt, c["nome"], link or c["url"]))
         return f'<li class="fta">{testo}</li>' if c["fta"] else f'<li>{testo}</li>'
     v_tb = next((x for x in dove if x["id"] == "teleboy"), None) if c.get("teleboy") else None
     if v_tb is not None:
@@ -785,15 +842,19 @@ def badge(c, dove, usati):
     v = voce_dove(c["nome"], [x for x in dove if x.get("fonte") == "utente" and x["id"] != "teleboy"]) or v_tb
     extra = (f' <a class="diretta" href="{esc(c["teleboy_link"])}" target="_blank" rel="noopener" '
              f'title="Canale {esc(c["teleboy"])} su Teleboy">▶ Teleboy</a>') if c.get("teleboy_link") else ""
+    tb = bool(extra)
     if not v:
         v = voce_dove(c["nome"], dove)
+    link = c.get("teleboy_link")
     if v:
         usati.add(v["id"])
         testo = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{testo}</a>'
         sito = sito_ufficiale(v)
         if sito and not extra and v["id"] != "teleboy":
             extra = f' <a class="diretta" href="{esc(sito)}" target="_blank" rel="noopener" title="Sito di streaming">▶ sito</a>'
-    testo += extra
+            link = sito
+    vt = testo_vpn(c["nome"], None, v, tb) if (v or tb or link) else testo_vpn(c["nome"])
+    testo += extra + pill_vpn(vt, c["nome"], link)
     return f'<li class="fta">{testo}</li>' if c["fta"] else f'<li>{testo}</li>'
 
 
@@ -888,7 +949,10 @@ TEMPLATE = """<!doctype html>
   .scelta-b button[aria-pressed="true"] {{ background:#fff; color:#000; border-color:#fff; }}
   .scelta-b button[aria-pressed="true"]::before {{ content:"✓ "; }}
   .scelta-b button:focus-visible {{ outline:4px solid var(--azzurro); outline-offset:3px; }}
-  .tag.vpn {{ background:#ffd400; color:#000; }}
+  .tag.vpn {{ background:#ffd400; color:#000; font-size:.8em; font-weight:800; padding:.1em .45em; border-radius:999px; white-space:nowrap; }}
+  .tag.vpn.no {{ background:#00e676; color:#000; }}
+  .tag.vpn img.fl {{ height:1.1em; width:auto; vertical-align:-0.2em; margin:0 .1em; border:1px solid #000; border-radius:2px; }}
+  .tag.vpn .sep {{ margin:0 .05em; }}
   .orig {{ display:block; font-size:.95rem; font-weight:400; color:#bbb; margin-top:4px; }}
   .consiglio {{ font-size:1.1rem; font-weight:700; background:#1d1d00; border:2px solid var(--giallo); border-radius:10px; padding:10px 12px; }}
   .fino {{ font-size:.85rem; color:#ccc; }}
@@ -1189,6 +1253,8 @@ def main():
     for f in (RADICE / "static").iterdir():
         if f.is_file():
             shutil.copy2(f, out / f.name)
+        elif f.is_dir():  # es. static/flags (bandiere SVG locali, flag-icons MIT)
+            shutil.copytree(f, out / f.name, dirs_exist_ok=True)
     (out / "index.html").write_text(genera_html(primo, dt.datetime.now(ROMA), gruppi, falliti, senza, dove, st.get("altri_sport")), encoding="utf-8")
     if a.json:
         dati = [{"competizione": g["nome"], "partite": [
@@ -1203,6 +1269,8 @@ def main():
     print(f"{periodo(primo)}: {n} partite in {len(gruppi)} competizioni; falliti: {len(falliti)}")
     print(f"  LiveSoccerTV: {st['livesoccertv']} · LiveOnSat (con canali in chiaro): {st['liveonsat']} · "
           f"doppioni uniti: {len(st['uniti'])} · solo LiveOnSat: {st['solo_liveonsat']} · finite tolte: {st['finite_tolte']} · solo grazie a Teleboy: {st.get('solo_teleboy', 0)}")
+    for x in sorted(set(VPN_MANCANTI)):
+        print("  link senza VPN:", x)
     for x in altri_sport.BASKET_TOLTI:
         print("  basket tolto:", x)
     if "primaplay" in st:

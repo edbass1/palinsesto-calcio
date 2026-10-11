@@ -137,7 +137,7 @@ def analizza_srg(bu, media, solo_sport=True):
                     "lingua": {"srf": "de", "rts": "fr", "rsi": "it"}.get(bu, "de"),
                     "emittenti": [{"nome": SRG[bu], "pagina": PAGINE[SRG[bu]],
                                    "link": f"https://www.{bu}.ch/play/tv/-/video/-?urn=urn:swisstxt:video:{bu}:{idx}",
-                                   "vpn": None if m.get("playableAbroad") else "SVIZZERA"}]})
+                                   "vpn": "SVIZZERA"}]})  # siti SRG: con VPN Svizzera (richiesta utente)
     return out
 
 

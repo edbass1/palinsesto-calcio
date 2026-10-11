@@ -15,6 +15,15 @@ CONF_LOS = json.loads((QUI.parent / "liveonsat.json").read_text(encoding="utf-8"
 DIR_LOS = QUI / "fixtures_liveonsat_2026-10-10"
 
 
+
+def ogni_link_ha_vpn(h):
+    """Ogni riga canale con un link ▶ deve avere l'etichetta VPN subito accanto."""
+    righe = re.findall(r"<li[^>]*>(?:(?!</li>).)*?▶(?:(?!</li>).)*</li>", h, re.S)
+    senza = [r for r in righe if 'class="tag vpn' not in r]
+    assert not senza, senza[:3]
+    return True
+
+
 def finto_lstv(url, tentativi=3):
     f = QUI / "fixtures_2026-10-09" / (url.rstrip("/").split("/")[-1] + ".html.gz")
     return gzip.open(f, "rt", encoding="utf-8").read(), None
@@ -660,7 +669,7 @@ def test_altri_sport():
     assert lug["canali"][-2]["diretta"] == "https://www.srf.ch/play/tv/-/video/-?urn=urn:swisstxt:video:srf:1830000"
     dove = json.loads((QUI.parent / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
     h = p.genera_html(v, ora, gruppi, falliti, [], dove, altri)
-    assert 'data-sezione="sport"' in h and 'id="vista-sport-orario"' in h and "VPN SVIZZERA" in h and "VPN GERMANIA" in h
+    assert 'data-sezione="sport"' in h and 'id="vista-sport-orario"' in h and "VPN Svizzera" in h and "VPN Germania" in h and ogni_link_ha_vpn(h)
     assert 'href="https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/livestreams-ard-"' in h
     assert 'href="https://www.rsi.ch/palinsesto/streaming/"' in h and 'href="https://www.rts.ch/play/tv/rts-livestreams"' in h
     assert 'class="diretta" href="https://www.ardmediathek.de/video/' in h and 'data-fine="' in h and "ALTRI SPORT" in h
@@ -764,7 +773,8 @@ def test_epg_teleboy():
     nfl = [e for e in altri if "Patriots" in e["titolo"]]
     assert nfl and all("New England Patriots" in e["titolo"] for e in nfl), nfl  # nome proprio, non "New Inghilterra"
     h = p.genera_html(*p.finestra(ora)[:1], ora, [], [], [], [], altri)
-    assert '<span class="tag tb">TELEBOY</span> <span class="tag vpn">VPN SVIZZERA</span>' in h
+    assert re.search(r'<span class="tag tb">TELEBOY</span>.{0,300}▶ Teleboy</a> <span class="tag vpn" title="VPN Svizzera"[^>]*>VPN <img class="fl" src="flags/ch.svg"', h), "Teleboy senza VPN"
+    assert ogni_link_ha_vpn(h)
     _, _, avv = A.raccogli_altri(ini, fine, ora, rx, scarica_tb_fn=E.fn_raccogli(tb, conf, ini, fine, lambda u: (None, "HTTP Error 403")))
     assert avv == ["Altri sport: non raggiungibile guida TV Teleboy"], avv
     return ev
@@ -1023,7 +1033,7 @@ def test_euroleague_tv():
     vuoto = lambda *a: ([], None)
     altri, _, _ = A.raccogli_altri(ini, fine, ini, rx, scarica_srg_fn=vuoto, scarica_ard_fn=vuoto, scarica_el_fn=lambda: (ev, err))
     h = p.genera_html(ini.date(), ini, [], [], [], dove, altri)
-    assert 'href="#dv-x-sports"' in h and "youtube.com/@xsports.brasil/streams" in h and "VPN BRASILE" in h and "Solo via app da scaricare" in h
+    assert 'href="#dv-x-sports"' in h and "youtube.com/@xsports.brasil/streams" in h and "VPN Brasile" in h and ogni_link_ha_vpn(h) and "Solo via app da scaricare" in h
     # pagina non raggiungibile e nessun file dati: nessun avviso nella pagina, solo nel log
     st2 = {}
     ev2, err = E.raccogli(conf, ini, fine, lambda u: (None, "HTTP Error 429"), fj, st2, file_dati=str(F / "non-esiste.json"))
