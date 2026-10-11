@@ -138,11 +138,24 @@
    "note": "Solo via app sulla TV, senza VPN.",
    "link": [
     {
+     "url": "https://www.primaplay.ro/register",
+     "testo": "Prima Play – registrazione (gratuita)"
+    },
+    {
      "url": "https://www.primaplay.ro",
      "testo": "Prima Play"
     }
    ],
-   "vpn_tag": "Solo app · SENZA VPN"
+   "vpn_tag": "Solo app · SENZA VPN",
+   "link_card": {
+    "url": "https://www.primaplay.ro/register",
+    "testo": "Prima Play"
+   },
+   "consiglio": {
+    "testo": "⭐ IMPORTANTE: prima registrati su Prima Play (registrazione gratuita e indispensabile), poi scarica l'app PRIMA PLAY sulla TV per vedere le partite in modo stabile.",
+    "url": "https://www.primaplay.ro/register",
+    "testo_link": "primaplay.ro/register"
+   }
   },
   {
    "id": "digi-sport",
@@ -191,6 +204,10 @@
    "note": "Serve una registrazione veloce. Dopo la registrazione su Prima Play i canali si vedono senza VPN; l'app c'è anche per TV LG (e probabilmente Samsung).",
    "link": [
     {
+     "url": "https://www.primaplay.ro/register",
+     "testo": "Prima Play – registrazione (gratuita)"
+    },
+    {
      "url": "https://www.primaplay.ro",
      "testo": "Prima Play (consigliato)"
     },
@@ -220,11 +237,15 @@
     }
    ],
    "consiglio": {
-    "testo": "Per una maggiore stabilità consigliamo di registrarsi su primaplay.ro e poi scaricare l'app sulla TV di casa.",
-    "url": "https://www.primaplay.ro",
-    "testo_link": "primaplay.ro"
+    "testo": "⭐ IMPORTANTE: prima registrati su Prima Play (registrazione gratuita e indispensabile), poi scarica l'app PRIMA PLAY sulla TV per vedere le partite in modo stabile.",
+    "url": "https://www.primaplay.ro/register",
+    "testo_link": "primaplay.ro/register"
    },
-   "vpn_tag": "SENZA VPN (registrazione)"
+   "vpn_tag": "SENZA VPN (registrazione)",
+   "link_card": {
+    "url": "https://www.primaplay.ro/register",
+    "testo": "Prima Play"
+   }
   },
   {
    "id": "dazn",

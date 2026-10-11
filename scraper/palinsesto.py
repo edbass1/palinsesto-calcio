@@ -773,6 +773,8 @@ def sito_ufficiale(v, nome=""):
     for rx, url in (v or {}).get("link_canale", {}).items():
         if nome and re.search(rx, nome, re.I):
             return url
+    if (v or {}).get("link_card", {}).get("url"):  # link scelto apposta per le schede (es. registrazione Prima Play)
+        return v["link_card"]["url"]
     for l in (v or {}).get("link", []):
         if l.get("url"):
             return l["url"]
@@ -892,7 +894,7 @@ def emittente_altro(x, dove, usati):
     tag2 = (('<span class="tag dz">DAZN GRATIS</span> ' if x.get("dazn_gratis") else '')
             + ('<span class="tag tb">TELEBOY</span> ' if x.get("teleboy") else ''))
     link = x.get("link") or (sito_ufficiale(v, x["nome"]) if v else None) or x.get("pagina")
-    etichetta = "▶ diretta" if x.get("link") else "▶ sito"
+    etichetta = "▶ diretta" if x.get("link") else ("▶ " + v["link_card"]["testo"] if (v or {}).get("link_card", {}).get("testo") else "▶ sito")
     tb = bool(x.get("teleboy")) or "teleboy.ch" in (link or "")
     if tb and x.get("link"):
         etichetta = "▶ Teleboy"
@@ -943,7 +945,7 @@ def badge(c, dove, usati):
         testo = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{testo}</a>'
         sito = sito_ufficiale(v, c["nome"])
         if sito and not extra and v["id"] != "teleboy" and not dtt:
-            extra = f' <a class="diretta" href="{esc(sito)}" target="_blank" rel="noopener" title="Sito di streaming">{testo_link(sito, "▶ sito")}</a>'
+            extra = f' <a class="diretta" href="{esc(sito)}" target="_blank" rel="noopener" title="Sito di streaming">{testo_link(sito, "▶ " + v["link_card"]["testo"] if v.get("link_card", {}).get("testo") else "▶ sito")}</a>'
             link = sito
     vt = testo_vpn(c["nome"], None, v, tb) if (v or tb or link) else testo_vpn(c["nome"])
     if dtt and not link:
@@ -966,7 +968,7 @@ def sezione_dove(dove, usati, sez=None):
             + '</li>' for l in v.get("link", []))
         righe.append(
             f'<li class="dove" id="dv-{esc(v["id"])}" data-sez="{esc((sez or {}).get(v["id"]) or "calcio sport")}"><h3>{esc(v["nome"])}</h3>'
-            + (f'<p class="consiglio">⭐ {esc(v["consiglio"]["testo"])} <a href="{esc(v["consiglio"]["url"])}" target="_blank" '
+            + (f'<p class="consiglio">{"" if v["consiglio"]["testo"].startswith("⭐") else "⭐ "}{esc(v["consiglio"]["testo"])} <a href="{esc(v["consiglio"]["url"])}" target="_blank" '
                f'rel="noopener noreferrer">{esc(v["consiglio"].get("testo_link") or v["consiglio"]["url"])}</a></p>'
                if v.get("consiglio") else '')
             + (f'<p class="vpn">VPN: <strong>{esc(v["vpn"])}</strong></p>' if v.get("vpn") else '')
