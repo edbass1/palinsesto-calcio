@@ -1021,7 +1021,12 @@ TEMPLATE = """<!doctype html>
         return [ts.length ? Math.min.apply(null, ts) : Infinity, +s.dataset.ordine];
       }};
       var k = sez.map(function (s) {{ return {{ s: s, k: chiave(s), b: s.dataset.blocco || 'c' }}; }});
-      if (id === 'vista-campionato' && S.cat.calcio === 'tutto') {{
+      var elite = function (s) {{ return tutti('li.partita:not([hidden])', s).some(function (p) {{ return (' ' + (p.dataset.cat || '') + ' ').indexOf(' elite ') >= 0; }}); }};
+      if (id === 'vista-sport-tipo' && S.cat.altri === 'tutto') {{
+        // TUTTO: prima gli sport ELITE (con almeno un evento elite visibile), poi gli altri; dentro: primo inizio
+        k.forEach(function (x) {{ x.k = [elite(x.s) ? 0 : 1].concat(x.k); }});
+        k.sort(function (a, b) {{ return (a.k[0] - b.k[0]) || (a.k[1] - b.k[1]) || (a.k[2] - b.k[2]); }});
+      }} else if (id === 'vista-campionato' && S.cat.calcio === 'tutto') {{
         // TUTTO: blocco A (coppe europee + nazionali) e blocco B (Serie A, poi gli altri grandi campionati):
         // prima il blocco con la partita visibile più vicina; il resto (C) sempre in fondo
         var primo = function (bl) {{ return Math.min.apply(null, [Infinity].concat(k.filter(function (x) {{ return bl.indexOf(x.b) >= 0; }}).map(function (x) {{ return x.k[0]; }}))); }};

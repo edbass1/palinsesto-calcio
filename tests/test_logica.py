@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test offline: finestra di 4 giorni, LiveSoccerTV (pagine salvate il 9/10/2026, 62 partite attese),
 LiveOnSat (pagine salvate il 10/10/2026): canali in chiaro, orari, unione dei doppioni."""
-import datetime as dt, gzip, json, re, sys
+import datetime as dt, gzip, html, json, re, sys
 from pathlib import Path
 QUI = Path(__file__).resolve().parent
 sys.path.insert(0, str(QUI.parent / "scraper"))
@@ -295,6 +295,45 @@ def test_ordine_tutto():
     el = ordine(base, "document.querySelector('.scelta-b button[data-gruppo=\\'calcio\\'][data-cat=\\'elite\\']').click();")
     assert el == ["UEFA CHAMPIONS LEAGUE", "LALIGA", "NAZIONALI – UEFA NATIONS LEAGUE", "PREMIER LEAGUE", "SERIE A"], el
     return ordine(base)
+
+
+def test_ordine_sport():
+    """ALTRI SPORT con TUTTO: sport ELITE prima nella vista PER SPORT; IN ORDINE DI ORARIO resta solo cronologico."""
+    import shutil, subprocess, tempfile
+    chrome = shutil.which("google-chrome") or shutil.which("chromium")
+    if not chrome:
+        return "chrome assente"
+    ora = dt.datetime.now(p.ROMA).replace(second=0, microsecond=0)
+    def ev(sport, titolo, h):
+        ts = int((ora + dt.timedelta(hours=h)).timestamp())
+        return {"id": titolo, "ts": ts, "fine": ts + 7200, "sport": sport, "titolo": titolo, "titolo_orig": titolo, "evento": True,
+                "lingua": "it", "descrizione": "", "emittenti": [{"nome": "RSI La 2", "pagina": None, "link": None, "vpn": "SVIZZERA", "fta": True}]}
+    altri = [ev("Ciclismo", "Paris-Tours", 0.5), ev("Pallavolo", "Lube - Trento", 1), ev("Tennis", "ATP Shanghai", 3),
+             ev("Formula 1", "Gran Premio di Singapore", 2), ev("Hockey su ghiaccio", "Lugano - Zug", 2.5), ev("Basket", "EuroLeague: Milano - Real", 4)]
+    def dom(dopo=""):
+        h = p.genera_html(ora.date(), ora, [], [], [], altri=altri).replace("</body>", f"<script>{dopo}</script></body>")
+        with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False) as f:
+            f.write(h)
+        return subprocess.run([chrome, "--headless=new", "--disable-gpu", "--no-sandbox", "--dump-dom", "file://" + f.name],
+                              capture_output=True, text=True, timeout=60).stdout
+    def viste(out):
+        a, b = out.index('id="vista-sport-tipo"'), out.index('id="vista-sport-orario"')
+        tipo = out[a:] if a > b else out[a:b]
+        orario = out[b:a] if a > b else out[b:]
+        sezioni = [m.group(2) for m in re.finditer(r'<section class="comp"([^>]*)><h2>([^<]*)', tipo) if "hidden" not in m.group(1)]
+        righe = [("SEP" if m.group(1) else html.unescape(m.group(2)))
+                 for m in re.finditer(r'<li class="(sotto-sep)"(?![^>]*hidden)[^>]*>|<li class="partita evento[^"]*"(?![^>]*hidden)[^>]*>.*?<span class="sq">([^<]*)', orario, re.S)]
+        return sezioni, righe
+    tipo, orario = viste(dom())
+    assert tipo == ["FORMULA 1", "TENNIS", "BASKET", "CICLISMO", "PALLAVOLO", "HOCKEY SU GHIACCIO"], tipo
+    assert orario == ["Paris-Tours", "Lube - Trento", "Gran Premio di Singapore", "Lugano - Zug", "ATP Shanghai", "EuroLeague: Milano - Real"], orario
+    # ELITE SPORT: solo gli sport elite
+    tipo2, orario2 = viste(dom("document.querySelector('.scelta-b button[data-gruppo=\\'altri\\'][data-cat=\\'elite\\']').click();"))
+    assert tipo2 == ["FORMULA 1", "TENNIS", "BASKET"] and "SEP" not in orario2, (tipo2, orario2)
+    # di nuovo TUTTO dopo ELITE: l'ordine torna
+    t3 = viste(dom("var q=function(c){return document.querySelector('.scelta-b button[data-gruppo=\\'altri\\'][data-cat=\\''+c+'\\']')};q('elite').click();q('tutto').click();"))
+    assert t3 == (tipo, orario), t3
+    return tipo
 
 
 def test_finite():
@@ -907,6 +946,7 @@ if __name__ == "__main__":
     print(f"DAZN (rail-router): {test_dazn_rail()} – OK")
     print(f"LiveOnSat altri sport + NFL gratis: {len(test_altri_los_nfl())} eventi – OK")
     print(f"Ordine TUTTO (blocchi A/B/C): {test_ordine_tutto()} – OK")
+    print(f"Ordine ALTRI SPORT TUTTO (elite prima): {test_ordine_sport()} – OK")
     print(f"EuroLeague/EuroCup TV Listings: {len(test_euroleague_tv())} partite – OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"
