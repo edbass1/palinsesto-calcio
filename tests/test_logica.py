@@ -1114,10 +1114,12 @@ def test_dtt_italia():
     assert p.dtt_di("TV8 Int") is None and p.dtt_di("DMAX") is None and p.dtt_di("TV8 Mont Blanc") is None
     dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
     h = p.badge({"nome": "SuperTennis", "fta": True, "teleboy": "SuperTennis", "teleboy_link": "https://www.teleboy.ch/it/live/550"}, dove, set())
-    assert "DTT 64" in h and "flags/it.svg" in h and "▶" not in h and "tag vpn" not in h and "TELEBOY" not in h, h
+    assert "DTT 64" in h and "flags/it.svg" in h and "▶ Teleboy</a>" in h and "flags/ch.svg" in h and "raiplay" not in h, h
     h = p.emittente_altro({"nome": "Rai Sport", "pagina": None, "link": "https://www.teleboy.ch/it/live/271", "vpn": "SVIZZERA",
                            "teleboy": True, "fta": True}, dove, set())
-    assert "DTT 58" in h and "raiplay" not in h and "teleboy" not in h.lower() and "tag vpn" not in h, h
+    assert "DTT 58" in h and "raiplay" not in h and "▶ Teleboy</a>" in h and "flags/ch.svg" in h, h
+    h = p.badge({"nome": "Rai 2", "fta": True}, dove, set())  # senza Teleboy: solo DTT, niente RaiPlay
+    assert "DTT 2" in h and "▶" not in h and "raiplay" not in h, h
 
 
 test_dtt_italia(); print("DTT Italia (numeri LCN, RaiPlay): OK")

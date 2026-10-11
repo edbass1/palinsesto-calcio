@@ -814,25 +814,15 @@ def pill_dtt(dtt):
             f'<img class="fl" src="flags/it.svg" alt="Italia" width="22" height="16"> DTT {dtt["lcn"]}</span>')
 
 
-def riga_italiana(nome, fta, dove, usati):
-    """Riga completa di un canale italiano in chiaro: [IN CHIARO] nome (-> Dove vederli) + 🇮🇹 DTT n."""
-    esc = html.escape
-    dtt = dtt_di(nome)
-    v = voce_dove(dtt["nome"], dove) or voce_dove(nome, dove)
-    testo = esc(nome)
-    if fta:
-        testo = f'<span class="tag" aria-label="in chiaro">IN CHIARO</span> {testo}'
-    if v:
-        usati.add(v["id"])
-        testo = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{testo}</a>'
-    return f'<li class="fta">{testo}{pill_dtt(dtt)}</li>'
+def riga_dtt(dtt):
+    """Riga in più (a capo) per i canali italiani in chiaro: pillola '🇮🇹 DTT <n>'."""
+    return f'<span class="dtt-riga">{pill_dtt(dtt)}</span>' if dtt else ""
 
 
 def emittente_altro(x, dove, usati):
     """Riga di un'emittente in ALTRI SPORT: nome (link al sito o a "Dove vederli"), etichette, link, VPN accanto al link."""
     esc = html.escape
-    if dtt_di(x["nome"]):  # canale italiano: solo la riga DTT
-        return riga_italiana(x["nome"], x.get("fta"), dove, usati)
+    dtt = dtt_di(x["nome"])  # canale italiano: riga '🇮🇹 DTT n' + solo il link Teleboy (con VPN 🇨🇭)
     v = None if x.get("pagina") else voce_dove(x["nome"], dove)
     if v:
         usati.add(v["id"])
@@ -850,17 +840,21 @@ def emittente_altro(x, dove, usati):
     tb = bool(x.get("teleboy")) or "teleboy.ch" in (link or "")
     if tb and x.get("link"):
         etichetta = "▶ Teleboy"
+    if dtt and not tb:  # niente RaiPlay/sito sulle schede dei canali italiani
+        link = None
     vt = testo_vpn(x["nome"], x.get("vpn"), v or voce_dove(x["nome"], dove), tb)
+    if dtt and not link:
+        vt = None
     return (f'<li class="fta">{tag}{nome} {tag2}'.rstrip()
             + (f' <a class="diretta" href="{esc(link)}" target="_blank" rel="noopener">{etichetta}</a>' if link else '')
             + pill_vpn(vt, x["nome"], link)
+            + riga_dtt(dtt)
             + '</li>')
 
 
 def badge(c, dove, usati):
     esc = html.escape
-    if not c.get("url") and dtt_di(c["nome"], c.get("teleboy") or ""):  # canale italiano: solo la riga DTT
-        return riga_italiana(c["nome"] if dtt_di(c["nome"]) else c["teleboy"], c["fta"], dove, usati)
+    dtt = None if c.get("url") else dtt_di(c["nome"], c.get("teleboy") or "")  # canale italiano: + riga '🇮🇹 DTT n'
     testo = esc(c["nome"])
     if c.get("dazn_gratis"):
         testo = f'{testo} <span class="tag dz" aria-label="gratis su DAZN con account gratuito">DAZN GRATIS</span>'
@@ -892,11 +886,13 @@ def badge(c, dove, usati):
         usati.add(v["id"])
         testo = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{testo}</a>'
         sito = sito_ufficiale(v)
-        if sito and not extra and v["id"] != "teleboy":
+        if sito and not extra and v["id"] != "teleboy" and not dtt:
             extra = f' <a class="diretta" href="{esc(sito)}" target="_blank" rel="noopener" title="Sito di streaming">▶ sito</a>'
             link = sito
     vt = testo_vpn(c["nome"], None, v, tb) if (v or tb or link) else testo_vpn(c["nome"])
-    testo += extra + pill_vpn(vt, c["nome"], link)
+    if dtt and not link:
+        vt = None
+    testo += extra + pill_vpn(vt, c["nome"], link) + riga_dtt(dtt)
     return f'<li class="fta">{testo}</li>' if c["fta"] else f'<li>{testo}</li>'
 
 
@@ -995,6 +991,7 @@ TEMPLATE = """<!doctype html>
   .tag.vpn.no {{ background:#00e676; color:#000; }}
   .tag.vpn img.fl {{ height:1.1em; width:auto; vertical-align:-0.2em; margin:0 .1em; border:1px solid #000; border-radius:2px; }}
   .tag.vpn .sep {{ margin:0 .05em; }}
+  .dtt-riga {{ display:block; margin-top:.3em; }}
   .tag.dtt {{ background:#fff; color:#000; font-weight:800; font-size:.8em; padding:.1em .45em; border-radius:999px; white-space:nowrap; }}
   .tag.dtt img.fl {{ height:1.1em; width:auto; vertical-align:-0.2em; border:1px solid #000; border-radius:2px; }}
   .orig {{ display:block; font-size:.95rem; font-weight:400; color:#bbb; margin-top:4px; }}
