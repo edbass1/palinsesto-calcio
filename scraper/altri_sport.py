@@ -35,7 +35,14 @@ SPORT = [
     (r"langlauf|sci di fondo|ski de fond", "Sci di fondo"),
     (r"skispringen|salto con gli sci|saut à ski", "Salto con gli sci"),
     (r"(?<!tisch)tennis(?! de table)", "Tennis"),
+    (r"hockey pista|hockey su pista|rollhockey|rink hockey|hockey sur patins", "Hockey pista"),
     (r"eishockey|hockey su ghiaccio|hockey sur glace|hockey", "Hockey su ghiaccio"),
+    (r"baseball|softball", "Baseball"),
+    (r"wasserball|pallanuoto|water ?polo", "Pallanuoto"),
+    (r"fechten|scherma|escrime", "Scherma"),
+    (r"bogenschie|tiro con l'arco|tir à l'arc|archery", "Tiro con l'arco"),
+    (r"klettern|arrampicata|escalade", "Arrampicata"),
+    (r"\bmma\b|kickbox", "Sport da combattimento"),
     (r"unihockey|floorball", "Unihockey"),
     (r"kunstturnen|ginnastica|gymnastique|turnen", "Ginnastica artistica"),
     (r"curling", "Curling"),
@@ -59,7 +66,8 @@ SPORT = [
     (r"rugby", "Rugby"),
     (r"badminton", "Badminton"),
     (r"tischtennis|tennistavolo|tennis de table|table tennis", "Tennistavolo"),
-    (r"judo|ringen|lutte|wrestling", "Lotta"),
+    (r"judo", "Judo"),
+    (r"ringen|lutte|wrestling", "Lotta"),
     (r"bobsport|bob-weltcup|zweierbob|viererbob|monobob|rodeln|skeleton|slittino", "Bob e slittino"),
     (r"eiskunstlauf|pattinaggio|patinage", "Pattinaggio"),
     (r"skicross|snowboard|freeski", "Sport invernali"),
@@ -229,12 +237,33 @@ def regole(conf=None):
 RE_PARTECIPANTI = re.compile(r"\S\s+(?:-|–|gegen|vs\.?|contre|contro)\s+\S|[A-Za-zÀ-ÿ]-[A-ZÀ-Ü][a-zà-ÿ]", re.I)
 
 
-def e_programma(e, rx_prog, rx_ev):
+RE_DUE = re.compile(r"\S\s+(?:vs\.?|v|@|at|-|–|gegen|contro|contre)\s+\S", re.I)
+RE_PREFISSO_LEGA = re.compile(r"^\s*(?:NFL|NBA|NHL|MLB|NCAA|College Football|Football|American Football|Fußball|Tennis|Basketball|Eishockey|Rugby)\s*[-–:|]\s*", re.I)
+
+
+def due_partecipanti(testo):
+    """True se nel testo ci sono due squadre/atleti ('A vs B', 'A @ B', 'A - B'), senza contare 'NFL - ...'."""
+    return bool(RE_DUE.search(RE_PREFISSO_LEGA.sub("", testo or "")))
+
+
+def _rx_salvo():
+    parole = regole_conf().get("escludi_salvo_partecipanti", [])
+    return re.compile(r"(?<![\w])(?:" + "|".join(parole) + r")(?![\w])", re.I) if parole else None
+
+
+def e_programma(e, rx_prog, rx_ev, rx_salvo=None):
     """Motivo (testo) se l'elemento è un programma sportivo e non la diretta di una gara, altrimenti None."""
     titolo = e.get("titolo_src") or e.get("titolo") or ""
     m = rx_prog.search(titolo)
     if m:
         return f"parola «{m.group(0)}» nel titolo"
+    rx_salvo = rx_salvo if rx_salvo is not None else _rx_salvo()
+    m = rx_salvo.search(titolo) if rx_salvo else None
+    if m and not due_partecipanti(titolo):
+        return f"programma «{m.group(0)}» senza due partecipanti"
+    if e.get("sport") == "Football americano" and not (due_partecipanti(titolo) or due_partecipanti(e.get("titolo") or "")
+                                                       or due_partecipanti(e.get("descrizione") or "")):
+        return "football americano senza due squadre"
     if e.get("evento") is False and e.get("sport") not in ("Sport", "Programma sportivo"):
         return None  # SRG: il titolo inizia con uno sport preciso ("TENNIS ...", "Sci alpino: ...")
     if not e.get("evento"):  # ARD, o SRG senza id evento: serve un indizio di gara nel titolo o nella descrizione
@@ -461,8 +490,9 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
         tutti += [e for e in ev if e["sport"] != "Calcio"]
     tutti = [e for e in tutti if inizio.timestamp() <= e["ts"] < fine.timestamp() and e["fine"] > ora.timestamp()]
     tenuti = []
+    rx_salvo = _rx_salvo()
     for e in tutti:
-        motivo = e_programma(e, rx_prog, rx_ev)
+        motivo = e_programma(e, rx_prog, rx_ev, rx_salvo)
         if motivo is None:
             tenuti.append(e)
         elif programmi_tolti is not None:

@@ -418,6 +418,50 @@ def test_basket():
     return "ok"
 
 
+def test_teleboy_sportivi():
+    """Guida Teleboy, canali sportivi: gare vere sì; repliche, anni vecchi, show e studio no (anche 'NFL - Guten Abend Football')."""
+    import altri_sport as A
+    import epg_teleboy as E
+    import teleboy as TB
+    tb = TB.carica(str(QUI.parent / "teleboy_canali.json"), aggiorna=False)
+    conf = A.regole_conf()["teleboy_epg"]
+    def prog(can, ini, fine, titolo, desc="", data="2026", prima=False, sotto=""):
+        return (f'<programme channel="{can}" start="{ini} +0000" stop="{fine} +0000"><title>{titolo}</title>'
+                + (f"<sub-title>{sotto}</sub-title>" if sotto else "") + f"<desc>{desc}</desc><date>{data}</date>"
+                + ("<premiere />" if prima else "") + "</programme>")
+    xml = ('<tv><channel id="SuperTennis.TV.ch"><display-name>SuperTennis TV</display-name></channel>'
+           '<channel id="Rai.Sport.+.ch"><display-name>Rai Sport +</display-name></channel>'
+           '<channel id="NITRO.ch"><display-name>NITRO</display-name></channel>'
+           '<channel id="SPORTITALIA.ch"><display-name>SPORTITALIA</display-name></channel>'
+           + prog("SuperTennis.TV.ch", "20261012080000", "20261012100000", "Tennis: Wuhan Open 2025", data="2025")
+           + prog("SuperTennis.TV.ch", "20261012100000", "20261012120000", "US Open 2026: Berrettini vs Wawrinka")
+           + prog("SuperTennis.TV.ch", "20261012120000", "20261012140000", "Tennis: ATP Masters 1000 Shanghai: Sinner - Alcaraz", "In diretta da Shanghai")
+           + prog("Rai.Sport.+.ch", "20261012120000", "20261012150000", "Baseball: Italia - Germania")
+           + prog("Rai.Sport.+.ch", "20261012180000", "20261012210000", "Baseball: Italia - Germania")
+           + prog("Rai.Sport.+.ch", "20261012153000", "20261012160000", "Speciale Calcio Serie A")
+           + prog("NITRO.ch", "20261012161500", "20261012170000", "NFL - Guten Abend Football", prima=True)
+           + prog("NITRO.ch", "20261012170000", "20261012200000", "NFL: Kansas City Chiefs - Denver Broncos", prima=True)
+           + prog("SPORTITALIA.ch", "20261012183000", "20261012203000", "Serie A Live", sotto="Cagliari - Juventus")
+           + "</tv>").encode()
+    ini, fine = dt.datetime(2026, 10, 12, tzinfo=p.ROMA), dt.datetime(2026, 10, 14, tzinfo=p.ROMA)
+    diag = []
+    ev = E.analizza(xml, tb, conf, ini, fine, diag)
+    tit = sorted((e["emittenti"][0]["nome"], e["titolo"]) for e in ev)
+    assert tit == [("NITRO", "Kansas City Chiefs - Denver Broncos"), ("Rai Sport 1", "Italia - Germania"),
+                   ("SuperTennis", "ATP Masters 1000 Shanghai: Sinner - Alcaraz")], (tit, diag)
+    motivi = {t: m for _, _, t, m in diag}
+    assert motivi["Tennis: Wuhan Open 2025"].startswith("vecchio") and motivi["US Open 2026: Berrettini vs Wawrinka"].startswith("non in diretta")
+    assert motivi["NFL - Guten Abend Football"].startswith("programma") and motivi["Speciale Calcio Serie A"].startswith("programma")
+    # stesso blocco nelle altre fonti (e_programma): show senza due partecipanti via, partite sì
+    rp, re_ = A.regole()
+    assert A.e_programma({"titolo": "NFL - Guten Abend Football", "sport": "Football americano", "evento": True}, rp, re_)
+    assert A.e_programma({"titolo": "NFL Countdown", "sport": "Football americano", "evento": True}, rp, re_)
+    assert A.e_programma({"titolo": "NFL RedZone", "sport": "Football americano", "evento": True}, rp, re_)
+    assert A.e_programma({"titolo": "Chiefs @ Broncos", "sport": "Football americano", "evento": True}, rp, re_) is None
+    assert A.e_programma({"titolo": "NFL: Bears vs Packers Pre-Game", "sport": "Football americano", "evento": True}, rp, re_) is None
+    return len(ev)
+
+
 def test_finite():
     """Partite finite (inizio > 2h15m fa) tolte lato server; quelle in corso restano; niente 'GIÀ GIOCATA'."""
     def ev(ts, casa):
@@ -700,7 +744,9 @@ def test_epg_teleboy():
     # repliche (senza <premiere/>), presentazioni/analisi, programmi non sportivi, canali italiani: mai
     assert not any(re.search(r"vorbericht|analyse|highlights|doppelpass|nachbericht|sport aktuell", e["titolo_orig"].split("  ")[0], re.I)
                    for e in ev), [e["titolo"] for e in ev]
-    assert not any(e["emittenti"][0]["nome"] in ("Comedy Central", "Rai 2") for e in ev)
+    assert not any(e["emittenti"][0]["nome"] == "Comedy Central" for e in ev)
+    # canali italiani inclusi: Il Lombardia su Rai 2 (nella guida senza <premiere/>) è in diretta come su RSI alla stessa ora
+    assert {e["emittenti"][0]["nome"] for e in ev if "Lombardia" in e["titolo"] and e["ts"] < ora.timestamp()} == {"RSI LA 2", "Rai 2"}
     servus = sorted(e["ts"] for e in ev if e["emittenti"][0]["nome"] == "ServusTV" and e["titolo_orig"].startswith("MotoGP: GP Indonesien: Rennen"))
     assert len(servus) == 1, servus  # la gara MotoGP in diretta sì, la replica delle 13:07 no
     x = next(e for e in ev if e["emittenti"][0]["nome"] == "ServusTV")
@@ -1031,6 +1077,7 @@ if __name__ == "__main__":
     print(f"Ordine ALTRI SPORT TUTTO (elite prima): {test_ordine_sport()} – OK")
     print(f"Prima Play: {test_primaplay()} – OK")
     print(f"Basket solo competizioni ammesse: {test_basket()} – OK")
+    print(f"Teleboy canali sportivi (repliche/show tolti): {test_teleboy_sportivi()} dirette – OK")
     print(f"EuroLeague/EuroCup TV Listings: {len(test_euroleague_tv())} partite – OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"

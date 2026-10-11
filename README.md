@@ -133,3 +133,10 @@ Fonte: `https://www.primaplay.ro/transmisiuni` (HTML statico, nessuna API: una s
 ## Basket: solo alcune competizioni
 
 Per il basket (tutte le fonti) restano solo: NBA; Serie A (LBA) e Serie A2; Liga ACB (Liga Endesa); coppe europee (EuroLeague, EuroCup, Basketball Champions League, FIBA Europe Cup, anche le qualificazioni); nazionali maschili di Italia, Grecia e Spagna; EuroBasket e Mondiali FIBA (anche le qualificazioni). Basket femminile, 3x3, NBA G League e tutti gli altri campionati vengono tolti (nel log: «basket tolto: … – motivo»). Elenco modificabile in `categorie.json` → `basket_ammessi` (regex con i nomi alternativi: LBA, Lega A, Liga Endesa, ACB, BCL, Eurolega…) e `basket_esclusi`.
+
+## Guida Teleboy: dirette più complete (anche canali italiani)
+
+La guida epgshare01 non ha categorie. Ora sono inclusi anche i canali italiani di Teleboy (SuperTennis, Rai Sport, Rai 2, Sportitalia...; su Teleboy servono la VPN Svizzera). Regole (`altri_sport.json` → `teleboy_epg`):
+- diretta = `<premiere/>`, oppure «live/diretta/direkt/en direct» nel titolo o nella descrizione, oppure, sui canali sportivi (`canali_sport`: Rai Sport, Sportitalia, Sport1, Eurosport, ORF Sport+, Swiss Sport TV...), una gara riconoscibile (due partecipanti «A - B»/«vs»/«at», o un torneo: ATP, Open, Grand Prix, Weltcup, Coppa, Championship, Giro, Tour, Rennen...); stesso titolo in diretta su un altro canale alla stessa ora = diretta anche qui (Il Lombardia su RSI e Rai 2);
+- tolti: repliche/sintesi (`parole_replica`), programmi (`escludi_programmi`, `escludi_titoli`), show senza due partecipanti (`escludi_salvo_partecipanti`: Guten Abend, Vorbericht, Countdown, Pre-Game, Show, Studio, Talk, Speciale... — vale per tutte le fonti di ALTRI SPORT; il football americano deve sempre avere due squadre), anno vecchio (`<date>` o anno nel titolo), stesso titolo già andato in onda prima sullo stesso canale; la seconda parte subito dopo viene unita;
+- SuperTennis (`canali_solo_diretta_esplicita`): la sua guida è quasi tutta repliche non segnalate, quindi solo programmi con «live/diretta» o prima visione.

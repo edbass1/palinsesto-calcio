@@ -898,10 +898,6 @@
    "\\1° turno"
   ],
   [
-   "tour",
-   "turno"
-  ],
-  [
    "re:(\\d+)\\.\\s*Tag",
    "\\1ª giornata"
   ],
@@ -1260,6 +1256,10 @@
   [
    "re:\\bRace\\b",
    "gara"
+  ],
+  [
+   "re:\\b1er tour\\b",
+   "1° turno"
   ]
  ],
  "parole_italiane": [

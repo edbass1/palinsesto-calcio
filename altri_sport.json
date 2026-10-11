@@ -188,13 +188,11 @@
   "sedicesimi"
  ],
  "teleboy_epg": {
-  "_nota": "Programmi TV di Teleboy (l'EPG di Teleboy non è pubblico): si usa la guida XMLTV pubblica epgshare01 (dati Swisscom, stessi canali svizzeri/tedeschi/austriaci/francesi/inglesi di Teleboy). Si tengono solo le dirette: programma marcato <premiere/> (prima messa in onda) o con 'live'/'en direct'/'in diretta' nel titolo, con uno sport riconoscibile, non nell'elenco 'escludi_programmi', durata almeno 20 minuti. I canali italiani si saltano (si vedono già in Italia). 'alias': id del canale nella guida -> nome Teleboy, quando il nome non coincide.",
+  "_nota": "Programmi TV di Teleboy (l'EPG di Teleboy non è pubblico): guida XMLTV pubblica epgshare01 (dati Swisscom). La guida non ha categorie: diretta = <premiere/> oppure 'live/diretta/direkt/en direct' in titolo/sottotitolo/descrizione, oppure, sui canali sportivi ('canali_sport'), una gara riconoscibile (squadre 'A - B'/'vs', parole di torneo 'parole_torneo'). Tolti: 'parole_replica', 'escludi_programmi', 'escludi_titoli', anno vecchio (<date> o anno nel titolo), stesso titolo già in onda prima sullo stesso canale, durata < durata_minima_min. Anche i canali italiani (SuperTennis, Rai Sport, Sportitalia...): su Teleboy si vedono con VPN Svizzera. 'alias': id del canale nella guida -> nome Teleboy.",
   "fonti": [
    "https://epgshare01.online/epgshare01/epg_ripper_CH1.xml.gz"
   ],
-  "salta_paesi": [
-   "it"
-  ],
+  "salta_paesi": [],
   "durata_minima_min": 20,
   "alias": {
    "Eurosport.1.D.ch": "Eurosport 1 de",
@@ -210,8 +208,43 @@
    "ProSieben.ch": "ProSieben Schweiz",
    "Arte.Deutsch.ch": "Arte de",
    "Arte.Français.ch": "Arte fr",
-   "BBC.Three./.CBBC.ch": "BBC Three"
-  }
+   "BBC.Three./.CBBC.ch": "BBC Three",
+   "Rai.Sport.+.ch": "Rai Sport 1"
+  },
+  "canali_sport": [
+   "supertennis",
+   "^rai sport",
+   "sportitalia",
+   "^sport ?1\\b",
+   "eurosport",
+   "orf sport",
+   "swiss sport",
+   "more than sports",
+   "sportdigital",
+   "motorvision",
+   "auto motor"
+  ],
+  "sport_del_canale": {
+   "supertennis": "Tennis"
+  },
+  "escludi_titoli": [
+   "serie a live",
+   "calciomercato",
+   "si live",
+   "tennis talk",
+   "supertennis today",
+   "circolando",
+   "race to foro",
+   "colpo da campione",
+   "processo",
+   "halbzeit",
+   "tour di notte",
+   "cronache"
+  ],
+  "_nota_canali_solo_diretta_esplicita": "Canali la cui guida è quasi tutta repliche senza segnalarle (SuperTennis): si tengono solo i programmi con 'live/diretta' o marcati prima visione.",
+  "canali_solo_diretta_esplicita": [
+   "supertennis"
+  ]
  },
  "euroleague_tv": {
   "_nota": "Partite di EuroLeague ed EuroCup trasmesse dai canali qui sotto, lette dalle pagine ufficiali «TV Listings» (canali per partita); l'orario viene dal calendario ufficiale. Chiave = nome del canale come scritto sulla pagina (maiuscolo); 'nome' e 'vpn' = come appare sulle schede. Si possono aggiungere canali (es. 'RTSH SPORT').",
@@ -246,5 +279,32 @@
     "vpn": "ALBANIA"
    }
   }
- }
+ },
+ "_nota_escludi_salvo_partecipanti": "Programmi (studio, pre/post partita, show...) tolti da ALTRI SPORT in tutte le fonti, a meno che il titolo abbia due partecipanti ('A vs B', 'A @ B', 'A - B'; un prefisso di lega/sport come 'NFL - ' non conta). Il football americano richiede sempre due squadre nel titolo o nella descrizione.",
+ "escludi_salvo_partecipanti": [
+  "guten abend",
+  "vorbericht",
+  "countdown",
+  "pre-?game",
+  "postgame",
+  "post-game",
+  "show",
+  "studio",
+  "magazin",
+  "talk",
+  "analyse",
+  "vorschau",
+  "rückblick",
+  "pre-?partita",
+  "post-?partita",
+  "speciale",
+  "il grande",
+  "before the",
+  "kick-?off show",
+  "ran football",
+  "warm-?up",
+  "the huddle",
+  "inside the nfl",
+  "red ?zone"
+ ]
 }
