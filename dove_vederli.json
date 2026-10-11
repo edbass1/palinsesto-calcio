@@ -212,11 +212,11 @@
     "^Sporty ?TV"
    ],
    "vpn": "Nigeria o Ghana",
-   "note": "Scaricabile anche app sui vari dispositivi android",
+   "note": "Sul sito clicca sull'icona S-TV accanto alla partita per vederla. In alternativa scarica l'app Android.",
    "link": [
     {
      "url": "https://sporty.com/football/matches",
-     "testo": "Sporty – partite"
+     "testo": "sporty.com – partite (icona S-TV)"
     }
    ]
   },
