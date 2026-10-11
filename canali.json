@@ -60,6 +60,34 @@
     {
       "nome": "ITV1 UK",
       "url": "https://www.livesoccertv.com/channels/itv-1/"
+    },
+    {
+      "nome": "RTL TVI",
+      "url": "https://www.livesoccertv.com/channels/rtl-tvi/"
+    },
+    {
+      "nome": "Club RTL",
+      "url": "https://www.livesoccertv.com/channels/club-rtl/"
+    },
+    {
+      "nome": "RTL Play",
+      "url": "https://www.livesoccertv.com/channels/rtl-play-belgium/"
+    },
+    {
+      "nome": "VTM",
+      "url": "https://www.livesoccertv.com/channels/vtm/"
+    },
+    {
+      "nome": "VTM 2",
+      "url": "https://www.livesoccertv.com/channels/vtm-2/"
+    },
+    {
+      "nome": "VTM 4",
+      "url": "https://www.livesoccertv.com/channels/vtm-4/"
+    },
+    {
+      "nome": "VTM GO",
+      "url": "https://www.livesoccertv.com/channels/vtm-go/"
     }
   ]
 }

@@ -74,7 +74,7 @@ def test_fixture():
     v, ini, fine = p.finestra(dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA))
     gruppi, falliti, senza = p.raccogli(canali, ini, fine)
     n = sum(len(g["partite"]) for g in gruppi)
-    assert n == 62 and not falliti and not senza, (n, falliti, senza)
+    assert n == 62 and not falliti and set(senza) <= {"RTL TVI", "Club RTL", "RTL Play", "VTM", "VTM 2", "VTM 4", "VTM GO"}, (n, falliti, senza)  # canali belgi: nessuna partita 9-12/10
     assert not any("SportyNet+" in k["nome"] for g in gruppi for e in g["partite"] for k in e["canali"])
     prima_18 = [e for g in gruppi for e in g["partite"] if e["quando"] < dt.datetime(2026, 10, 9, 18, tzinfo=p.ROMA)]
     assert sorted(e["casa"] for e in prima_18) == ["Al Fateh", "Corvinul Hunedoara"], prima_18
