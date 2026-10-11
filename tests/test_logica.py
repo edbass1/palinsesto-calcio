@@ -255,6 +255,48 @@ def test_dove():
     assert "Calcio e Sport in TV · Sab 10 – Mar 13 ottobre" in h and h.count("data-filtro=") == 10 and "eekend" not in h
 
 
+def test_ordine_tutto():
+    """PER CAMPIONATO con TUTTO: blocchi A (coppe europee/nazionali) e B (Serie A, poi grandi campionati), C in fondo."""
+    b = p.blocco_tutto(p.carica_categorie())
+    assert [b(n) for n in ("UEFA CHAMPIONS LEAGUE", "UEFA YOUTH LEAGUE", "NAZIONALI – QUALIFICAZIONI MONDIALI 2026",
+                           "NAZIONALI – QUALIFICAZIONI EUROPEI U21", "SERIE A", "PREMIER LEAGUE", "PREMIER LEAGUE (Azerbaigian)",
+                           "LALIGA", "2. BUNDESLIGA", "LIGUE 1", "SERIE B", "BRASILEIRÃO SERIE A (Brasile)")] == [
+        "a", "a", "a", "c", "b0", "b", "c", "b", "c", "b", "c", "c"]
+    import shutil, subprocess, tempfile, time
+    chrome = shutil.which("google-chrome") or shutil.which("chromium")
+    if not chrome:
+        print("  (chrome assente: ordine lato pagina non verificato)")
+        return
+    ora = dt.datetime.now(p.ROMA).replace(second=0, microsecond=0)
+    def g(nome, *ore):
+        return {"nome": nome, "partite": [{"ts": int((ora + dt.timedelta(hours=h)).timestamp()), "quando": ora + dt.timedelta(hours=h),
+                                            "casa": f"{nome[:5]} {h}", "ospite": "B", "canali": [{"nome": "Prima Sport 1", "fta": False}]}
+                                           for h in ore]}
+    def ordine(gruppi, dopo=""):
+        h = p.genera_html(ora.date(), ora, gruppi, [], [])
+        h = h.replace("</body>", f"<script>{dopo}</script></body>")
+        with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False) as f:
+            f.write(h)
+        out = subprocess.run([chrome, "--headless=new", "--disable-gpu", "--no-sandbox", "--dump-dom", "file://" + f.name],
+                             capture_output=True, text=True, timeout=60).stdout
+        i = out.index('id="vista-campionato"')
+        return [m.group(2) for m in re.finditer(r'<section class="comp"([^>]*)><h2>([^<]*)', out[i:])
+                if "hidden" not in m.group(1)][:len(gruppi)]
+    base = [g("BRASILEIRÃO SERIE A (Brasile)", 1), g("LALIGA", 2), g("PREMIER LEAGUE", 3), g("SERIE A", 5),
+            g("UEFA CHAMPIONS LEAGUE", 4), g("NAZIONALI – UEFA NATIONS LEAGUE", 2.5), g("SERIE B", 1.5)]
+    # B prima (LaLiga alle +2 < nazionali alle +2.5): Serie A prima di tutto il blocco B
+    assert ordine(base) == ["SERIE A", "LALIGA", "PREMIER LEAGUE", "NAZIONALI – UEFA NATIONS LEAGUE", "UEFA CHAMPIONS LEAGUE",
+                            "BRASILEIRÃO SERIE A (Brasile)", "SERIE B"]
+    # A prima (Champions alle +1.2)
+    base[4] = g("UEFA CHAMPIONS LEAGUE", 1.2)
+    assert ordine(base) == ["UEFA CHAMPIONS LEAGUE", "NAZIONALI – UEFA NATIONS LEAGUE", "SERIE A", "LALIGA", "PREMIER LEAGUE",
+                            "BRASILEIRÃO SERIE A (Brasile)", "SERIE B"]
+    # altri filtri: solo ordine per primo calcio d'inizio
+    el = ordine(base, "document.querySelector('.scelta-b button[data-gruppo=\\'calcio\\'][data-cat=\\'elite\\']').click();")
+    assert el == ["UEFA CHAMPIONS LEAGUE", "LALIGA", "NAZIONALI – UEFA NATIONS LEAGUE", "PREMIER LEAGUE", "SERIE A"], el
+    return ordine(base)
+
+
 def test_finite():
     """Partite finite (inizio > 2h15m fa) tolte lato server; quelle in corso restano; niente 'GIÀ GIOCATA'."""
     def ev(ts, casa):
@@ -864,6 +906,7 @@ if __name__ == "__main__":
     al, ca = test_altri_sport(); print(f"altri sport: {len(al)} eventi, calcio in streaming {len(ca)} – OK")
     print(f"DAZN (rail-router): {test_dazn_rail()} – OK")
     print(f"LiveOnSat altri sport + NFL gratis: {len(test_altri_los_nfl())} eventi – OK")
+    print(f"Ordine TUTTO (blocchi A/B/C): {test_ordine_tutto()} – OK")
     print(f"EuroLeague/EuroCup TV Listings: {len(test_euroleague_tv())} partite – OK")
     st = test_unione()
     print(f"unione: LiveSoccerTV {st['livesoccertv']} + LiveOnSat {st['liveonsat']} - uniti {len(st['uniti'])}"

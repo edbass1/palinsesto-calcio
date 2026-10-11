@@ -111,6 +111,28 @@
   "minore": {
    "titolo": "CALCIO MINORE",
    "_nota": "Tutto ciò che non è in ELITE CALCIO, CALCIO ITALIA o SUDAMERICA (calcolato da solo)."
+  },
+  "_nota_ordine_tutto": "Ordine delle sezioni nella vista PER CAMPIONATO con filtro TUTTO. Blocco A (coppe europee + nazionali maggiori) e blocco B (Serie A sempre prima, poi gli altri 4 grandi campionati): viene prima il blocco con la partita più vicina; il blocco C (tutto il resto) è sempre ultimo. Dentro ogni blocco: per primo calcio d'inizio. Regex sul nome della competizione (intero).",
+  "ordine_tutto": {
+   "blocco_a": [
+    "UEFA CHAMPIONS LEAGUE.*",
+    "UEFA EUROPA LEAGUE.*",
+    "UEFA CONFERENCE LEAGUE.*",
+    "SUPERCOPPA EUROPEA.*",
+    "UEFA SUPER CUP.*",
+    "UEFA YOUTH LEAGUE.*",
+    "NAZIONALI – (?!.*(FEMMINIL|UNDER|U-?\\d\\d|GIOVANIL)).*",
+    "(?!.*(FEMMINIL|WOMEN|UNDER|U-?\\d\\d|GIOVANIL)).*(MONDIALI|WORLD CUP|EUROPEI|EURO 20\\d\\d|NATIONS LEAGUE|AMICHEVOL[EI] INTERNAZIONAL[EI]|INTERNATIONAL FRIENDL).*"
+   ],
+   "blocco_b_primo": [
+    "SERIE A"
+   ],
+   "blocco_b": [
+    "PREMIER LEAGUE",
+    "LALIGA",
+    "BUNDESLIGA",
+    "LIGUE 1"
+   ]
   }
  },
  "altri": {

@@ -505,8 +505,9 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
 
     # vista "per campionato"
     # in ordine di primo calcio d'inizio (a parità, l'ordine fisso delle competizioni); la pagina lo ricalcola con i filtri
+    blocco = blocco_tutto(categorie if categorie is not None else carica_categorie())
     for i, g in sorted(enumerate(gruppi), key=lambda x: (min((e["ts"] for e in x[1]["partite"]), default=0), x[0])):
-        sezioni.append(f'<section class="comp" data-ordine="{i}"><h2>{esc(g["nome"])}</h2>'
+        sezioni.append(f'<section class="comp" data-ordine="{i}" data-blocco="{blocco(g["nome"])}"><h2>{esc(g["nome"])}</h2>'
                        f'<ol class="partite">{"".join(scheda(e) for e in g["partite"])}</ol></section>')
     # vista "in ordine di orario": tutte le partite per ora d'inizio, con separatori per giorno
     tutte = sorted(((e, g["nome"]) for g in gruppi for e in g["partite"]), key=lambda x: (x[0]["ts"], x[1], x[0]["casa"]))
@@ -601,6 +602,21 @@ def carica_categorie(percorso=None):
 
 def _intero(lista):
     return [re.compile(rf"(?:{x})", re.I) for x in lista or []]
+
+
+def blocco_tutto(cat):
+    """Nome competizione -> 'a' (coppe europee/nazionali), 'b0' (Serie A), 'b' (altri 4 grandi), 'c' (resto).
+    Serve all'ordine delle sezioni PER CAMPIONATO con filtro TUTTO (categorie.json -> calcio.ordine_tutto)."""
+    o = (cat or {}).get("calcio", {}).get("ordine_tutto", {})
+    a, b0, b = _intero(o.get("blocco_a")), _intero(o.get("blocco_b_primo")), _intero(o.get("blocco_b"))
+
+    def fn(nome):
+        n = (nome or "").strip()
+        for k, rxs in (("b0", b0), ("b", b), ("a", a)):
+            if any(r.fullmatch(n) for r in rxs):
+                return k
+        return "c"
+    return fn
 
 
 def classificatore(cat):
@@ -1004,8 +1020,18 @@ TEMPLATE = """<!doctype html>
         var ts = tutti('li.partita:not([hidden])', s).map(function (p) {{ return +p.dataset.ts; }});
         return [ts.length ? Math.min.apply(null, ts) : Infinity, +s.dataset.ordine];
       }};
-      var k = sez.map(function (s) {{ return {{ s: s, k: chiave(s) }}; }});
-      k.sort(function (a, b) {{ return (a.k[0] - b.k[0]) || (a.k[1] - b.k[1]); }});
+      var k = sez.map(function (s) {{ return {{ s: s, k: chiave(s), b: s.dataset.blocco || 'c' }}; }});
+      if (id === 'vista-campionato' && S.cat.calcio === 'tutto') {{
+        // TUTTO: blocco A (coppe europee + nazionali) e blocco B (Serie A, poi gli altri grandi campionati):
+        // prima il blocco con la partita visibile più vicina; il resto (C) sempre in fondo
+        var primo = function (bl) {{ return Math.min.apply(null, [Infinity].concat(k.filter(function (x) {{ return bl.indexOf(x.b) >= 0; }}).map(function (x) {{ return x.k[0]; }}))); }};
+        var aPrima = primo(['a']) < primo(['b0', 'b']);
+        var rango = function (x) {{ return x.b === 'a' ? (aPrima ? 0 : 2) : x.b === 'b0' ? (aPrima ? 1 : 0) : x.b === 'b' ? (aPrima ? 2 : 1) : 3; }};
+        k.forEach(function (x) {{ x.k = [rango(x)].concat(x.k); }});
+        k.sort(function (a, b) {{ return (a.k[0] - b.k[0]) || (a.k[1] - b.k[1]) || (a.k[2] - b.k[2]); }});
+      }} else {{
+        k.sort(function (a, b) {{ return (a.k[0] - b.k[0]) || (a.k[1] - b.k[1]); }});
+      }}
       if (k.some(function (x, i) {{ return x.s !== sez[i]; }})) {{
         var dopo = sez.length ? sez[sez.length - 1].nextSibling : null;
         k.forEach(function (x) {{ box.insertBefore(x.s, dopo); }});
