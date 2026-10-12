@@ -324,6 +324,53 @@ def unisci_stream(eventi, partite, converti=None, fonte="Streaming"):
     return eventi, uniti
 
 
+FINESTRA_DOPPIONI_S = 3 * 3600
+FONTI_STREAM = {"Streaming"}
+
+
+def unisci_doppioni(eventi):
+    """Ultimo passaggio: la stessa partita (stesse squadre, stesso giorno, inizio entro 3 ore) compare UNA volta sola
+    con tutti i canali di tutte le fonti. L'orario è il calcio d'inizio ufficiale: quello delle fonti TV/guide
+    (LiveSoccerTV, LiveOnSat, DAZN, Prima...), non quello delle dirette streaming che spesso iniziano prima."""
+    def affidabile(e):
+        return any(f not in FONTI_STREAM for f in e.get("fonti", []))
+
+    def chiave(e):  # chi tiene l'orario: prima le fonti non streaming, poi più fonti, poi l'orario più tardo
+        return (affidabile(e), len(e.get("fonti", [])), e["ts"])
+
+    uniti, tenuti = [], []
+    for e in sorted(eventi, key=lambda e: e["ts"]):
+        trovato = None
+        for t in tenuti:
+            if abs(t["ts"] - e["ts"]) > FINESTRA_DOPPIONI_S or t["quando"].date() != e["quando"].date():
+                continue
+            if unisci.stessa_partita(0, t["casa"], t["ospite"], 0, e["casa"], e["ospite"]):
+                trovato = t
+                break
+        if trovato is None:
+            tenuti.append(e)
+            continue
+        base, altro = (trovato, e) if chiave(trovato) >= chiave(e) else (e, trovato)
+        chiavi = {unisci.chiave_canale(k["nome"]): k for k in base["canali"]}
+        for k in altro["canali"]:
+            gia = chiavi.get(unisci.chiave_canale(k["nome"]))
+            if gia:
+                gia["fta"] = gia.get("fta") or k.get("fta")
+                for campo in ("url", "diretta", "vpn", "teleboy"):
+                    if campo in k and not gia.get(campo):
+                        gia[campo] = k[campo]
+            else:
+                base["canali"].append(k)
+                chiavi[unisci.chiave_canale(k["nome"])] = k
+        for f_ in altro.get("fonti", []):
+            if f_ not in base["fonti"]:
+                base["fonti"].append(f_)
+        uniti.append(f'{base["casa"]} - {base["ospite"]}')
+        if base is e:
+            tenuti[tenuti.index(trovato)] = e
+    return tenuti, uniti
+
+
 def unisci_fonti(eventi, partite_los, regole_fta=()):
     """Aggiunge le partite LiveOnSat: se è la stessa partita unisce i canali, altrimenti la aggiunge.
     Restituisce (eventi, elenco dei doppioni uniti)."""
@@ -511,6 +558,7 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         st["altri_sport"] = altri
         eventi, st["uniti_stream"] = unisci_stream(eventi, calcio_stream)
         st["calcio_stream"] = len(calcio_stream)
+    eventi, st["uniti_doppioni"] = unisci_doppioni(eventi)
     # esclusioni permanenti (liveonsat.json -> escludi_canali) applicate a tutte le fonti
     escludi = ["dazn"] + [x.lower() for x in (conf_los or {}).get("escludi_canali", []) if x]
     mai = [x.lower() for x in (conf_los or {}).get("mai_escludere", ["idman"]) if x]

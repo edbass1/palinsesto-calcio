@@ -1295,3 +1295,23 @@ def test_vtm_unico():
 
 
 test_vtm_unico(); print("VTM -> una sola riga VTM GO: OK")
+
+
+def test_doppioni_stessa_partita():
+    t = int(dt.datetime(2026, 10, 14, 21, 0, tzinfo=p.ROMA).timestamp())
+    ev = lambda ts, c, o, can, fonti: {"ts": ts, "quando": dt.datetime.fromtimestamp(ts, p.ROMA), "casa": c, "ospite": o,
+                                      "canali": can, "fonti": fonti, "competizione": "X", "ordine": 1}
+    eventi = [ev(t - 50 * 60, "AS Roma", "Real Madrid",
+                 [{"nome": "SRF stream", "fta": True, "url": "u", "diretta": "d", "vpn": True}], ["Streaming"]),
+              ev(t, "Roma", "Real Madrid", [{"nome": "Prima Sport 1", "fta": False}], ["Prima Play"]),
+              ev(t, "Roma", "Lazio", [{"nome": "DAZN", "fta": False}], ["LiveOnSat"]),
+              ev(t + 24 * 3600, "Roma", "Real Madrid", [{"nome": "Y", "fta": False}], ["LiveOnSat"])]
+    tenuti, uniti = p.unisci_doppioni(eventi)
+    assert len(tenuti) == 3 and len(uniti) == 1, (tenuti, uniti)
+    rm = [e for e in tenuti if e["ospite"] == "Real Madrid" and e["quando"].day == 14]
+    assert len(rm) == 1 and rm[0]["ts"] == t  # orario ufficiale 21:00, non 20:10 dello stream
+    nomi = {k["nome"]: k for k in rm[0]["canali"]}
+    assert set(nomi) == {"Prima Sport 1", "SRF stream"} and nomi["SRF stream"]["diretta"] == "d"
+
+
+test_doppioni_stessa_partita(); print("doppioni Roma - Real Madrid uniti con orario ufficiale: OK")
