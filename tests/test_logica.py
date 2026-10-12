@@ -1280,3 +1280,18 @@ def test_prima_register():
 
 
 test_prima_register(); print("Prima Sport -> primaplay.ro/register: OK")
+
+
+def test_vtm_unico():
+    dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    g = [{"nome": "X", "partite": [{"canali": [{"nome": "VTM 2", "fta": True}, {"nome": "Club RTL", "fta": True},
+                                               {"nome": "VTM GO", "fta": False}, {"nome": "VTM 2 Belgium HD", "fta": True}]}]}]
+    a = [{"emittenti": [{"nome": "VTM 4", "link": "x", "fta": True}, {"nome": "VTM", "fta": True}]}]
+    p.unifica_canali(g, a, dove)
+    assert [c["nome"] for c in g[0]["partite"][0]["canali"]] == ["VTM GO", "Club RTL"]
+    assert [c["nome"] for c in a[0]["emittenti"]] == ["VTM GO"] and a[0]["emittenti"][0]["link"] is None
+    h = p.badge(g[0]["partite"][0]["canali"][0], dove, set())
+    assert "vtmgo.be" in h and "flags/be.svg" in h, h
+
+
+test_vtm_unico(); print("VTM -> una sola riga VTM GO: OK")

@@ -567,9 +567,46 @@ def periodo(primo: dt.date, giorni: int = GIORNI_FINESTRA):
     return f"{a} – {b}"
 
 
+def unifica_canali(gruppi, altri, dove):
+    """Voci di "Dove vederli" con 'unifica_in' (es. VTM -> "VTM GO"): sulle schede tutti i canali della voce
+    diventano una sola riga con quel nome (doppioni tolti)."""
+    regole = [(v["canali"], v["unifica_in"]) for v in (dove or []) if v.get("unifica_in")]
+    if not regole:
+        return
+
+    def nome(n):
+        for rx, nuovo in regole:
+            if any(re.search(r, n or "", re.I) for r in rx):
+                return nuovo
+        return None
+
+    def pulisci(lista, chiave_link=None):
+        out, visti = [], {}
+        for c in lista:
+            nuovo = nome(c.get("nome"))
+            if nuovo:
+                c = dict(c, nome=nuovo, teleboy=False)
+                if chiave_link:
+                    c[chiave_link] = None
+            k = c["nome"].lower()
+            if nuovo and k in visti:
+                visti[k]["fta"] = visti[k].get("fta") or c.get("fta")
+                continue
+            visti[k] = c
+            out.append(c)
+        return out
+
+    for g in gruppi or []:
+        for e in g["partite"]:
+            e["canali"] = pulisci(e["canali"])
+    for e in altri or []:
+        e["emittenti"] = pulisci(e["emittenti"], "link")
+
+
 def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categorie=None):
     VPN_MANCANTI[:] = []
     esc = html.escape
+    unifica_canali(gruppi, altri, dove)
     cat_calcio, cat_altro = classificatore(categorie if categorie is not None else carica_categorie())
     for g in gruppi:
         for e in g["partite"]:
