@@ -1030,13 +1030,31 @@ def badge(c, dove, usati):
         testo = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{testo}</a>'
         sito = sito_ufficiale(v, c["nome"])
         if sito and not extra and v["id"] != "teleboy" and not dtt:
-            extra = f' <a class="diretta" href="{esc(sito)}" target="_blank" rel="noopener" title="Sito di streaming">{testo_link(sito, "▶ " + v["link_card"]["testo"] if v.get("link_card", {}).get("testo") else "▶ sito")}</a>'
+            extra = (f' <a class="diretta" href="{esc(sito)}" title="Come vederli">▶ {esc(v["link_card"]["testo"])}</a>'
+                     if sito.startswith("#") else None) or f' <a class="diretta" href="{esc(sito)}" target="_blank" rel="noopener" title="Sito di streaming">{testo_link(sito, "▶ " + v["link_card"]["testo"] if v.get("link_card", {}).get("testo") else "▶ sito")}</a>'
             link = sito
     vt = testo_vpn(c["nome"], None, v, tb) if (v or tb or link) else testo_vpn(c["nome"])
     if dtt and not link:
         vt = None
     testo += extra + pill_vpn(vt, c["nome"], link) + riga_dtt(dtt)
     return f'<li class="fta">{testo}</li>' if c["fta"] else f'<li>{testo}</li>'
+
+
+def metodi_html(v):
+    """Guida a passi ('metodi': titolo, intro, passi numerati con link, chiusura) + 'in_breve' finale."""
+    esc = html.escape
+    out = ""
+    for m in v.get("metodi", []):
+        passi = "".join(
+            f'<li>{esc(x["testo"])}' + (f' <a href="{esc(x["url"])}" target="_blank" rel="noopener noreferrer">{esc(x["url"])}</a>' if x.get("url") else "")
+            + "</li>" for x in m.get("passi", []))
+        out += (f'<div class="metodo"><h4>{esc(m["titolo"])}</h4>'
+                + (f'<p>{esc(m["intro"])}</p>' if m.get("intro") else "")
+                + (f'<ol class="passi">{passi}</ol>' if passi else "")
+                + (f'<p class="fatto">{esc(m["chiusura"])}</p>' if m.get("chiusura") else "") + "</div>")
+    if v.get("in_breve"):
+        out += f'<p class="in-breve"><strong>In breve:</strong> {esc(v["in_breve"])}</p>'
+    return out
 
 
 def sezione_dove(dove, usati, sez=None):
@@ -1056,6 +1074,7 @@ def sezione_dove(dove, usati, sez=None):
             + (f'<p class="consiglio">{"" if v["consiglio"]["testo"].startswith("⭐") else "⭐ "}{esc(v["consiglio"]["testo"])} <a href="{esc(v["consiglio"]["url"])}" target="_blank" '
                f'rel="noopener noreferrer">{esc(v["consiglio"].get("testo_link") or v["consiglio"]["url"])}</a></p>'
                if v.get("consiglio") else '')
+            + metodi_html(v)
             + (f'<p class="vpn">VPN: <strong>{esc(v["vpn"])}</strong></p>' if v.get("vpn") else '')
             + (f'<p class="nota">{esc(v["note"])}</p>' if v.get("note") else '')
             + (f'<p class="nota">Canali di questa pagina disponibili su Teleboy: <strong>{esc(", ".join(sorted(v["_canali_pagina"], key=str.lower)))}</strong></p>'
@@ -1139,6 +1158,13 @@ TEMPLATE = """<!doctype html>
   .tag.dtt {{ background:#fff; color:#000; font-weight:800; font-size:.8em; padding:.1em .45em; border-radius:999px; white-space:nowrap; }}
   .tag.dtt img.fl {{ height:1.1em; width:auto; vertical-align:-0.2em; border:1px solid #000; border-radius:2px; }}
   .orig {{ display:block; font-size:.95rem; font-weight:400; color:#bbb; margin-top:4px; }}
+  .metodo {{ font-size:1.1rem; line-height:1.5; background:#111; border:1px solid #333; border-radius:10px; padding:10px 14px; margin:10px 0; }}
+  .metodo h4 {{ font-size:1.2rem; margin:0 0 6px; }}
+  .metodo ol.passi {{ list-style:decimal; padding-left:1.6em; margin:6px 0; }}
+  .metodo ol.passi li {{ margin:6px 0; }}
+  .metodo a, .in-breve a {{ word-break:break-all; }}
+  .metodo .fatto {{ font-weight:700; }}
+  .in-breve {{ font-size:1.15rem; background:#1d1d00; border:2px solid var(--giallo); border-radius:10px; padding:10px 12px; }}
   .consiglio {{ font-size:1.1rem; font-weight:700; background:#1d1d00; border:2px solid var(--giallo); border-radius:10px; padding:10px 12px; }}
   .fino {{ font-size:.85rem; color:#ccc; }}
   a.diretta {{ font-size:.85rem; color:#fff; }}

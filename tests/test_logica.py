@@ -898,10 +898,11 @@ def test_unione():
     dove = json.loads((QUI.parent / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
     h2 = p.genera_html(v, dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA), gruppi2, [], [], dove)
     i = h2.index('id="dv-prima-sport"')
-    blocco = h2[i:h2.index("</li></ul></li>", i)]
-    assert "sito ufficiale" not in h2 and "Prima Sport 1 (link web alternativo)" in blocco
-    assert blocco.index('class="consiglio"') < blocco.index("rds.live") and "⭐ IMPORTANTE: prima registrati su Prima Play" in blocco and "⭐ ⭐" not in blocco and blocco.index("primaplay.ro/register") < blocco.index("rds.live")
-    assert "tvgo.orange.ro" in blocco
+    blocco = h2[i:h2.index('<li class="dove"', i + 10) if h2.find('<li class="dove"', i + 10) > 0 else h2.index("</ol></section>", i)]
+    assert "sito ufficiale" not in h2 and blocco.count('<div class="metodo">') == 2 and blocco.count('<ol class="passi">') == 2
+    assert "🟢 METODO 1 — Guardarli sulla TV di casa" in blocco and "🔵 METODO 2 — Guardarli dal computer, senza VPN, STABILMENTE" in blocco
+    assert blocco.index('href="https://www.primaplay.ro/register"') < blocco.index('href="https://www.orange.ro/accounts/create-user"')
+    assert "<strong>In breve:</strong> Volete guardarli sulla TV di casa? Metodo 1." in blocco and "rds.live" not in blocco
     assert 'TELEBOY</span>' in h2 and 'id="dv-teleboy"' in h2 and 'href="https://www.teleboy.ch/it/live"' in h2
     assert tb.link("ITV") == "https://tv.teleboy.ch/live(player:live/346)"  # come l'esempio dell'utente
     assert 'href="https://tv.teleboy.ch/live(player:live/346)"' in h2 and "▶ Teleboy" in h2
@@ -1271,15 +1272,15 @@ test_scooore(); print("Scooore (solo conferma di partite già presenti): OK")
 
 def test_prima_register():
     dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
-    for nome, pill in (("Prima Sport 2", "SENZA VPN"), ("Prima Sport PPV1", "Solo app · SENZA VPN")):
-        h = p.badge({"nome": nome, "fta": False}, dove, set())
-        assert 'href="https://www.primaplay.ro/register"' in h and "▶ Prima Play" in h and pill in h, h
-    s = p.sezione_dove(dove, {"prima-sport", "prima-sport-ppv"}) if p.sezione_dove.__code__.co_argcount == 2 else ""
-    if s:
-        assert "⭐ IMPORTANTE: prima registrati su Prima Play" in s and "⭐ ⭐" not in s
+    h = p.badge({"nome": "Prima Sport 2", "fta": False}, dove, set())
+    assert 'href="#dv-prima-sport"' in h and "▶ Come vederli" in h and "SENZA VPN" in h and "primaplay.ro" not in h and "_blank" not in h.split("▶")[0][-200:], h
+    h = p.badge({"nome": "Prima Sport PPV1", "fta": False}, dove, set())
+    assert 'href="https://www.primaplay.ro/register"' in h and "Solo app · SENZA VPN" in h, h
+    s = p.sezione_dove(dove, {"prima-sport", "prima-sport-ppv"})
+    assert s.count('<li>Aprite questo link con Google Chrome') == 2 and "In breve:" in s
 
 
-test_prima_register(); print("Prima Sport -> primaplay.ro/register: OK")
+test_prima_register(); print("Prima Sport -> guida a due metodi: OK")
 
 
 def test_vtm_unico():

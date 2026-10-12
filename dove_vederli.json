@@ -1,1453 +1,1464 @@
 {
- "_nota": "Sezione 'Dove vederli' in fondo alla pagina. Ogni voce: id, nome, canali (espressioni regolari sui nomi dei canali che portano a questa voce), vpn, note, link. fonte = 'utente' (indicati dall'utente, sempre mostrati) oppure 'ricerca' (link ufficiali trovati e controllati il 10/10/2026, mostrati solo se il canale compare in qualche partita). verificato=false -> sulla pagina compare 'link da verificare'. Ogni voce ha 'vpn_tag': l'etichetta breve mostrata accanto al link su ogni partita (es. 'VPN Svizzera', 'SENZA VPN', 'Solo app · VPN Albania').",
- "voci": [
-  {
-   "id": "teleboy",
-   "nome": "Teleboy (TV via internet, Svizzera)",
-   "fonte": "utente",
-   "canali": [],
-   "vpn": "Svizzera",
-   "note": "Registrazione gratuita. I canali con l'etichetta TELEBOY sono nell'elenco canali di Teleboy (aggiornato a ogni pubblicazione); i pacchetti mySports sono a pagamento.",
-   "link": [
+  "_nota": "Sezione 'Dove vederli' in fondo alla pagina. Ogni voce: id, nome, canali (espressioni regolari sui nomi dei canali che portano a questa voce), vpn, note, link. fonte = 'utente' (indicati dall'utente, sempre mostrati) oppure 'ricerca' (link ufficiali trovati e controllati il 10/10/2026, mostrati solo se il canale compare in qualche partita). verificato=false -> sulla pagina compare 'link da verificare'. Ogni voce ha 'vpn_tag': l'etichetta breve mostrata accanto al link su ogni partita (es. 'VPN Svizzera', 'SENZA VPN', 'Solo app · VPN Albania').",
+  "voci": [
     {
-     "url": "https://www.teleboy.ch/it/live",
-     "testo": "Teleboy TV"
-    }
-   ],
-   "vpn_tag": "VPN Svizzera"
-  },
-  {
-   "id": "scooore",
-   "nome": "Scooore (Zattoo)",
-   "fonte": "utente",
-   "verificato": true,
-   "canali": [
-    "^Scooore\\b"
-   ],
-   "vpn": "Svizzera",
-   "vpn_tag": "VPN Svizzera",
-   "note": "Serve registrazione gratuita su Zattoo.",
-   "link": [
-    {
-     "url": "https://zattoo.com/guide/sports?channel=scooore_de",
-     "testo": "Zattoo – Scooore"
-    }
-   ]
-  },
-  {
-   "id": "srf-sport",
-   "nome": "SRF Play – Sport-Livestreams",
-   "fonte": "utente",
-   "canali": [
-    "^SRF stream$"
-   ],
-   "vpn": "Svizzera",
-   "note": "Dirette sportive gratuite di SRF (tedesco).",
-   "link": [
-    {
-     "url": "https://www.srf.ch/play/tv/sport-livestreams",
-     "testo": "SRF Sport-Livestreams"
-    }
-   ],
-   "vpn_tag": "VPN Svizzera"
-  },
-  {
-   "id": "rts-sport",
-   "nome": "RTS Play – Livestreams",
-   "fonte": "utente",
-   "canali": [
-    "^RTS stream$"
-   ],
-   "vpn": "Svizzera",
-   "note": "Dirette sportive gratuite di RTS (francese).",
-   "link": [
-    {
-     "url": "https://www.rts.ch/play/tv/rts-livestreams",
-     "testo": "RTS Livestreams"
-    }
-   ],
-   "vpn_tag": "VPN Svizzera"
-  },
-  {
-   "id": "rsi-sport",
-   "nome": "RSI – Streaming",
-   "fonte": "utente",
-   "canali": [
-    "^RSI stream$"
-   ],
-   "vpn": "Svizzera",
-   "note": "Dirette sportive gratuite di RSI (italiano).",
-   "link": [
-    {
-     "url": "https://www.rsi.ch/palinsesto/streaming/",
-     "testo": "RSI Streaming"
-    }
-   ],
-   "vpn_tag": "VPN Svizzera"
-  },
-  {
-   "id": "ard-sport",
-   "nome": "ARD Mediathek – Sport-Livestreams",
-   "fonte": "utente",
-   "canali": [
-    "^ARD .* stream$"
-   ],
-   "vpn": "Germania",
-   "note": "Dirette sportive gratuite di ARD (tedesco).",
-   "link": [
-    {
-     "url": "https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/livestreams-ard-",
-     "testo": "ARD Sport-Livestreams"
-    }
-   ],
-   "vpn_tag": "VPN Germania"
-  },
-  {
-   "id": "golazo",
-   "nome": "Golazo Network",
-   "fonte": "utente",
-   "canali": [
-    "^Golazo"
-   ],
-   "vpn": "USA",
-   "note": "",
-   "link": [
-    {
-     "url": "https://pluto.tv/us/live-tv/63a0e33a45264d000850ed7e",
-     "testo": "Pluto TV – Golazo Network"
+      "id": "teleboy",
+      "nome": "Teleboy (TV via internet, Svizzera)",
+      "fonte": "utente",
+      "canali": [],
+      "vpn": "Svizzera",
+      "note": "Registrazione gratuita. I canali con l'etichetta TELEBOY sono nell'elenco canali di Teleboy (aggiornato a ogni pubblicazione); i pacchetti mySports sono a pagamento.",
+      "link": [
+        {
+          "url": "https://www.teleboy.ch/it/live",
+          "testo": "Teleboy TV"
+        }
+      ],
+      "vpn_tag": "VPN Svizzera"
     },
     {
-     "url": "https://www.cbssports.com/watch/cbs-sports-golazo-network?ftag=CBS-16-10ade3j",
-     "testo": "CBS Sports – Golazo Network"
+      "id": "scooore",
+      "nome": "Scooore (Zattoo)",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^Scooore\\b"
+      ],
+      "vpn": "Svizzera",
+      "vpn_tag": "VPN Svizzera",
+      "note": "Serve registrazione gratuita su Zattoo.",
+      "link": [
+        {
+          "url": "https://zattoo.com/guide/sports?channel=scooore_de",
+          "testo": "Zattoo – Scooore"
+        }
+      ]
     },
     {
-     "url": "https://localnow.com/channels/cbs-sports-golazo-network",
-     "testo": "Local Now – Golazo Network"
-    }
-   ],
-   "vpn_tag": "VPN USA"
-  },
-  {
-   "id": "prima-sport-ppv",
-   "nome": "Prima Sport PPV (PPV1, PPV2, PPV3)",
-   "fonte": "utente",
-   "canali": [
-    "^Prima Sport ?PPV"
-   ],
-   "vpn": "non serve",
-   "note": "Solo via app sulla TV, senza VPN.",
-   "link": [
-    {
-     "url": "https://www.primaplay.ro/register",
-     "testo": "Prima Play – registrazione (gratuita)"
+      "id": "srf-sport",
+      "nome": "SRF Play – Sport-Livestreams",
+      "fonte": "utente",
+      "canali": [
+        "^SRF stream$"
+      ],
+      "vpn": "Svizzera",
+      "note": "Dirette sportive gratuite di SRF (tedesco).",
+      "link": [
+        {
+          "url": "https://www.srf.ch/play/tv/sport-livestreams",
+          "testo": "SRF Sport-Livestreams"
+        }
+      ],
+      "vpn_tag": "VPN Svizzera"
     },
     {
-     "url": "https://www.primaplay.ro",
-     "testo": "Prima Play"
-    }
-   ],
-   "vpn_tag": "Solo app · SENZA VPN",
-   "link_card": {
-    "url": "https://www.primaplay.ro/register",
-    "testo": "Prima Play"
-   },
-   "consiglio": {
-    "testo": "⭐ IMPORTANTE: prima registrati su Prima Play (registrazione gratuita e indispensabile), poi scarica l'app PRIMA PLAY sulla TV per vedere le partite in modo stabile.",
-    "url": "https://www.primaplay.ro/register",
-    "testo_link": "primaplay.ro/register"
-   }
-  },
-  {
-   "id": "digi-sport",
-   "nome": "Digi Sport 1-4 (Romania)",
-   "fonte": "utente",
-   "verificato": true,
-   "canali": [
-    "^Digi ?Sport ?[1-4]\\b"
-   ],
-   "vpn": "Romania",
-   "vpn_tag": "VPN Romania",
-   "note": "Funziona meglio con Chrome e con l'adblock disattivato.",
-   "link": [
-    {
-     "url": "https://www.digisport.ro/live/digisport-1",
-     "testo": "Digi Sport 1 – live"
+      "id": "rts-sport",
+      "nome": "RTS Play – Livestreams",
+      "fonte": "utente",
+      "canali": [
+        "^RTS stream$"
+      ],
+      "vpn": "Svizzera",
+      "note": "Dirette sportive gratuite di RTS (francese).",
+      "link": [
+        {
+          "url": "https://www.rts.ch/play/tv/rts-livestreams",
+          "testo": "RTS Livestreams"
+        }
+      ],
+      "vpn_tag": "VPN Svizzera"
     },
     {
-     "url": "https://www.digisport.ro/live/digisport-2",
-     "testo": "Digi Sport 2 – live"
+      "id": "rsi-sport",
+      "nome": "RSI – Streaming",
+      "fonte": "utente",
+      "canali": [
+        "^RSI stream$"
+      ],
+      "vpn": "Svizzera",
+      "note": "Dirette sportive gratuite di RSI (italiano).",
+      "link": [
+        {
+          "url": "https://www.rsi.ch/palinsesto/streaming/",
+          "testo": "RSI Streaming"
+        }
+      ],
+      "vpn_tag": "VPN Svizzera"
     },
     {
-     "url": "https://www.digisport.ro/live/digisport-3",
-     "testo": "Digi Sport 3 – live"
+      "id": "ard-sport",
+      "nome": "ARD Mediathek – Sport-Livestreams",
+      "fonte": "utente",
+      "canali": [
+        "^ARD .* stream$"
+      ],
+      "vpn": "Germania",
+      "note": "Dirette sportive gratuite di ARD (tedesco).",
+      "link": [
+        {
+          "url": "https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/livestreams-ard-",
+          "testo": "ARD Sport-Livestreams"
+        }
+      ],
+      "vpn_tag": "VPN Germania"
     },
     {
-     "url": "https://www.digisport.ro/live/digisport-4",
-     "testo": "Digi Sport 4 – live"
-    }
-   ],
-   "link_canale": {
-    "^Digi ?Sport ?1\\b": "https://www.digisport.ro/live/digisport-1",
-    "^Digi ?Sport ?2\\b": "https://www.digisport.ro/live/digisport-2",
-    "^Digi ?Sport ?3\\b": "https://www.digisport.ro/live/digisport-3",
-    "^Digi ?Sport ?4\\b": "https://www.digisport.ro/live/digisport-4"
-   }
-  },
-  {
-   "id": "prima-sport",
-   "nome": "Prima Sport (1-5)",
-   "fonte": "utente",
-   "canali": [
-    "^Prima Sport(?! ?PPV)"
-   ],
-   "vpn": "non serve",
-   "note": "Serve una registrazione veloce. Dopo la registrazione su Prima Play i canali si vedono senza VPN; l'app c'è anche per TV LG (e probabilmente Samsung).",
-   "link": [
-    {
-     "url": "https://www.primaplay.ro/register",
-     "testo": "Prima Play – registrazione (gratuita)"
+      "id": "golazo",
+      "nome": "Golazo Network",
+      "fonte": "utente",
+      "canali": [
+        "^Golazo"
+      ],
+      "vpn": "USA",
+      "note": "",
+      "link": [
+        {
+          "url": "https://pluto.tv/us/live-tv/63a0e33a45264d000850ed7e",
+          "testo": "Pluto TV – Golazo Network"
+        },
+        {
+          "url": "https://www.cbssports.com/watch/cbs-sports-golazo-network?ftag=CBS-16-10ade3j",
+          "testo": "CBS Sports – Golazo Network"
+        },
+        {
+          "url": "https://localnow.com/channels/cbs-sports-golazo-network",
+          "testo": "Local Now – Golazo Network"
+        }
+      ],
+      "vpn_tag": "VPN USA"
     },
     {
-     "url": "https://www.primaplay.ro",
-     "testo": "Prima Play (consigliato)"
+      "id": "prima-sport-ppv",
+      "nome": "Prima Sport PPV (PPV1, PPV2, PPV3)",
+      "fonte": "utente",
+      "canali": [
+        "^Prima Sport ?PPV"
+      ],
+      "vpn": "non serve",
+      "note": "Solo via app sulla TV, senza VPN.",
+      "link": [
+        {
+          "url": "https://www.primaplay.ro/register",
+          "testo": "Prima Play – registrazione (gratuita)"
+        },
+        {
+          "url": "https://www.primaplay.ro",
+          "testo": "Prima Play"
+        }
+      ],
+      "vpn_tag": "Solo app · SENZA VPN",
+      "link_card": {
+        "url": "https://www.primaplay.ro/register",
+        "testo": "Prima Play"
+      },
+      "consiglio": {
+        "testo": "⭐ IMPORTANTE: prima registrati su Prima Play (registrazione gratuita e indispensabile), poi scarica l'app PRIMA PLAY sulla TV per vedere le partite in modo stabile.",
+        "url": "https://www.primaplay.ro/register",
+        "testo_link": "primaplay.ro/register"
+      }
     },
     {
-     "url": "https://tvgo.orange.ro/authentication",
-     "testo": "Orange TV Go (registrazione)"
+      "id": "digi-sport",
+      "nome": "Digi Sport 1-4 (Romania)",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^Digi ?Sport ?[1-4]\\b"
+      ],
+      "vpn": "Romania",
+      "vpn_tag": "VPN Romania",
+      "note": "Funziona meglio con Chrome e con l'adblock disattivato.",
+      "link": [
+        {
+          "url": "https://www.digisport.ro/live/digisport-1",
+          "testo": "Digi Sport 1 – live"
+        },
+        {
+          "url": "https://www.digisport.ro/live/digisport-2",
+          "testo": "Digi Sport 2 – live"
+        },
+        {
+          "url": "https://www.digisport.ro/live/digisport-3",
+          "testo": "Digi Sport 3 – live"
+        },
+        {
+          "url": "https://www.digisport.ro/live/digisport-4",
+          "testo": "Digi Sport 4 – live"
+        }
+      ],
+      "link_canale": {
+        "^Digi ?Sport ?1\\b": "https://www.digisport.ro/live/digisport-1",
+        "^Digi ?Sport ?2\\b": "https://www.digisport.ro/live/digisport-2",
+        "^Digi ?Sport ?3\\b": "https://www.digisport.ro/live/digisport-3",
+        "^Digi ?Sport ?4\\b": "https://www.digisport.ro/live/digisport-4"
+      }
     },
     {
-     "url": "https://rds.live/primasport-1hd-ro2/",
-     "testo": "Prima Sport 1 (link web alternativo)"
+      "id": "prima-sport",
+      "nome": "Prima Sport (1-5)",
+      "fonte": "utente",
+      "canali": [
+        "^Prima Sport(?! ?PPV)"
+      ],
+      "vpn": "solo per registrarsi (Metodo 1); Metodo 2 senza VPN",
+      "vpn_tag": "SENZA VPN",
+      "link_card": {
+        "url": "#dv-prima-sport",
+        "testo": "Come vederli"
+      },
+      "metodi": [
+        {
+          "titolo": "🟢 METODO 1 — Guardarli sulla TV di casa",
+          "intro": "Il metodo più comodo: schermo grande e visione a tutto schermo.",
+          "passi": [
+            {
+              "testo": "Aprite questo link con Google Chrome. La pagina è in rumeno, cliccate con il tasto destro e scegliete «Traduci in italiano».",
+              "url": "https://www.primaplay.ro/register"
+            },
+            {
+              "testo": "Per registrarvi, dovete usare una VPN impostata sulla Romania."
+            },
+            {
+              "testo": "Una volta completata la registrazione, potete spegnere la VPN: non vi servirà più per questo bouquet."
+            },
+            {
+              "testo": "Sulla TV di casa, aprite lo store delle applicazioni e scaricate l’app PrimaPlay."
+            },
+            {
+              "testo": "Aprite l’app della tv, inserite email e password usate per registrarvi e accedete."
+            }
+          ],
+          "chiusura": "Fatto! Dal sito, una volta registrati, potreste non riuscire a vedere i contenuti. Sulla TV, invece, potrete accedere ai canali disponibili con il vostro account."
+        },
+        {
+          "titolo": "🔵 METODO 2 — Guardarli dal computer, senza VPN, STABILMENTE",
+          "intro": "Questo metodo permette di guardare i canali via web, senza usare alcuna VPN.",
+          "passi": [
+            {
+              "testo": "Aprite questo link con Google Chrome.",
+              "url": "https://www.orange.ro/accounts/create-user"
+            },
+            {
+              "testo": "La pagina è in rumeno, cliccate con il tasto destro e scegliete «Traduci in italiano»."
+            },
+            {
+              "testo": "Inserite un indirizzo email e scegliete una password."
+            },
+            {
+              "testo": "Quando vi verrà chiesto di scegliere tra tre opzioni, selezionate quella che indica che non avete un numero Orange."
+            },
+            {
+              "testo": "Completate la registrazione."
+            },
+            {
+              "testo": "Entrate nella sezione dei canali sportivi e cercate i cinque canali Prima Sport."
+            }
+          ]
+        }
+      ],
+      "in_breve": "Volete guardarli sulla TV di casa? Metodo 1. Preferite guardarli dal browser senza VPN? Metodo 2."
     },
     {
-     "url": "https://rds.live/primasport-2-hd-ro1/",
-     "testo": "Prima Sport 2 (link web alternativo)"
+      "id": "dazn",
+      "nome": "DAZN (partite gratis)",
+      "fonte": "utente",
+      "canali": [
+        "^DAZN "
+      ],
+      "vpn": "solo per registrarsi (Spagna, Francia, Germania, Portogallo o Belgio, secondo la versione)",
+      "note": "VPN solo per registrarsi alla versione spagnola, tedesca, belga, eccetera. Una volta registrati la VPN non serve più e ci si può loggare anche dalla TV di casa o dal web senza uso di VPN come se la versione fosse italiana. Partite senza lucchetto: gratis con account gratuito.",
+      "link": [
+        {
+          "url": "https://www.dazn.com/it-IT/home",
+          "testo": "DAZN Italia (senza VPN)"
+        },
+        {
+          "url": "https://www.dazn.com/es-ES/home",
+          "testo": "DAZN Spagna (VPN Spagna per registrarsi)"
+        },
+        {
+          "url": "https://www.dazn.com/fr-FR/home",
+          "testo": "DAZN Francia (VPN Francia per registrarsi)"
+        },
+        {
+          "url": "https://www.dazn.com/de-DE/home",
+          "testo": "DAZN Germania (VPN Germania per registrarsi)"
+        },
+        {
+          "url": "https://www.dazn.com/pt-PT/home",
+          "testo": "DAZN Portogallo (VPN Portogallo per registrarsi)"
+        },
+        {
+          "url": "https://www.dazn.com/nl-BE/home",
+          "testo": "DAZN Belgio, in olandese (VPN Belgio per registrarsi)"
+        },
+        {
+          "url": "https://www.dazn.com/fr-BE/home",
+          "testo": "DAZN Belgio, in francese (VPN Belgio per registrarsi)"
+        }
+      ],
+      "vpn_tag": "SENZA VPN"
     },
     {
-     "url": "https://rds.live/primasport-3-hd-ro1/",
-     "testo": "Prima Sport 3 (link web alternativo)"
+      "id": "sporty-tv-africa",
+      "nome": "Sporty TV Africa",
+      "fonte": "utente",
+      "canali": [
+        "^Sporty ?TV"
+      ],
+      "vpn": "Nigeria o Ghana",
+      "note": "Sul sito clicca sull'icona S-TV accanto alla partita per vederla. In alternativa scarica l'app Android.",
+      "link": [
+        {
+          "url": "https://sporty.com/football/matches",
+          "testo": "sporty.com – partite (icona S-TV)"
+        }
+      ],
+      "vpn_tag": "VPN Nigeria o Ghana"
     },
     {
-     "url": "https://rds.live/primasport-4-hd/",
-     "testo": "Prima Sport 4 (link web alternativo)"
+      "id": "sportynet-brasil",
+      "nome": "SportyNet Brasil",
+      "fonte": "utente",
+      "canali": [
+        "^SportyNet Brasil"
+      ],
+      "vpn": "Brasile",
+      "note": "",
+      "link": [
+        {
+          "url": "https://www.youtube.com/@SportyNetBrasil",
+          "testo": "YouTube – SportyNet Brasil"
+        }
+      ],
+      "vpn_tag": "VPN Brasile"
     },
     {
-     "url": "https://rds.live/primasport-5-hd/",
-     "testo": "Prima Sport 5 (link web alternativo)"
-    }
-   ],
-   "consiglio": {
-    "testo": "⭐ IMPORTANTE: prima registrati su Prima Play (registrazione gratuita e indispensabile), poi scarica l'app PRIMA PLAY sulla TV per vedere le partite in modo stabile.",
-    "url": "https://www.primaplay.ro/register",
-    "testo_link": "primaplay.ro/register"
-   },
-   "vpn_tag": "SENZA VPN (registrazione)",
-   "link_card": {
-    "url": "https://www.primaplay.ro/register",
-    "testo": "Prima Play"
-   }
-  },
-  {
-   "id": "dazn",
-   "nome": "DAZN (partite gratis)",
-   "fonte": "utente",
-   "canali": [
-    "^DAZN "
-   ],
-   "vpn": "solo per registrarsi (Spagna, Francia, Germania, Portogallo o Belgio, secondo la versione)",
-   "note": "VPN solo per registrarsi alla versione spagnola, tedesca, belga, eccetera. Una volta registrati la VPN non serve più e ci si può loggare anche dalla TV di casa o dal web senza uso di VPN come se la versione fosse italiana. Partite senza lucchetto: gratis con account gratuito.",
-   "link": [
-    {
-     "url": "https://www.dazn.com/it-IT/home",
-     "testo": "DAZN Italia (senza VPN)"
+      "id": "bbc-alba",
+      "nome": "BBC Alba",
+      "fonte": "utente",
+      "canali": [
+        "^BBC Alba"
+      ],
+      "vpn": "UK",
+      "note": "",
+      "link": [
+        {
+          "url": "https://www.bbc.co.uk/tv/bbcalba",
+          "testo": "BBC Alba"
+        }
+      ],
+      "vpn_tag": "VPN UK"
     },
     {
-     "url": "https://www.dazn.com/es-ES/home",
-     "testo": "DAZN Spagna (VPN Spagna per registrarsi)"
+      "id": "itv1",
+      "nome": "ITV 1",
+      "fonte": "utente",
+      "canali": [
+        "^ITV ?1\\b"
+      ],
+      "vpn": "Svizzera",
+      "note": "",
+      "link": [
+        {
+          "url": "https://tv.teleboy.ch/live(player:live/346)",
+          "testo": "Teleboy – ITV 1"
+        }
+      ],
+      "vpn_tag": "VPN Svizzera"
     },
     {
-     "url": "https://www.dazn.com/fr-FR/home",
-     "testo": "DAZN Francia (VPN Francia per registrarsi)"
+      "id": "tv5monde",
+      "nome": "TV5 Monde",
+      "fonte": "utente",
+      "canali": [
+        "^TV5 ?Monde"
+      ],
+      "vpn": "Francia",
+      "note": "",
+      "link": [
+        {
+          "url": "https://europe.tv5monde.com/en/live",
+          "testo": "TV5 Monde – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Francia"
     },
     {
-     "url": "https://www.dazn.com/de-DE/home",
-     "testo": "DAZN Germania (VPN Germania per registrarsi)"
+      "id": "trt",
+      "nome": "TRT Spor (Turchia)",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^TRT ?Spor\\b"
+      ],
+      "vpn": "Turchia",
+      "note": "Gratuito (piattaforma tabii). Vale per TRT Spor e TRT Spor Yıldız.",
+      "link": [
+        {
+          "url": "https://www.trtspor.com.tr/canli-yayin-izle/trt-spor",
+          "testo": "TRT Spor – diretta (link utente)"
+        },
+        {
+          "url": "https://www.trtizle.com/canli/tv/trt-spor",
+          "testo": "TRT İzle (link alternativo)"
+        }
+      ],
+      "vpn_tag": "VPN Turchia"
     },
     {
-     "url": "https://www.dazn.com/pt-PT/home",
-     "testo": "DAZN Portogallo (VPN Portogallo per registrarsi)"
+      "id": "trt1",
+      "nome": "TRT 1 (Turchia)",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^TRT ?1\\b"
+      ],
+      "vpn": "Turchia",
+      "vpn_tag": "VPN Turchia",
+      "note": "Diretta gratuita.",
+      "link": [
+        {
+          "url": "https://com.com.tr/canli-tv/trt-1",
+          "testo": "TRT 1 – diretta (link utente)"
+        },
+        {
+          "url": "https://www.trtizle.com/canli/tv/trt-1",
+          "testo": "TRT İzle / tabii (link ufficiale alternativo)"
+        }
+      ]
     },
     {
-     "url": "https://www.dazn.com/nl-BE/home",
-     "testo": "DAZN Belgio, in olandese (VPN Belgio per registrarsi)"
+      "id": "trt-altri",
+      "nome": "TRT – altri canali (Turchia)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^TRT\\b"
+      ],
+      "vpn": "Turchia",
+      "vpn_tag": "VPN Turchia",
+      "note": "Tutti i canali TRT in diretta gratuita su TRT İzle / tabii.",
+      "link": [
+        {
+          "url": "https://www.trtizle.com/canli",
+          "testo": "TRT İzle – dirette"
+        }
+      ]
     },
     {
-     "url": "https://www.dazn.com/fr-BE/home",
-     "testo": "DAZN Belgio, in francese (VPN Belgio per registrarsi)"
-    }
-   ],
-   "vpn_tag": "SENZA VPN"
-  },
-  {
-   "id": "sporty-tv-africa",
-   "nome": "Sporty TV Africa",
-   "fonte": "utente",
-   "canali": [
-    "^Sporty ?TV"
-   ],
-   "vpn": "Nigeria o Ghana",
-   "note": "Sul sito clicca sull'icona S-TV accanto alla partita per vederla. In alternativa scarica l'app Android.",
-   "link": [
-    {
-     "url": "https://sporty.com/football/matches",
-     "testo": "sporty.com – partite (icona S-TV)"
-    }
-   ],
-   "vpn_tag": "VPN Nigeria o Ghana"
-  },
-  {
-   "id": "sportynet-brasil",
-   "nome": "SportyNet Brasil",
-   "fonte": "utente",
-   "canali": [
-    "^SportyNet Brasil"
-   ],
-   "vpn": "Brasile",
-   "note": "",
-   "link": [
-    {
-     "url": "https://www.youtube.com/@SportyNetBrasil",
-     "testo": "YouTube – SportyNet Brasil"
-    }
-   ],
-   "vpn_tag": "VPN Brasile"
-  },
-  {
-   "id": "bbc-alba",
-   "nome": "BBC Alba",
-   "fonte": "utente",
-   "canali": [
-    "^BBC Alba"
-   ],
-   "vpn": "UK",
-   "note": "",
-   "link": [
-    {
-     "url": "https://www.bbc.co.uk/tv/bbcalba",
-     "testo": "BBC Alba"
-    }
-   ],
-   "vpn_tag": "VPN UK"
-  },
-  {
-   "id": "itv1",
-   "nome": "ITV 1",
-   "fonte": "utente",
-   "canali": [
-    "^ITV ?1\\b"
-   ],
-   "vpn": "Svizzera",
-   "note": "",
-   "link": [
-    {
-     "url": "https://tv.teleboy.ch/live(player:live/346)",
-     "testo": "Teleboy – ITV 1"
-    }
-   ],
-   "vpn_tag": "VPN Svizzera"
-  },
-  {
-   "id": "tv5monde",
-   "nome": "TV5 Monde",
-   "fonte": "utente",
-   "canali": [
-    "^TV5 ?Monde"
-   ],
-   "vpn": "Francia",
-   "note": "",
-   "link": [
-    {
-     "url": "https://europe.tv5monde.com/en/live",
-     "testo": "TV5 Monde – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Francia"
-  },
-  {
-   "id": "trt",
-   "nome": "TRT Spor (Turchia)",
-   "fonte": "utente",
-   "verificato": true,
-   "canali": [
-    "^TRT ?Spor\\b"
-   ],
-   "vpn": "Turchia",
-   "note": "Gratuito (piattaforma tabii). Vale per TRT Spor e TRT Spor Yıldız.",
-   "link": [
-    {
-     "url": "https://www.trtspor.com.tr/canli-yayin-izle/trt-spor",
-     "testo": "TRT Spor – diretta (link utente)"
+      "id": "dubai-sports",
+      "nome": "Dubai Sports 1",
+      "fonte": "utente",
+      "canali": [
+        "^Dubai Sports?\\b(?! ?[2-9])"
+      ],
+      "vpn": "non serve",
+      "note": "Non serve VPN, serve registrazione al sito.",
+      "link": [
+        {
+          "url": "https://www.dubaiplus.net/epg?channel=702096936062",
+          "testo": "Dubai Sports 1 – Dubai+"
+        }
+      ],
+      "vpn_tag": "SENZA VPN (registrazione)"
     },
     {
-     "url": "https://www.trtizle.com/canli/tv/trt-spor",
-     "testo": "TRT İzle (link alternativo)"
-    }
-   ],
-   "vpn_tag": "VPN Turchia"
-  },
-  {
-   "id": "trt1",
-   "nome": "TRT 1 (Turchia)",
-   "fonte": "utente",
-   "verificato": true,
-   "canali": [
-    "^TRT ?1\\b"
-   ],
-   "vpn": "Turchia",
-   "vpn_tag": "VPN Turchia",
-   "note": "Diretta gratuita.",
-   "link": [
-    {
-     "url": "https://com.com.tr/canli-tv/trt-1",
-     "testo": "TRT 1 – diretta (link utente)"
+      "id": "x-sports",
+      "nome": "X Sports (Brasile)",
+      "fonte": "utente",
+      "canali": [
+        "^X ?Sports\\b"
+      ],
+      "vpn": "Brasile",
+      "note": "Dirette su YouTube: serve la VPN sul Brasile.",
+      "link": [
+        {
+          "url": "https://www.youtube.com/@xsports.brasil/streams",
+          "testo": "X Sports – dirette su YouTube"
+        }
+      ],
+      "vpn_tag": "VPN Brasile"
     },
     {
-     "url": "https://www.trtizle.com/canli/tv/trt-1",
-     "testo": "TRT İzle / tabii (link ufficiale alternativo)"
-    }
-   ]
-  },
-  {
-   "id": "trt-altri",
-   "nome": "TRT – altri canali (Turchia)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^TRT\\b"
-   ],
-   "vpn": "Turchia",
-   "vpn_tag": "VPN Turchia",
-   "note": "Tutti i canali TRT in diretta gratuita su TRT İzle / tabii.",
-   "link": [
-    {
-     "url": "https://www.trtizle.com/canli",
-     "testo": "TRT İzle – dirette"
-    }
-   ]
-  },
-  {
-   "id": "dubai-sports",
-   "nome": "Dubai Sports 1",
-   "fonte": "utente",
-   "canali": [
-    "^Dubai Sports?\\b(?! ?[2-9])"
-   ],
-   "vpn": "non serve",
-   "note": "Non serve VPN, serve registrazione al sito.",
-   "link": [
-    {
-     "url": "https://www.dubaiplus.net/epg?channel=702096936062",
-     "testo": "Dubai Sports 1 – Dubai+"
-    }
-   ],
-   "vpn_tag": "SENZA VPN (registrazione)"
-  },
-  {
-   "id": "x-sports",
-   "nome": "X Sports (Brasile)",
-   "fonte": "utente",
-   "canali": [
-    "^X ?Sports\\b"
-   ],
-   "vpn": "Brasile",
-   "note": "Dirette su YouTube: serve la VPN sul Brasile.",
-   "link": [
-    {
-     "url": "https://www.youtube.com/@xsports.brasil/streams",
-     "testo": "X Sports – dirette su YouTube"
-    }
-   ],
-   "vpn_tag": "VPN Brasile"
-  },
-  {
-   "id": "rtsh",
-   "nome": "RTSH 1 (Albania)",
-   "fonte": "utente",
-   "canali": [
-    "^RTSH\\b"
-   ],
-   "vpn": "Albania",
-   "note": "Solo via app da scaricare",
-   "link": [],
-   "vpn_tag": "VPN Albania"
-  },
-  {
-   "id": "bbc",
-   "nome": "BBC (One, Two, Three, Four, Scotland, iPlayer)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^BBC(?! Alba)"
-   ],
-   "vpn": "UK",
-   "note": "BBC iPlayer, gratuito con account (nel Regno Unito è richiesta la licenza TV).",
-   "link": [
-    {
-     "url": "https://www.bbc.co.uk/iplayer/live/bbcone",
-     "testo": "BBC One – diretta"
+      "id": "rtsh",
+      "nome": "RTSH 1 (Albania)",
+      "fonte": "utente",
+      "canali": [
+        "^RTSH\\b"
+      ],
+      "vpn": "Albania",
+      "note": "Solo via app da scaricare",
+      "link": [],
+      "vpn_tag": "VPN Albania"
     },
     {
-     "url": "https://www.bbc.co.uk/iplayer/live/bbctwo",
-     "testo": "BBC Two – diretta"
+      "id": "bbc",
+      "nome": "BBC (One, Two, Three, Four, Scotland, iPlayer)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^BBC(?! Alba)"
+      ],
+      "vpn": "UK",
+      "note": "BBC iPlayer, gratuito con account (nel Regno Unito è richiesta la licenza TV).",
+      "link": [
+        {
+          "url": "https://www.bbc.co.uk/iplayer/live/bbcone",
+          "testo": "BBC One – diretta"
+        },
+        {
+          "url": "https://www.bbc.co.uk/iplayer/live/bbctwo",
+          "testo": "BBC Two – diretta"
+        },
+        {
+          "url": "https://www.bbc.co.uk/iplayer/live/bbcthree",
+          "testo": "BBC Three – diretta"
+        },
+        {
+          "url": "https://www.bbc.co.uk/iplayer/live/bbcscotland",
+          "testo": "BBC Scotland – diretta"
+        }
+      ],
+      "vpn_tag": "VPN UK"
     },
     {
-     "url": "https://www.bbc.co.uk/iplayer/live/bbcthree",
-     "testo": "BBC Three – diretta"
+      "id": "itvx",
+      "nome": "ITVX / UTV",
+      "fonte": "ricerca",
+      "verificato": false,
+      "canali": [
+        "^ITV ?X\\b",
+        "^ITV ?4\\b",
+        "^UTV\\b"
+      ],
+      "vpn": "UK",
+      "note": "Gratuito con account ITVX. Il sito non risponde da fuori UK, quindi il link non è stato controllato.",
+      "link": [
+        {
+          "url": "https://www.itv.com/watch?channel=itv",
+          "testo": "ITVX – diretta",
+          "verificato": false
+        }
+      ],
+      "vpn_tag": "VPN UK"
     },
     {
-     "url": "https://www.bbc.co.uk/iplayer/live/bbcscotland",
-     "testo": "BBC Scotland – diretta"
-    }
-   ],
-   "vpn_tag": "VPN UK"
-  },
-  {
-   "id": "itvx",
-   "nome": "ITVX / UTV",
-   "fonte": "ricerca",
-   "verificato": false,
-   "canali": [
-    "^ITV ?X\\b",
-    "^ITV ?4\\b",
-    "^UTV\\b"
-   ],
-   "vpn": "UK",
-   "note": "Gratuito con account ITVX. Il sito non risponde da fuori UK, quindi il link non è stato controllato.",
-   "link": [
-    {
-     "url": "https://www.itv.com/watch?channel=itv",
-     "testo": "ITVX – diretta",
-     "verificato": false
-    }
-   ],
-   "vpn_tag": "VPN UK"
-  },
-  {
-   "id": "stv",
-   "nome": "STV / STV Player",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^STV\\b"
-   ],
-   "vpn": "UK",
-   "note": "Gratuito con account.",
-   "link": [
-    {
-     "url": "https://player.stv.tv/live",
-     "testo": "STV Player – diretta"
-    }
-   ],
-   "vpn_tag": "VPN UK"
-  },
-  {
-   "id": "s4c",
-   "nome": "S4C / S4C Clic",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^S4C\\b"
-   ],
-   "vpn": "UK",
-   "note": "Gratuito con account.",
-   "link": [
-    {
-     "url": "https://www.s4c.cymru/clic",
-     "testo": "S4C Clic"
-    }
-   ],
-   "vpn_tag": "VPN UK"
-  },
-  {
-   "id": "channel4",
-   "nome": "Channel 4",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^Channel ?4\\b"
-   ],
-   "vpn": "UK",
-   "note": "Gratuito con account.",
-   "link": [
-    {
-     "url": "https://www.channel4.com/now/C4",
-     "testo": "Channel 4 – diretta"
-    }
-   ],
-   "vpn_tag": "VPN UK"
-  },
-  {
-   "id": "channel5",
-   "nome": "Channel 5",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^Channel ?5\\b",
-    "^5 \\(Channel 5"
-   ],
-   "vpn": "UK",
-   "note": "Gratuito (my5 / 5ACTION). Trasmette anche partite NFL gratis.",
-   "link": [
-    {
-     "url": "https://www.channel5.com/",
-     "testo": "Channel 5"
-    }
-   ],
-   "vpn_tag": "VPN UK"
-  },
-  {
-   "id": "rte",
-   "nome": "RTÉ (RTÉ 2, RTÉ Player)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^RT[ÉE]\\b"
-   ],
-   "vpn": "Irlanda",
-   "note": "Gratuito con account RTÉ Player.",
-   "link": [
-    {
-     "url": "https://www.rte.ie/player/live",
-     "testo": "RTÉ Player – dirette"
-    }
-   ],
-   "vpn_tag": "VPN Irlanda"
-  },
-  {
-   "id": "tf1",
-   "nome": "TF1 / TMC (TF1+)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^TF1\\b",
-    "^TMC\\b",
-    "^TFX\\b"
-   ],
-   "vpn": "Francia",
-   "note": "Gratuito con account TF1+.",
-   "link": [
-    {
-     "url": "https://www.tf1.fr/tf1/direct",
-     "testo": "TF1 – diretta"
+      "id": "stv",
+      "nome": "STV / STV Player",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^STV\\b"
+      ],
+      "vpn": "UK",
+      "note": "Gratuito con account.",
+      "link": [
+        {
+          "url": "https://player.stv.tv/live",
+          "testo": "STV Player – diretta"
+        }
+      ],
+      "vpn_tag": "VPN UK"
     },
     {
-     "url": "https://www.tf1.fr/tmc/direct",
-     "testo": "TMC – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Francia"
-  },
-  {
-   "id": "francetv",
-   "nome": "France Télévisions (France 2, France 3)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^France ?[2345]\\b",
-    "^France\\.?tv"
-   ],
-   "vpn": "Francia",
-   "note": "Gratuito.",
-   "link": [
-    {
-     "url": "https://www.france.tv/france-2/direct.html",
-     "testo": "France 2 – diretta"
+      "id": "s4c",
+      "nome": "S4C / S4C Clic",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^S4C\\b"
+      ],
+      "vpn": "UK",
+      "note": "Gratuito con account.",
+      "link": [
+        {
+          "url": "https://www.s4c.cymru/clic",
+          "testo": "S4C Clic"
+        }
+      ],
+      "vpn_tag": "VPN UK"
     },
     {
-     "url": "https://www.france.tv/france-3/direct.html",
-     "testo": "France 3 – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Francia"
-  },
-  {
-   "id": "m6",
-   "nome": "M6 / W9 (M6+)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^M6\\b",
-    "^W9\\b"
-   ],
-   "vpn": "Francia",
-   "note": "Gratuito con account M6+.",
-   "link": [
-    {
-     "url": "https://www.m6.fr/m6/direct",
-     "testo": "M6 – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Francia"
-  },
-  {
-   "id": "lequipe",
-   "nome": "L'Équipe",
-   "fonte": "ricerca",
-   "verificato": false,
-   "canali": [
-    "^L'?[EÉ]quipe\\b"
-   ],
-   "vpn": "Francia",
-   "note": "Canale gratuito della TNT francese. Il sito blocca i controlli automatici: link non verificato.",
-   "link": [
-    {
-     "url": "https://www.lequipe.fr/tv/",
-     "testo": "L'Équipe TV",
-     "verificato": false
-    }
-   ],
-   "vpn_tag": "VPN Francia"
-  },
-  {
-   "id": "rai",
-   "nome": "Rai (Rai 1, 2, 3, Rai Sport)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^Rai\\b",
-    "^RaiPlay\\b"
-   ],
-   "vpn": "non serve dall'Italia",
-   "note": "RaiPlay, gratuito.",
-   "link": [
-    {
-     "url": "https://www.raiplay.it/dirette/rai1",
-     "testo": "Rai 1 – diretta"
+      "id": "channel4",
+      "nome": "Channel 4",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^Channel ?4\\b"
+      ],
+      "vpn": "UK",
+      "note": "Gratuito con account.",
+      "link": [
+        {
+          "url": "https://www.channel4.com/now/C4",
+          "testo": "Channel 4 – diretta"
+        }
+      ],
+      "vpn_tag": "VPN UK"
     },
     {
-     "url": "https://www.raiplay.it/dirette/rai2",
-     "testo": "Rai 2 – diretta"
+      "id": "channel5",
+      "nome": "Channel 5",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^Channel ?5\\b",
+        "^5 \\(Channel 5"
+      ],
+      "vpn": "UK",
+      "note": "Gratuito (my5 / 5ACTION). Trasmette anche partite NFL gratis.",
+      "link": [
+        {
+          "url": "https://www.channel5.com/",
+          "testo": "Channel 5"
+        }
+      ],
+      "vpn_tag": "VPN UK"
     },
     {
-     "url": "https://www.raiplay.it/dirette/rai3",
-     "testo": "Rai 3 – diretta"
+      "id": "rte",
+      "nome": "RTÉ (RTÉ 2, RTÉ Player)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^RT[ÉE]\\b"
+      ],
+      "vpn": "Irlanda",
+      "note": "Gratuito con account RTÉ Player.",
+      "link": [
+        {
+          "url": "https://www.rte.ie/player/live",
+          "testo": "RTÉ Player – dirette"
+        }
+      ],
+      "vpn_tag": "VPN Irlanda"
     },
     {
-     "url": "https://www.raiplay.it/dirette/raisport",
-     "testo": "Rai Sport – diretta"
-    }
-   ],
-   "vpn_tag": "SENZA VPN"
-  },
-  {
-   "id": "sportitalia",
-   "nome": "Sportitalia SoloCalcio",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^Sportitalia"
-   ],
-   "vpn": "non serve dall'Italia",
-   "note": "",
-   "link": [
-    {
-     "url": "https://sportitalialive.it/sisolocalcio/",
-     "testo": "Sportitalia SoloCalcio – diretta"
-    }
-   ],
-   "vpn_tag": "SENZA VPN"
-  },
-  {
-   "id": "zdf",
-   "nome": "ZDF",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^ZDF\\b"
-   ],
-   "vpn": "Germania",
-   "note": "Gratuito.",
-   "link": [
-    {
-     "url": "https://www.zdf.de/live-tv",
-     "testo": "ZDF – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Germania"
-  },
-  {
-   "id": "ard",
-   "nome": "ARD / Das Erste e canali regionali (BR, NDR, WDR, MDR, SWR, HR, SR, RBB)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^ARD\\b",
-    "^Das Erste",
-    "^(BR|NDR|WDR|MDR|SWR|HR|SR|RBB) Fernsehen"
-   ],
-   "vpn": "Germania",
-   "note": "ARD Mediathek, gratuito: dalla pagina si sceglie il canale regionale.",
-   "link": [
-    {
-     "url": "https://www.ardmediathek.de/live",
-     "testo": "ARD Mediathek – dirette"
-    }
-   ],
-   "vpn_tag": "VPN Germania"
-  },
-  {
-   "id": "sport1",
-   "nome": "Sport1",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^Sport ?1 (Deutschland|Germany)\\b",
-    "^Sport1\\b"
-   ],
-   "vpn": "Germania",
-   "note": "Gratuito.",
-   "link": [
-    {
-     "url": "https://www.sport1.de/livestream",
-     "testo": "Sport1 – livestream"
-    }
-   ],
-   "vpn_tag": "VPN Germania"
-  },
-  {
-   "id": "rtl",
-   "nome": "RTL / Nitro (Germania, Austria)",
-   "fonte": "ricerca",
-   "verificato": false,
-   "canali": [
-    "^RTL (Deutschland|Österreich)\\b",
-    "^Nitro\\b"
-   ],
-   "vpn": "Germania",
-   "note": "Canali in chiaro in TV, ma la diretta su RTL+ potrebbe richiedere abbonamento: da verificare.",
-   "link": [
-    {
-     "url": "https://plus.rtl.de/rtl/live",
-     "testo": "RTL+ – RTL",
-     "verificato": false
+      "id": "tf1",
+      "nome": "TF1 / TMC (TF1+)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^TF1\\b",
+        "^TMC\\b",
+        "^TFX\\b"
+      ],
+      "vpn": "Francia",
+      "note": "Gratuito con account TF1+.",
+      "link": [
+        {
+          "url": "https://www.tf1.fr/tf1/direct",
+          "testo": "TF1 – diretta"
+        },
+        {
+          "url": "https://www.tf1.fr/tmc/direct",
+          "testo": "TMC – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Francia"
     },
     {
-     "url": "https://plus.rtl.de/nitro/live",
-     "testo": "RTL+ – Nitro",
-     "verificato": false
-    }
-   ],
-   "vpn_tag": "VPN Germania"
-  },
-  {
-   "id": "orf",
-   "nome": "ORF",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^ORF\\b"
-   ],
-   "vpn": "Austria",
-   "note": "ORF ON, gratuito con account.",
-   "link": [
-    {
-     "url": "https://on.orf.at/livestreams",
-     "testo": "ORF ON – dirette"
-    }
-   ],
-   "vpn_tag": "VPN Austria"
-  },
-  {
-   "id": "srf",
-   "nome": "SRF (Svizzera tedesca)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^SRF\\b"
-   ],
-   "vpn": "Svizzera",
-   "note": "Play SRF, gratuito.",
-   "link": [
-    {
-     "url": "https://www.srf.ch/play/tv/live",
-     "testo": "Play SRF – dirette"
+      "id": "francetv",
+      "nome": "France Télévisions (France 2, France 3)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^France ?[2345]\\b",
+        "^France\\.?tv"
+      ],
+      "vpn": "Francia",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://www.france.tv/france-2/direct.html",
+          "testo": "France 2 – diretta"
+        },
+        {
+          "url": "https://www.france.tv/france-3/direct.html",
+          "testo": "France 3 – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Francia"
     },
     {
-     "url": "https://www.srf.ch/play/tv/sport-livestreams",
-     "testo": "Play SRF – sport"
-    }
-   ],
-   "vpn_tag": "VPN Svizzera"
-  },
-  {
-   "id": "rts-senegal",
-   "nome": "RTS (Senegal)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^RTS ?[12]? S[ée]n[ée]gal"
-   ],
-   "vpn": "Senegal",
-   "note": "Gratuito.",
-   "link": [
-    {
-     "url": "https://www.rts.sn",
-     "testo": "RTS Sénégal"
-    }
-   ],
-   "vpn_tag": "VPN Senegal"
-  },
-  {
-   "id": "rts",
-   "nome": "RTS (Svizzera francese)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^Play RTS\\b",
-    "^RTS (1|2|Un|Deux)? ?Suisse\\b",
-    "^RTS (Un|Deux)\\b"
-   ],
-   "vpn": "Svizzera",
-   "note": "Play RTS, gratuito.",
-   "link": [
-    {
-     "url": "https://www.rts.ch/play/tv/direct?tvLiveId=3608517",
-     "testo": "RTS 2 – diretta"
+      "id": "m6",
+      "nome": "M6 / W9 (M6+)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^M6\\b",
+        "^W9\\b"
+      ],
+      "vpn": "Francia",
+      "note": "Gratuito con account M6+.",
+      "link": [
+        {
+          "url": "https://www.m6.fr/m6/direct",
+          "testo": "M6 – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Francia"
     },
     {
-     "url": "https://www.rts.ch/play/tv/categories/sport",
-     "testo": "Play RTS – sport"
-    }
-   ],
-   "vpn_tag": "VPN Svizzera"
-  },
-  {
-   "id": "rsi",
-   "nome": "RSI (Svizzera italiana)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^RSI\\b"
-   ],
-   "vpn": "Svizzera",
-   "note": "Play RSI, gratuito; commento in italiano.",
-   "link": [
-    {
-     "url": "https://www.rsi.ch/play/tv/live?tvLiveId=livestream_La2",
-     "testo": "RSI La 2 – diretta"
+      "id": "lequipe",
+      "nome": "L'Équipe",
+      "fonte": "ricerca",
+      "verificato": false,
+      "canali": [
+        "^L'?[EÉ]quipe\\b"
+      ],
+      "vpn": "Francia",
+      "note": "Canale gratuito della TNT francese. Il sito blocca i controlli automatici: link non verificato.",
+      "link": [
+        {
+          "url": "https://www.lequipe.fr/tv/",
+          "testo": "L'Équipe TV",
+          "verificato": false
+        }
+      ],
+      "vpn_tag": "VPN Francia"
     },
     {
-     "url": "https://www.rsi.ch/play/tv/live",
-     "testo": "RSI – dirette"
-    }
-   ],
-   "vpn_tag": "VPN Svizzera"
-  },
-  {
-   "id": "npo",
-   "nome": "NOS / NPO (Olanda)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^NOS\\b",
-    "^NPO\\b"
-   ],
-   "vpn": "Olanda",
-   "note": "Gratuito.",
-   "link": [
-    {
-     "url": "https://npo.nl/start/live",
-     "testo": "NPO Start – dirette"
+      "id": "rai",
+      "nome": "Rai (Rai 1, 2, 3, Rai Sport)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^Rai\\b",
+        "^RaiPlay\\b"
+      ],
+      "vpn": "non serve dall'Italia",
+      "note": "RaiPlay, gratuito.",
+      "link": [
+        {
+          "url": "https://www.raiplay.it/dirette/rai1",
+          "testo": "Rai 1 – diretta"
+        },
+        {
+          "url": "https://www.raiplay.it/dirette/rai2",
+          "testo": "Rai 2 – diretta"
+        },
+        {
+          "url": "https://www.raiplay.it/dirette/rai3",
+          "testo": "Rai 3 – diretta"
+        },
+        {
+          "url": "https://www.raiplay.it/dirette/raisport",
+          "testo": "Rai Sport – diretta"
+        }
+      ],
+      "vpn_tag": "SENZA VPN"
     },
     {
-     "url": "https://nos.nl/live",
-     "testo": "NOS – live"
-    }
-   ],
-   "vpn_tag": "VPN Olanda"
-  },
-  {
-   "id": "vtm",
-   "nome": "VTM (Belgio)",
-   "fonte": "utente",
-   "verificato": true,
-   "canali": [
-    "^VTM\\b"
-   ],
-   "vpn": "Belgio",
-   "vpn_tag": "VPN Belgio",
-   "note": "Serve registrazione gratuita su VTM GO.",
-   "link": [
-    {
-     "url": "https://www.vtmgo.be/vtmgo/live-kijken/vtm",
-     "testo": "VTM GO – live kijken"
-    }
-   ],
-   "unifica_in": "VTM GO"
-  },
-  {
-   "id": "rtl-belgio",
-   "nome": "RTL Belgio",
-   "fonte": "utente",
-   "verificato": true,
-   "canali": [
-    "^RTL ?TVI\\b",
-    "^RTL ?Club\\b",
-    "^Club ?RTL\\b",
-    "^RTL ?Plug\\b",
-    "^Plug ?RTL\\b",
-    "^RTL ?District\\b",
-    "^RTL ?Play\\b"
-   ],
-   "vpn": "Belgio",
-   "vpn_tag": "VPN Belgio",
-   "note": "Serve registrazione gratuita su RTL Play.",
-   "link": [
-    {
-     "url": "https://www.rtlplay.be/rtlplay/direct",
-     "testo": "RTL Play – direct"
-    }
-   ]
-  },
-  {
-   "id": "vrt",
-   "nome": "VRT / Sporza (Belgio fiammingo)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^VRT\\b",
-    "^Sporza\\b",
-    "^[EÉ][eé]n\\b",
-    "^Canvas\\b"
-   ],
-   "vpn": "Belgio",
-   "note": "VRT MAX, gratuito con account.",
-   "link": [
-    {
-     "url": "https://www.vrt.be/vrtmax/livestream/",
-     "testo": "VRT MAX – livestream"
-    }
-   ],
-   "vpn_tag": "VPN Belgio"
-  },
-  {
-   "id": "rtbf",
-   "nome": "RTBF / Auvio (Belgio francese)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^RTBF\\b",
-    "^La Une\\b",
-    "^Tipik\\b",
-    "^Auvio\\b"
-   ],
-   "vpn": "Belgio",
-   "note": "Auvio, gratuito con account.",
-   "link": [
-    {
-     "url": "https://auvio.rtbf.be/direct",
-     "testo": "Auvio – dirette"
-    }
-   ],
-   "vpn_tag": "VPN Belgio"
-  },
-  {
-   "id": "rtve",
-   "nome": "RTVE (La 1, Teledeporte)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^TVE\\b",
-    "^RTVE\\b",
-    "^La ?1\\b",
-    "^Teledeporte\\b"
-   ],
-   "vpn": "Spagna",
-   "note": "RTVE Play, gratuito.",
-   "link": [
-    {
-     "url": "https://www.rtve.es/play/videos/directo/canales-lineales/la-1/",
-     "testo": "La 1 – diretta"
+      "id": "sportitalia",
+      "nome": "Sportitalia SoloCalcio",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^Sportitalia"
+      ],
+      "vpn": "non serve dall'Italia",
+      "note": "",
+      "link": [
+        {
+          "url": "https://sportitalialive.it/sisolocalcio/",
+          "testo": "Sportitalia SoloCalcio – diretta"
+        }
+      ],
+      "vpn_tag": "SENZA VPN"
     },
     {
-     "url": "https://www.rtve.es/play/videos/directo/canales-lineales/tdp/",
-     "testo": "Teledeporte – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Spagna"
-  },
-  {
-   "id": "rtp",
-   "nome": "RTP (Portogallo)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^RTP\\b"
-   ],
-   "vpn": "Portogallo",
-   "note": "RTP Play, gratuito.",
-   "link": [
-    {
-     "url": "https://www.rtp.pt/play/direto/rtp1",
-     "testo": "RTP 1 – diretta"
+      "id": "zdf",
+      "nome": "ZDF",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^ZDF\\b"
+      ],
+      "vpn": "Germania",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://www.zdf.de/live-tv",
+          "testo": "ZDF – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Germania"
     },
     {
-     "url": "https://www.rtp.pt/play/direto/rtp2",
-     "testo": "RTP 2 – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Portogallo"
-  },
-  {
-   "id": "ert",
-   "nome": "ERT (Grecia)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^ERT\\b"
-   ],
-   "vpn": "Grecia",
-   "note": "ERTFLIX, gratuito con account.",
-   "link": [
-    {
-     "url": "https://www.ertflix.gr/en/live-tv",
-     "testo": "ERTFLIX – dirette"
-    }
-   ],
-   "vpn_tag": "VPN Grecia"
-  },
-  {
-   "id": "tvp",
-   "nome": "TVP Sport (Polonia)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^TVP\\b"
-   ],
-   "vpn": "Polonia",
-   "note": "Gratuito.",
-   "link": [
-    {
-     "url": "https://sport.tvp.pl/transmisje",
-     "testo": "TVP Sport – dirette"
-    }
-   ],
-   "vpn_tag": "VPN Polonia"
-  },
-  {
-   "id": "tv8tr",
-   "nome": "TV8 (Turchia)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^TV8 Türkiye"
-   ],
-   "vpn": "Turchia",
-   "note": "Gratuito.",
-   "link": [
-    {
-     "url": "https://www.tv8.com.tr/canli-yayin",
-     "testo": "TV8 – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Turchia"
-  },
-  {
-   "id": "ct",
-   "nome": "ČT sport (Rep. Ceca)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^[ČC]T ?(sport|1|2)\\b"
-   ],
-   "vpn": "Rep. Ceca",
-   "note": "Gratuito.",
-   "link": [
-    {
-     "url": "https://sport.ceskatelevize.cz/zive-vysilani",
-     "testo": "ČT sport – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Rep. Ceca"
-  },
-  {
-   "id": "virgin-media",
-   "nome": "Virgin Media (Irlanda)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^Virgin Media",
-    "^VM Play\\b"
-   ],
-   "vpn": "Irlanda",
-   "note": "Gratuito con registrazione su Virgin Media Play. Trasmette partite NFL gratis.",
-   "link": [
-    {
-     "url": "https://www.virginmediatelevision.ie",
-     "testo": "Virgin Media Television"
+      "id": "ard",
+      "nome": "ARD / Das Erste e canali regionali (BR, NDR, WDR, MDR, SWR, HR, SR, RBB)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^ARD\\b",
+        "^Das Erste",
+        "^(BR|NDR|WDR|MDR|SWR|HR|SR|RBB) Fernsehen"
+      ],
+      "vpn": "Germania",
+      "note": "ARD Mediathek, gratuito: dalla pagina si sceglie il canale regionale.",
+      "link": [
+        {
+          "url": "https://www.ardmediathek.de/live",
+          "testo": "ARD Mediathek – dirette"
+        }
+      ],
+      "vpn_tag": "VPN Germania"
     },
     {
-     "url": "https://play.virginmediatelevision.ie/",
-     "testo": "Virgin Media Play – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Irlanda"
-  },
-  {
-   "id": "7plus",
-   "nome": "7plus (Seven, Australia)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^7 ?plus\\b",
-    "^Seven\\b",
-    "^7mate\\b"
-   ],
-   "vpn": "Australia",
-   "note": "Gratuito con registrazione. Trasmette partite NFL gratis.",
-   "link": [
+      "id": "sport1",
+      "nome": "Sport1",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^Sport ?1 (Deutschland|Germany)\\b",
+        "^Sport1\\b"
+      ],
+      "vpn": "Germania",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://www.sport1.de/livestream",
+          "testo": "Sport1 – livestream"
+        }
+      ],
+      "vpn_tag": "VPN Germania"
+    },
     {
-     "url": "https://7plus.com.au/live-tv",
-     "testo": "7plus – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Australia"
-  },
-  {
-   "id": "tvnz",
-   "nome": "TVNZ+ (Nuova Zelanda)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^TVNZ",
-    "^Duke\\b"
-   ],
-   "vpn": "Nuova Zelanda",
-   "note": "Gratuito con registrazione. Trasmette partite NFL gratis.",
-   "link": [
+      "id": "rtl",
+      "nome": "RTL / Nitro (Germania, Austria)",
+      "fonte": "ricerca",
+      "verificato": false,
+      "canali": [
+        "^RTL (Deutschland|Österreich)\\b",
+        "^Nitro\\b"
+      ],
+      "vpn": "Germania",
+      "note": "Canali in chiaro in TV, ma la diretta su RTL+ potrebbe richiedere abbonamento: da verificare.",
+      "link": [
+        {
+          "url": "https://plus.rtl.de/rtl/live",
+          "testo": "RTL+ – RTL",
+          "verificato": false
+        },
+        {
+          "url": "https://plus.rtl.de/nitro/live",
+          "testo": "RTL+ – Nitro",
+          "verificato": false
+        }
+      ],
+      "vpn_tag": "VPN Germania"
+    },
     {
-     "url": "https://www.tvnz.co.nz/livetv",
-     "testo": "TVNZ+ – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Nuova Zelanda"
-  },
-  {
-   "id": "twitch-nfl",
-   "nome": "Twitch (canale NFL)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^Twitch\\b"
-   ],
-   "vpn": "Stati Uniti",
-   "note": "Gratuito (alcune partite del giovedì).",
-   "link": [
+      "id": "orf",
+      "nome": "ORF",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^ORF\\b"
+      ],
+      "vpn": "Austria",
+      "note": "ORF ON, gratuito con account.",
+      "link": [
+        {
+          "url": "https://on.orf.at/livestreams",
+          "testo": "ORF ON – dirette"
+        }
+      ],
+      "vpn_tag": "VPN Austria"
+    },
     {
-     "url": "https://www.twitch.tv/nfl",
-     "testo": "twitch.tv/nfl"
-    }
-   ],
-   "vpn_tag": "VPN USA"
-  },
-  {
-   "id": "idman",
-   "nome": "Idman TV (Azerbaigian)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^Idman\\b"
-   ],
-   "vpn": "Azerbaigian",
-   "note": "Gratuito.",
-   "link": [
+      "id": "srf",
+      "nome": "SRF (Svizzera tedesca)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^SRF\\b"
+      ],
+      "vpn": "Svizzera",
+      "note": "Play SRF, gratuito.",
+      "link": [
+        {
+          "url": "https://www.srf.ch/play/tv/live",
+          "testo": "Play SRF – dirette"
+        },
+        {
+          "url": "https://www.srf.ch/play/tv/sport-livestreams",
+          "testo": "Play SRF – sport"
+        }
+      ],
+      "vpn_tag": "VPN Svizzera"
+    },
     {
-     "url": "https://idmantv.az/az",
-     "testo": "Idman TV"
-    }
-   ],
-   "vpn_tag": "VPN Azerbaigian"
-  },
-  {
-   "id": "cbc-sport",
-   "nome": "CBC Sport (Azerbaigian)",
-   "fonte": "ricerca",
-   "verificato": false,
-   "canali": [
-    "^CBC Sport\\b"
-   ],
-   "vpn": "Azerbaigian",
-   "note": "Gratuito.",
-   "link": [
+      "id": "rts-senegal",
+      "nome": "RTS (Senegal)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^RTS ?[12]? S[ée]n[ée]gal"
+      ],
+      "vpn": "Senegal",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://www.rts.sn",
+          "testo": "RTS Sénégal"
+        }
+      ],
+      "vpn_tag": "VPN Senegal"
+    },
     {
-     "url": "https://cbcsport.az",
-     "testo": "CBC Sport"
-    }
-   ],
-   "vpn_tag": "VPN Azerbaigian"
-  },
-  {
-   "id": "mbc-action",
-   "nome": "MBC Action (Shahid)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^MBC Action\\b"
-   ],
-   "vpn": "Emirati Arabi",
-   "note": "Gratuito con registrazione su Shahid.",
-   "link": [
+      "id": "rts",
+      "nome": "RTS (Svizzera francese)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^Play RTS\\b",
+        "^RTS (1|2|Un|Deux)? ?Suisse\\b",
+        "^RTS (Un|Deux)\\b"
+      ],
+      "vpn": "Svizzera",
+      "note": "Play RTS, gratuito.",
+      "link": [
+        {
+          "url": "https://www.rts.ch/play/tv/direct?tvLiveId=3608517",
+          "testo": "RTS 2 – diretta"
+        },
+        {
+          "url": "https://www.rts.ch/play/tv/categories/sport",
+          "testo": "Play RTS – sport"
+        }
+      ],
+      "vpn_tag": "VPN Svizzera"
+    },
     {
-     "url": "https://shahid.mbc.net/ar/livestream",
-     "testo": "Shahid – dirette MBC"
-    }
-   ],
-   "vpn_tag": "VPN Emirati Arabi"
-  },
-  {
-   "id": "crtv",
-   "nome": "CRTV (Camerun)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^CRTV\\b"
-   ],
-   "vpn": "Camerun",
-   "note": "Gratuito.",
-   "link": [
+      "id": "rsi",
+      "nome": "RSI (Svizzera italiana)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^RSI\\b"
+      ],
+      "vpn": "Svizzera",
+      "note": "Play RSI, gratuito; commento in italiano.",
+      "link": [
+        {
+          "url": "https://www.rsi.ch/play/tv/live?tvLiveId=livestream_La2",
+          "testo": "RSI La 2 – diretta"
+        },
+        {
+          "url": "https://www.rsi.ch/play/tv/live",
+          "testo": "RSI – dirette"
+        }
+      ],
+      "vpn_tag": "VPN Svizzera"
+    },
     {
-     "url": "https://www.crtv.cm",
-     "testo": "CRTV"
-    }
-   ],
-   "vpn_tag": "VPN Camerun"
-  },
-  {
-   "id": "nci",
-   "nome": "NCI – La Nouvelle Chaîne Ivoirienne",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^La Nouvelle Cha[iî]ne Ivo",
-    "^NCI\\b"
-   ],
-   "vpn": "Costa d'Avorio",
-   "note": "Gratuito.",
-   "link": [
+      "id": "npo",
+      "nome": "NOS / NPO (Olanda)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^NOS\\b",
+        "^NPO\\b"
+      ],
+      "vpn": "Olanda",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://npo.nl/start/live",
+          "testo": "NPO Start – dirette"
+        },
+        {
+          "url": "https://nos.nl/live",
+          "testo": "NOS – live"
+        }
+      ],
+      "vpn_tag": "VPN Olanda"
+    },
     {
-     "url": "https://www.nci.ci",
-     "testo": "NCI"
-    }
-   ],
-   "vpn_tag": "VPN Costa d'Avorio"
-  },
-  {
-   "id": "ortb",
-   "nome": "ORTB (Benin)",
-   "fonte": "ricerca",
-   "verificato": false,
-   "canali": [
-    "^ORTB\\b"
-   ],
-   "vpn": "Benin",
-   "note": "Gratuito.",
-   "link": [
+      "id": "vtm",
+      "nome": "VTM (Belgio)",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^VTM\\b"
+      ],
+      "vpn": "Belgio",
+      "vpn_tag": "VPN Belgio",
+      "note": "Serve registrazione gratuita su VTM GO.",
+      "link": [
+        {
+          "url": "https://www.vtmgo.be/vtmgo/live-kijken/vtm",
+          "testo": "VTM GO – live kijken"
+        }
+      ],
+      "unifica_in": "VTM GO"
+    },
     {
-     "url": "https://ortb.bj",
-     "testo": "ORTB"
-    }
-   ],
-   "vpn_tag": "VPN Benin"
-  },
-  {
-   "id": "znbc",
-   "nome": "ZNBC (Zambia)",
-   "fonte": "ricerca",
-   "verificato": false,
-   "canali": [
-    "^ZNBC\\b"
-   ],
-   "vpn": "Zambia",
-   "note": "Gratuito.",
-   "link": [
+      "id": "rtl-belgio",
+      "nome": "RTL Belgio",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^RTL ?TVI\\b",
+        "^RTL ?Club\\b",
+        "^Club ?RTL\\b",
+        "^RTL ?Plug\\b",
+        "^Plug ?RTL\\b",
+        "^RTL ?District\\b",
+        "^RTL ?Play\\b"
+      ],
+      "vpn": "Belgio",
+      "vpn_tag": "VPN Belgio",
+      "note": "Serve registrazione gratuita su RTL Play.",
+      "link": [
+        {
+          "url": "https://www.rtlplay.be/rtlplay/direct",
+          "testo": "RTL Play – direct"
+        }
+      ]
+    },
     {
-     "url": "https://www.znbc.co.zm",
-     "testo": "ZNBC"
-    }
-   ],
-   "vpn_tag": "VPN Zambia"
-  },
-  {
-   "id": "miramar",
-   "nome": "TV Miramar (Mozambico)",
-   "fonte": "ricerca",
-   "verificato": false,
-   "canali": [
-    "^TV Miramar\\b"
-   ],
-   "vpn": "Mozambico",
-   "note": "Gratuito.",
-   "link": [
+      "id": "vrt",
+      "nome": "VRT / Sporza (Belgio fiammingo)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^VRT\\b",
+        "^Sporza\\b",
+        "^[EÉ][eé]n\\b",
+        "^Canvas\\b"
+      ],
+      "vpn": "Belgio",
+      "note": "VRT MAX, gratuito con account.",
+      "link": [
+        {
+          "url": "https://www.vrt.be/vrtmax/livestream/",
+          "testo": "VRT MAX – livestream"
+        }
+      ],
+      "vpn_tag": "VPN Belgio"
+    },
     {
-     "url": "https://www.tvmiramar.co.mz",
-     "testo": "TV Miramar"
-    }
-   ],
-   "vpn_tag": "VPN Mozambico"
-  },
-  {
-   "id": "bein-haber",
-   "nome": "beIN Sports Haber (Turchia)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^beIN Sports? Haber\\b"
-   ],
-   "vpn": "Turchia",
-   "note": "Canale di notizie sportive in chiaro.",
-   "link": [
+      "id": "rtbf",
+      "nome": "RTBF / Auvio (Belgio francese)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^RTBF\\b",
+        "^La Une\\b",
+        "^Tipik\\b",
+        "^Auvio\\b"
+      ],
+      "vpn": "Belgio",
+      "note": "Auvio, gratuito con account.",
+      "link": [
+        {
+          "url": "https://auvio.rtbf.be/direct",
+          "testo": "Auvio – dirette"
+        }
+      ],
+      "vpn_tag": "VPN Belgio"
+    },
     {
-     "url": "https://www.beinsports.com.tr",
-     "testo": "beIN Sports Türkiye"
-    }
-   ],
-   "vpn_tag": "VPN Turchia"
-  },
-  {
-   "id": "htspor",
-   "nome": "HT Spor (Turchia)",
-   "fonte": "ricerca",
-   "verificato": true,
-   "canali": [
-    "^HT Spor\\b"
-   ],
-   "vpn": "Turchia",
-   "note": "Gratuito.",
-   "link": [
+      "id": "rtve",
+      "nome": "RTVE (La 1, Teledeporte)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^TVE\\b",
+        "^RTVE\\b",
+        "^La ?1\\b",
+        "^Teledeporte\\b"
+      ],
+      "vpn": "Spagna",
+      "note": "RTVE Play, gratuito.",
+      "link": [
+        {
+          "url": "https://www.rtve.es/play/videos/directo/canales-lineales/la-1/",
+          "testo": "La 1 – diretta"
+        },
+        {
+          "url": "https://www.rtve.es/play/videos/directo/canales-lineales/tdp/",
+          "testo": "Teledeporte – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Spagna"
+    },
     {
-     "url": "https://www.htspor.com/canli-yayin",
-     "testo": "HT Spor – diretta"
-    }
-   ],
-   "vpn_tag": "VPN Turchia"
-  },
-  {
-   "id": "sifir",
-   "nome": "Sıfır TV (Turchia)",
-   "fonte": "utente",
-   "verificato": true,
-   "canali": [
-    "^S[iı]f[iı]r TV\\b"
-   ],
-   "vpn": "Turchia",
-   "note": "Dirette sul canale YouTube: serve la VPN sulla Turchia.",
-   "link": [
+      "id": "rtp",
+      "nome": "RTP (Portogallo)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^RTP\\b"
+      ],
+      "vpn": "Portogallo",
+      "note": "RTP Play, gratuito.",
+      "link": [
+        {
+          "url": "https://www.rtp.pt/play/direto/rtp1",
+          "testo": "RTP 1 – diretta"
+        },
+        {
+          "url": "https://www.rtp.pt/play/direto/rtp2",
+          "testo": "RTP 2 – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Portogallo"
+    },
     {
-     "url": "https://www.youtube.com/@sifirtv",
-     "testo": "Sıfır TV – YouTube"
+      "id": "ert",
+      "nome": "ERT (Grecia)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^ERT\\b"
+      ],
+      "vpn": "Grecia",
+      "note": "ERTFLIX, gratuito con account.",
+      "link": [
+        {
+          "url": "https://www.ertflix.gr/en/live-tv",
+          "testo": "ERTFLIX – dirette"
+        }
+      ],
+      "vpn_tag": "VPN Grecia"
+    },
+    {
+      "id": "tvp",
+      "nome": "TVP Sport (Polonia)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^TVP\\b"
+      ],
+      "vpn": "Polonia",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://sport.tvp.pl/transmisje",
+          "testo": "TVP Sport – dirette"
+        }
+      ],
+      "vpn_tag": "VPN Polonia"
+    },
+    {
+      "id": "tv8tr",
+      "nome": "TV8 (Turchia)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^TV8 Türkiye"
+      ],
+      "vpn": "Turchia",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://www.tv8.com.tr/canli-yayin",
+          "testo": "TV8 – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Turchia"
+    },
+    {
+      "id": "ct",
+      "nome": "ČT sport (Rep. Ceca)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^[ČC]T ?(sport|1|2)\\b"
+      ],
+      "vpn": "Rep. Ceca",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://sport.ceskatelevize.cz/zive-vysilani",
+          "testo": "ČT sport – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Rep. Ceca"
+    },
+    {
+      "id": "virgin-media",
+      "nome": "Virgin Media (Irlanda)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^Virgin Media",
+        "^VM Play\\b"
+      ],
+      "vpn": "Irlanda",
+      "note": "Gratuito con registrazione su Virgin Media Play. Trasmette partite NFL gratis.",
+      "link": [
+        {
+          "url": "https://www.virginmediatelevision.ie",
+          "testo": "Virgin Media Television"
+        },
+        {
+          "url": "https://play.virginmediatelevision.ie/",
+          "testo": "Virgin Media Play – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Irlanda"
+    },
+    {
+      "id": "7plus",
+      "nome": "7plus (Seven, Australia)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^7 ?plus\\b",
+        "^Seven\\b",
+        "^7mate\\b"
+      ],
+      "vpn": "Australia",
+      "note": "Gratuito con registrazione. Trasmette partite NFL gratis.",
+      "link": [
+        {
+          "url": "https://7plus.com.au/live-tv",
+          "testo": "7plus – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Australia"
+    },
+    {
+      "id": "tvnz",
+      "nome": "TVNZ+ (Nuova Zelanda)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^TVNZ",
+        "^Duke\\b"
+      ],
+      "vpn": "Nuova Zelanda",
+      "note": "Gratuito con registrazione. Trasmette partite NFL gratis.",
+      "link": [
+        {
+          "url": "https://www.tvnz.co.nz/livetv",
+          "testo": "TVNZ+ – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Nuova Zelanda"
+    },
+    {
+      "id": "twitch-nfl",
+      "nome": "Twitch (canale NFL)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^Twitch\\b"
+      ],
+      "vpn": "Stati Uniti",
+      "note": "Gratuito (alcune partite del giovedì).",
+      "link": [
+        {
+          "url": "https://www.twitch.tv/nfl",
+          "testo": "twitch.tv/nfl"
+        }
+      ],
+      "vpn_tag": "VPN USA"
+    },
+    {
+      "id": "idman",
+      "nome": "Idman TV (Azerbaigian)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^Idman\\b"
+      ],
+      "vpn": "Azerbaigian",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://idmantv.az/az",
+          "testo": "Idman TV"
+        }
+      ],
+      "vpn_tag": "VPN Azerbaigian"
+    },
+    {
+      "id": "cbc-sport",
+      "nome": "CBC Sport (Azerbaigian)",
+      "fonte": "ricerca",
+      "verificato": false,
+      "canali": [
+        "^CBC Sport\\b"
+      ],
+      "vpn": "Azerbaigian",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://cbcsport.az",
+          "testo": "CBC Sport"
+        }
+      ],
+      "vpn_tag": "VPN Azerbaigian"
+    },
+    {
+      "id": "mbc-action",
+      "nome": "MBC Action (Shahid)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^MBC Action\\b"
+      ],
+      "vpn": "Emirati Arabi",
+      "note": "Gratuito con registrazione su Shahid.",
+      "link": [
+        {
+          "url": "https://shahid.mbc.net/ar/livestream",
+          "testo": "Shahid – dirette MBC"
+        }
+      ],
+      "vpn_tag": "VPN Emirati Arabi"
+    },
+    {
+      "id": "crtv",
+      "nome": "CRTV (Camerun)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^CRTV\\b"
+      ],
+      "vpn": "Camerun",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://www.crtv.cm",
+          "testo": "CRTV"
+        }
+      ],
+      "vpn_tag": "VPN Camerun"
+    },
+    {
+      "id": "nci",
+      "nome": "NCI – La Nouvelle Chaîne Ivoirienne",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^La Nouvelle Cha[iî]ne Ivo",
+        "^NCI\\b"
+      ],
+      "vpn": "Costa d'Avorio",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://www.nci.ci",
+          "testo": "NCI"
+        }
+      ],
+      "vpn_tag": "VPN Costa d'Avorio"
+    },
+    {
+      "id": "ortb",
+      "nome": "ORTB (Benin)",
+      "fonte": "ricerca",
+      "verificato": false,
+      "canali": [
+        "^ORTB\\b"
+      ],
+      "vpn": "Benin",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://ortb.bj",
+          "testo": "ORTB"
+        }
+      ],
+      "vpn_tag": "VPN Benin"
+    },
+    {
+      "id": "znbc",
+      "nome": "ZNBC (Zambia)",
+      "fonte": "ricerca",
+      "verificato": false,
+      "canali": [
+        "^ZNBC\\b"
+      ],
+      "vpn": "Zambia",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://www.znbc.co.zm",
+          "testo": "ZNBC"
+        }
+      ],
+      "vpn_tag": "VPN Zambia"
+    },
+    {
+      "id": "miramar",
+      "nome": "TV Miramar (Mozambico)",
+      "fonte": "ricerca",
+      "verificato": false,
+      "canali": [
+        "^TV Miramar\\b"
+      ],
+      "vpn": "Mozambico",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://www.tvmiramar.co.mz",
+          "testo": "TV Miramar"
+        }
+      ],
+      "vpn_tag": "VPN Mozambico"
+    },
+    {
+      "id": "bein-haber",
+      "nome": "beIN Sports Haber (Turchia)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^beIN Sports? Haber\\b"
+      ],
+      "vpn": "Turchia",
+      "note": "Canale di notizie sportive in chiaro.",
+      "link": [
+        {
+          "url": "https://www.beinsports.com.tr",
+          "testo": "beIN Sports Türkiye"
+        }
+      ],
+      "vpn_tag": "VPN Turchia"
+    },
+    {
+      "id": "htspor",
+      "nome": "HT Spor (Turchia)",
+      "fonte": "ricerca",
+      "verificato": true,
+      "canali": [
+        "^HT Spor\\b"
+      ],
+      "vpn": "Turchia",
+      "note": "Gratuito.",
+      "link": [
+        {
+          "url": "https://www.htspor.com/canli-yayin",
+          "testo": "HT Spor – diretta"
+        }
+      ],
+      "vpn_tag": "VPN Turchia"
+    },
+    {
+      "id": "sifir",
+      "nome": "Sıfır TV (Turchia)",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^S[iı]f[iı]r TV\\b"
+      ],
+      "vpn": "Turchia",
+      "note": "Dirette sul canale YouTube: serve la VPN sulla Turchia.",
+      "link": [
+        {
+          "url": "https://www.youtube.com/@sifirtv",
+          "testo": "Sıfır TV – YouTube"
+        }
+      ],
+      "vpn_tag": "VPN Turchia"
     }
-   ],
-   "vpn_tag": "VPN Turchia"
-  }
- ]
+  ]
 }
