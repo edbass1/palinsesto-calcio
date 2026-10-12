@@ -135,26 +135,17 @@
         "^Prima Sport ?PPV"
       ],
       "vpn": "non serve",
-      "note": "Solo via app sulla TV, senza VPN.",
+      "note": "Registrazione su Orange, senza VPN.",
       "link": [
         {
-          "url": "https://www.primaplay.ro/register",
-          "testo": "Prima Play – registrazione (gratuita)"
-        },
-        {
-          "url": "https://www.primaplay.ro",
-          "testo": "Prima Play"
+          "url": "https://www.orange.ro/accounts/create-user",
+          "testo": "Orange – registrazione"
         }
       ],
-      "vpn_tag": "Solo app · SENZA VPN",
+      "vpn_tag": "SENZA VPN",
       "link_card": {
-        "url": "https://www.primaplay.ro/register",
-        "testo": "Prima Play"
-      },
-      "consiglio": {
-        "testo": "⭐ IMPORTANTE: prima registrati su Prima Play (registrazione gratuita e indispensabile), poi scarica l'app PRIMA PLAY sulla TV per vedere le partite in modo stabile.",
-        "url": "https://www.primaplay.ro/register",
-        "testo_link": "primaplay.ro/register"
+        "url": "https://www.orange.ro/accounts/create-user",
+        "testo": "Orange TV"
       }
     },
     {
@@ -200,11 +191,10 @@
       "canali": [
         "^Prima Sport(?! ?PPV)"
       ],
-      "vpn": "solo per registrarsi (Metodo 1); Metodo 2 senza VPN",
       "vpn_tag": "SENZA VPN",
       "link_card": {
-        "url": "#dv-prima-sport",
-        "testo": "Come vederli"
+        "url": "https://www.orange.ro/accounts/create-user",
+        "testo": "Orange TV"
       },
       "metodi": [
         {

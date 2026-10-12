@@ -400,7 +400,7 @@ def test_primaplay():
     dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
     assert p.voce_dove("Prima Sport PPV2", dove)["id"] == "prima-sport-ppv" and p.voce_dove("Prima Sport 3", dove)["id"] == "prima-sport"
     v = p.voce_dove("Prima Sport PPV1", dove)
-    assert v["note"] == "Solo via app sulla TV, senza VPN." and v["link"][0]["url"] == "https://www.primaplay.ro/register" and v["fonte"] == "utente"
+    assert v["link"][0]["url"] == "https://www.orange.ro/accounts/create-user" and v["fonte"] == "utente"
     return f"{len(cal)} calcio, {len(alt)} altri sport, {len(nuove)} nuove"
 
 
@@ -1272,10 +1272,10 @@ test_scooore(); print("Scooore (solo conferma di partite già presenti): OK")
 
 def test_prima_register():
     dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
-    h = p.badge({"nome": "Prima Sport 2", "fta": False}, dove, set())
-    assert 'href="#dv-prima-sport"' in h and "▶ Come vederli" in h and "SENZA VPN" in h and "primaplay.ro" not in h and "_blank" not in h.split("▶")[0][-200:], h
-    h = p.badge({"nome": "Prima Sport PPV1", "fta": False}, dove, set())
-    assert 'href="https://www.primaplay.ro/register"' in h and "Solo app · SENZA VPN" in h, h
+    for nome in ("Prima Sport 2", "Prima Sport PPV1"):
+        h = p.badge({"nome": nome, "fta": False}, dove, set())
+        assert 'href="https://www.orange.ro/accounts/create-user"' in h and "▶ Orange TV" in h and "SENZA VPN" in h and "primaplay.ro" not in h, h
+        assert 'href="#dv-prima-sport' in h, h
     s = p.sezione_dove(dove, {"prima-sport", "prima-sport-ppv"})
     assert s.count('<li>Aprite questo link con Google Chrome') == 2 and "In breve:" in s
 
