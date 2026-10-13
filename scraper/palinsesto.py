@@ -340,6 +340,48 @@ def nome_completo(e, casa, ospite):
     e["titolo"] = f'{e["casa"]} v {e["ospite"]}'
 
 
+def togli_repliche(eventi, giorni=3):
+    """La stessa partita (stesse squadre, stesso ordine casa/ospite) di nuovo entro pochi giorni non è un'altra partita
+    (andata e ritorno hanno casa/ospite invertiti e settimane di distanza):
+    - se viene solo dalle guide streaming/EPG (Streaming) è una replica/differita -> tolta (non è una diretta, e
+      unirne il canale alla partita vera direbbe il falso);
+    - se viene da una fonte TV affidabile (es. orario 00:00 segnaposto o data sbagliata) -> i canali si uniscono
+      all'originale, che tiene il suo orario."""
+    tolte, tenuti = [], []
+    for e in sorted(eventi, key=lambda e: e["ts"]):
+        orig = next((t for t in tenuti
+                     if 3 * 3600 < e["ts"] - t["ts"] <= giorni * 86400 and t.get("ospite") and e.get("ospite")
+                     and unisci.marcatori(t["casa"]) == unisci.marcatori(e["casa"])
+                     and unisci.marcatori(t["ospite"]) == unisci.marcatori(e["ospite"])
+                     and unisci.somiglianza(t["casa"], e["casa"]) >= 0.9 and unisci.somiglianza(t["ospite"], e["ospite"]) >= 0.9), None)
+        if orig is None:
+            tenuti.append(e)
+            continue
+        solo_stream = all(f_ in FONTI_STREAM for f_ in e.get("fonti", []))
+        if solo_stream:
+            tolte.append(f'{e["casa"]} - {e["ospite"]} {e["quando"]:%d/%m %H:%M} (replica, già alle {orig["quando"]:%d/%m %H:%M})')
+            continue
+        chiavi = {unisci.chiave_canale(k["nome"]) for k in orig["canali"]}
+        for k in e["canali"]:
+            if unisci.chiave_canale(k["nome"]) not in chiavi:
+                orig["canali"].append(k)
+                chiavi.add(unisci.chiave_canale(k["nome"]))
+        for f_ in e.get("fonti", []):
+            if f_ not in orig["fonti"]:
+                orig["fonti"].append(f_)
+        tolte.append(f'{e["casa"]} - {e["ospite"]} {e["quando"]:%d/%m %H:%M} (unita a {orig["quando"]:%d/%m %H:%M})')
+    return tenuti, tolte
+
+
+def nomi_italiani(eventi):
+    for e in eventi:
+        c, o = unisci.in_italiano(e["casa"]), unisci.in_italiano(e.get("ospite") or "")
+        if (c, o) != (e["casa"], e.get("ospite") or ""):
+            e["casa"], e["ospite"] = c, o
+            e["titolo"] = f"{c} v {o}" if o else c
+    return eventi
+
+
 def unisci_doppioni(eventi):
     """Ultimo passaggio: la stessa partita (stesse squadre, stesso giorno, inizio entro 3 ore) compare UNA volta sola
     con tutti i canali di tutte le fonti. L'orario è il calcio d'inizio ufficiale: quello delle fonti TV/guide
@@ -573,6 +615,8 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         eventi, st["uniti_stream"] = unisci_stream(eventi, calcio_stream)
         st["calcio_stream"] = len(calcio_stream)
     eventi, st["uniti_doppioni"] = unisci_doppioni(eventi)
+    eventi, st["repliche"] = togli_repliche(eventi)
+    nomi_italiani(eventi)
     # esclusioni permanenti (liveonsat.json -> escludi_canali) applicate a tutte le fonti
     escludi = ["dazn"] + [x.lower() for x in (conf_los or {}).get("escludi_canali", []) if x]
     mai = [x.lower() for x in (conf_los or {}).get("mai_escludere", ["idman"]) if x]
@@ -1187,6 +1231,14 @@ TEMPLATE = """<!doctype html>
   section.giorno-sez {{ margin-top:36px; }}
   .comp-tag {{ display:block; width:max-content; max-width:100%; background:var(--giallo); color:#000; font-size:.8rem; font-weight:900;
                padding:2px 10px; border-radius:7px; margin-bottom:6px; letter-spacing:.02em; overflow-wrap:anywhere; }}
+  .cerca {{ position:relative; max-width:1000px; margin:8px auto 4px; }}
+  .cerca input {{ width:100%; box-sizing:border-box; font:inherit; font-size:1.2rem; min-height:56px; padding:10px 60px 10px 16px;
+    border-radius:12px; border:2px solid #555; background:#111; color:#fff; }}
+  .cerca input:focus {{ outline:none; border-color:var(--giallo); }}
+  .cerca input::-webkit-search-cancel-button {{ display:none; }}
+  .cerca button {{ position:absolute; right:6px; top:50%; transform:translateY(-50%); font:inherit; font-size:1.4rem; font-weight:700;
+    width:46px; height:46px; border-radius:10px; border:0; background:#333; color:#fff; cursor:pointer; }}
+  .nessun-risultato {{ max-width:1000px; margin:16px auto; font-size:1.2rem; font-weight:700; text-align:center; }}
   nav.filtri button:focus-visible {{ outline:4px solid var(--azzurro); outline-offset:2px; }}
   section.comp {{ margin-top:36px; }}
   h2 {{ font-size:1.5rem; color:#000; background:var(--giallo); padding:10px 16px; border-radius:10px; margin:0 0 14px;
@@ -1270,6 +1322,9 @@ TEMPLATE = """<!doctype html>
 </section>
 <nav class="filtri" data-sez="calcio" aria-label="Calcio: filtra per giorno">{bottoni}</nav>
 <nav class="filtri" data-sez="sport" aria-label="Altri sport: filtra per giorno" hidden>{bottoni_s}</nav>
+<div class="cerca" role="search"><input id="cerca" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search"
+  placeholder="🔍 Cerca squadra, sport, competizione, canale…" aria-label="Cerca squadra, sport, competizione o canale"><button type="button" id="cerca-x" aria-label="Cancella la ricerca" title="Cancella" hidden>✕</button></div>
+<p id="nessun-risultato" class="nessun-risultato" role="status" hidden>Nessun risultato per «<span></span>»</p>
 <main>
 <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera) · <span class="tag dz">DAZN GRATIS</span> = senza lucchetto su DAZN (account gratuito)</p>
 <p class="intro-altri" data-sez="sport" hidden>Dirette gratuite: SRF, RTS, RSI, ARD, DAZN Italia (senza lucchetto), canali Teleboy e canali in chiaro di tutto il mondo (LiveOnSat, NFL gratis secondo TechRadar). Tocca l'emittente per aprire la diretta.</p>
@@ -1318,6 +1373,19 @@ TEMPLATE = """<!doctype html>
     if (v && document.querySelector('.scelta-b button[data-gruppo="' + g + '"][data-cat="' + v + '"]')) S.cat[g] = v;
   }});
   try {{ var gs = JSON.parse(sessionStorage.getItem('giorni') || 'null'); if (gs) S.giorno = gs; }} catch (e) {{}}
+  // ricerca: minuscole e senza accenti; testo di ogni evento = scheda + titolo della sezione (competizione / sport)
+  function piatto(t) {{ return (t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i').toLowerCase(); }}
+  var campo = document.getElementById('cerca'), cx = document.getElementById('cerca-x');
+  try {{ campo.value = sessionStorage.getItem('cerca') || ''; }} catch (e) {{}}
+  function cercato() {{ return piatto(campo.value).trim().split(/\s+/).filter(Boolean); }}
+  function trovato(p, parole) {{
+    if (!parole.length) return true;
+    if (p._t === undefined) {{
+      var sz = p.closest('section'), h = sz && sz.querySelector('h2');
+      p._t = piatto(p.textContent + ' ' + (h ? h.textContent : ''));
+    }}
+    return parole.every(function (w) {{ return p._t.indexOf(w) >= 0; }});
+  }}
   function sezDi(el) {{ return el.closest('[data-sez]').dataset.sez; }}
   function gruppo(sez) {{ return sez === 'sport' ? 'altri' : 'calcio'; }}
   function catOk(p) {{
@@ -1348,9 +1416,10 @@ TEMPLATE = """<!doctype html>
       if (S.giorno[z] !== 'tutti' && !restano[S.giorno[z]]) S.giorno[z] = 'tutti';
       premi(tasti, function (b) {{ return b.dataset.filtro === S.giorno[z]; }});
     }});
+    var parole = cercato();
     tutti('li.partita').forEach(function (p) {{
       var g = S.giorno[sezDi(p)];
-      p.hidden = !((g === 'tutti' || p.dataset.giorno === g) && catOk(p));
+      p.hidden = !((g === 'tutti' || p.dataset.giorno === g) && catOk(p) && trovato(p, parole));
     }});
     tutti('section.comp, section.giorno-sez').forEach(function (s) {{ s.hidden = !s.querySelector('li.partita:not([hidden])'); }});
     // PER CAMPIONATO / PER SPORT: sezioni in ordine di primo inizio tra le partite visibili (a parità, ordine fisso)
@@ -1393,7 +1462,13 @@ TEMPLATE = """<!doctype html>
     var vuoto = document.getElementById('vuoto');
     if (vuoto) vuoto.hidden = !(sez === 'calcio' && !tutti('#vista-campionato li.partita').length);
     var vs = document.getElementById('vuoto-scelta');
-    if (vs) vs.hidden = !qui.length || qui.some(function (p) {{ return !p.hidden; }});
+    var visibili = qui.some(function (p) {{ return !p.hidden; }});
+    if (vs) vs.hidden = !qui.length || visibili || parole.length > 0;
+    var nr = document.getElementById('nessun-risultato');
+    nr.hidden = !parole.length || visibili;
+    nr.querySelector('span').textContent = campo.value.trim();
+    cx.hidden = !campo.value;
+    try {{ sessionStorage.setItem('cerca', campo.value); }} catch (e) {{}}
     // "Dove vederli": le voci della sezione attiva
     tutti('li.dove').forEach(function (d) {{ d.hidden = (' ' + d.dataset.sez + ' ').indexOf(' ' + sez + ' ') < 0; }});
     try {{ sessionStorage.setItem('giorni', JSON.stringify(S.giorno)); }} catch (e) {{}}
@@ -1410,6 +1485,9 @@ TEMPLATE = """<!doctype html>
   tutti('nav.filtri button').forEach(function (b) {{ b.addEventListener('click', function () {{
     S.giorno[sezDi(b)] = b.dataset.filtro; aggiorna();
   }}); }});
+  campo.addEventListener('input', aggiorna);
+  campo.addEventListener('keydown', function (e) {{ if (e.key === 'Escape') {{ campo.value = ''; aggiorna(); }} }});
+  cx.addEventListener('click', function () {{ campo.value = ''; aggiorna(); campo.focus(); }});
   // stato: in corso (fino a 2h15m dall'inizio o fino alla fine dell'evento), tra poco (entro 1 ora); finite -> tolte
   function stato() {{
     var ora = Date.now() / 1000;

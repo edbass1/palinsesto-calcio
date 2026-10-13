@@ -199,3 +199,16 @@ def regola_canali(conf):
             return f"paese Teleboy {paese_teleboy}"
         return None
     return motivo
+
+
+# nome italiano da mostrare in pagina (anche se nessuna fonte lo usa): forma canonica -> forma italiana
+NOMI_IT_VISTA = ["Stella Rossa", "Bayern Monaco", "Stoccarda", "Friburgo", "Colonia", "Lione", "Marsiglia", "Siviglia",
+                 "Slavia Praga", "Inter", "Atletico Madrid", "Bruges"]
+_CANONICO_IT = {norm_squadra(x): x for x in NOMI_IT_VISTA}
+
+
+def in_italiano(nome: str) -> str:
+    """'Red Star Belgrade' / 'Crvena Zvezda' -> 'Stella Rossa'; giovanili/femminili/B restano come sono."""
+    if not nome or marcatori(nome):
+        return nome
+    return _CANONICO_IT.get(norm_squadra(nome), nome)

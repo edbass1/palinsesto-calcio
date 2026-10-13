@@ -550,7 +550,7 @@ def test_dazn():
     assert st["dazn"] == {"it": 2, "de": 2, "pt": 8, "be": 2}, st["dazn"]  # 2 partite di Youth League (U19) escluse
     tutte = {f'{e["casa"]} - {e["ospite"]}': (g["nome"], e) for g in gruppi for e in g["partite"]}
     nomi = lambda k: [c["nome"] for c in tutte[k][1]["canali"]]  # noqa: E731
-    assert nomi("Levante - Sevilla")[-2:] == ["DAZN Italia", "DAZN Portogallo"], nomi("Levante - Sevilla")
+    assert nomi("Levante - Siviglia")[-2:] == ["DAZN Italia", "DAZN Portogallo"], nomi("Levante - Siviglia")
     assert "DAZN Belgio" in nomi("PSG - Le Mans") and "TV5 Monde" in nomi("PSG - Le Mans")
     assert not any("U19" in k or g == "UEFA YOUTH LEAGUE" for k, (g, _) in tutte.items())  # Youth League esclusa
     # nessun canale DAZN dalle altre fonti: solo quelli "gratis" della guida
@@ -1394,3 +1394,40 @@ test_doppioni_ancora(); print("doppioni con avversario come àncora e nomi itali
 
 
 test_doppioni_nomi(); print("doppioni con nomi diversi (RB Leipzig / PSV Eindhoven) e falsi positivi: OK")
+
+
+def test_repliche_e_nomi_italiani():
+    t = int(dt.datetime(2026, 10, 14, 21, 0, tzinfo=p.ROMA).timestamp())
+    q = lambda ts: dt.datetime.fromtimestamp(ts, p.ROMA)
+    ev = lambda ts, c, o, k, f: {"ts": ts, "quando": q(ts), "casa": c, "ospite": o, "canali": [{"nome": k, "fta": True}], "fonti": f}
+    mezzanotte = int(dt.datetime(2026, 10, 16, 0, 0, tzinfo=p.ROMA).timestamp())
+    eventi = [ev(t, "Manchester City", "Paris Saint-Germain", "Prima Sport 2", ["Prima Play"]),
+              ev(mezzanotte, "Manchester City", "Paris Saint Germain", "Sportitalia HD", ["Streaming"]),   # replica: tolta
+              ev(t + 86400, "Roma", "Lazio", "A", ["LiveOnSat"]),
+              ev(t + 2 * 86400 + 3 * 3600, "Roma", "Lazio", "B", ["LiveSoccerTV"]),                        # data sbagliata: unita
+              ev(t, "Arsenal", "Bayern Munich", "C", ["LiveOnSat"]),
+              ev(t + 21 * 86400, "Bayern Munich", "Arsenal", "D", ["LiveOnSat"]),                          # ritorno: resta
+              ev(t, "Juventus", "Milan", "E", ["LiveOnSat"]),
+              ev(t + 86400, "Juventus U19", "Milan U19", "F", ["Streaming"])]                              # giovanili: resta
+    tenuti, tolte = p.togli_repliche(eventi)
+    assert len(tenuti) == 6 and len(tolte) == 2, (tenuti, tolte)
+    assert not any(e["canali"][0]["nome"] == "Sportitalia HD" for e in tenuti)
+    rl = next(e for e in tenuti if e["casa"] == "Roma")
+    assert [k["nome"] for k in rl["canali"]] == ["A", "B"] and rl["ts"] == t + 86400
+    assert U.in_italiano("Red Star Belgrade") == "Stella Rossa" and U.in_italiano("Crvena Zvezda") == "Stella Rossa"
+    assert U.in_italiano("Bayern Munich") == "Bayern Monaco" and U.in_italiano("Paris Saint-Germain") == "Paris Saint-Germain"
+    assert U.in_italiano("Inter Miami") == "Inter Miami" and U.in_italiano("Bayern Munich U19") == "Bayern Munich U19"
+    e = p.nomi_italiani([{"casa": "FC Lugano", "ospite": "Red Star Belgrade"}])[0]
+    assert (e["casa"], e["ospite"]) == ("FC Lugano", "Stella Rossa")
+
+
+test_repliche_e_nomi_italiani(); print("repliche tolte, date sbagliate unite, nomi italiani: OK")
+
+
+def test_ricerca_html():
+    v = p.genera_html.__code__.co_varnames
+    src = (p.RADICE / "scraper" / "palinsesto.py").read_text(encoding="utf-8")
+    assert 'id="cerca"' in src and 'id="cerca-x"' in src and 'id="nessun-risultato"' in src and "trovato(p, parole)" in src
+
+
+test_ricerca_html(); print("barra di ricerca presente: OK")
