@@ -1449,3 +1449,20 @@ def test_rtl_club():
 
 
 test_rtl_club(); print("RTL Play / Club RTL -> una sola riga RTL Club: OK")
+
+
+def test_stesso_link():
+    dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    k = [{"nome": "Club RTL", "fta": False}, {"nome": "RTL Play", "fta": True},
+         {"nome": "Canale A stream", "fta": True, "url": "https://www.esempio.tv/live/", "diretta": "https://esempio.tv/live?x=1", "vpn": "SVIZZERA"},
+         {"nome": "Canale B stream", "fta": False, "url": "http://esempio.tv/live", "diretta": "http://www.esempio.tv/live/#top", "vpn": "SVIZZERA"},
+         {"nome": "DAZN Italia", "fta": False, "dazn_gratis": True}, {"nome": "DAZN Portogallo", "fta": False, "dazn_gratis": True}]
+    out = p.stesso_link(k, dove)
+    assert [c["nome"] for c in out] == ["RTL Club", "Canale A stream", "DAZN Italia", "DAZN Portogallo"], out
+    assert out[0]["fta"] is True
+    pr = p.stesso_link([{"nome": "Prima Sport 1", "fta": False}, {"nome": "Prima Sport 2", "fta": False}], dove)
+    assert len(pr) == 2
+    assert p.norm_url("https://www.rtlplay.be/rtlplay/direct/?a=1") == p.norm_url("http://rtlplay.be/rtlplay/direct")
+
+
+test_stesso_link(); print("canali con lo stesso link -> una riga: OK")

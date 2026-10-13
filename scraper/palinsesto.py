@@ -712,6 +712,46 @@ def unifica_canali(gruppi, altri, dove):
         e["emittenti"] = pulisci(e["emittenti"], "link")
 
 
+def norm_url(u):
+    """https://www.rtlplay.be/rtlplay/direct/?x=1 -> rtlplay.be/rtlplay/direct"""
+    u = re.sub(r"^[a-z]+://", "", (u or "").strip().lower())
+    u = re.sub(r"^(www\.|m\.)", "", u)
+    return re.split(r"[?#]", u)[0].rstrip("/")
+
+
+def stesso_link(canali, dove):
+    """In una partita, canali che portano allo stesso link (e con la stessa indicazione VPN) diventano una riga sola:
+    nome della voce 'unifica_in' se c'è, altrimenti il primo; IN CHIARO e link/VPN dei doppioni si conservano."""
+    out, visti = [], {}
+    for c in canali:
+        v = voce_dove(c["nome"], dove)
+        link = c.get("diretta") or c.get("url") or c.get("teleboy_link") or (sito_ufficiale(v, c["nome"]) if v else None)
+        if not link or link.startswith("#") or c.get("dazn_gratis"):
+            out.append(c)
+            continue
+        tb = "teleboy.ch" in link
+        k = (norm_url(link), testo_vpn(c["nome"], c.get("vpn"), v, tb) or "")
+        if k not in visti:
+            c = dict(c)
+            if v and v.get("unifica_in"):
+                c["nome"] = v["unifica_in"]
+            visti[k] = c
+            out.append(c)
+            continue
+        t = visti[k]
+        num = lambda n: re.findall(r"\d+", n)
+        if num(t["nome"]) != num(c["nome"]) and num(t["nome"]) and num(c["nome"]):
+            out.append(c)  # Prima Sport 1 / Prima Sport 2: canali diversi anche con la stessa pagina di registrazione
+            continue
+        if v and v.get("unifica_in") and t["nome"] != v["unifica_in"]:
+            t["nome"] = v["unifica_in"]
+        t["fta"] = t.get("fta") or c.get("fta")
+        for campo in ("url", "diretta", "vpn", "teleboy", "teleboy_link"):
+            if c.get(campo) and not t.get(campo):
+                t[campo] = c[campo]
+    return out
+
+
 def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categorie=None):
     VPN_MANCANTI[:] = []
     esc = html.escape
@@ -738,7 +778,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
             squadre += f' <span class="vs">–</span> <span class="sq">{esc(e["ospite"])}</span>'
         if comp:
             squadre = f'<span class="comp-tag">{esc(comp)}</span>' + squadre
-        canali = "".join(badge(c, dove, usati_c) for c in e["canali"])
+        canali = "".join(badge(c, dove, usati_c) for c in stesso_link(e["canali"], dove))
         return (f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}" data-cat="{e.get("_cat", "")}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span>'
