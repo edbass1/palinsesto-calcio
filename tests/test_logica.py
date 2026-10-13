@@ -1219,7 +1219,7 @@ def test_digisport():
     assert "digisport.ro/live/digisport-3" in h and "flags/ro.svg" in h, h
     h = p.badge({"nome": "RTL tvi", "fta": True}, dove, set())
     assert "rtlplay.be/rtlplay/direct" in h and "flags/be.svg" in h, h
-    assert p.voce_dove("RTL Deutschland", dove)["id"] == "rtl" and p.voce_dove("Club RTL", dove)["id"] == "rtl-belgio"
+    assert p.voce_dove("RTL Deutschland", dove)["id"] == "rtl" and p.voce_dove("Club RTL", dove)["id"] == "rtl-club"
     assert LL_in_chiaro("RTL Club", conf) and not LL_in_chiaro("RTL Zwei", conf) and not LL_in_chiaro("RTL", conf)
     return st
 
@@ -1290,7 +1290,7 @@ def test_vtm_unico():
                                                {"nome": "VTM GO", "fta": False}, {"nome": "VTM 2 Belgium HD", "fta": True}]}]}]
     a = [{"emittenti": [{"nome": "VTM 4", "link": "x", "fta": True}, {"nome": "VTM", "fta": True}]}]
     p.unifica_canali(g, a, dove)
-    assert [c["nome"] for c in g[0]["partite"][0]["canali"]] == ["VTM GO", "Club RTL"]
+    assert [c["nome"] for c in g[0]["partite"][0]["canali"]] == ["VTM GO", "RTL Club"]
     assert [c["nome"] for c in a[0]["emittenti"]] == ["VTM GO"] and a[0]["emittenti"][0]["link"] is None
     h = p.badge(g[0]["partite"][0]["canali"][0], dove, set())
     assert "vtmgo.be" in h and "flags/be.svg" in h, h
@@ -1431,3 +1431,21 @@ def test_ricerca_html():
 
 
 test_ricerca_html(); print("barra di ricerca presente: OK")
+
+
+def test_rtl_club():
+    dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    for n in ("RTL Play", "RTLplay", "rtl play", "RTL Club", "RTL-Club", "RTL Club HD", "Club RTL"):
+        assert p.voce_dove(n, dove)["id"] == "rtl-club", n
+    for n, atteso in (("RTL Deutschland", "rtl"), ("RTL TVI", "rtl-belgio")):
+        assert p.voce_dove(n, dove)["id"] == atteso, n
+    assert p.voce_dove("RTL Zwee", dove) is None or p.voce_dove("RTL Zwee", dove)["id"] != "rtl-club"
+    g = [{"nome": "X", "partite": [{"canali": [{"nome": "RTL Play", "fta": True}, {"nome": "Club RTL", "fta": True},
+                                               {"nome": "RTL Club HD", "fta": False}, {"nome": "RTL TVI", "fta": True}]}]}]
+    p.unifica_canali(g, [], dove)
+    assert [c["nome"] for c in g[0]["partite"][0]["canali"]] == ["RTL Club", "RTL TVI"]
+    h = p.badge(g[0]["partite"][0]["canali"][0], dove, set())
+    assert "rtlplay.be/rtlplay/direct" in h and "flags/be.svg" in h and "RTL Play" not in h, h
+
+
+test_rtl_club(); print("RTL Play / Club RTL -> una sola riga RTL Club: OK")

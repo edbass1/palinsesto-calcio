@@ -987,26 +987,44 @@
       "unifica_in": "VTM GO"
     },
     {
+      "id": "rtl-club",
+      "nome": "RTL Club (Belgio)",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^RTL[ -]?Club\\b",
+        "^Club[ -]?RTL\\b",
+        "^RTL[ -]?Play\\b"
+      ],
+      "vpn": "Belgio",
+      "vpn_tag": "VPN Belgio",
+      "note": "Serve registrazione gratuita sul sito rtlplay.be.",
+      "link": [
+        {
+          "url": "https://www.rtlplay.be/rtlplay/direct",
+          "testo": "RTL Club – diretta (rtlplay.be)"
+        }
+      ],
+      "unifica_in": "RTL Club"
+    },
+    {
       "id": "rtl-belgio",
       "nome": "RTL Belgio",
       "fonte": "utente",
       "verificato": true,
       "canali": [
         "^RTL ?TVI\\b",
-        "^RTL ?Club\\b",
-        "^Club ?RTL\\b",
         "^RTL ?Plug\\b",
         "^Plug ?RTL\\b",
-        "^RTL ?District\\b",
-        "^RTL ?Play\\b"
+        "^RTL ?District\\b"
       ],
       "vpn": "Belgio",
       "vpn_tag": "VPN Belgio",
-      "note": "Serve registrazione gratuita su RTL Play.",
+      "note": "Serve registrazione gratuita sul sito rtlplay.be.",
       "link": [
         {
           "url": "https://www.rtlplay.be/rtlplay/direct",
-          "testo": "RTL Play – direct"
+          "testo": "rtlplay.be – direct"
         }
       ]
     },

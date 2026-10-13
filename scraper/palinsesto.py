@@ -697,6 +697,9 @@ def unifica_canali(gruppi, altri, dove):
             k = c["nome"].lower()
             if nuovo and k in visti:
                 visti[k]["fta"] = visti[k].get("fta") or c.get("fta")
+                for campo in ("url", "diretta", "vpn"):  # link/VPN del doppione se la riga tenuta non li ha
+                    if c.get(campo) and not visti[k].get(campo):
+                        visti[k][campo] = c[campo]
                 continue
             visti[k] = c
             out.append(c)
