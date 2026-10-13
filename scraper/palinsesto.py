@@ -102,8 +102,8 @@ MESI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", 
         "settembre", "ottobre", "novembre", "dicembre"]
 
 
-# ---------- finestra: oggi + 3 giorni ----------
-GIORNI_FINESTRA = 4
+# ---------- finestra: oggi + 5 giorni ----------
+GIORNI_FINESTRA = 6
 DURATA_PARTITA_S = 2 * 3600 + 15 * 60  # dopo 2h15m dal calcio d'inizio la partita è considerata finita
 
 
@@ -119,7 +119,7 @@ def togli_finite(gruppi, ora: dt.datetime, durata: int = DURATA_PARTITA_S):
 
 
 def finestra(ora: dt.datetime, giorni: int = GIORNI_FINESTRA):
-    """Da oggi alle 00:00 (Europe/Rome) alla fine del 3° giorno successivo: 4 giorni di calendario."""
+    """Da oggi alle 00:00 (Europe/Rome) alla fine del 5° giorno successivo: 6 giorni di calendario."""
     oggi = ora.astimezone(ROMA).date()
     inizio = dt.datetime.combine(oggi, dt.time(0, 0), ROMA)
     fine = dt.datetime.combine(oggi + dt.timedelta(days=giorni), dt.time(0, 0), ROMA)
@@ -382,6 +382,35 @@ def nomi_italiani(eventi):
     return eventi
 
 
+RX_SERIE_A_LOS = re.compile(r"^Italian Serie A$", re.I)
+
+
+def aggiungi_serie_a(eventi, tutte_los, inizio, fine):
+    """Partite di Serie A (calendario LiveOnSat, anche senza canali in chiaro) che non sono già nel palinsesto:
+    si mostrano con la nota 'Canali non ancora disponibili'. Nessuna partita inventata: solo quelle elencate."""
+    aggiunte = []
+    for x in sorted(tutte_los, key=lambda x: x["ts"]):
+        base = re.sub(r"\s+-\s+.*$", "", x.get("comp") or "").strip()
+        if not RX_SERIE_A_LOS.search(base):
+            continue
+        quando = dt.datetime.fromtimestamp(x["ts"], ROMA)
+        if not (inizio <= quando < fine):
+            continue
+        casa, _, ospite = x["titolo"].partition(" v ")
+        casa, ospite = SQUADRE.get(casa.strip(), casa.strip()), SQUADRE.get(ospite.strip(), ospite.strip())
+        if not ospite or unisci.marcatori(casa) or unisci.marcatori(ospite):
+            continue
+        if any(abs(e["ts"] - x["ts"]) <= 3 * 3600 and unisci.stessa_partita(0, e["casa"], e["ospite"], 0, casa, ospite)
+               for e in eventi):
+            continue
+        ordine, etichetta = liveonsat.competizione_los(x["comp"])
+        eventi.append({"ts": x["ts"], "quando": quando, "titolo": f"{casa} v {ospite}", "ordine": ordine,
+                       "competizione": etichetta, "casa": casa, "ospite": ospite, "canali": [], "fonti": ["LiveOnSat"],
+                       "senza_canali": True})
+        aggiunte.append(f"{casa} - {ospite} {quando:%d/%m %H:%M}")
+    return eventi, aggiunte
+
+
 def unisci_doppioni(eventi):
     """Ultimo passaggio: la stessa partita (stesse squadre, stesso giorno, inizio entro 3 ore) compare UNA volta sola
     con tutti i canali di tutte le fonti. L'orario è il calcio d'inizio ufficiale: quello delle fonti TV/guide
@@ -616,6 +645,7 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         st["calcio_stream"] = len(calcio_stream)
     eventi, st["uniti_doppioni"] = unisci_doppioni(eventi)
     eventi, st["repliche"] = togli_repliche(eventi)
+    eventi, st["serie_a_senza_canali"] = aggiungi_serie_a(eventi, liveonsat.TUTTE if conf_los else [], inizio, fine)
     nomi_italiani(eventi)
     # esclusioni permanenti (liveonsat.json -> escludi_canali) applicate a tutte le fonti
     escludi = ["dazn"] + [x.lower() for x in (conf_los or {}).get("escludi_canali", []) if x]
@@ -644,7 +674,7 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         # i canali DAZN delle altre fonti sono esclusi; restano solo le partite gratis prese dalla guida DAZN;
         # esclusi anche i canali russi e iraniani (liveonsat.json -> escludi_russi_iraniani), tranne "mai_escludere"
         e["canali"] = [k for k in e["canali"] if tieni(k)]
-        if e["canali"]:
+        if e["canali"] or e.get("senza_canali"):
             rimasti.append(e)
         else:
             st["tolte_esclusi"].append(f'{e["casa"]} - {e["ospite"]}')
@@ -725,21 +755,54 @@ def norm_url(u):
     return host.lower() + ("/" + path).rstrip("/") + ("?" + "&".join(parti) if parti else "")
 
 
+TLD_DOPPI = {"co.uk", "org.uk", "ac.uk", "com.br", "com.au", "net.au", "co.nz", "com.tr", "com.ar", "com.mx", "co.za",
+             "co.jp", "com.cn", "co.in", "com.pl", "com.pt", "com.es"}
+# piattaforme con molti canali: righe di canali diversi sullo stesso sito vanno bene (vale solo la regola del link identico)
+AGGREGATORI = {"teleboy.ch", "zattoo.com", "youtube.com", "youtu.be", "pluto.tv", "twitch.tv", "orange.ro"}
+
+
+def dominio(u):
+    """Dominio registrabile: play.rts.ch -> rts.ch, www.bbc.co.uk -> bbc.co.uk."""
+    host = re.sub(r"^[a-z]+://", "", (u or "").strip().lower()).split("/")[0].split("?")[0].split(":")[0]
+    parti = host.split(".")
+    n = 3 if ".".join(parti[-2:]) in TLD_DOPPI else 2
+    return ".".join(parti[-n:])
+
+
+def specificita(u):
+    """Più alto = link più preciso per l'evento (video/urn della partita prima della pagina diretta generica)."""
+    n = norm_url(u)
+    return (bool(re.search(r"[?&](urn|id|tvliveid|channel)=|/video/", n, re.I)) * 2 + bool(re.search(r"urn=|/video/", n, re.I)),
+            len(n))
+
+
 def togli_link_doppi(h):
-    """Ultima sicurezza sulla scheda di una partita: lo stesso link esterno non compare mai due volte.
-    Un ▶ ripetuto si toglie; il nome canale con link ripetuto resta come testo. I link alla guida (#dv-...) restano."""
-    visti = set()
+    """Ultima sicurezza sulla scheda di una partita: ogni sito (dominio) compare una volta sola tra i link esterni
+    (per le piattaforme con molti canali, es. Teleboy, solo lo stesso link identico). Si tiene il link più preciso;
+    un ▶ tolto sparisce, un nome canale con link tolto resta come testo. I link alla guida (#dv-...) restano."""
+    rx = re.compile(r'<a( [^>]*?)?href="([^"]+)"[^>]*>(.*?)</a>', re.S)
+
+    def chiave(href):
+        u = html.unescape(href)
+        d = dominio(u)
+        return norm_url(u) if d in AGGREGATORI else d
+
+    migliore = {}
+    for i, m in enumerate(rx.finditer(h)):
+        if m.group(2).startswith("#"):
+            continue
+        k = chiave(m.group(2))
+        sc = specificita(html.unescape(m.group(2)))
+        if k not in migliore or sc > migliore[k][1]:
+            migliore[k] = (i, sc)
+    conta = iter(range(10 ** 6))
 
     def sost(m):
-        tag, href, testo = m.group(0), m.group(2), m.group(3)
-        if href.startswith("#"):
-            return tag
-        k = norm_url(html.unescape(href))
-        if k not in visti:
-            visti.add(k)
-            return tag
-        return "" if 'class="diretta"' in m.group(1) else testo
-    return re.sub(r'<a( [^>]*?)?href="([^"]+)"[^>]*>(.*?)</a>', sost, h, flags=re.S)
+        i = next(conta)
+        if m.group(2).startswith("#") or migliore.get(chiave(m.group(2)), (None,))[0] == i:
+            return m.group(0)
+        return "" if 'class="diretta"' in (m.group(1) or "") else m.group(3)
+    return rx.sub(sost, h)
 
 
 def stesso_link(canali, dove):
@@ -801,6 +864,8 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
         if comp:
             squadre = f'<span class="comp-tag">{esc(comp)}</span>' + squadre
         canali = togli_link_doppi("".join(badge(c, dove, usati_c) for c in stesso_link(e["canali"], dove)))
+        if not e["canali"]:
+            canali = '<li class="senza-canali">Canali non ancora disponibili: potrebbero comparire nei prossimi aggiornamenti.</li>'
         return (f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}" data-cat="{e.get("_cat", "")}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span>'
@@ -1214,7 +1279,7 @@ TEMPLATE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Calcio e Sport in TV · {periodo}</title>
-<meta name="description" content="Partite di calcio e altri sport in TV e in streaming gratis, oggi e nei prossimi 3 giorni, orari italiani.">
+<meta name="description" content="Partite di calcio e altri sport in TV e in streaming gratis, oggi e nei prossimi 5 giorni, orari italiani.">
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1303,6 +1368,7 @@ TEMPLATE = """<!doctype html>
   .cerca input::-webkit-search-cancel-button {{ display:none; }}
   .cerca button {{ position:absolute; right:6px; top:50%; transform:translateY(-50%); font:inherit; font-size:1.4rem; font-weight:700;
     width:46px; height:46px; border-radius:10px; border:0; background:#333; color:#fff; cursor:pointer; }}
+  li.senza-canali {{ color:#b0b0b0; font-size:1.05rem; font-style:italic; list-style:none; }}
   .nessun-risultato {{ max-width:1000px; margin:16px auto; font-size:1.2rem; font-weight:700; text-align:center; }}
   nav.filtri button:focus-visible {{ outline:4px solid var(--azzurro); outline-offset:2px; }}
   section.comp {{ margin-top:36px; }}
@@ -1357,7 +1423,7 @@ TEMPLATE = """<!doctype html>
     li.partita {{ grid-template-columns:1fr; grid-template-areas:"quando" "squadre" "canali"; padding:14px; }}
     .quando {{ flex-direction:row; align-items:baseline; flex-wrap:wrap; gap:4px 12px; }}
     .stato {{ margin-top:0; align-self:center; }}
-    nav.filtri {{ display:grid; grid-template-columns:repeat(5, 1fr); gap:6px; }}
+    nav.filtri {{ display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; }}
     nav.filtri button {{ padding:4px 2px; min-height:64px; font-size:.95rem; line-height:1.1; border-radius:10px; }}
     nav.filtri button span {{ display:block; }}
     li.partita {{ grid-template-rows:auto; }}

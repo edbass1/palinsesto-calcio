@@ -42,30 +42,38 @@ def los_pagina(nome):
 
 
 def test_finestra():
-    """Finestra mobile: oggi 00:00 -> fine del 3° giorno successivo (4 giorni), ora italiana."""
+    """Finestra mobile: oggi 00:00 -> fine del 5° giorno successivo (6 giorni), ora italiana."""
     casi = {  # ora italiana -> (primo giorno, ultimo giorno, testo)
-        "2026-10-10T18:30": ("2026-10-10", "2026-10-13", "Sab 10 – Mar 13 ottobre"),
-        "2026-10-10T00:00": ("2026-10-10", "2026-10-13", "Sab 10 – Mar 13 ottobre"),
-        "2026-10-09T23:59": ("2026-10-09", "2026-10-12", "Ven 9 – Lun 12 ottobre"),
-        "2026-10-14T09:00": ("2026-10-14", "2026-10-17", "Mer 14 – Sab 17 ottobre"),
-        "2026-10-30T12:00": ("2026-10-30", "2026-11-02", "Ven 30 ottobre – Lun 2 novembre"),
-        "2026-12-30T12:00": ("2026-12-30", "2027-01-02", "Mer 30 dicembre – Sab 2 gennaio"),
+        "2026-10-10T18:30": ("2026-10-10", "2026-10-15", "Sab 10 – Gio 15 ottobre"),
+        "2026-10-10T00:00": ("2026-10-10", "2026-10-15", "Sab 10 – Gio 15 ottobre"),
+        "2026-10-09T23:59": ("2026-10-09", "2026-10-14", "Ven 9 – Mer 14 ottobre"),
+        "2026-10-14T09:00": ("2026-10-14", "2026-10-19", "Mer 14 – Lun 19 ottobre"),
+        "2026-10-30T12:00": ("2026-10-30", "2026-11-04", "Ven 30 ottobre – Mer 4 novembre"),
+        "2026-12-30T12:00": ("2026-12-30", "2027-01-04", "Mer 30 dicembre – Lun 4 gennaio"),
     }
     for ora, (primo, ultimo, testo) in casi.items():
-        g, ini, fine = p.finestra(dt.datetime.fromisoformat(ora).replace(tzinfo=p.ROMA))
+        g, ini, fine = _FINESTRA_VERA(dt.datetime.fromisoformat(ora).replace(tzinfo=p.ROMA))
         assert str(g) == primo and (ini.hour, ini.minute) == (0, 0) and ini.date() == g, (ora, g, ini)
         assert str((fine - dt.timedelta(seconds=1)).date()) == ultimo and (fine.hour, fine.minute) == (0, 0), (ora, fine)
-        assert p.periodo(g) == testo, (ora, p.periodo(g))
+        assert _PERIODO_VERO(g) == testo, (ora, _PERIODO_VERO(g))
     # un'ora UTC tarda è già "domani" in Italia
-    g, _, _ = p.finestra(dt.datetime(2026, 10, 9, 22, 30, tzinfo=dt.timezone.utc))
+    g, _, _ = _FINESTRA_VERA(dt.datetime(2026, 10, 9, 22, 30, tzinfo=dt.timezone.utc))
     assert str(g) == "2026-10-10"
-    # cambio d'ora (domenica 25/10/2026): la finestra 24-27 ottobre dura 97 ore
-    g, ini, fine = p.finestra(dt.datetime(2026, 10, 24, 12, tzinfo=p.ROMA))
+    # cambio d'ora (domenica 25/10/2026): la finestra 24-29 ottobre dura 145 ore
+    g, ini, fine = _FINESTRA_VERA(dt.datetime(2026, 10, 24, 12, tzinfo=p.ROMA))
     assert ini.utcoffset() == dt.timedelta(hours=2) and fine.utcoffset() == dt.timedelta(hours=1)
-    assert fine.timestamp() - ini.timestamp() == 97 * 3600
-    # ora legale (domenica 28/3/2027): 95 ore
-    g, ini, fine = p.finestra(dt.datetime(2027, 3, 27, 9, tzinfo=p.ROMA))
-    assert fine.timestamp() - ini.timestamp() == 95 * 3600
+    assert fine.timestamp() - ini.timestamp() == 145 * 3600
+    # ora legale (domenica 28/3/2027): 143 ore
+    g, ini, fine = _FINESTRA_VERA(dt.datetime(2027, 3, 27, 9, tzinfo=p.ROMA))
+    assert fine.timestamp() - ini.timestamp() == 143 * 3600
+
+
+# le fixture registrate (9-12/10/2026) coprono la vecchia finestra di 4 giorni: da qui in poi i test la usano;
+# la finestra reale di 6 giorni è verificata in test_finestra
+_FINESTRA_VERA, _PERIODO_VERO = p.finestra, p.periodo
+p.finestra = lambda ora, giorni=4: _FINESTRA_VERA(ora, giorni)
+p.periodo = lambda primo, giorni=4: _PERIODO_VERO(primo, giorni)
+p.GIORNI_FINESTRA = 4
 
 
 def test_fixture():
@@ -867,7 +875,7 @@ def test_unione():
     # 62 - 3 di USL Championship (calcio USA escluso) - 2 di Serie C Brasile solo su SportyNet+ (tolto) = 57
     assert sum("(USA)" in x for x in st["femminili_tolte"]) == 3, st["femminili_tolte"]
     assert st["livesoccertv"] == 57 and st["liveonsat"] > 0 and st["uniti"] and st["solo_liveonsat"] > 0, st
-    assert st["totale"] == 57 + st["liveonsat"] - len(st["uniti"]) - len(st["tolte_esclusi"]), st  # 3 solo con TV Start Russia
+    assert st["totale"] == 57 + st["liveonsat"] - len(st["uniti"]) - len(st["tolte_esclusi"]) + len(st["serie_a_senza_canali"]), st  # 3 solo con TV Start Russia
     # doppioni uniti: canali LiveSoccerTV + canali in chiaro LiveOnSat, una sola riga
     psg = tutte["PSG - Le Mans"]
     assert [(c["nome"], c["fta"]) for c in psg["canali"]] == [("TV5 Monde", True)], psg["canali"]  # Persiana esclusa
@@ -1470,7 +1478,38 @@ def test_stesso_link():
          f'<li><a href="#dv-rts">RTS stream</a> <a class="diretta" href="http://rts.ch/play/tv/direct/?tvLiveId=3608517">▶ diretta</a></li>'
          f'<li><a href="#dv-rts">RTS Deux</a> <a class="diretta" href="https://www.rts.ch/play/tv/direct?tvLiveId=143932">▶</a></li>')
     h2 = p.togli_link_doppi(h)
-    assert h2.count("3608517") == 1 and h2.count("143932") == 1 and h2.count("#dv-rts") == 2, h2
+    assert h2.count("rts.ch") == 1 and h2.count("#dv-rts") == 2, h2   # un solo link per sito
+    # il link più preciso (video/urn della partita) vince sulla pagina diretta generica
+    h = ('<li><a href="#dv-rts">RTS 2</a> <a class="diretta" href="https://www.rts.ch/play/tv/direct?tvLiveId=3608517">▶</a></li>'
+         '<li><a href="https://play.rts.ch/play/tv/-/video/-?urn=urn:rts:video:1">RTS stream</a> <a class="diretta" href="https://tv.teleboy.ch/live(player:live/305)">▶ Teleboy</a></li>'
+         '<li><a href="#dv-tb">SRF zwei</a> <a class="diretta" href="https://tv.teleboy.ch/live(player:live/304)">▶ Teleboy</a></li>'
+         '<li><a href="#dv-tb">RTS Deux</a> <a class="diretta" href="https://tv.teleboy.ch/live(player:live/305)">▶ Teleboy</a></li>'
+         '<li><a href="#dv-bbc">BBC One</a> <a class="diretta" href="https://www.bbc.co.uk/iplayer/live/bbcone">▶</a></li>'
+         '<li><a href="#dv-bbc">BBC Alba</a> <a class="diretta" href="https://www.bbc.co.uk/tv/bbcalba">▶</a></li>')
+    h2 = p.togli_link_doppi(h)
+    assert "tvLiveId" not in h2 and "urn=urn:rts:video:1" in h2, h2
+    assert h2.count("live/304") == 1 and h2.count("live/305") == 1, h2       # Teleboy: canali diversi sì, link identico no
+    assert h2.count("bbc.co.uk") == 1 and "BBC Alba" in h2, h2
+    assert p.dominio("https://play.rts.ch/x") == "rts.ch" and p.dominio("http://www.bbc.co.uk/a") == "bbc.co.uk"
+    assert p.dominio("https://globoplay.globo.com.br/") == "globo.com.br"
 
 
 test_stesso_link(); print("canali con lo stesso link -> una riga: OK")
+
+
+def test_serie_a_senza_canali():
+    t = int(dt.datetime(2026, 10, 10, 15, 0, tzinfo=p.ROMA).timestamp())
+    ini, fine = dt.datetime(2026, 10, 10, tzinfo=p.ROMA), dt.datetime(2026, 10, 14, tzinfo=p.ROMA)
+    los = [{"ts": t, "titolo": "Lecce v Bologna", "comp": "Italian Serie A - Week 7"},
+           {"ts": t, "titolo": "Bari v Modena", "comp": "Italian Serie B - Week 7"},
+           {"ts": t, "titolo": "Roma Women v Lazio Women", "comp": "Italian Serie A Women"},
+           {"ts": t + 3600, "titolo": "Inter v Parma", "comp": "Italian Serie A - Week 7"}]
+    gia = [{"ts": t + 3600, "quando": None, "casa": "Inter", "ospite": "Parma", "canali": [{"nome": "X", "fta": True}], "fonti": ["LiveSoccerTV"]}]
+    ev, agg = p.aggiungi_serie_a(gia, los, ini, fine)
+    assert agg == ["Lecce - Bologna 10/10 15:00"] and ev[-1]["canali"] == [] and ev[-1]["competizione"] == "SERIE A", (agg, ev)
+    gr = [{"nome": "SERIE A", "partite": [ev[-1]]}]
+    h = p.genera_html(dt.date(2026, 10, 10), dt.datetime(2026, 10, 10, 9, tzinfo=p.ROMA), gr, [], [], [])
+    assert "Canali non ancora disponibili: potrebbero comparire nei prossimi aggiornamenti." in h and 'class="senza-canali"' in h
+
+
+test_serie_a_senza_canali(); print("Serie A senza canali con nota: OK")

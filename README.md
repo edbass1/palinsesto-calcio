@@ -1,8 +1,9 @@
-# ⚽ Calcio in TV – oggi e i prossimi 3 giorni
+# ⚽ Calcio in TV – oggi e i prossimi 5 giorni
 
-Pagina web (sfondo nero, caratteri grandi) con le partite trasmesse oggi e nei 3 giorni successivi sui canali scelti, con **orari italiani**. Si aggiorna da sola su GitHub Pages.
+Pagina web (sfondo nero, caratteri grandi) con le partite trasmesse oggi e nei 5 giorni successivi sui canali scelti, con **orari italiani**. Si aggiorna da sola su GitHub Pages.
 
-- **Periodo**: 4 giorni di calendario, da oggi alle 00:00 (ora italiana) fino alla fine del 3° giorno successivo (es. sabato 10 → *Sab 10 – Mar 13 ottobre*). Le partite finite (iniziate da più di 2h15m) vengono tolte a ogni aggiornamento e spariscono anche dalla pagina aperta; quelle in corso restano con l'etichetta *IN CORSO*.
+- **Periodo**: 6 giorni di calendario, da oggi alle 00:00 (ora italiana) fino alla fine del 5° giorno successivo (es. mercoledì 14 → *Mer 14 – Lun 19 ottobre*). Le partite finite (iniziate da più di 2h15m) vengono tolte a ogni aggiornamento e spariscono anche dalla pagina aperta; quelle in corso restano con l'etichetta *IN CORSO*.
+- **Serie A**: le partite di Serie A del calendario LiveOnSat che non hanno ancora canali compaiono lo stesso, con la nota grigia «Canali non ancora disponibili: potrebbero comparire nei prossimi aggiornamenti.»
 - **Fonti**:
   - pagine canale di [LiveSoccerTV](https://www.livesoccertv.com/) (i canali di `canali.json`);
   - [LiveOnSat](https://liveonsat.com/): tutte le partite con almeno un canale **in chiaro** (gratuito), mostrando solo quei canali.
@@ -58,7 +59,7 @@ Serve solo Python 3.9 o successivo, senza librerie esterne. Pillow serve solo pe
 - Se un canale o una pagina LiveOnSat non si scarica, in fondo alla pagina compare l'avviso **"Canali o pagine non scaricati"**.
 - Se non si scarica niente da nessuno dei due siti, l'aggiornamento si ferma e resta online l'ultima versione buona.
 - LiveOnSat a volte risponde "errore 502": lo script riprova da solo fino a 4 volte.
-- **Copertura**: le pagine canale di LiveSoccerTV non hanno pagine successive; di solito elencano circa una settimana, quindi i 4 giorni sono coperti (se una pagina sembra piena, nel log compare una NOTA). LiveOnSat non ha pagine per giorno: `2day.php` copre solo oggi, i giorni successivi arrivano dalle pagine dei campionati in `liveonsat.json`; le partite di campionati non in elenco compaiono solo nel giorno stesso.
+- **Copertura**: le pagine canale di LiveSoccerTV non hanno pagine successive; di solito elencano circa una settimana, quindi i 6 giorni sono coperti (se una pagina sembra piena, nel log compare una NOTA). LiveOnSat non ha pagine per giorno: `2day.php` copre solo oggi, i giorni successivi arrivano dalle pagine dei campionati in `liveonsat.json`; le partite di campionati non in elenco compaiono solo nel giorno stesso.
 - **Attenzione**: anche con l'aggiornamento ogni ora, GitHub sospende le esecuzioni programmate dopo **60 giorni senza commit** nel repository (le esecuzioni automatiche non contano). Se la pagina smette di aggiornarsi, riattivale da **Actions** con *Enable workflow*, oppure fai un piccolo commit (anche solo modificare questo file) almeno ogni due mesi.
 
 ## Teleboy
