@@ -713,10 +713,33 @@ def unifica_canali(gruppi, altri, dove):
 
 
 def norm_url(u):
-    """https://www.rtlplay.be/rtlplay/direct/?x=1 -> rtlplay.be/rtlplay/direct"""
-    u = re.sub(r"^[a-z]+://", "", (u or "").strip().lower())
-    u = re.sub(r"^(www\.|m\.)", "", u)
-    return re.split(r"[?#]", u)[0].rstrip("/")
+    """Confronto di link: senza schema, www./m., barra finale e #frammento; la query resta (tvLiveId, urn, id... indicano
+    il canale), ordinata e senza parametri di tracciamento (utm_*, fbclid, gclid)."""
+    u = (u or "").strip()
+    u = re.sub(r"^[a-z]+://", "", u, flags=re.I)
+    u = re.sub(r"^(www\.|m\.)", "", u, flags=re.I)
+    u = u.split("#")[0]
+    base, _, q = u.partition("?")
+    host, _, path = base.partition("/")
+    parti = sorted(x for x in q.split("&") if x and not re.match(r"(utm_[^=]*|fbclid|gclid)(=|$)", x, re.I))
+    return host.lower() + ("/" + path).rstrip("/") + ("?" + "&".join(parti) if parti else "")
+
+
+def togli_link_doppi(h):
+    """Ultima sicurezza sulla scheda di una partita: lo stesso link esterno non compare mai due volte.
+    Un ▶ ripetuto si toglie; il nome canale con link ripetuto resta come testo. I link alla guida (#dv-...) restano."""
+    visti = set()
+
+    def sost(m):
+        tag, href, testo = m.group(0), m.group(2), m.group(3)
+        if href.startswith("#"):
+            return tag
+        k = norm_url(html.unescape(href))
+        if k not in visti:
+            visti.add(k)
+            return tag
+        return "" if 'class="diretta"' in m.group(1) else testo
+    return re.sub(r'<a( [^>]*?)?href="([^"]+)"[^>]*>(.*?)</a>', sost, h, flags=re.S)
 
 
 def stesso_link(canali, dove):
@@ -726,11 +749,10 @@ def stesso_link(canali, dove):
     for c in canali:
         v = voce_dove(c["nome"], dove)
         link = c.get("diretta") or c.get("url") or c.get("teleboy_link") or (sito_ufficiale(v, c["nome"]) if v else None)
-        if not link or link.startswith("#") or c.get("dazn_gratis"):
+        if not link or link.startswith("#"):
             out.append(c)
             continue
-        tb = "teleboy.ch" in link
-        k = (norm_url(link), testo_vpn(c["nome"], c.get("vpn"), v, tb) or "")
+        k = norm_url(link)
         if k not in visti:
             c = dict(c)
             if v and v.get("unifica_in"):
@@ -740,7 +762,7 @@ def stesso_link(canali, dove):
             continue
         t = visti[k]
         num = lambda n: re.findall(r"\d+", n)
-        if num(t["nome"]) != num(c["nome"]) and num(t["nome"]) and num(c["nome"]):
+        if (num(t["nome"]) != num(c["nome"]) and num(t["nome"]) and num(c["nome"])) or c.get("dazn_gratis"):
             out.append(c)  # Prima Sport 1 / Prima Sport 2: canali diversi anche con la stessa pagina di registrazione
             continue
         if v and v.get("unifica_in") and t["nome"] != v["unifica_in"]:
@@ -778,7 +800,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
             squadre += f' <span class="vs">–</span> <span class="sq">{esc(e["ospite"])}</span>'
         if comp:
             squadre = f'<span class="comp-tag">{esc(comp)}</span>' + squadre
-        canali = "".join(badge(c, dove, usati_c) for c in stesso_link(e["canali"], dove))
+        canali = togli_link_doppi("".join(badge(c, dove, usati_c) for c in stesso_link(e["canali"], dove)))
         return (f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}" data-cat="{e.get("_cat", "")}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span>'
@@ -809,7 +831,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     def scheda_altro(e):
         q = dt.datetime.fromtimestamp(e["ts"], ROMA)
         f = dt.datetime.fromtimestamp(e["fine"], ROMA)
-        em = "".join(emittente_altro(x, dove, usati_s) for x in e["emittenti"])
+        em = togli_link_doppi("".join(emittente_altro(x, dove, usati_s) for x in e["emittenti"]))
         return (f'<li class="partita evento" data-ts="{e["ts"]}" data-fine="{e["fine"]}" data-giorno="{q:%Y-%m-%d}"'
                 f' data-cat="{" ".join(sorted(cat_altro(e)))}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'

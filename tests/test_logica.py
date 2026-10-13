@@ -1454,15 +1454,23 @@ test_rtl_club(); print("RTL Play / Club RTL -> una sola riga RTL Club: OK")
 def test_stesso_link():
     dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
     k = [{"nome": "Club RTL", "fta": False}, {"nome": "RTL Play", "fta": True},
-         {"nome": "Canale A stream", "fta": True, "url": "https://www.esempio.tv/live/", "diretta": "https://esempio.tv/live?x=1", "vpn": "SVIZZERA"},
-         {"nome": "Canale B stream", "fta": False, "url": "http://esempio.tv/live", "diretta": "http://www.esempio.tv/live/#top", "vpn": "SVIZZERA"},
+         {"nome": "Canale A stream", "fta": True, "url": "https://www.esempio.tv/live/", "diretta": "https://esempio.tv/live?utm_source=x", "vpn": "SVIZZERA"},
+         {"nome": "Canale B stream", "fta": False, "url": "http://esempio.tv/live", "diretta": "http://www.esempio.tv/live/#top", "vpn": "GERMANIA"},
          {"nome": "DAZN Italia", "fta": False, "dazn_gratis": True}, {"nome": "DAZN Portogallo", "fta": False, "dazn_gratis": True}]
     out = p.stesso_link(k, dove)
     assert [c["nome"] for c in out] == ["RTL Club", "Canale A stream", "DAZN Italia", "DAZN Portogallo"], out
     assert out[0]["fta"] is True
     pr = p.stesso_link([{"nome": "Prima Sport 1", "fta": False}, {"nome": "Prima Sport 2", "fta": False}], dove)
     assert len(pr) == 2
-    assert p.norm_url("https://www.rtlplay.be/rtlplay/direct/?a=1") == p.norm_url("http://rtlplay.be/rtlplay/direct")
+    assert p.norm_url("https://www.rtlplay.be/rtlplay/direct/#x") == p.norm_url("http://rtlplay.be/rtlplay/direct?utm_source=a")
+    assert p.norm_url("https://www.rts.ch/play/tv/direct?tvLiveId=3608517") != p.norm_url("https://www.rts.ch/play/tv/direct?tvLiveId=143932")
+    assert p.norm_url("https://rts.ch/play/tv/direct/?b=2&tvLiveId=3608517") == p.norm_url("https://www.rts.ch/play/tv/direct?tvLiveId=3608517&b=2")
+    u = "https://www.rts.ch/play/tv/direct?tvLiveId=3608517"
+    h = (f'<li><a href="{u}" target="_blank">RTS 2</a> <a class="diretta" href="{u}">▶ diretta</a></li>'
+         f'<li><a href="#dv-rts">RTS stream</a> <a class="diretta" href="http://rts.ch/play/tv/direct/?tvLiveId=3608517">▶ diretta</a></li>'
+         f'<li><a href="#dv-rts">RTS Deux</a> <a class="diretta" href="https://www.rts.ch/play/tv/direct?tvLiveId=143932">▶</a></li>')
+    h2 = p.togli_link_doppi(h)
+    assert h2.count("3608517") == 1 and h2.count("143932") == 1 and h2.count("#dv-rts") == 2, h2
 
 
 test_stesso_link(); print("canali con lo stesso link -> una riga: OK")
