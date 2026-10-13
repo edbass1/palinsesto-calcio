@@ -778,31 +778,54 @@ def specificita(u):
 
 def togli_link_doppi(h):
     """Ultima sicurezza sulla scheda di una partita: ogni sito (dominio) compare una volta sola tra i link esterni
-    (per le piattaforme con molti canali, es. Teleboy, solo lo stesso link identico). Si tiene il link più preciso;
-    un ▶ tolto sparisce, un nome canale con link tolto resta come testo. I link alla guida (#dv-...) restano."""
+    (per le piattaforme con molti canali, es. Teleboy, solo lo stesso link identico). Si tiene il link più preciso.
+    Una riga che resta senza link esterni propri viene tolta del tutto, tranne se è l'unica di quel canale
+    (canale numerato diverso, es. Prima Sport 2, o DAZN di un altro paese): lì si toglie solo il link ripetuto.
+    I link alla guida (#dv-...) non contano."""
     rx = re.compile(r'<a( [^>]*?)?href="([^"]+)"[^>]*>(.*?)</a>', re.S)
+    righe = re.findall(r"<li\b.*?</li>", h, re.S) if h.lstrip().startswith("<li") else [h]
 
     def chiave(href):
         u = html.unescape(href)
         d = dominio(u)
         return norm_url(u) if d in AGGREGATORI else d
 
-    migliore = {}
-    for i, m in enumerate(rx.finditer(h)):
-        if m.group(2).startswith("#"):
-            continue
-        k = chiave(m.group(2))
-        sc = specificita(html.unescape(m.group(2)))
-        if k not in migliore or sc > migliore[k][1]:
-            migliore[k] = (i, sc)
-    conta = iter(range(10 ** 6))
+    def nome(riga):
+        t = re.sub(r"<span class=\"tag[^\"]*\"[^>]*>.*?</span>", "", riga.split("▶")[0], flags=re.S)
+        return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", t))).strip()
 
-    def sost(m):
-        i = next(conta)
-        if m.group(2).startswith("#") or migliore.get(chiave(m.group(2)), (None,))[0] == i:
-            return m.group(0)
-        return "" if 'class="diretta"' in (m.group(1) or "") else m.group(3)
-    return rx.sub(sost, h)
+    migliore = {}  # chiave -> (indice riga, indice link, specificità)
+    for r, riga in enumerate(righe):
+        for j, m in enumerate(rx.finditer(riga)):
+            if m.group(2).startswith("#"):
+                continue
+            k, sc = chiave(m.group(2)), specificita(html.unescape(m.group(2)))
+            if k not in migliore or sc > migliore[k][2]:
+                migliore[k] = (r, j, sc)
+    out = []
+    for r, riga in enumerate(righe):
+        stato = {"tolti": 0, "restano": 0, "vince": None, "j": -1}
+
+        def sost(m):
+            stato["j"] += 1
+            if m.group(2).startswith("#"):
+                return m.group(0)
+            w = migliore[chiave(m.group(2))]
+            if (w[0], w[1]) == (r, stato["j"]):
+                stato["restano"] += 1
+                return m.group(0)
+            stato["tolti"] += 1
+            stato["vince"] = w[0]
+            return "" if 'class="diretta"' in (m.group(1) or "") else m.group(3)
+        nuova = rx.sub(sost, riga)
+        if stato["tolti"] and not stato["restano"] and len(righe) > 1:
+            n, nv = nome(riga), nome(righe[stato["vince"]])
+            numeri = lambda x: re.findall(r"\d+", x)
+            unico = (numeri(n) and numeri(nv) and numeri(n) != numeri(nv)) or (n.upper().startswith("DAZN ") and n != nv)
+            if not unico:
+                continue  # riga doppione: il sito c'è già in un'altra riga
+        out.append(nuova)
+    return "".join(out) if len(righe) > 1 or h.lstrip().startswith("<li") else out[0]
 
 
 def stesso_link(canali, dove):

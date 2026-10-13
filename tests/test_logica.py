@@ -1478,7 +1478,7 @@ def test_stesso_link():
          f'<li><a href="#dv-rts">RTS stream</a> <a class="diretta" href="http://rts.ch/play/tv/direct/?tvLiveId=3608517">▶ diretta</a></li>'
          f'<li><a href="#dv-rts">RTS Deux</a> <a class="diretta" href="https://www.rts.ch/play/tv/direct?tvLiveId=143932">▶</a></li>')
     h2 = p.togli_link_doppi(h)
-    assert h2.count("rts.ch") == 1 and h2.count("#dv-rts") == 2, h2   # un solo link per sito
+    assert h2.count("rts.ch") == 1 and "#dv-rts" not in h2 and h2.count("<li>") == 1, h2   # righe doppione tolte del tutto
     # il link più preciso (video/urn della partita) vince sulla pagina diretta generica
     h = ('<li><a href="#dv-rts">RTS 2</a> <a class="diretta" href="https://www.rts.ch/play/tv/direct?tvLiveId=3608517">▶</a></li>'
          '<li><a href="https://play.rts.ch/play/tv/-/video/-?urn=urn:rts:video:1">RTS stream</a> <a class="diretta" href="https://tv.teleboy.ch/live(player:live/305)">▶ Teleboy</a></li>'
@@ -1489,7 +1489,13 @@ def test_stesso_link():
     h2 = p.togli_link_doppi(h)
     assert "tvLiveId" not in h2 and "urn=urn:rts:video:1" in h2, h2
     assert h2.count("live/304") == 1 and h2.count("live/305") == 1, h2       # Teleboy: canali diversi sì, link identico no
-    assert h2.count("bbc.co.uk") == 1 and "BBC Alba" in h2, h2
+    assert h2.count("bbc.co.uk") == 1 and "BBC Alba" not in h2 and "RTS 2" not in h2 and "SRF zwei" in h2, h2
+    h = ('<li><a href="#dv-prima-sport">Prima Sport 1</a> <a class="diretta" href="https://www.orange.ro/accounts/create-user">▶ Orange TV</a></li>'
+         '<li><a href="#dv-prima-sport">Prima Sport 2</a> <a class="diretta" href="https://www.orange.ro/accounts/create-user">▶ Orange TV</a></li>'
+         '<li><a href="#dv-dazn">DAZN Italia <span class="tag dz">DAZN GRATIS</span></a> <a class="diretta" href="https://www.dazn.com/it-IT/home">▶ sito</a></li>'
+         '<li><a href="#dv-dazn">DAZN Portogallo <span class="tag dz">DAZN GRATIS</span></a> <a class="diretta" href="https://www.dazn.com/it-IT/home">▶ sito</a></li>')
+    h2 = p.togli_link_doppi(h)
+    assert h2.count("orange.ro") == 1 and "Prima Sport 2" in h2 and h2.count("dazn.com") == 1 and "DAZN Portogallo" in h2, h2
     assert p.dominio("https://play.rts.ch/x") == "rts.ch" and p.dominio("http://www.bbc.co.uk/a") == "bbc.co.uk"
     assert p.dominio("https://globoplay.globo.com.br/") == "globo.com.br"
 
