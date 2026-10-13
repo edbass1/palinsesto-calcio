@@ -1,0 +1,614 @@
+{
+ "_nota": "Partite DAZN gratis (senza lucchetto), generato da scripts/aggiorna_dazn.sh. Il sito lo usa solo se la lettura diretta fallisce e il file ha meno di 3 ore.",
+ "generato": "2026-10-13T07:39:05Z",
+ "dal": "2026-10-13",
+ "paesi": {
+  "it": [
+   {
+    "ts": 1792168200,
+    "casa": "Friburgo",
+    "ospite": "Lipsia",
+    "comp": "Frauen Bundesliga",
+    "event_id": "8q04gm6lhzp004njigywzorm90"
+   },
+   {
+    "ts": 1792175400,
+    "casa": "Hellas Verona",
+    "ospite": "Catanzaro",
+    "comp": "Serie BKT",
+    "event_id": "zhtnbhcw6u0901c0rg9bxv2s46"
+   },
+   {
+    "ts": 1792175400,
+    "casa": "Leganés",
+    "ospite": "Córdoba",
+    "comp": "LALIGA HYPERMOTION",
+    "event_id": "mwzk296wbyrl0ptlnrlvkmji30"
+   },
+   {
+    "ts": 1792177200,
+    "casa": "Deportivo A Coruña",
+    "ospite": "Levante",
+    "comp": "LALIGA EA SPORTS",
+    "event_id": "1cokeji45rono1up72ys3nwpcm"
+   },
+   {
+    "ts": 1792233000,
+    "casa": "Sassuolo",
+    "ospite": "Napoli Women",
+    "comp": "Serie A Women Athora",
+    "event_id": "1n06obv7jglyv1st0t13v89i7v"
+   },
+   {
+    "ts": 1792238400,
+    "casa": "Espanyol",
+    "ospite": "Atlético Madrid",
+    "comp": "LALIGA EA SPORTS",
+    "event_id": "1xi61ohubg51f143zl5xcgl9bj"
+   },
+   {
+    "ts": 1792238400,
+    "casa": "Bayer Leverkusen",
+    "ospite": "Eintracht Francoforte",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1qorj0lfihjwm1upljvetkyuvo"
+   },
+   {
+    "ts": 1792242000,
+    "casa": "Como Women",
+    "ospite": "Fiorentina",
+    "comp": "Serie A Women Athora",
+    "event_id": "1r0o9ipopq1f4wqb472dyxzi70"
+   },
+   {
+    "ts": 1792246500,
+    "casa": "Villarreal",
+    "ospite": "Elche",
+    "comp": "LALIGA EA SPORTS",
+    "event_id": "1l4sofy6ea2ts1r506odlfy4wk"
+   },
+   {
+    "ts": 1792252800,
+    "casa": "Ternana Women",
+    "ospite": "Lazio",
+    "comp": "Serie A Women Athora",
+    "event_id": "p2b8ct6cf04201joag602zshit"
+   },
+   {
+    "ts": 1792254600,
+    "casa": "Real Betis",
+    "ospite": "Barcellona",
+    "comp": "LALIGA EA SPORTS",
+    "event_id": "z7l6ddxg6clw0rg4zgwxmws710"
+   },
+   {
+    "ts": 1792263600,
+    "casa": "Valencia",
+    "ospite": "Athletic Bilbao",
+    "comp": "LALIGA EA SPORTS",
+    "event_id": "jg1tt1db9ezh129se56x3u3np"
+   },
+   {
+    "ts": 1792324800,
+    "casa": "Osasuna",
+    "ospite": "Racing Santander",
+    "comp": "LALIGA EA SPORTS",
+    "event_id": "dshef76ayb1q1n3h0uzeoo844"
+   },
+   {
+    "ts": 1792328400,
+    "casa": "Roma",
+    "ospite": "Milan",
+    "comp": "Serie A Women Athora",
+    "event_id": "2tn3u6iidcpj08aiiqxfzcdqw0"
+   },
+   {
+    "ts": 1792332900,
+    "casa": "Celta Vigo",
+    "ospite": "Alavés",
+    "comp": "LALIGA EA SPORTS",
+    "event_id": "qwnx8enryp1xzb3ouqszfx7u"
+   },
+   {
+    "ts": 1792339200,
+    "casa": "Inter",
+    "ospite": "Parma",
+    "comp": "Serie A Women Athora",
+    "event_id": "510qpkzxzwr001e3m625w4n48v"
+   },
+   {
+    "ts": 1792341000,
+    "casa": "Malaga",
+    "ospite": "Real Sociedad",
+    "comp": "LALIGA EA SPORTS",
+    "event_id": "1o5vie4reaekk1bllggwn37xio"
+   },
+   {
+    "ts": 1792341000,
+    "casa": "Mainz",
+    "ospite": "Wolfsburg",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1jszvklhyzjqc1ukkvqm4wymms"
+   },
+   {
+    "ts": 1792350000,
+    "casa": "Real Madrid",
+    "ospite": "Siviglia",
+    "comp": "LALIGA EA SPORTS",
+    "event_id": "vu0y2ak0qrho0s1nusoww9q240"
+   },
+   {
+    "ts": 1792425600,
+    "casa": "Bayern Monaco",
+    "ospite": "Stoccarda",
+    "comp": "Frauen Bundesliga",
+    "event_id": "5l579chf4lny0w1uzdhpj8l5f0"
+   },
+   {
+    "ts": 1792436400,
+    "casa": "Getafe",
+    "ospite": "Rayo Vallecano",
+    "comp": "LALIGA EA SPORTS",
+    "event_id": "strs2mp4gne71s9y4p5dqici3"
+   },
+   {
+    "ts": 1792773000,
+    "casa": "Lipsia",
+    "ospite": "Bayern Monaco",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1ftuo540hmq531gzmpfv2v1cxd"
+   },
+   {
+    "ts": 1792836000,
+    "casa": "Wolfsburg",
+    "ospite": "Colonia",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1lxsandshuffv1m80tvk87i7zv"
+   }
+  ],
+  "es": [
+   {
+    "ts": 1792168200,
+    "casa": "Freiburg",
+    "ospite": "RB Leipzig",
+    "comp": "Google Pixel Frauen-Bundesliga",
+    "event_id": "8q04gm6lhzp004njigywzorm90"
+   },
+   {
+    "ts": 1792177200,
+    "casa": "RC Deportivo",
+    "ospite": "Levante UD",
+    "comp": "LALIGA EA SPORTS",
+    "event_id": "1he4hgjmxiui0v5tzczp25bts0"
+   },
+   {
+    "ts": 1792238400,
+    "casa": "Bayer Leverkusen",
+    "ospite": "Eintracht Frankfurt",
+    "comp": "Google Pixel Frauen-Bundesliga",
+    "event_id": "1qorj0lfihjwm1upljvetkyuvo"
+   },
+   {
+    "ts": 1792318500,
+    "casa": "Ajax",
+    "ospite": "PSV",
+    "comp": "Eredivisie Vrouwen",
+    "event_id": "e6fzs9t5cnhb0htd4g2ewvryf0"
+   },
+   {
+    "ts": 1792341000,
+    "casa": "Mainz 05",
+    "ospite": "Wolfsburg",
+    "comp": "Google Pixel Frauen-Bundesliga",
+    "event_id": "1jszvklhyzjqc1ukkvqm4wymms"
+   },
+   {
+    "ts": 1792425600,
+    "casa": "Bayern München",
+    "ospite": "Stuttgart",
+    "comp": "Google Pixel Frauen-Bundesliga",
+    "event_id": "5l579chf4lny0w1uzdhpj8l5f0"
+   },
+   {
+    "ts": 1792773000,
+    "casa": "RB Leipzig",
+    "ospite": "Bayern München",
+    "comp": "Google Pixel Frauen-Bundesliga",
+    "event_id": "1ftuo540hmq531gzmpfv2v1cxd"
+   },
+   {
+    "ts": 1792782000,
+    "casa": "Deportivo Alavés",
+    "ospite": "Málaga CF",
+    "comp": "LALIGA EA SPORTS",
+    "event_id": "1o6185fmhysa61qzrnu339n5rl"
+   }
+  ],
+  "fr": [
+   {
+    "ts": 1792168200,
+    "casa": "Freiburg",
+    "ospite": "RB Leipzig",
+    "comp": "Frauen Bundesliga",
+    "event_id": "8q04gm6lhzp004njigywzorm90"
+   },
+   {
+    "ts": 1792238400,
+    "casa": "Bayer Leverkusen",
+    "ospite": "Eintracht Frankfurt",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1qorj0lfihjwm1upljvetkyuvo"
+   },
+   {
+    "ts": 1792341000,
+    "casa": "Mainz",
+    "ospite": "Wolfsburg",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1jszvklhyzjqc1ukkvqm4wymms"
+   },
+   {
+    "ts": 1792425600,
+    "casa": "Bayern München",
+    "ospite": "Stuttgart",
+    "comp": "Frauen Bundesliga",
+    "event_id": "5l579chf4lny0w1uzdhpj8l5f0"
+   },
+   {
+    "ts": 1792773000,
+    "casa": "RB Leipzig",
+    "ospite": "Bayern München",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1ftuo540hmq531gzmpfv2v1cxd"
+   },
+   {
+    "ts": 1792836000,
+    "casa": "Wolfsburg",
+    "ospite": "Köln",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1lxsandshuffv1m80tvk87i7zv"
+   },
+   {
+    "ts": 1792929600,
+    "casa": "Hoffenheim",
+    "ospite": "Mainz",
+    "comp": "Frauen Bundesliga",
+    "event_id": "4p2j7acyre7k0l1btltr54i2r0"
+   },
+   {
+    "ts": 1792933200,
+    "casa": "Werder Bremen",
+    "ospite": "Freiburg",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1bj4nf6i92heb7ur6vk6z26ep0"
+   }
+  ],
+  "de": [
+   {
+    "ts": 1792176300,
+    "casa": "Le Mans",
+    "ospite": "Toulouse",
+    "comp": "Ligue 1",
+    "event_id": "1upfrl0h58gpb10s3op6426p48"
+   },
+   {
+    "ts": 1792249200,
+    "casa": "Germany U17",
+    "ospite": "Argentina U17",
+    "comp": "FIFA U-17 Women's World Cup™",
+    "event_id": "1r4d0jg17yfub1vk3nmju827ud"
+   },
+   {
+    "ts": 1792249200,
+    "casa": "Korea DPR U17",
+    "ospite": "Puerto Rico U17",
+    "comp": "FIFA U-17 Women's World Cup™",
+    "event_id": "exbfoyx04w2o156jq84n7smkv"
+   },
+   {
+    "ts": 1792254600,
+    "casa": "Real Betis",
+    "ospite": "Barcelona",
+    "comp": "LALIGA",
+    "event_id": "z7l6ddxg6clw0rg4zgwxmws710"
+   },
+   {
+    "ts": 1792260000,
+    "casa": "Poland U17",
+    "ospite": "Nigeria U17",
+    "comp": "FIFA U-17 Women's World Cup™",
+    "event_id": "1445wc5w2sdq11hinyc63dw8de"
+   },
+   {
+    "ts": 1792260000,
+    "casa": "Morocco U17",
+    "ospite": "New Zealand U17",
+    "comp": "FIFA U-17 Women's World Cup™",
+    "event_id": "h1pit69n3e3o1uta2kedip4ru"
+   },
+   {
+    "ts": 1792335600,
+    "casa": "Japan U17",
+    "ospite": "Zambia U17",
+    "comp": "FIFA U-17 Women's World Cup™",
+    "event_id": "21wq93vnsv111oklmikbt2zym"
+   },
+   {
+    "ts": 1792335600,
+    "casa": "Canada U17",
+    "ospite": "Brazil U17",
+    "comp": "FIFA U-17 Women's World Cup™",
+    "event_id": "r7lshxtil4k81prywka5bkavv"
+   },
+   {
+    "ts": 1792346400,
+    "casa": "Norway U17",
+    "ospite": "Ghana U17",
+    "comp": "FIFA U-17 Women's World Cup™",
+    "event_id": "mxdptt07zghg1ocsp86jp64gf"
+   },
+   {
+    "ts": 1792346400,
+    "casa": "France U17",
+    "ospite": "Venezuela U17",
+    "comp": "FIFA U-17 Women's World Cup™",
+    "event_id": "65gogiscv2xk1ka0mkq7ryl5d"
+   },
+   {
+    "ts": 1792349100,
+    "casa": "Juventus",
+    "ospite": "Lazio",
+    "comp": "Serie A",
+    "event_id": "1sgiekl4rjs2b11ipvvikbap3n"
+   },
+   {
+    "ts": 1792422000,
+    "casa": "Spain U17",
+    "ospite": "Mexico U17",
+    "comp": "FIFA U-17 Women's World Cup™",
+    "event_id": "14jyrttwtp65u1gvge68xywh1w"
+   },
+   {
+    "ts": 1792422000,
+    "casa": "Kenya U17",
+    "ospite": "China PR U17",
+    "comp": "FIFA U-17 Women's World Cup™",
+    "event_id": "11yhmq3kajkrz1jh4aqaexsj2a"
+   },
+   {
+    "ts": 1792432800,
+    "casa": "USA U17",
+    "ospite": "Samoa U17",
+    "comp": "FIFA U-17 Women's World Cup™",
+    "event_id": "16vn50luioh7w1w3feysugpitm"
+   },
+   {
+    "ts": 1792432800,
+    "casa": "Australia U17",
+    "ospite": "Chile U17",
+    "comp": "FIFA U-17 Women's World Cup™",
+    "event_id": "1k76tzec0g0oy1wzd0z0ib0lrc"
+   }
+  ],
+  "pt": [
+   {
+    "ts": 1791892800,
+    "casa": "Leipzig U19",
+    "ospite": "PSV U19",
+    "comp": "UEFA Youth League",
+    "event_id": "kke0olshfmnd0mg9z7zgom0wh0"
+   },
+   {
+    "ts": 1791900000,
+    "casa": "Villarreal U19",
+    "ospite": "Napoli U19",
+    "comp": "UEFA Youth League",
+    "event_id": "lqzcwppi6slk0doc9jrv5z85u0"
+   },
+   {
+    "ts": 1791909900,
+    "casa": "Sabah",
+    "ospite": "Slavia Praga",
+    "comp": "UEFA Champions League",
+    "event_id": "eg4virdxrn0001l1sh2qrjd34r"
+   },
+   {
+    "ts": 1791979200,
+    "casa": "Roma U19",
+    "ospite": "Real Madrid U19",
+    "comp": "UEFA Youth League",
+    "event_id": "19nwlcc66vff917fdvsj287n8j"
+   },
+   {
+    "ts": 1791986400,
+    "casa": "Betis U19",
+    "ospite": "FC Porto U19",
+    "comp": "UEFA Youth League",
+    "event_id": "1jfqscck5fedr1fx6jdaiwuogd"
+   },
+   {
+    "ts": 1791986400,
+    "casa": "Man. City U19",
+    "ospite": "PSG U19",
+    "comp": "UEFA Youth League",
+    "event_id": "1i7vf501f5g9a1w3902f5yirr6"
+   },
+   {
+    "ts": 1791996300,
+    "casa": "LASK",
+    "ospite": "Liverpool",
+    "comp": "UEFA Champions League",
+    "event_id": "2ws7yyzllbr501k07qlzqccytc"
+   },
+   {
+    "ts": 1792090800,
+    "casa": "Hoffenheim",
+    "ospite": "Besiktas",
+    "comp": "UEFA Europa League",
+    "event_id": "ziwrxbi61d5e0bak9jf1s9bjx0"
+   },
+   {
+    "ts": 1792168200,
+    "casa": "Freiburg",
+    "ospite": "Leipzig",
+    "comp": "Frauen Bundesliga",
+    "event_id": "8q04gm6lhzp004njigywzorm90"
+   },
+   {
+    "ts": 1792175400,
+    "casa": "Leganés",
+    "ospite": "Córdoba",
+    "comp": "LaLiga Hypermotion",
+    "event_id": "mwzk296wbyrl0ptlnrlvkmji30"
+   },
+   {
+    "ts": 1792177200,
+    "casa": "Deportivo",
+    "ospite": "Levante",
+    "comp": "LALIGA EA Sports",
+    "event_id": "1he4hgjmxiui0v5tzczp25bts0"
+   },
+   {
+    "ts": 1792233000,
+    "casa": "Sassuolo",
+    "ospite": "Napoli",
+    "comp": "Serie A Women",
+    "event_id": "1n06obv7jglyv1st0t13v89i7v"
+   },
+   {
+    "ts": 1792238400,
+    "casa": "Leverkusen",
+    "ospite": "Frankfurt",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1qorj0lfihjwm1upljvetkyuvo"
+   },
+   {
+    "ts": 1792245600,
+    "casa": "Brentford",
+    "ospite": "Liverpool",
+    "comp": "Premier League",
+    "event_id": "8azvs7mno83w080yvs46ovi3u0"
+   },
+   {
+    "ts": 1792319400,
+    "casa": "Juventus",
+    "ospite": "Como",
+    "comp": "Serie A Women",
+    "event_id": "x4j8kfv125f001mmbdoc8v7b0a"
+   },
+   {
+    "ts": 1792330200,
+    "casa": "Leverkusen",
+    "ospite": "Freiburg",
+    "comp": "Bundesliga",
+    "event_id": "14gqjpajw07t51jzzhazmbe77z"
+   },
+   {
+    "ts": 1792339200,
+    "casa": "Inter",
+    "ospite": "Parma",
+    "comp": "Serie A Women",
+    "event_id": "510qpkzxzwr001e3m625w4n48v"
+   },
+   {
+    "ts": 1792341000,
+    "casa": "Mainz",
+    "ospite": "Wolfsburg",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1jszvklhyzjqc1ukkvqm4wymms"
+   },
+   {
+    "ts": 1792425600,
+    "casa": "Bayern",
+    "ospite": "Stuttgart",
+    "comp": "Frauen Bundesliga",
+    "event_id": "5l579chf4lny0w1uzdhpj8l5f0"
+   },
+   {
+    "ts": 1792436400,
+    "casa": "Tottenham",
+    "ospite": "Coventry",
+    "comp": "Premier League",
+    "event_id": "65duxd956k07016uku6gitgnfl"
+   }
+  ],
+  "be": [
+   {
+    "ts": 1792168200,
+    "casa": "Freiburg",
+    "ospite": "Leipzig",
+    "comp": "Frauen Bundesliga",
+    "event_id": "8q04gm6lhzp004njigywzorm90"
+   },
+   {
+    "ts": 1792236600,
+    "casa": "RSCA Women",
+    "ospite": "OH Leuven Women",
+    "comp": "Women's Pro League",
+    "event_id": "z6pu6kzise341ovl90dcltwm1"
+   },
+   {
+    "ts": 1792238400,
+    "casa": "Bayer Leverkusen",
+    "ospite": "Frankfurt",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1qorj0lfihjwm1upljvetkyuvo"
+   },
+   {
+    "ts": 1792250100,
+    "casa": "Strasbourg",
+    "ospite": "PSG",
+    "comp": "Ligue 1",
+    "event_id": "teqarn0owy8s1c67hb3dr627q"
+   },
+   {
+    "ts": 1792341000,
+    "casa": "Mainz",
+    "ospite": "Wolfsburg",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1jszvklhyzjqc1ukkvqm4wymms"
+   },
+   {
+    "ts": 1792425600,
+    "casa": "Bayern München",
+    "ospite": "Stuttgart",
+    "comp": "Frauen Bundesliga",
+    "event_id": "5l579chf4lny0w1uzdhpj8l5f0"
+   },
+   {
+    "ts": 1792773000,
+    "casa": "Leipzig",
+    "ospite": "Bayern München",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1ftuo540hmq531gzmpfv2v1cxd"
+   },
+   {
+    "ts": 1792836000,
+    "casa": "Wolfsburg",
+    "ospite": "Köln",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1lxsandshuffv1m80tvk87i7zv"
+   },
+   {
+    "ts": 1792843200,
+    "casa": "Stuttgart",
+    "ospite": "Frankfurt",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1jpru0ajg3omq1utnjfphuw5nq"
+   },
+   {
+    "ts": 1792929600,
+    "casa": "Hoffenheim",
+    "ospite": "Mainz 05",
+    "comp": "Frauen Bundesliga",
+    "event_id": "4p2j7acyre7k0l1btltr54i2r0"
+   },
+   {
+    "ts": 1792933200,
+    "casa": "Werder Bremen",
+    "ospite": "Freiburg",
+    "comp": "Frauen Bundesliga",
+    "event_id": "1bj4nf6i92heb7ur6vk6z26ep0"
+   }
+  ]
+ }
+}
