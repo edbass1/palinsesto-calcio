@@ -1362,8 +1362,9 @@ def test_doppioni_nomi():
     assert U.stessa_partita(t, "Atlético Madrid", "Roma", t, "Atletico de Madrid", "AS Roma")
     assert U.stessa_partita(t, "Lugano", "Stella Rossa", t, "FC Lugano", "Red Star Belgrade")
     assert U.stessa_partita(t, "CSU Craiova", "Getafe", t, "Universitatea Craiova", "Getafe CF")
-    for a in (("Manchester United", "Arsenal", "Manchester City", "Arsenal"), ("Inter", "Roma", "Inter Miami", "Roma"),
-              ("Real Madrid", "Getafe", "Real Sociedad", "Getafe"), ("Roma", "Lazio", "Roma U19", "Lazio U19"),
+    # senza un avversario in comune le parole distintive bloccano (con avversario comune vale l'àncora)
+    for a in (("Manchester United", "Arsenal", "Manchester City", "Chelsea"), ("Inter", "Roma", "Inter Miami", "Orlando City"),
+              ("Real Madrid", "Getafe", "Real Sociedad", "Girona"), ("Roma", "Lazio", "Roma U19", "Lazio U19"),
               ("Barcelona", "Sevilla", "Barcelona B", "Sevilla"), ("Juventus", "Milan", "Juventus Women", "Milan Women")):
         assert not U.stessa_partita(t, a[0], a[1], t, a[2], a[3]), a
     q = lambda ts: dt.datetime.fromtimestamp(ts, p.ROMA)
@@ -1372,6 +1373,24 @@ def test_doppioni_nomi():
     tenuti, _ = p.unisci_doppioni(ev)
     assert len(tenuti) == 1 and (tenuti[0]["casa"], tenuti[0]["ospite"]) == ("RB Leipzig", "PSV Eindhoven")
     assert {k["nome"] for k in tenuti[0]["canali"]} == {"Prima Sport PPV2", "Prima Sport 2"}
+
+
+def test_doppioni_ancora():
+    t = 1_800_000_000
+    assert U.stessa_partita(t, "Bristol City", "Millwall", t, "Bristol", "Millwall FC")
+    assert U.stessa_partita(t, "Arsenal", "Manchester City", t, "Arsenal", "Man City FC")
+    assert not U.stessa_partita(t, "Roma", "Lazio", t, "Roma U19", "Lazio")      # marcatori sempre
+    assert not U.stessa_partita(t, "Roma", "Lazio", t, "Roma", "Lazio Women")
+    assert not U.stessa_partita(t, "Roma", "Lazio", t, "Roma", "Juventus")       # àncora ma avversario diverso
+    assert not U.stessa_partita(t, "Inter", "Roma", t, "Inter Miami", "Orlando")  # nessuna àncora: blocco rigido
+    q = lambda ts: dt.datetime.fromtimestamp(ts, p.ROMA)
+    ev = [{"ts": t, "quando": q(t), "casa": "FC Lugano", "ospite": "Red Star Belgrade", "canali": [{"nome": "A", "fta": False}], "fonti": ["LiveOnSat"]},
+          {"ts": t, "quando": q(t), "casa": "Lugano", "ospite": "Stella Rossa", "canali": [{"nome": "B", "fta": True}], "fonti": ["Streaming"]}]
+    tenuti, _ = p.unisci_doppioni(ev)
+    assert len(tenuti) == 1 and tenuti[0]["ospite"] == "Stella Rossa" and tenuti[0]["casa"] == "FC Lugano", tenuti
+
+
+test_doppioni_ancora(); print("doppioni con avversario come àncora e nomi italiani: OK")
 
 
 test_doppioni_nomi(); print("doppioni con nomi diversi (RB Leipzig / PSV Eindhoven) e falsi positivi: OK")

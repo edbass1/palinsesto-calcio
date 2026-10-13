@@ -110,7 +110,44 @@ def stessa_partita(ts1, casa1, osp1, ts2, casa2, osp2) -> float:
         sc, so = somiglianza(casa1, c2), somiglianza(osp1, o2)
         if (sc >= 0.8 and so >= 0.6) or (sc >= 0.6 and so >= 0.8):
             migliore = max(migliore, sc + so)
+        # avversario come àncora: se una squadra coincide (stesso nome normalizzato / alias), all'altra basta
+        # una somiglianza debole, anche con parole "distintive" (Bristol City / Bristol)
+        elif sc == 1.0 or so == 1.0:
+            debole = compatibile(osp1, o2) if sc == 1.0 else compatibile(casa1, c2)
+            if debole:
+                migliore = max(migliore, 1.0 + debole)
     return migliore
+
+
+GENERICHE = set("real sporting athletic racing club city united town county rovers wanderers dynamo dinamo inter".split())
+
+
+def compatibile(a: str, b: str) -> float:
+    """Somiglianza debole (0 = incompatibili). Giovanili/femminili/squadre B devono sempre coincidere."""
+    if marcatori(a) != marcatori(b):
+        return 0.0
+    na, nb = norm_squadra(a), norm_squadra(b)
+    if na == nb:
+        return 1.0
+    ta = {w for w in na.split() if len(w) >= 3 and w not in GENERICHE}
+    tb = {w for w in nb.split() if len(w) >= 3 and w not in GENERICHE}
+    if ta & tb:
+        return 0.7
+    ca, cb = na.replace(" ", ""), nb.replace(" ", "")
+    if min(len(ca), len(cb)) >= 4 and (ca in cb or cb in ca):
+        return 0.7
+    r = difflib.SequenceMatcher(None, na, nb).ratio()
+    return r if r >= 0.6 else 0.0
+
+
+# forme italiane da preferire in pagina quando due fonti usano nomi diversi
+NOMI_ITALIANI = {"stella rossa", "bayern monaco", "stoccarda", "friburgo", "colonia", "lione", "marsiglia", "siviglia",
+                 "slavia praga", "inter", "atletico madrid", "bruges", "amburgo", "lisbona"}
+
+
+def nome_italiano(nome: str) -> bool:
+    s = unicodedata.normalize("NFKD", nome).encode("ascii", "ignore").decode().lower().strip()
+    return s in NOMI_ITALIANI
 
 
 def regex_femminile(marcatori):

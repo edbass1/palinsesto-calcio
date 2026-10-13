@@ -333,7 +333,9 @@ def nome_completo(e, casa, ospite):
     if not casa or not ospite or unisci.somiglianza(e["casa"], casa) < unisci.somiglianza(e["casa"], ospite):
         return
     for campo, nuovo in (("casa", casa), ("ospite", ospite)):
-        if len(nuovo) > len(e[campo]):
+        if unisci.nome_italiano(e[campo]):
+            continue  # la forma italiana vince (Stella Rossa, non Red Star Belgrade)
+        if unisci.nome_italiano(nuovo) or len(nuovo) > len(e[campo]):
             e[campo] = nuovo
     e["titolo"] = f'{e["casa"]} v {e["ospite"]}'
 
