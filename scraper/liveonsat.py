@@ -203,7 +203,8 @@ TUTTE = []  # tutte le partite dell'ultima raccolta nella finestra (con o senza 
 
 def raccogli_los(conf, inizio, fine, scarica_fn=None, teleboy=None):
     """Scarica le pagine LiveOnSat; partite nella finestra con almeno un canale in chiaro, senza doppioni."""
-    scarica_fn = scarica_fn or scarica
+    # pagina LiveOnSat valida ma senza partite (es. campionato fermo per le nazionali): non è un blocco
+    scarica_fn = scarica_fn or (lambda u: scarica(u, vuota_ok=True))
     pausa = conf.get("pausa_secondi", 0.7)
     regole, alias = conf.get("canali_in_chiaro", []), conf.get("alias_canali", [])
     escludi = ["dazn"] + [x for x in conf.get("escludi_canali", []) if x]

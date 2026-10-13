@@ -7,6 +7,7 @@ QUI = Path(__file__).resolve().parent
 sys.path.insert(0, str(QUI.parent / "scraper"))
 import palinsesto as p
 import liveonsat as L
+_SCARICA_LOS = L.scarica  # quella vera, prima dei finti dei test
 import unisci as U
 import teleboy as TB
 import dazn as DZ
@@ -29,7 +30,7 @@ def finto_lstv(url, tentativi=3):
     return gzip.open(f, "rt", encoding="utf-8").read(), None
 
 
-def finto_los(url, tentativi=4):
+def finto_los(url, tentativi=4, vuota_ok=False):
     f = DIR_LOS / (url.rsplit("/", 1)[-1].replace(".php", "") + ".html.gz")
     if not f.exists():
         return None, "HTTP 502"
@@ -1328,3 +1329,27 @@ def test_ictimai():
 
 
 test_ictimai(); print("Ictimai TV -> YouTube: OK")
+
+
+def test_los_pagina_vuota():
+    import urllib.request as UR
+    class R:
+        def __init__(self, t): self.t = t.encode()
+        def read(self): return self.t
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+    pagine = {"vuota": "<html><head><title>*** LJs LiveOnSat Football / Soccer Schedules on TV</title></head><body>menu</body></html>",
+              "blocco": "<html><title>Just a moment...</title>Cloudflare</html>"}
+    orig, osleep, ofinto = UR.urlopen, L.time.sleep, L.scarica
+    UR.urlopen = lambda req, timeout=0: R(pagine[req.full_url.rsplit("/", 1)[-1]])
+    L.time.sleep = lambda s: None
+    try:
+        L.scarica = _SCARICA_LOS
+        ora = dt.datetime.now(dt.timezone.utc)
+        part, falliti = L.raccogli_los({"pagine": ["https://x/vuota", "https://x/blocco"], "pausa_secondi": 0}, ora, ora + dt.timedelta(days=3))[:2]
+    finally:
+        UR.urlopen, L.time.sleep, L.scarica = orig, osleep, ofinto
+    assert falliti == ["LiveOnSat blocco (pagina inattesa (possibile blocco))"], falliti
+
+
+test_los_pagina_vuota(); print("LiveOnSat pagina valida senza partite: nessun avviso: OK")
