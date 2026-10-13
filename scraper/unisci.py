@@ -38,6 +38,11 @@ ALIAS = {
     "real betis": "betis", "betis sevilla": "betis", "sevilla": "sevilla",
     "sporting lisbon": "sporting cp", "sporting": "sporting cp",
     "olympiacos": "olympiakos", "olympiakos piraeus": "olympiakos",
+    "csu craiova": "universitatea craiova", "cs universitatea craiova": "universitatea craiova", "u craiova": "universitatea craiova",
+    "stella rossa": "crvena zvezda", "red star belgrade": "crvena zvezda", "red star": "crvena zvezda",
+    "fk crvena zvezda": "crvena zvezda", "crvena zvezda beograd": "crvena zvezda",
+    "bayern monaco": "bayern munchen", "stoccarda": "stuttgart", "vfb stuttgart": "stuttgart", "friburgo": "freiburg",
+    "colonia": "koln", "lione": "lyon", "marsiglia": "marseille", "bruges": "club brugge", "brugge": "club brugge",
     "como 1907": "como", "hellas verona": "verona",
     "usa": "united states", "korea republic": "south korea", "turkiye": "turkey", "czechia": "czech republic",
     "republic of ireland": "ireland", "ir iran": "iran",
@@ -64,14 +69,35 @@ def norm_squadra(nome: str) -> str:
     return ALIAS.get(ridotto, ridotto)
 
 
+# marcatori di squadre diverse (giovanili, femminili, seconde squadre): devono coincidere da entrambe le parti
+MARCATORI = re.compile(r"^(u\d\d|under\d*|sub\d*|youth|juniors?|primavera|women|womens|w|femminile|feminino|femenino|"
+                       r"frauen|ladies|b|ii|iii|reserves?|amateure|2)$")
+# parole che, se in più, indicano un'ALTRA squadra (Inter / Inter Miami, Real / Real Sociedad...)
+DISTINTIVE = set("miami city sociedad madrid betis valladolid oviedo zaragoza murcia salt lake york galaxy".split())
+
+
+def marcatori(nome: str):
+    s = unicodedata.normalize("NFKD", nome).encode("ascii", "ignore").decode().lower()
+    s = re.sub(r"\bu[- ]?(\d\d)\b", r"u\1", s)
+    return {w for w in re.split(r"[^a-z0-9]+", s) if w and MARCATORI.match(w) and w != "2"}
+
+
 def somiglianza(a: str, b: str) -> float:
+    if marcatori(a) != marcatori(b):
+        return 0.0  # Roma / Roma U19, Barcelona / Barcelona B
     a, b = norm_squadra(a), norm_squadra(b)
     if a == b:
         return 1.0
-    r = difflib.SequenceMatcher(None, a, b).ratio()
     ta, tb = set(a.split()), set(b.split())
-    if ta and tb and (ta <= tb or tb <= ta) and min(len(a), len(b)) >= 4:
-        r = max(r, 0.9)  # "Leeds" / "Leeds United"
+    if (ta ^ tb) & DISTINTIVE:
+        return 0.0  # Manchester United / Manchester City, Inter / Inter Miami
+    r = difflib.SequenceMatcher(None, a, b).ratio()
+    if ta and tb and (ta <= tb or tb <= ta):
+        piccolo, extra = (ta, tb - ta) if ta <= tb else (tb, ta - tb)
+        if not (extra & DISTINTIVE) and max(len(w) for w in piccolo) >= 3:
+            r = max(r, 0.9)  # "Leeds" / "Leeds United", "PSV" / "PSV Eindhoven"
+    elif ta and tb and min(len(a), len(b)) >= 5 and (a.replace(" ", "") in b.replace(" ", "") or b.replace(" ", "") in a.replace(" ", "")):
+        r = max(r, 0.85)  # "Monchengladbach" / "Borussia M gladbach"-like containment
     return r
 
 

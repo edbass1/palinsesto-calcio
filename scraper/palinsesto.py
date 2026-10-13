@@ -328,6 +328,16 @@ FINESTRA_DOPPIONI_S = 3 * 3600
 FONTI_STREAM = {"Streaming"}
 
 
+def nome_completo(e, casa, ospite):
+    """Nome più completo per la visualizzazione ("Leipzig" -> "RB Leipzig", "PSV" -> "PSV Eindhoven")."""
+    if not casa or not ospite or unisci.somiglianza(e["casa"], casa) < unisci.somiglianza(e["casa"], ospite):
+        return
+    for campo, nuovo in (("casa", casa), ("ospite", ospite)):
+        if len(nuovo) > len(e[campo]):
+            e[campo] = nuovo
+    e["titolo"] = f'{e["casa"]} v {e["ospite"]}'
+
+
 def unisci_doppioni(eventi):
     """Ultimo passaggio: la stessa partita (stesse squadre, stesso giorno, inizio entro 3 ore) compare UNA volta sola
     con tutti i canali di tutte le fonti. L'orario è il calcio d'inizio ufficiale: quello delle fonti TV/guide
@@ -365,6 +375,7 @@ def unisci_doppioni(eventi):
         for f_ in altro.get("fonti", []):
             if f_ not in base["fonti"]:
                 base["fonti"].append(f_)
+        nome_completo(base, altro["casa"], altro["ospite"])
         uniti.append(f'{base["casa"]} - {base["ospite"]}')
         if base is e:
             tenuti[tenuti.index(trovato)] = e
@@ -443,6 +454,7 @@ def unisci_primaplay(eventi, partite, tutte_los=(), escludi=None, fonte="Prima P
                 migliore["canali"].append(k)
             if fonte not in migliore["fonti"]:
                 migliore["fonti"].append(fonte)
+            nome_completo(migliore, p["casa"], p["ospite"])
             uniti.append(f'{migliore["casa"]} - {migliore["ospite"]} ({p["canale"]})')
             continue
         comp = p.get("comp_los") or ""

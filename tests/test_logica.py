@@ -1353,3 +1353,25 @@ def test_los_pagina_vuota():
 
 
 test_los_pagina_vuota(); print("LiveOnSat pagina valida senza partite: nessun avviso: OK")
+
+
+def test_doppioni_nomi():
+    t = 1_800_000_000
+    assert U.stessa_partita(t, "RB Leipzig", "PSV", t, "Leipzig", "PSV Eindhoven")
+    assert U.stessa_partita(t, "Leeds", "Arsenal", t, "Leeds United", "Arsenal FC")
+    assert U.stessa_partita(t, "Atlético Madrid", "Roma", t, "Atletico de Madrid", "AS Roma")
+    assert U.stessa_partita(t, "Lugano", "Stella Rossa", t, "FC Lugano", "Red Star Belgrade")
+    assert U.stessa_partita(t, "CSU Craiova", "Getafe", t, "Universitatea Craiova", "Getafe CF")
+    for a in (("Manchester United", "Arsenal", "Manchester City", "Arsenal"), ("Inter", "Roma", "Inter Miami", "Roma"),
+              ("Real Madrid", "Getafe", "Real Sociedad", "Getafe"), ("Roma", "Lazio", "Roma U19", "Lazio U19"),
+              ("Barcelona", "Sevilla", "Barcelona B", "Sevilla"), ("Juventus", "Milan", "Juventus Women", "Milan Women")):
+        assert not U.stessa_partita(t, a[0], a[1], t, a[2], a[3]), a
+    q = lambda ts: dt.datetime.fromtimestamp(ts, p.ROMA)
+    ev = [{"ts": t, "quando": q(t), "casa": "Leipzig", "ospite": "PSV Eindhoven", "canali": [{"nome": "Prima Sport PPV2", "fta": False}], "fonti": ["Prima Play"]},
+          {"ts": t, "quando": q(t), "casa": "RB Leipzig", "ospite": "PSV", "canali": [{"nome": "Prima Sport 2", "fta": False}], "fonti": ["Digi Sport", "LiveOnSat"]}]
+    tenuti, _ = p.unisci_doppioni(ev)
+    assert len(tenuti) == 1 and (tenuti[0]["casa"], tenuti[0]["ospite"]) == ("RB Leipzig", "PSV Eindhoven")
+    assert {k["nome"] for k in tenuti[0]["canali"]} == {"Prima Sport PPV2", "Prima Sport 2"}
+
+
+test_doppioni_nomi(); print("doppioni con nomi diversi (RB Leipzig / PSV Eindhoven) e falsi positivi: OK")
