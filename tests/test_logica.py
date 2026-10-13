@@ -1316,3 +1316,15 @@ def test_doppioni_stessa_partita():
 
 
 test_doppioni_stessa_partita(); print("doppioni Roma - Real Madrid uniti con orario ufficiale: OK")
+
+
+def test_ictimai():
+    dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    for nome in ("Ictimai TV", "İctimai TV", "ITV Azerbaijan"):
+        assert p.voce_dove(nome, dove)["id"] == "ictimai", nome
+    assert p.voce_dove("ITV1", dove)["id"] != "ictimai"
+    h = p.badge({"nome": "Ictimai TV", "fta": True}, dove, set())
+    assert 'href="#dv-ictimai"' in h and 'href="https://www.youtube.com/@ictimaitvofficial/featured"' in h and "YouTube" in h and "flags/az.svg" in h and "VPN Azerbaigian" in h, h
+
+
+test_ictimai(); print("Ictimai TV -> YouTube: OK")

@@ -1449,6 +1449,25 @@
         }
       ],
       "vpn_tag": "VPN Turchia"
+    },
+    {
+      "id": "ictimai",
+      "nome": "İctimai TV (Azerbaigian)",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^[Iİı]ctimai\\b",
+        "^ITV Az(erbaijan)?\\b"
+      ],
+      "note": "Dirette sul canale YouTube ufficiale: serve la VPN sull'Azerbaigian.",
+      "link": [
+        {
+          "url": "https://www.youtube.com/@ictimaitvofficial/featured",
+          "testo": "İctimai TV – YouTube"
+        }
+      ],
+      "vpn": "Azerbaigian",
+      "vpn_tag": "VPN Azerbaigian"
     }
   ]
 }
