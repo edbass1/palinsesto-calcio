@@ -869,6 +869,20 @@ RE_COPPE_EUROPEE = re.compile(r"^(UEFA (CHAMPIONS|EUROPA|CONFERENCE|YOUTH|SUPER)
 RE_NAZIONALI = re.compile(r"^NAZIONALI(?! / INTERNAZIONALI)", re.I)
 
 
+ISO_NAZIONE = {"Inghilterra": "gb-eng", "Scozia": "gb-sct", "Galles": "gb-wls", "Irlanda del Nord": "gb-nir", "Arabia Saudita": "sa",
+               "Croazia": "hr", "Serbia": "rs", "Danimarca": "dk", "Svezia": "se", "Norvegia": "no", "Ungheria": "hu", "Bulgaria": "bg",
+               "Slovacchia": "sk", "Slovenia": "si", "Ucraina": "ua", "Russia": "ru", "Israele": "il", "Cipro": "cy", "Finlandia": "fi",
+               "Islanda": "is", "Cile": "cl", "Colombia": "co", "Uruguay": "uy", "Paraguay": "py", "Perù": "pe", "Ecuador": "ec",
+               "Giappone": "jp", "Corea del Sud": "kr", "Cina": "cn", "India": "in", "Marocco": "ma", "Egitto": "eg", "Sudafrica": "za",
+               "Qatar": "qa", "Bosnia": "ba", "Bosnia-Erzegovina": "ba"}
+
+
+def iso_nazione(n):
+    """Bandiera (SVG locale in static/flags) di una nazione, o '' se non c'è."""
+    iso = ISO_NAZIONE.get(n) or next((v for k, v in BANDIERE.items() if k.lower() == (n or "").lower()), "")
+    return iso if iso and (RADICE / "static" / "flags" / f"{iso}.svg").exists() else ""
+
+
 def nazione_comp(nome):
     """Nazione di una competizione dall'etichetta: '(Spagna, 2ª divisione)' -> Spagna, 'SERIE A' -> Italia; '' se non c'è."""
     m = re.search(r"\(([^()]+)\)\s*$", nome or "")
@@ -916,7 +930,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
         if not e["canali"]:
             canali = '<li class="senza-canali">Canali non ancora disponibili: potrebbero comparire nei prossimi aggiornamenti.</li>'
         return (f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}" data-cat="{e.get("_cat", "")}"'
-                + (f' data-naz="{esc(e["_naz"])}"' if e.get("_naz") else '') + (f' data-tipo="{e["_tipo"]}"' if e.get("_tipo") else '') + '>'
+                + (f' data-naz="{esc(e["_naz"])}" data-fl="{iso_nazione(e["_naz"])}"' if e.get("_naz") else '') + (f' data-tipo="{e["_tipo"]}"' if e.get("_tipo") else '') + '>'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span>'
                 + (f'<span class="notte">notte tra {GIORNI[(q.weekday() - 1) % 7].lower()} e {GIORNI[q.weekday()].lower()}</span>' if notte else '') +
@@ -1003,8 +1017,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
         f'<button type="button" data-gruppo="{g}" data-cat="{k}" aria-pressed="{"true" if k == "tutto" else "false"}">{t}</button>'
         for k, t in voci)
     scelta_c = tasti("calcio", [("tutto", "TUTTO"), ("elite", tit("calcio", "elite", "ELITE CALCIO")),
-                                ("italia", tit("calcio", "italia", "CALCIO ITALIA")),
-                                ("sudamerica", tit("calcio", "sudamerica", "SUDAMERICA")),
+                                 ("sudamerica", tit("calcio", "sudamerica", "SUDAMERICA")),
                                 ("minore", tit("calcio", "minore", "CALCIO MINORE"))])
     scelta_s = tasti("altri", [("tutto", "TUTTO"), ("elite", tit("altri", "elite", "ELITE SPORT"))])
     return TEMPLATE.format(
@@ -1383,6 +1396,7 @@ TEMPLATE = """<!doctype html>
   .scelta-b.cinque {{ grid-template-columns:repeat(6, 1fr); }}
   .scelta-b.cinque button {{ grid-column:span 2; }}
   .scelta-b.cinque button:nth-child(n+4) {{ grid-column:span 3; }}
+  .scelta-b.quattro {{ grid-template-columns:1fr 1fr; }}
   .scelta-b[hidden] {{ display:none; }}
   .scelta-b button {{ font:inherit; font-size:1rem; font-weight:800; min-height:58px; padding:6px 8px; border-radius:12px; line-height:1.15;
                background:#111; color:#fff; border:3px solid #888; cursor:pointer; }}
@@ -1517,7 +1531,7 @@ TEMPLATE = """<!doctype html>
   }}
   /* ---- titolo in Bebas Neue (font locale, SIL OFL) ---- */
   @font-face {{ font-family:"Bebas Neue"; src:url("fonts/bebas-neue-latin.woff2") format("woff2"); font-weight:400; font-style:normal; font-display:swap; }}
-  h1 {{ font-family:"Bebas Neue", "Oswald", system-ui, sans-serif; font-weight:400; font-size:1.45rem; letter-spacing:.045em; line-height:1.05; }}
+  h1 {{ font-family:"Bebas Neue", "Oswald", system-ui, sans-serif; font-weight:400; font-size:1.8rem; letter-spacing:.045em; line-height:1.05; }}
   h1 .h1p {{ font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; letter-spacing:.02em; margin-left:.3em; vertical-align:.35em; }}
   /* ---- desktop: barra laterale (solo schermi larghi; su telefono non cambia nulla) ---- */
   #barra, #ordina-top {{ display:none; }}
@@ -1548,7 +1562,6 @@ TEMPLATE = """<!doctype html>
   .b-et {{ margin:10px 0 6px; font-size:.48rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#8a8a8a; }}
   html.desk #barra .scelta-b {{ grid-template-columns:1fr 1fr; gap:6px; }}
   html.desk #barra .scelta-b button {{ grid-column:auto !important; font-size:.5rem; min-height:36px; border-width:1px; }}
-  html.desk #barra .scelta-b button:first-child {{ grid-column:1 / -1 !important; }}
   html.desk #barra nav.filtri {{ position:static; display:grid; grid-template-columns:repeat(4, 1fr); gap:5px; padding:0; border:0; background:none; max-width:none; }}
   html.desk #barra nav.filtri button {{ font-size:.5rem; min-height:36px; padding:2px; border-width:1px; line-height:1.1; }}
   html.desk #barra nav.filtri button span {{ display:block; }}
@@ -1560,7 +1573,9 @@ TEMPLATE = """<!doctype html>
   .b-extra button[aria-pressed="true"] .c, .b-naz button[aria-pressed="true"] .c {{ color:#000; }}
   .b-extra button:disabled {{ opacity:.4; cursor:default; }}
   .b-naz {{ display:grid; gap:4px; margin:6px 0 0 8px; padding-left:8px; border-left:2px solid #333; }}
-  .b-naz button {{ min-height:32px; font-weight:600; }}
+  .b-naz button {{ min-height:32px; font-weight:600; align-items:center; }}
+  .b-naz img.fl {{ width:20px; height:15px; vertical-align:-2px; border-radius:2px; box-shadow:0 0 0 1px #000; }}
+  .b-naz .ico {{ display:inline-block; width:20px; text-align:center; }}
   html.desk #ordina-top {{ display:flex; align-items:center; gap:10px; max-width:1000px; margin:6px auto 0; }}
   html.desk #ordina-top .lab {{ font-size:.5rem; font-weight:800; letter-spacing:.08em; color:#8a8a8a; text-transform:uppercase; }}
   html.desk #ordina-top .viste {{ display:flex; gap:6px; }}
@@ -1577,7 +1592,7 @@ TEMPLATE = """<!doctype html>
   <section class="acc" data-acc="calcio"><div class="acc-h"><button type="button" class="acc-sez" data-sezione="calcio">⚽ CALCIO <span class="n" id="bn-calcio"></span></button><button type="button" class="acc-t" aria-expanded="true" aria-label="Apri o chiudi CALCIO"><span>▾</span></button></div>
     <div class="acc-b"><p class="b-et">Cosa vedere</p><div class="slot" data-slot="scelta-calcio"></div>
       <p class="b-et">Giorno</p><div class="slot" data-slot="giorni-calcio"></div>
-      <p class="b-et">Filtra</p><div class="b-extra"><button type="button" data-extra="coppe" aria-pressed="false">🏆 Coppe europee <span class="c" data-conta="coppe"></span></button><button type="button" data-extra="nazionali" aria-pressed="false">🌍 Nazionali <span class="c" data-conta="nazionali"></span></button><button type="button" id="b-naz-t" aria-expanded="false" aria-pressed="false">🏳️ Per nazione <span class="c">▸</span></button></div>
+      <p class="b-et">Filtra</p><div class="b-extra"><button type="button" id="b-naz-t" aria-expanded="false" aria-pressed="false"><span>🏳️ Per nazione</span> <span class="c">▸</span></button></div>
       <div class="b-naz" id="b-naz" hidden></div></div></section>
   <section class="acc" data-acc="sport"><div class="acc-h"><button type="button" class="acc-sez" data-sezione="sport">🏁 ALTRI SPORT <span class="n" id="bn-sport"></span></button><button type="button" class="acc-t" aria-expanded="true" aria-label="Apri o chiudi ALTRI SPORT"><span>▾</span></button></div>
     <div class="acc-b"><p class="b-et">Cosa vedere</p><div class="slot" data-slot="scelta-altri"></div>
@@ -1593,22 +1608,17 @@ TEMPLATE = """<!doctype html>
 </nav>
 <section class="pannello" data-sez="calcio" aria-label="Opzioni calcio">
   <p class="et">Scegli cosa vuoi vedere:</p>
-  <div class="scelta-b cinque" data-gruppo="calcio">{scelta_c}</div>
-  <p class="et">Ordina:</p>
-  <div class="viste" data-sez="calcio"><button type="button" data-vista="campionato" aria-pressed="true">PER CAMPIONATO</button><button type="button" data-vista="orario" aria-pressed="false">IN ORDINE DI ORARIO</button></div>
+  <div class="scelta-b quattro" data-gruppo="calcio">{scelta_c}</div>
 </section>
 <section class="pannello" data-sez="sport" aria-label="Opzioni altri sport" hidden>
   <p class="et">Scegli cosa vuoi vedere:</p>
   <div class="scelta-b due" data-gruppo="altri">{scelta_s}</div>
-  <p class="et">Ordina:</p>
-  <div class="viste" data-sez="sport"><button type="button" data-vista="tipo" aria-pressed="true">PER SPORT</button><button type="button" data-vista="orario" aria-pressed="false">IN ORDINE DI ORARIO</button></div>
 </section>
 <nav class="filtri" data-sez="calcio" aria-label="Calcio: filtra per giorno">{bottoni}</nav>
 <nav class="filtri" data-sez="sport" aria-label="Altri sport: filtra per giorno" hidden>{bottoni_s}</nav>
 <div class="cerca" role="search"><input id="cerca" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search"
   placeholder="🔍 Cerca squadra, sport, competizione, canale…" aria-label="Cerca squadra, sport, competizione o canale"><button type="button" id="cerca-x" aria-label="Cancella la ricerca" title="Cancella" hidden>✕</button></div>
 <p id="nessun-risultato" class="nessun-risultato" role="status" hidden>Nessun risultato per «<span></span>»</p>
-<div id="ordina-top"><span class="lab">Ordina</span><div class="slot" data-slot="viste-calcio"></div><div class="slot" data-slot="viste-sport"></div></div>
 <main>
 <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera) · <span class="tag dz">DAZN GRATIS</span> = senza lucchetto su DAZN (account gratuito)</p>
 <p class="intro-altri" data-sez="sport" hidden>Dirette gratuite: SRF, RTS, RSI, ARD, DAZN Italia (senza lucchetto), canali Teleboy e canali in chiaro di tutto il mondo (LiveOnSat, NFL gratis secondo TechRadar). Tocca l'emittente per aprire la diretta.</p>
@@ -1649,9 +1659,8 @@ TEMPLATE = """<!doctype html>
   var vecchia = leggi('vista');  // versioni precedenti: vista = campionato / orario / altri
   S.sezione = m ? m[1] : (mv && mv[1] === 'altri') ? 'sport' : (leggi('sezione') || (vecchia === 'altri' ? 'sport' : 'calcio'));
   if (S.sezione !== 'sport') S.sezione = 'calcio';
-  var vc = (mv && mv[1] !== 'altri') ? mv[1] : (leggi('vista-calcio') || vecchia);
-  if (vc === 'orario') S.vista.calcio = 'orario';
-  if (leggi('vista-sport') === 'orario') S.vista.sport = 'orario';
+  // ordinamento: sempre quello predefinito (per campionato / per sport); preferenze vecchie cancellate
+  try {{ localStorage.removeItem('vista-calcio'); localStorage.removeItem('vista-sport'); localStorage.removeItem('vista'); }} catch (e) {{}}
   ['calcio', 'altri'].forEach(function (g) {{
     var v = leggi('scelta-' + g);
     if (v && document.querySelector('.scelta-b button[data-gruppo="' + g + '"][data-cat="' + v + '"]')) S.cat[g] = v;
@@ -1765,9 +1774,8 @@ TEMPLATE = """<!doctype html>
     // "Dove vederli": le voci della sezione attiva
     tutti('li.dove').forEach(function (d) {{ d.hidden = (' ' + d.dataset.sez + ' ').indexOf(' ' + sez + ' ') < 0; }});
     try {{ sessionStorage.setItem('giorni', JSON.stringify(S.giorno)); }} catch (e) {{}}
-    tutti('#barra [data-extra]').forEach(function (b) {{ b.setAttribute('aria-pressed', EXTRA === b.dataset.extra ? 'true' : 'false'); }});
-    tutti('#b-naz button').forEach(function (b) {{ b.setAttribute('aria-pressed', EXTRA === 'naz:' + b.dataset.naz ? 'true' : 'false'); }});
-    var bn = document.getElementById('b-naz-t'); if (bn) bn.setAttribute('aria-pressed', EXTRA.indexOf('naz:') === 0 ? 'true' : 'false');
+    tutti('#b-naz button').forEach(function (b) {{ b.setAttribute('aria-pressed', EXTRA === b.dataset.k ? 'true' : 'false'); }});
+    var bn = document.getElementById('b-naz-t'); if (bn) bn.setAttribute('aria-pressed', EXTRA ? 'true' : 'false');
     var c1 = document.getElementById('bn-calcio'), c2 = document.getElementById('bn-sport');
     if (c1) c1.textContent = document.getElementById('n-partite').textContent + ' in programma';
     if (c2) c2.textContent = document.getElementById('n-eventi').textContent + ' in programma';
@@ -1807,8 +1815,7 @@ TEMPLATE = """<!doctype html>
   // ---- desktop: barra laterale (gli stessi comandi vengono spostati; su telefono restano dove sono) ----
   var SPOSTA = [['.cerca', 'b-cerca'], ['.scelta-b[data-gruppo="calcio"]', 'scelta-calcio'], ['.scelta-b[data-gruppo="altri"]', 'scelta-altri'],
                ['nav.filtri[data-sez="calcio"]', 'giorni-calcio'], ['nav.filtri[data-sez="sport"]', 'giorni-sport'],
-               ['.pannello .viste[data-sez="calcio"], #ordina-top .viste[data-sez="calcio"]', 'viste-calcio'],
-               ['.pannello .viste[data-sez="sport"], #ordina-top .viste[data-sez="sport"]', 'viste-sport']];
+               ];
   var segni = SPOSTA.map(function (x) {{
     var el = document.querySelector(x[0]); var seg = document.createComment('posto');
     if (el) el.parentNode.insertBefore(seg, el);
@@ -1836,26 +1843,45 @@ TEMPLATE = """<!doctype html>
     a.querySelector('.acc-b').addEventListener('click', function () {{ if (S.sezione !== z) {{ S.sezione = z; salva('sezione', z); }} }}, true);
     a.querySelector('.acc-sez').addEventListener('click', function () {{ S.sezione = z; salva('sezione', z); aggiorna(); }});
   }});
-  // nazioni: elenco dalle partite di calcio, le più numerose prima
+  // "Per nazione": Coppe europee, Nazionali e le nazioni (ordine fisso, poi le altre per numero di partite);
+  // da martedì a giovedì (ora italiana), se oggi ci sono partite di coppa, le Coppe europee vanno in cima; altrimenti dopo le nazioni
   (function () {{
-    var conta = {{}}, box = document.getElementById('b-naz'), tasto = document.getElementById('b-naz-t');
+    var box = document.getElementById('b-naz'), tasto = document.getElementById('b-naz-t');
     if (!box) return;
-    tutti('#vista-campionato li.partita').forEach(function (p) {{ if (p.dataset.naz) conta[p.dataset.naz] = (conta[p.dataset.naz] || 0) + 1; }});
-    Object.keys(conta).sort(function (a, b) {{ return conta[b] - conta[a] || a.localeCompare(b); }}).forEach(function (n) {{
-      var b = document.createElement('button'); b.type = 'button'; b.dataset.naz = n; b.setAttribute('aria-pressed', 'false');
-      b.innerHTML = '<span></span><span class="c"></span>'; b.firstChild.textContent = n; b.lastChild.textContent = conta[n];
-      b.addEventListener('click', function () {{ EXTRA = EXTRA === 'naz:' + n ? '' : 'naz:' + n; aggiorna(); }});
+    var conta = {{}}, fl = {{}}, tipi = {{ coppe: 0, nazionali: 0 }};
+    tutti('#vista-campionato li.partita').forEach(function (p) {{
+      if (p.dataset.naz) {{ conta[p.dataset.naz] = (conta[p.dataset.naz] || 0) + 1; fl[p.dataset.naz] = p.dataset.fl; }}
+      if (p.dataset.tipo) tipi[p.dataset.tipo]++;
+    }});
+    var FISSO = ['Italia', 'Inghilterra', 'Spagna', 'Germania', 'Francia', 'Olanda', 'Portogallo', 'Belgio', 'Svizzera'];
+    var nazioni = Object.keys(conta).sort(function (a, b) {{
+      var ia = FISSO.indexOf(a), ib = FISSO.indexOf(b);
+      if (ia >= 0 || ib >= 0) return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      return conta[b] - conta[a] || a.localeCompare(b);
+    }});
+    var gg = new Date().toLocaleDateString('en-GB', {{ timeZone: 'Europe/Rome', weekday: 'short' }});
+    var oggi = new Date().toLocaleDateString('en-CA', {{ timeZone: 'Europe/Rome' }});  // AAAA-MM-GG
+    var coppeOggi = !!document.querySelector('#vista-campionato li.partita[data-tipo="coppe"][data-giorno="' + oggi + '"]');
+    var coppeSu = (gg === 'Tue' || gg === 'Wed' || gg === 'Thu') && coppeOggi;  // in cima solo se oggi ci sono partite di coppa
+    var voci = nazioni.map(function (n) {{ return {{ k: 'naz:' + n, t: n, n: conta[n], fl: fl[n] }}; }});
+    var speciali = [{{ k: 'coppe', t: 'Coppe europee', n: tipi.coppe, ico: '🏆' }}, {{ k: 'nazionali', t: 'Nazionali', n: tipi.nazionali, ico: '🌍' }}]
+      .filter(function (x) {{ return x.n > 0; }});
+    voci = coppeSu ? speciali.concat(voci) : voci.concat(speciali);
+    voci.forEach(function (v) {{
+      var b = document.createElement('button'); b.type = 'button'; b.dataset.k = v.k; b.setAttribute('aria-pressed', 'false');
+      var l = document.createElement('span'); l.className = 'nm';
+      if (v.fl) {{ var i = document.createElement('img'); i.className = 'fl'; i.src = 'flags/' + v.fl + '.svg'; i.alt = ''; i.width = 20; i.height = 15; l.appendChild(i); }}
+      else {{ var e = document.createElement('span'); e.className = 'ico'; e.textContent = v.ico || '🏳️'; l.appendChild(e); }}
+      l.appendChild(document.createTextNode(' ' + v.t));
+      var c = document.createElement('span'); c.className = 'c'; c.textContent = v.n;
+      b.appendChild(l); b.appendChild(c);
+      b.addEventListener('click', function () {{ EXTRA = EXTRA === v.k ? '' : v.k; aggiorna(); }});
       box.appendChild(b);
     }});
     tasto.addEventListener('click', function () {{
       box.hidden = !box.hidden; tasto.setAttribute('aria-expanded', box.hidden ? 'false' : 'true');
       tasto.querySelector('.c').textContent = box.hidden ? '▸' : '▾';
-      if (box.hidden && EXTRA.indexOf('naz:') === 0) {{ EXTRA = ''; aggiorna(); }}
-    }});
-    ['coppe', 'nazionali'].forEach(function (t) {{
-      var n = tutti('#vista-campionato li.partita[data-tipo="' + t + '"]').length, b = document.querySelector('#barra [data-extra="' + t + '"]');
-      b.querySelector('.c').textContent = n; if (!n) b.disabled = true;
-      b.addEventListener('click', function () {{ EXTRA = EXTRA === t ? '' : t; aggiorna(); }});
+      if (box.hidden && EXTRA) {{ EXTRA = ''; aggiorna(); }}
     }});
   }})();
   layout();

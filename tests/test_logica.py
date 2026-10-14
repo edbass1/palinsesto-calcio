@@ -923,7 +923,7 @@ def test_unione():
     ts = [int(x) for x in _re.findall(r'data-ts="(\d+)"', orario)]
     assert len(ts) == st["totale"] and ts == sorted(ts)
     assert _re.findall(r'class="giorno-h">([^<]+)', orario) == ["VENERDÌ 9 OTTOBRE", "SABATO 10 OTTOBRE", "DOMENICA 11 OTTOBRE", "LUNEDÌ 12 OTTOBRE"]
-    assert orario.count('class="comp-tag"') == st["totale"] and 'data-vista="orario"' in html and "localStorage" in html
+    assert orario.count('class="comp-tag"') == st["totale"] and 'data-vista="orario"' not in html and "localStorage" in html
     return st
 
 def test_categorie():
@@ -964,17 +964,17 @@ def test_categorie():
          {"nome": "LIGA I (Romania)", "partite": [{"casa": "FCSB", "ospite": "Rapid", "quando": q, "ts": int(q.timestamp()), "canali": []}]}]
     al = [{"sport": "Formula 1", "titolo": "Gara", "ts": int(q.timestamp()), "fine": int(q.timestamp()) + 7200, "emittenti": []}]
     h = p.genera_html(*p.finestra(ora)[:1], ora, g, [], [], [], al)
-    assert "Scegli cosa vuoi vedere:" in h and h.count('data-gruppo="calcio" data-cat=') == 5 and h.count('data-gruppo="altri" data-cat=') == 2
+    assert "Scegli cosa vuoi vedere:" in h and h.count('data-gruppo="calcio" data-cat=') == 4 and 'data-cat="italia"' not in h.split('data-gruppo="calcio"', 1)[1][:2000] and h.count('data-gruppo="altri" data-cat=') == 2
     assert 'data-cat="elite italia"' in h and 'data-cat="minore"' in h and 'data-fine="%d" data-giorno' % (int(q.timestamp()) + 7200) in h
     assert ">SUDAMERICA<" in h and ">CALCIO MINORE<" in h and 'data-sezione="sport"' in h and "SPORT GRATIS E LEGALE IN TV" in h
-    assert 'id="vista-sport-tipo"' in h and 'data-vista="tipo"' in h and 'data-vista="altri"' not in h
+    assert 'id="vista-sport-tipo"' in h and 'data-vista="orario"' not in h and 'data-vista="altri"' not in h  # niente pulsanti di ordinamento
     # PER CAMPIONATO: sezioni in ordine di primo calcio d'inizio, a parità ordine fisso
     q2 = q - dt.timedelta(hours=1)
     g2 = [dict(g[0]), {"nome": "LIGA I (Romania)", "partite": [dict(g[1]["partite"][0], quando=q2, ts=int(q2.timestamp()))]}]
     h2 = p.genera_html(*p.finestra(ora)[:1], ora, g2, [], [], [], al)
     assert h2.index("<h2>LIGA I (Romania)</h2>") < h2.index("<h2>SERIE A</h2>") and 'data-ordine="1"' in h2
     assert h.index("<h2>SERIE A</h2>") < h.index("<h2>LIGA I (Romania)</h2>")  # stesso orario: ordine fisso
-    assert ">ELITE CALCIO<" in h and ">CALCIO ITALIA<" in h and ">ELITE SPORT<" in h
+    assert ">ELITE CALCIO<" in h and ">CALCIO ITALIA<" not in h and ">ELITE SPORT<" in h
 
 def test_altri_los_nfl():
     """Altri sport da LiveOnSat (solo canali in chiaro) + NFL gratis da TechRadar, uniti; link dei canali da dove_vederli.json."""
