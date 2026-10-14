@@ -20,6 +20,7 @@ CACHE = RADICE / "dati" / "cache_extra.json"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"
 MAX_DETTAGLI = 220      # richieste FotMob matchDetails per esecuzione
 TTL_S = 3 * 3600        # cache dei dettagli
+LEGHE_INFO = {47: "Premier League", 55: "Serie A"}  # info partita solo per Premier League e Serie A (id FotMob)
 
 
 def _get(url, timeout=15):
@@ -83,12 +84,27 @@ def partite_fotmob(giorni, log=print):
             log(f"  FotMob {g}: {ex}")
             continue
         for lg in d.get("leagues") or []:
+            lid = lg.get("primaryId") or lg.get("id")
+            if lid not in LEGHE_INFO:
+                continue
             for m in lg.get("matches") or []:
                 st = m.get("status") or {}
                 if st.get("finished") or st.get("cancelled") or not st.get("utcTime"):
                     continue
                 out.append({"id": m["id"], "ts": _ts(st["utcTime"]), "casa": m["home"].get("longName") or m["home"]["name"],
-                            "ospite": m["away"].get("longName") or m["away"]["name"]})
+                            "ospite": m["away"].get("longName") or m["away"]["name"],
+                            "lega": lid, "id_casa": m["home"].get("id"), "id_ospite": m["away"].get("id")})
+    return out
+
+
+def classifica_fotmob(lega):
+    """{id squadra: (posizione, punti)} dalla classifica FotMob della lega."""
+    d = _get(f"https://www.fotmob.com/api/data/tltable?leagueId={lega}")
+    out = {}
+    for blocco in d if isinstance(d, list) else [d]:
+        for r in (((blocco.get("data") or {}).get("table") or {}).get("all") or []):
+            if r.get("id") is not None and r.get("idx") is not None and r.get("pts") is not None:
+                out[r["id"]] = (int(r["idx"]), int(r["pts"]))
     return out
 
 
@@ -160,7 +176,7 @@ def arricchisci(gruppi, giorni, rete=True, log=print, cache_file=CACHE):
     try:
         fm = partite_fotmob(giorni, log)
         st["fotmob"] = f"{len(fm)} partite"
-        chieste = 0
+        chieste, tabelle = 0, {}
         for e in sorted(partite, key=lambda x: x["ts"]):
             m, inv = abbina(e, fm)
             if not m:
@@ -176,9 +192,19 @@ def arricchisci(gruppi, giorni, rete=True, log=print, cache_file=CACHE):
                     log(f"  FotMob dettagli {k}: {ex}")
                     continue
                 time.sleep(0.3)
-            a = cache[k]["a"]
-            if a:
-                e["_info"] = {"casa": a["ospite"], "ospite": a["casa"]} if inv else a
+            a = cache[k]["a"] or {"casa": [], "ospite": []}
+            if m["lega"] not in tabelle:
+                try:
+                    tabelle[m["lega"]] = classifica_fotmob(m["lega"])
+                except Exception as ex:  # noqa: BLE001
+                    log(f"  FotMob classifica {m['lega']}: {ex}")
+                    tabelle[m["lega"]] = {}
+            tb = tabelle[m["lega"]]
+            cl = {"casa": tb.get(m["id_casa"]), "ospite": tb.get(m["id_ospite"])}
+            if inv:
+                a, cl = {"casa": a["ospite"], "ospite": a["casa"]}, {"casa": cl["ospite"], "ospite": cl["casa"]}
+            if a["casa"] or a["ospite"] or (cl["casa"] and cl["ospite"]):
+                e["_info"] = dict(a, classifica=cl if cl["casa"] and cl["ospite"] else None, assenze=bool(a["casa"] or a["ospite"]))
                 st["info"] += 1
         st["fotmob"] += f", {chieste} dettagli scaricati"
     except Exception as ex:  # noqa: BLE001

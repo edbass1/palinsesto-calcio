@@ -1565,6 +1565,9 @@ def test_etichette_extra():
     h = p.etichette_extra(e)
     assert "info partita" in h and "rivalità" in h and "tanti gol" not in h and "nessuna assenza segnalata" in h
     assert p.etichette_extra({"casa": "a", "ospite": "b"}) == ""
+    h2 = p.etichette_extra({"casa": "Inter", "ospite": "Milan", "_info": {"casa": [], "ospite": [], "assenze": False, "classifica": {"casa": (1, 16), "ospite": (4, 12)}}})
+    assert "Classifica" in h2 and "1º Inter – 16 pt" in h2 and "4º Milan – 12 pt" in h2 and "Infortunati" not in h2
+    assert X.LEGHE_INFO == {47: "Premier League", 55: "Serie A"}
     # abbinamento a squadre invertite: le assenze restano della squadra giusta
     m, inv = X.abbina({"ts": 1000, "casa": "Leeds", "ospite": "Manchester United"}, [{"ts": 1000, "casa": "Manchester United", "ospite": "Leeds United", "id": 1}])
     assert m and inv
