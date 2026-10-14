@@ -1671,7 +1671,6 @@ TEMPLATE = """<!doctype html>
 <p id="nessun-risultato" class="nessun-risultato" role="status" hidden>Nessun risultato per «<span></span>»</p>
 <main>
 <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera) · <span class="tag dz">DAZN GRATIS</span> = senza lucchetto su DAZN (account gratuito)</p>
-<p class="intro-altri" data-sez="sport" hidden>Dirette gratuite: SRF, RTS, RSI, ARD, DAZN Italia (senza lucchetto), canali Teleboy e canali in chiaro di tutto il mondo (LiveOnSat, NFL gratis secondo TechRadar). Tocca l'emittente per aprire la diretta.</p>
 <div id="vista-campionato" class="vista" data-sez="calcio">
 {sezioni}
 </div>
