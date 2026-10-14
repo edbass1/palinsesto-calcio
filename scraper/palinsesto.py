@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import liveonsat  # noqa: E402
 import unisci  # noqa: E402
 import teleboy as teleboy_mod  # noqa: E402
+import extra_partite as extra_mod  # noqa: E402
 import dazn  # noqa: E402
 import primaplay  # noqa: E402
 import altri_sport  # noqa: E402
@@ -899,6 +900,27 @@ def tipo_comp(nome):
     return "coppe" if RE_COPPE_EUROPEE.search(nome or "") else "nazionali" if RE_NAZIONALI.search(nome or "") else ""
 
 
+def etichette_extra(e):
+    """Etichette accanto alle squadre: info partita (assenze), rivalità, tanti gol previsti. Spiegazione al passaggio / tocco."""
+    esc = html.escape
+    t = []
+    a = e.get("_info")
+    if a:
+        def lato(nome, lista):
+            if not lista:
+                return f'<b>{esc(nome)}</b>: nessuna assenza segnalata'
+            return f'<b>{esc(nome)}</b>: ' + "; ".join(f"{esc(n)} ({esc(m)})" for n, m in lista)
+        t.append('<button type="button" class="tg tg-info" aria-label="Info partita: assenze">ℹ️ info partita'
+                 f'<span class="tip" role="tooltip"><span class="tip-t">Infortunati e squalificati</span>{lato(e["casa"], a.get("casa"))}<br>'
+                 f'{lato(e["ospite"], a.get("ospite"))}<span class="tip-f">fonte: FotMob</span></span></button>')
+    if e.get("_riv"):
+        t.append(f'<button type="button" class="tg tg-riv" aria-label="Rivalità">🔥 rivalità<span class="tip" role="tooltip">{esc(e["_riv"])}</span></button>')
+    if e.get("_gol"):
+        t.append('<button type="button" class="tg tg-gol" aria-label="Tanti gol previsti">⚽ tanti gol previsti'
+                 '<span class="tip" role="tooltip">Secondo i bookmaker è molto probabile che si segnino almeno 3 gol.</span></button>')
+    return f'<span class="tags">{"".join(t)}</span>' if t else ""
+
+
 def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categorie=None):
     VPN_MANCANTI[:] = []
     esc = html.escape
@@ -926,6 +948,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
             squadre += f' <span class="vs">–</span> <span class="sq">{esc(e["ospite"])}</span>'
         if comp:
             squadre = f'<span class="comp-tag">{esc(comp)}</span>' + squadre
+        squadre += etichette_extra(e)
         canali = togli_link_doppi("".join(badge(c, dove, usati_c) for c in stesso_link(e["canali"], dove)))
         if not e["canali"]:
             canali = '<li class="senza-canali">Canali non ancora disponibili: potrebbero comparire nei prossimi aggiornamenti.</li>'
@@ -1585,6 +1608,22 @@ TEMPLATE = """<!doctype html>
   html.desk #ordina-top .viste button {{ font-size:.5rem; min-height:34px; padding:4px 12px; border-width:1px; border-radius:999px; }}
   html.desk .su {{ left:calc(13.5rem + 40px); }}
   html.desk nav.filtri, html.desk .cerca {{ padding-right:0; }}
+  .sottotitolo {{ color:#fff; font-size:.62rem; font-weight:600; margin:2px 0 6px; line-height:1.3; opacity:.95; }}
+  /* etichette sulle partite: info partita, rivalità, tanti gol previsti */
+  .squadre .tags {{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; width:100%; }}
+  .tg {{ position:relative; font:inherit; font-size:.5rem; font-weight:700; line-height:1.2; padding:4px 9px; min-height:28px; border-radius:999px;
+        border:1px solid #444; background:#1a1a1a; color:#ddd; cursor:help; }}
+  .tg-info {{ border-color:#3b82c4; color:#9fd0ff; }}
+  .tg-riv {{ border-color:#c2410c; color:#ffb38a; }}
+  .tg-gol {{ border-color:#15803d; color:#86efac; }}
+  .tg .tip {{ display:none; position:absolute; z-index:30; left:0; top:calc(100% + 6px); width:max-content; max-width:min(24rem, 86vw, calc(100vw - 560px));
+             background:#111; color:#eee; border:1px solid #555; border-radius:8px; padding:8px 11px; font-size:.55rem; font-weight:500;
+             text-align:left; line-height:1.4; white-space:normal; box-shadow:0 6px 20px #000c; }}
+  .tg .tip-t {{ display:block; font-weight:800; color:#fff; margin-bottom:3px; }}
+  .tg .tip-f {{ display:block; color:#888; font-size:.85em; margin-top:4px; }}
+  .tg:hover .tip, .tg:focus .tip, .tg.aperto .tip {{ display:block; }}
+  @media (max-width: 999px) {{ .tg .tip {{ max-width:86vw; }} }}
+  @media (hover: none) {{ .tg:hover .tip {{ display:none; }} .tg.aperto .tip {{ display:block; }} }}
 </style>
 </head>
 <body>
@@ -1603,6 +1642,7 @@ TEMPLATE = """<!doctype html>
 </aside>
 <header>
   <h1>SPORT GRATIS E LEGALE IN TV <span class="h1p">{periodo}</span></h1>
+  <p class="sottotitolo">Match gentilmente offerti da pay TV e canali pubblici</p>
   <p class="agg">Aggiornato {aggiornato} · orari italiani</p>
 </header>
 <nav class="sezioni" aria-label="Sezione">
@@ -1887,6 +1927,12 @@ TEMPLATE = """<!doctype html>
       if (box.hidden && EXTRA) {{ EXTRA = ''; aggiorna(); }}
     }});
   }})();
+  // etichette: un tocco apre/chiude la spiegazione, un tocco altrove la chiude
+  document.addEventListener('click', function (ev) {{
+    var t = ev.target.closest && ev.target.closest('.tg');
+    tutti('.tg.aperto').forEach(function (x) {{ if (x !== t) x.classList.remove('aperto'); }});
+    if (t) t.classList.toggle('aperto');
+  }});
   layout();
   // ogni clic su un filtro o comando (nazione, coppe, sezione, scelta, giorno, fisarmonica, X della ricerca) riporta la pagina in cima,
   // così l'elenco filtrato si vede dall'inizio; zoom e digitazione nella ricerca no
@@ -1939,6 +1985,7 @@ def main():
     ap.add_argument("--out", default=str(RADICE / "site"))
     ap.add_argument("--ora", help="data/ora di riferimento ISO (per test), es. 2026-10-10T18:00+02:00")
     ap.add_argument("--json", action="store_true", help="scrive anche palinsesto.json")
+    ap.add_argument("--senza-extra", action="store_true", help="niente assenze/quote (solo rivalità non serve rete)")
     a = ap.parse_args()
 
     ora = dt.datetime.fromisoformat(a.ora) if a.ora else dt.datetime.now(ROMA)
@@ -1963,6 +2010,8 @@ def main():
     gruppi = togli_finite(gruppi, dt.datetime.now(ROMA))
     st["finite_tolte"] = n_tutte - sum(len(g["partite"]) for g in gruppi)
 
+    if not a.senza_extra:
+        print("Etichette partite:", extra_mod.arricchisci(gruppi, [primo + dt.timedelta(days=i) for i in range(GIORNI_FINESTRA)]))
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     for f in (RADICE / "static").iterdir():

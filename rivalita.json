@@ -1,0 +1,1020 @@
+{
+ "_nota": "Rivalità e derby molto sentiti (elenco curato a mano). 'squadre' in qualsiasi ordine; abbinamento con la stessa logica dei doppioni. Nomi alternativi separati da |.",
+ "coppie": [
+  {
+   "squadre": [
+    "Inter",
+    "Milan"
+   ],
+   "perche": "Derby della Madonnina: le due squadre di Milano, stesso stadio (San Siro)"
+  },
+  {
+   "squadre": [
+    "Roma",
+    "Lazio"
+   ],
+   "perche": "Derby della Capitale: la sfida più sentita di Roma"
+  },
+  {
+   "squadre": [
+    "Genoa",
+    "Sampdoria"
+   ],
+   "perche": "Derby della Lanterna: le due squadre di Genova"
+  },
+  {
+   "squadre": [
+    "Inter",
+    "Juventus"
+   ],
+   "perche": "Derby d'Italia: le due squadre più titolate e più rivali"
+  },
+  {
+   "squadre": [
+    "Juventus",
+    "Fiorentina"
+   ],
+   "perche": "Rivalità storica, inasprita dalla cessione di Roberto Baggio alla Juve (1990)"
+  },
+  {
+   "squadre": [
+    "Napoli",
+    "Roma"
+   ],
+   "perche": "Derby del Sole: rivalità accesa tra le tifoserie"
+  },
+  {
+   "squadre": [
+    "Milan",
+    "Juventus"
+   ],
+   "perche": "Sfida tra due delle squadre più titolate d'Italia"
+  },
+  {
+   "squadre": [
+    "Verona",
+    "Chievo"
+   ],
+   "perche": "Derby di Verona (della Scala)"
+  },
+  {
+   "squadre": [
+    "Atalanta",
+    "Brescia"
+   ],
+   "perche": "Derby lombardo molto sentito tra città vicine"
+  },
+  {
+   "squadre": [
+    "Fiorentina",
+    "Bologna"
+   ],
+   "perche": "Derby dell'Appennino tra Toscana ed Emilia"
+  },
+  {
+   "squadre": [
+    "Parma",
+    "Reggiana"
+   ],
+   "perche": "Derby emiliano tra città vicine"
+  },
+  {
+   "squadre": [
+    "Palermo",
+    "Catania"
+   ],
+   "perche": "Derby di Sicilia"
+  },
+  {
+   "squadre": [
+    "Bari",
+    "Lecce"
+   ],
+   "perche": "Derby di Puglia"
+  },
+  {
+   "squadre": [
+    "Cagliari",
+    "Sassari Torres"
+   ],
+   "perche": "Derby di Sardegna"
+  },
+  {
+   "squadre": [
+    "Lazio",
+    "Napoli"
+   ],
+   "perche": "Rivalità accesa tra le tifoserie"
+  },
+  {
+   "squadre": [
+    "Manchester United",
+    "Manchester City"
+   ],
+   "perche": "Derby di Manchester"
+  },
+  {
+   "squadre": [
+    "Liverpool",
+    "Everton"
+   ],
+   "perche": "Derby del Merseyside: le due squadre di Liverpool"
+  },
+  {
+   "squadre": [
+    "Arsenal",
+    "Tottenham"
+   ],
+   "perche": "Derby del Nord di Londra"
+  },
+  {
+   "squadre": [
+    "Liverpool",
+    "Manchester United"
+   ],
+   "perche": "La rivalità più sentita d'Inghilterra, tra le due città del Nord-Ovest"
+  },
+  {
+   "squadre": [
+    "Chelsea",
+    "Tottenham"
+   ],
+   "perche": "Rivalità londinese molto accesa"
+  },
+  {
+   "squadre": [
+    "Chelsea",
+    "Arsenal"
+   ],
+   "perche": "Derby di Londra tra due grandi"
+  },
+  {
+   "squadre": [
+    "Millwall",
+    "West Ham"
+   ],
+   "perche": "Storica rivalità dell'East London e dei Docklands"
+  },
+  {
+   "squadre": [
+    "Newcastle",
+    "Sunderland"
+   ],
+   "perche": "Tyne-Wear derby: il derby del Nord-Est"
+  },
+  {
+   "squadre": [
+    "Aston Villa",
+    "Birmingham"
+   ],
+   "perche": "Derby della Second City (Birmingham)"
+  },
+  {
+   "squadre": [
+    "West Bromwich",
+    "Wolverhampton|Wolves"
+   ],
+   "perche": "Black Country derby"
+  },
+  {
+   "squadre": [
+    "Leeds",
+    "Manchester United"
+   ],
+   "perche": "Rivalità delle Rose: Yorkshire contro Lancashire"
+  },
+  {
+   "squadre": [
+    "Sheffield United",
+    "Sheffield Wednesday"
+   ],
+   "perche": "Steel City derby: le due squadre di Sheffield"
+  },
+  {
+   "squadre": [
+    "Nottingham Forest",
+    "Derby County"
+   ],
+   "perche": "Derby delle East Midlands (Brian Clough Trophy)"
+  },
+  {
+   "squadre": [
+    "Brighton",
+    "Crystal Palace"
+   ],
+   "perche": "Rivalità M23/A23 tra Brighton e il Sud di Londra"
+  },
+  {
+   "squadre": [
+    "Southampton",
+    "Portsmouth"
+   ],
+   "perche": "South Coast derby"
+  },
+  {
+   "squadre": [
+    "Bristol City",
+    "Bristol Rovers"
+   ],
+   "perche": "Derby di Bristol"
+  },
+  {
+   "squadre": [
+    "Ipswich",
+    "Norwich"
+   ],
+   "perche": "East Anglian derby"
+  },
+  {
+   "squadre": [
+    "Cardiff",
+    "Swansea"
+   ],
+   "perche": "South Wales derby"
+  },
+  {
+   "squadre": [
+    "West Ham",
+    "Tottenham"
+   ],
+   "perche": "Derby di Londra molto acceso"
+  },
+  {
+   "squadre": [
+    "Chelsea",
+    "Fulham"
+   ],
+   "perche": "West London derby"
+  },
+  {
+   "squadre": [
+    "Leicester",
+    "Nottingham Forest"
+   ],
+   "perche": "Derby delle East Midlands"
+  },
+  {
+   "squadre": [
+    "Stoke",
+    "Port Vale"
+   ],
+   "perche": "Potteries derby"
+  },
+  {
+   "squadre": [
+    "Blackburn",
+    "Burnley"
+   ],
+   "perche": "East Lancashire derby"
+  },
+  {
+   "squadre": [
+    "Liverpool",
+    "Manchester City"
+   ],
+   "perche": "Grande rivalità sportiva degli ultimi anni"
+  },
+  {
+   "squadre": [
+    "Celtic",
+    "Rangers"
+   ],
+   "perche": "Old Firm: il derby di Glasgow, tra i più accesi al mondo"
+  },
+  {
+   "squadre": [
+    "Hearts",
+    "Hibernian"
+   ],
+   "perche": "Edinburgh derby"
+  },
+  {
+   "squadre": [
+    "Dundee",
+    "Dundee United"
+   ],
+   "perche": "Derby di Dundee: stadi a pochi metri di distanza"
+  },
+  {
+   "squadre": [
+    "Aberdeen",
+    "Rangers"
+   ],
+   "perche": "Rivalità accesissima tra Aberdeen e Rangers"
+  },
+  {
+   "squadre": [
+    "Real Madrid",
+    "Barcelona"
+   ],
+   "perche": "El Clásico: la partita più famosa del calcio spagnolo"
+  },
+  {
+   "squadre": [
+    "Real Madrid",
+    "Atletico Madrid"
+   ],
+   "perche": "Derbi madrileño: le due grandi di Madrid"
+  },
+  {
+   "squadre": [
+    "Barcelona",
+    "Espanyol"
+   ],
+   "perche": "Derbi barceloní: le due squadre di Barcellona"
+  },
+  {
+   "squadre": [
+    "Sevilla",
+    "Real Betis"
+   ],
+   "perche": "Derbi sevillano: tra i più caldi di Spagna"
+  },
+  {
+   "squadre": [
+    "Athletic Bilbao",
+    "Real Sociedad"
+   ],
+   "perche": "Derbi vasco"
+  },
+  {
+   "squadre": [
+    "Celta Vigo",
+    "Deportivo La Coruna"
+   ],
+   "perche": "Derbi gallego"
+  },
+  {
+   "squadre": [
+    "Atletico Madrid",
+    "Barcelona"
+   ],
+   "perche": "Grande rivalità della Liga"
+  },
+  {
+   "squadre": [
+    "Valencia",
+    "Villarreal"
+   ],
+   "perche": "Derbi della Comunità Valenciana"
+  },
+  {
+   "squadre": [
+    "Getafe",
+    "Leganes"
+   ],
+   "perche": "Derby del sud di Madrid"
+  },
+  {
+   "squadre": [
+    "Zaragoza",
+    "Huesca"
+   ],
+   "perche": "Derbi aragonés"
+  },
+  {
+   "squadre": [
+    "Real Madrid",
+    "Athletic Bilbao"
+   ],
+   "perche": "Sfida storica tra due club mai retrocessi"
+  },
+  {
+   "squadre": [
+    "Borussia Dortmund",
+    "Schalke 04"
+   ],
+   "perche": "Revierderby: il derby della Ruhr"
+  },
+  {
+   "squadre": [
+    "Bayern Munchen",
+    "Borussia Dortmund"
+   ],
+   "perche": "Der Klassiker: le due grandi di Germania"
+  },
+  {
+   "squadre": [
+    "Hamburger SV",
+    "Werder Bremen"
+   ],
+   "perche": "Nordderby"
+  },
+  {
+   "squadre": [
+    "Hamburger SV",
+    "St. Pauli"
+   ],
+   "perche": "Derby di Amburgo"
+  },
+  {
+   "squadre": [
+    "Koln",
+    "Fortuna Dusseldorf"
+   ],
+   "perche": "Derby del Reno tra Colonia e Düsseldorf"
+  },
+  {
+   "squadre": [
+    "Stuttgart",
+    "Karlsruher SC"
+   ],
+   "perche": "Derby del Baden-Württemberg"
+  },
+  {
+   "squadre": [
+    "Bayern Munchen",
+    "1860 Munchen"
+   ],
+   "perche": "Derby di Monaco"
+  },
+  {
+   "squadre": [
+    "Eintracht Frankfurt",
+    "Kickers Offenbach"
+   ],
+   "perche": "Derby dell'Assia"
+  },
+  {
+   "squadre": [
+    "Nurnberg",
+    "Greuther Furth"
+   ],
+   "perche": "Frankenderby: il derby più giocato di Germania"
+  },
+  {
+   "squadre": [
+    "Schalke 04",
+    "Bochum"
+   ],
+   "perche": "Derby della Ruhr"
+  },
+  {
+   "squadre": [
+    "Paris Saint-Germain|PSG",
+    "Marseille"
+   ],
+   "perche": "Le Classique: Parigi contro Marsiglia"
+  },
+  {
+   "squadre": [
+    "Lyon",
+    "Saint-Etienne"
+   ],
+   "perche": "Derby du Rhône"
+  },
+  {
+   "squadre": [
+    "Nice",
+    "Monaco"
+   ],
+   "perche": "Derby della Costa Azzurra"
+  },
+  {
+   "squadre": [
+    "Lens",
+    "Lille"
+   ],
+   "perche": "Derby du Nord"
+  },
+  {
+   "squadre": [
+    "Nantes",
+    "Rennes"
+   ],
+   "perche": "Derby della Bretagna e dell'Ovest"
+  },
+  {
+   "squadre": [
+    "Marseille",
+    "Lyon"
+   ],
+   "perche": "Grande rivalità della Ligue 1"
+  },
+  {
+   "squadre": [
+    "Bordeaux",
+    "Nantes"
+   ],
+   "perche": "Derby dell'Atlantico"
+  },
+  {
+   "squadre": [
+    "Ajax",
+    "Feyenoord"
+   ],
+   "perche": "De Klassieker: Amsterdam contro Rotterdam"
+  },
+  {
+   "squadre": [
+    "Ajax",
+    "PSV"
+   ],
+   "perche": "Grande sfida del calcio olandese"
+  },
+  {
+   "squadre": [
+    "PSV",
+    "Feyenoord"
+   ],
+   "perche": "Sfida tra due grandi d'Olanda"
+  },
+  {
+   "squadre": [
+    "Feyenoord",
+    "Sparta Rotterdam"
+   ],
+   "perche": "Derby di Rotterdam"
+  },
+  {
+   "squadre": [
+    "Groningen",
+    "Heerenveen"
+   ],
+   "perche": "Derby del Nord"
+  },
+  {
+   "squadre": [
+    "Twente",
+    "Heracles"
+   ],
+   "perche": "Derby del Twente"
+  },
+  {
+   "squadre": [
+    "Utrecht",
+    "Ajax"
+   ],
+   "perche": "Rivalità molto accesa tra Utrecht e Ajax"
+  },
+  {
+   "squadre": [
+    "Benfica",
+    "Sporting CP|Sporting Lisbona"
+   ],
+   "perche": "Derby de Lisboa: le due squadre di Lisbona"
+  },
+  {
+   "squadre": [
+    "Porto",
+    "Benfica"
+   ],
+   "perche": "O Clássico: la grande sfida del calcio portoghese"
+  },
+  {
+   "squadre": [
+    "Porto",
+    "Sporting CP|Sporting Lisbona"
+   ],
+   "perche": "Clássico tra due grandi del Portogallo"
+  },
+  {
+   "squadre": [
+    "Braga",
+    "Vitoria Guimaraes"
+   ],
+   "perche": "Derby do Minho"
+  },
+  {
+   "squadre": [
+    "Porto",
+    "Boavista"
+   ],
+   "perche": "Derby di Porto"
+  },
+  {
+   "squadre": [
+    "Anderlecht",
+    "Club Brugge"
+   ],
+   "perche": "Il classico del calcio belga"
+  },
+  {
+   "squadre": [
+    "Anderlecht",
+    "Standard Liege"
+   ],
+   "perche": "Le Clasico belga: Bruxelles contro Liegi"
+  },
+  {
+   "squadre": [
+    "Club Brugge",
+    "Cercle Brugge"
+   ],
+   "perche": "Derby di Bruges"
+  },
+  {
+   "squadre": [
+    "Antwerp",
+    "Beerschot"
+   ],
+   "perche": "Derby di Anversa"
+  },
+  {
+   "squadre": [
+    "Basel",
+    "Zurich"
+   ],
+   "perche": "Grande rivalità del calcio svizzero"
+  },
+  {
+   "squadre": [
+    "Grasshopper",
+    "Zurich"
+   ],
+   "perche": "Derby di Zurigo"
+  },
+  {
+   "squadre": [
+    "Young Boys",
+    "Basel"
+   ],
+   "perche": "Sfida al vertice del calcio svizzero"
+  },
+  {
+   "squadre": [
+    "Rapid Wien",
+    "Austria Wien"
+   ],
+   "perche": "Derby di Vienna"
+  },
+  {
+   "squadre": [
+    "Sturm Graz",
+    "Grazer AK"
+   ],
+   "perche": "Derby di Graz"
+  },
+  {
+   "squadre": [
+    "Galatasaray",
+    "Fenerbahce"
+   ],
+   "perche": "Derby intercontinentale di Istanbul"
+  },
+  {
+   "squadre": [
+    "Besiktas",
+    "Fenerbahce"
+   ],
+   "perche": "Derby di Istanbul"
+  },
+  {
+   "squadre": [
+    "Galatasaray",
+    "Besiktas"
+   ],
+   "perche": "Derby di Istanbul"
+  },
+  {
+   "squadre": [
+    "Olympiacos",
+    "Panathinaikos"
+   ],
+   "perche": "Derby degli eterni nemici di Atene"
+  },
+  {
+   "squadre": [
+    "AEK Athens",
+    "Panathinaikos"
+   ],
+   "perche": "Derby di Atene"
+  },
+  {
+   "squadre": [
+    "PAOK",
+    "Aris"
+   ],
+   "perche": "Derby di Salonicco"
+  },
+  {
+   "squadre": [
+    "Crvena Zvezda|Stella Rossa",
+    "Partizan"
+   ],
+   "perche": "Večiti derbi: il derby eterno di Belgrado"
+  },
+  {
+   "squadre": [
+    "Dinamo Zagreb",
+    "Hajduk Split"
+   ],
+   "perche": "Derby eterno di Croazia"
+  },
+  {
+   "squadre": [
+    "Legia Warszawa",
+    "Lech Poznan"
+   ],
+   "perche": "Grande rivalità del calcio polacco"
+  },
+  {
+   "squadre": [
+    "Wisla Krakow",
+    "Cracovia"
+   ],
+   "perche": "Święta Wojna: il derby di Cracovia"
+  },
+  {
+   "squadre": [
+    "Sparta Praha",
+    "Slavia Praha"
+   ],
+   "perche": "Derby di Praga"
+  },
+  {
+   "squadre": [
+    "Ferencvaros",
+    "Ujpest"
+   ],
+   "perche": "Derby di Budapest"
+  },
+  {
+   "squadre": [
+    "Steaua Bucuresti|Steaua",
+    "Dinamo Bucuresti"
+   ],
+   "perche": "Eternul derby di Bucarest"
+  },
+  {
+   "squadre": [
+    "FCSB",
+    "Dinamo Bucuresti"
+   ],
+   "perche": "Eternul derby di Bucarest"
+  },
+  {
+   "squadre": [
+    "FCSB",
+    "Rapid Bucuresti"
+   ],
+   "perche": "Derby di Bucarest"
+  },
+  {
+   "squadre": [
+    "Copenhagen",
+    "Brondby"
+   ],
+   "perche": "New Firm: il derby di Copenaghen"
+  },
+  {
+   "squadre": [
+    "AIK",
+    "Djurgarden"
+   ],
+   "perche": "Derby di Stoccolma"
+  },
+  {
+   "squadre": [
+    "Rosenborg",
+    "Molde"
+   ],
+   "perche": "Grande rivalità del calcio norvegese"
+  },
+  {
+   "squadre": [
+    "Spartak Moscow",
+    "CSKA Moscow"
+   ],
+   "perche": "Derby di Mosca"
+  },
+  {
+   "squadre": [
+    "Dynamo Kyiv",
+    "Shakhtar Donetsk"
+   ],
+   "perche": "Derby d'Ucraina"
+  },
+  {
+   "squadre": [
+    "Boca Juniors",
+    "River Plate"
+   ],
+   "perche": "Superclásico: la rivalità più famosa del Sud America"
+  },
+  {
+   "squadre": [
+    "Racing Club",
+    "Independiente"
+   ],
+   "perche": "Derby di Avellaneda: stadi a 300 metri"
+  },
+  {
+   "squadre": [
+    "San Lorenzo",
+    "Huracan"
+   ],
+   "perche": "Clásico di Parque Patricios"
+  },
+  {
+   "squadre": [
+    "Estudiantes",
+    "Gimnasia La Plata"
+   ],
+   "perche": "Clásico platense"
+  },
+  {
+   "squadre": [
+    "Flamengo",
+    "Fluminense"
+   ],
+   "perche": "Fla-Flu: il derby di Rio de Janeiro"
+  },
+  {
+   "squadre": [
+    "Flamengo",
+    "Vasco da Gama"
+   ],
+   "perche": "Clássico dos Milhões di Rio"
+  },
+  {
+   "squadre": [
+    "Botafogo",
+    "Flamengo"
+   ],
+   "perche": "Clássico della Rinascita a Rio"
+  },
+  {
+   "squadre": [
+    "Corinthians",
+    "Palmeiras"
+   ],
+   "perche": "Derby Paulista"
+  },
+  {
+   "squadre": [
+    "Sao Paulo",
+    "Corinthians"
+   ],
+   "perche": "Majestoso: grande classico di San Paolo"
+  },
+  {
+   "squadre": [
+    "Palmeiras",
+    "Sao Paulo"
+   ],
+   "perche": "Choque-Rei di San Paolo"
+  },
+  {
+   "squadre": [
+    "Gremio",
+    "Internacional"
+   ],
+   "perche": "Gre-Nal: il derby di Porto Alegre"
+  },
+  {
+   "squadre": [
+    "Atletico Mineiro",
+    "Cruzeiro"
+   ],
+   "perche": "Clássico Mineiro di Belo Horizonte"
+  },
+  {
+   "squadre": [
+    "Penarol",
+    "Nacional"
+   ],
+   "perche": "Clásico uruguaiano di Montevideo"
+  },
+  {
+   "squadre": [
+    "America",
+    "Guadalajara"
+   ],
+   "perche": "Clásico Nacional del Messico"
+  },
+  {
+   "squadre": [
+    "LA Galaxy",
+    "Los Angeles FC"
+   ],
+   "perche": "El Tráfico: derby di Los Angeles"
+  },
+  {
+   "squadre": [
+    "New York Red Bulls",
+    "New York City"
+   ],
+   "perche": "Hudson River derby"
+  },
+  {
+   "squadre": [
+    "Seattle Sounders",
+    "Portland Timbers"
+   ],
+   "perche": "Rivalità del Cascadia"
+  },
+  {
+   "squadre": [
+    "Al Hilal",
+    "Al Nassr"
+   ],
+   "perche": "Derby di Riad"
+  },
+  {
+   "squadre": [
+    "Al Ittihad",
+    "Al Ahli"
+   ],
+   "perche": "Derby di Gedda"
+  },
+  {
+   "squadre": [
+    "Al Ahly",
+    "Zamalek"
+   ],
+   "perche": "Derby del Cairo"
+  },
+  {
+   "squadre": [
+    "Italia",
+    "Francia"
+   ],
+   "perche": "Grande classico tra nazionali, finale mondiale 2006"
+  },
+  {
+   "squadre": [
+    "Inghilterra",
+    "Germania"
+   ],
+   "perche": "Rivalità storica tra nazionali"
+  },
+  {
+   "squadre": [
+    "Inghilterra",
+    "Scozia"
+   ],
+   "perche": "La più antica sfida tra nazionali (1872)"
+  },
+  {
+   "squadre": [
+    "Argentina",
+    "Brasile"
+   ],
+   "perche": "Superclásico de las Américas"
+  },
+  {
+   "squadre": [
+    "Olanda",
+    "Germania"
+   ],
+   "perche": "Rivalità storica tra nazionali vicine"
+  },
+  {
+   "squadre": [
+    "Spagna",
+    "Portogallo"
+   ],
+   "perche": "Derby iberico"
+  },
+  {
+   "squadre": [
+    "Italia",
+    "Germania"
+   ],
+   "perche": "Classico mondiale tra nazionali"
+  },
+  {
+   "squadre": [
+    "Serbia",
+    "Croazia"
+   ],
+   "perche": "Rivalità balcanica molto sentita"
+  },
+  {
+   "squadre": [
+    "Lokomotive Leipzig|Lok Leipzig",
+    "Chemie Leipzig"
+   ],
+   "perche": "Derby di Lipsia, uno dei più accesi di Germania"
+  },
+  {
+   "squadre": [
+    "Lechia Gdansk",
+    "Arka Gdynia"
+   ],
+   "perche": "Derby della Tricity (Danzica–Gdynia), molto acceso"
+  },
+  {
+   "squadre": [
+    "Qarabag|Qarabagh|Karabakh",
+    "Neftchi"
+   ],
+   "perche": "Il grande classico del calcio azero"
+  },
+  {
+   "squadre": [
+    "St Patrick's Athletic",
+    "Shelbourne"
+   ],
+   "perche": "Derby di Dublino"
+  },
+  {
+   "squadre": [
+    "Bohemians",
+    "Shamrock Rovers"
+   ],
+   "perche": "Derby di Dublino, il più sentito d'Irlanda"
+  }
+ ]
+}
