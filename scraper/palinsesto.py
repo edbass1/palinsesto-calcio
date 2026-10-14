@@ -910,16 +910,14 @@ def etichette_extra(e):
             if not lista:
                 return f'<b>{esc(nome)}</b>: nessuna assenza segnalata'
             return f'<b>{esc(nome)}</b>: ' + "; ".join(f"{esc(n)} ({esc(m)})" for n, m in lista)
-        corpo = ""
-        cl = a.get("classifica")
-        if cl:
-            corpo += ('<span class="tip-t">Classifica</span>'
-                      f'{cl["casa"][0]}º {esc(e["casa"])} – {cl["casa"][1]} pt<br>{cl["ospite"][0]}º {esc(e["ospite"])} – {cl["ospite"][1]} pt')
-        if a.get("assenze", True) and (a.get("casa") or a.get("ospite")):
-            corpo += (f'<span class="tip-t{" tip-s" if cl else ""}">Infortunati e squalificati</span>{lato(e["casa"], a.get("casa"))}<br>'
-                      f'{lato(e["ospite"], a.get("ospite"))}')
-        t.append('<button type="button" class="tg tg-info" aria-label="Info partita: classifica e assenze">ℹ️ info partita'
+        corpo = (f'<span class="tip-t">Infortunati e squalificati</span>{lato(e["casa"], a.get("casa"))}<br>'
+                 f'{lato(e["ospite"], a.get("ospite"))}')
+        t.append('<button type="button" class="tg tg-info" aria-label="Info partita: assenze">ℹ️ info partita'
                  f'<span class="tip" role="tooltip">{corpo}<span class="tip-f">fonte: FotMob</span></span></button>')
+    if e.get("_big"):
+        t.append(f'<button type="button" class="tg tg-big" aria-label="Big match">🔝 Big match<span class="tip" role="tooltip">{esc(e["_big"])}</span></button>')
+    if e.get("_salvezza"):
+        t.append(f'<button type="button" class="tg tg-salv" aria-label="Salvezza">🆘 Salvezza<span class="tip" role="tooltip">{esc(e["_salvezza"])}</span></button>')
     if e.get("_riv"):
         t.append(f'<button type="button" class="tg tg-riv" aria-label="Rivalità">🔥 rivalità<span class="tip" role="tooltip">{esc(e["_riv"])}</span></button>')
     return f'<span class="tags">{"".join(t)}</span>' if t else ""
@@ -1619,14 +1617,15 @@ TEMPLATE = """<!doctype html>
         border:1px solid #444; background:#1a1a1a; color:#ddd; cursor:help; }}
   .squadre {{ position:relative; }}
   li.partita:has(.tg:hover, .tg:focus, .tg.aperto) {{ position:relative; z-index:25; }}
-  @media (max-width: 640px) {{ .squadre .tags {{ margin-left:0; margin-top:4px; }} }}
+  @media (max-width: 640px) {{ .squadre .tags {{ margin-left:6px; margin-top:4px; }} }}
   .tg-info {{ border-color:#3b82c4; color:#9fd0ff; }}
+  .tg-big {{ border-color:#ca8a04; color:var(--giallo); }}
+  .tg-salv {{ border-color:#7c3aed; color:#d8b4fe; }}
   .tg-riv {{ border-color:#c2410c; color:#ffb38a; }}
   .tg .tip {{ display:none; position:absolute; z-index:30; left:0; top:calc(100% + 6px); width:max-content; max-width:min(24rem, 86vw, calc(100vw - 560px));
              background:#111; color:#eee; border:1px solid #555; border-radius:8px; padding:9px 12px; font-size:.64rem; font-weight:500;
              text-align:left; line-height:1.4; white-space:normal; box-shadow:0 6px 20px #000c; }}
   .tg .tip-t {{ display:block; font-weight:800; color:#fff; margin-bottom:3px; }}
-  .tg .tip-s {{ margin-top:8px; padding-top:6px; border-top:1px solid #333; }}
   .tg .tip-f {{ display:block; color:#888; font-size:.85em; margin-top:4px; }}
   .tg:hover .tip, .tg:focus .tip, .tg.aperto .tip {{ display:block; }}
   @media (max-width: 999px) {{ .tg .tip {{ max-width:86vw; }} }}

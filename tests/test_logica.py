@@ -1565,8 +1565,19 @@ def test_etichette_extra():
     h = p.etichette_extra(e)
     assert "info partita" in h and "rivalità" in h and "tanti gol" not in h and "nessuna assenza segnalata" in h
     assert p.etichette_extra({"casa": "a", "ospite": "b"}) == ""
-    h2 = p.etichette_extra({"casa": "Inter", "ospite": "Milan", "_info": {"casa": [], "ospite": [], "assenze": False, "classifica": {"casa": (1, 16), "ospite": (4, 12)}}})
-    assert "Classifica" in h2 and "1º Inter – 16 pt" in h2 and "4º Milan – 12 pt" in h2 and "Infortunati" not in h2
+    tab = [{1: (2, 20, 8), 2: (3, 18, 8), 3: (16, 6, 8), 4: (19, 3, 8), 5: (10, 10, 8), **{i: (i, 0, 8) for i in range(10, 30)}}]
+    tab[0].update({1: (2, 20, 8), 2: (5, 18, 8), 3: (16, 6, 8), 4: (19, 3, 8), 5: (10, 10, 8), 6: (6, 15, 8)})
+    assert X.etichetta_classifica(tab, 1, 2) == ("big", "2º contro 5º in classifica") and X.etichetta_classifica(tab, 1, 6) is None
+    assert X.etichetta_classifica([{i: (i, 50 - i, 8) for i in range(1, 26)}], 16, 19) is None  # 16º e 19º di 25: non sono le ultime 6
+    t20 = [{i: (i, 40 - i, 8) for i in range(1, 21)}]
+    assert X.etichetta_classifica(t20, 16, 19) == ("salvezza", "16º contro 19º: sfida salvezza") and X.etichetta_classifica(t20, 14, 19) is None
+    assert X.etichetta_classifica([{1: (1, 3, 1), 2: (2, 3, 1), **{i: (i, 0, 1) for i in range(3, 12)}}], 1, 2) is None  # inizio stagione
+    assert X.etichetta_classifica([{1: (1, 9, 4)}, {2: (1, 9, 4)}], 1, 2) is None  # gironi diversi
+    t12 = [{i: (i, 40 - i, 8) for i in range(1, 13)}]
+    assert X.etichetta_classifica(t12, 8, 12) is None and X.etichetta_classifica(t12, 9, 12) and X.etichetta_classifica(t12, 5, 1) is None
+    assert X.RE_COPPA.search("Coppa Italia") and X.RE_COPPA.search("DFB Pokal") and not X.RE_COPPA.search("Serie A")
+    h2 = p.etichette_extra({"casa": "Inter", "ospite": "Milan", "_big": "1º contro 2º in classifica", "_salvezza": None})
+    assert "Big match" in h2 and "1º contro 2º" in h2 and "Classifica" not in h2
     assert X.LEGHE_INFO == {47: "Premier League", 55: "Serie A"}
     # abbinamento a squadre invertite: le assenze restano della squadra giusta
     m, inv = X.abbina({"ts": 1000, "casa": "Leeds", "ospite": "Manchester United"}, [{"ts": 1000, "casa": "Manchester United", "ospite": "Leeds United", "id": 1}])

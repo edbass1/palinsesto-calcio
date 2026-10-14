@@ -85,27 +85,51 @@ def partite_fotmob(giorni, log=print):
             continue
         for lg in d.get("leagues") or []:
             lid = lg.get("primaryId") or lg.get("id")
-            if lid not in LEGHE_INFO:
-                continue
             for m in lg.get("matches") or []:
                 st = m.get("status") or {}
                 if st.get("finished") or st.get("cancelled") or not st.get("utcTime"):
                     continue
                 out.append({"id": m["id"], "ts": _ts(st["utcTime"]), "casa": m["home"].get("longName") or m["home"]["name"],
                             "ospite": m["away"].get("longName") or m["away"]["name"],
-                            "lega": lid, "id_casa": m["home"].get("id"), "id_ospite": m["away"].get("id")})
+                            "lega": lid, "ccode": lg.get("ccode") or "", "nome_lega": lg.get("name") or "", "id_casa": m["home"].get("id"), "id_ospite": m["away"].get("id")})
     return out
 
 
-def classifica_fotmob(lega):
-    """{id squadra: (posizione, punti)} dalla classifica FotMob della lega."""
+def classifiche_fotmob(lega):
+    """Tabelle della lega: lista di {id squadra: (posizione, punti, giocate)} (più tabelle se ci sono gironi)."""
     d = _get(f"https://www.fotmob.com/api/data/tltable?leagueId={lega}")
-    out = {}
+    tabelle = []
     for blocco in d if isinstance(d, list) else [d]:
-        for r in (((blocco.get("data") or {}).get("table") or {}).get("all") or []):
-            if r.get("id") is not None and r.get("idx") is not None and r.get("pts") is not None:
-                out[r["id"]] = (int(r["idx"]), int(r["pts"]))
-    return out
+        x = blocco.get("data") or {}
+        grezze = [x["table"]] if x.get("table") else [t.get("table") or {} for t in x.get("tables") or []]
+        for t in grezze:
+            tab = {r["id"]: (int(r["idx"]), int(r["pts"]), int(r.get("played") or 0))
+                   for r in t.get("all") or [] if r.get("id") is not None and r.get("idx") is not None and r.get("pts") is not None}
+            if tab:
+                tabelle.append(tab)
+    return tabelle
+
+
+RE_COPPA = re.compile(r"\b(cup|coppa|copa|coupe|pokal|beker|ta[cç]a|kupa|kupasi|trophy|shield|super ?cup|supercoppa|playoff|play-off|"
+                      r"qualif|friendl|amichevol|nations|world|euro|champions|europa|conference|libertadores|sudamericana|concacaf|afc|caf)\b", re.I)
+TOP_BIG, FONDO_SALVEZZA, MIN_GIOCATE = 5, 6, 3
+
+
+def etichetta_classifica(tabelle, id_casa, id_ospite):
+    """('big', '2º contro 3º in classifica') / ('salvezza', '...') / None. Solo se le due squadre sono nella stessa tabella."""
+    for tab in tabelle:
+        if id_casa in tab and id_ospite in tab:
+            n = len(tab)
+            (pc, _, gc), (po, _, go) = tab[id_casa], tab[id_ospite]
+            if n < 8 or min(gc, go) < MIN_GIOCATE:
+                return None
+            top, fondo = min(TOP_BIG, round(n * 0.3)), min(FONDO_SALVEZZA, round(n * 0.3))  # campionati piccoli: in proporzione
+            if pc <= top and po <= top:
+                return ("big", f"{pc}º contro {po}º in classifica")
+            if pc > n - fondo and po > n - fondo:
+                return ("salvezza", f"{pc}º contro {po}º: sfida salvezza")
+            return None
+    return None
 
 
 # ---------------- rivalità ----------------
@@ -141,8 +165,9 @@ def rivalita_di(casa, ospite, coppie):
     return None
 
 
-def abbina(e, lista):
-    best, sc = None, 0
+def abbina(e, lista, forte=False):
+    """Partita corrispondente nella lista (stessa ora, stesse squadre). forte: entrambe le squadre devono coincidere bene."""
+    best, sc = None, (1.7 if forte else 0)
     for x in lista:
         s = stessa_partita(e["ts"], e["casa"], e["ospite"] or "", x["ts"], x["casa"], x["ospite"])
         if s > sc:
@@ -157,8 +182,9 @@ def abbina(e, lista):
 def arricchisci(gruppi, giorni, rete=True, log=print, cache_file=CACHE):
     """Aggiunge a ogni partita di calcio e['_info'] (assenze) ed e['_riv'] (frase).. Restituisce i conteggi."""
     partite = [e for g in gruppi for e in g["partite"] if e.get("ospite")]
+    comp_di = {id(e): g["nome"] for g in gruppi for e in g["partite"]}
     coppie = carica_rivalita()
-    st = {"rivalita": 0, "info": 0, "fotmob": "spento"}
+    st = {"rivalita": 0, "info": 0, "big": 0, "salvezza": 0, "fotmob": "spento"}
     for e in partite:
         r = rivalita_di(e["casa"], e["ospite"], coppie)
         if r:
@@ -178,8 +204,25 @@ def arricchisci(gruppi, giorni, rete=True, log=print, cache_file=CACHE):
         st["fotmob"] = f"{len(fm)} partite"
         chieste, tabelle = 0, {}
         for e in sorted(partite, key=lambda x: x["ts"]):
-            m, inv = abbina(e, fm)
+            m, inv = abbina(e, fm, forte=True)
             if not m:
+                continue
+            # big match / salvezza: solo campionati nazionali (niente coppe, competizioni internazionali, nazionali)
+            if (m["ccode"] and m["ccode"] != "INT" and not e.get("_tipo") and not RE_COPPA.search(m["nome_lega"])
+                    and not RE_COPPA.search(comp_di.get(id(e), ""))):
+                if m["lega"] not in tabelle:
+                    try:
+                        tabelle[m["lega"]] = classifiche_fotmob(m["lega"])
+                    except Exception as ex:  # noqa: BLE001
+                        log(f"  FotMob classifica {m['lega']}: {ex}")
+                        tabelle[m["lega"]] = []
+                    time.sleep(0.2)
+                ids = (m["id_ospite"], m["id_casa"]) if inv else (m["id_casa"], m["id_ospite"])
+                et = etichetta_classifica(tabelle[m["lega"]], *ids)
+                if et:
+                    e["_big" if et[0] == "big" else "_salvezza"] = et[1]
+                    st[et[0]] += 1
+            if m["lega"] not in LEGHE_INFO:
                 continue
             k = str(m["id"])
             if k not in cache:
@@ -192,19 +235,9 @@ def arricchisci(gruppi, giorni, rete=True, log=print, cache_file=CACHE):
                     log(f"  FotMob dettagli {k}: {ex}")
                     continue
                 time.sleep(0.3)
-            a = cache[k]["a"] or {"casa": [], "ospite": []}
-            if m["lega"] not in tabelle:
-                try:
-                    tabelle[m["lega"]] = classifica_fotmob(m["lega"])
-                except Exception as ex:  # noqa: BLE001
-                    log(f"  FotMob classifica {m['lega']}: {ex}")
-                    tabelle[m["lega"]] = {}
-            tb = tabelle[m["lega"]]
-            cl = {"casa": tb.get(m["id_casa"]), "ospite": tb.get(m["id_ospite"])}
-            if inv:
-                a, cl = {"casa": a["ospite"], "ospite": a["casa"]}, {"casa": cl["ospite"], "ospite": cl["casa"]}
-            if a["casa"] or a["ospite"] or (cl["casa"] and cl["ospite"]):
-                e["_info"] = dict(a, classifica=cl if cl["casa"] and cl["ospite"] else None, assenze=bool(a["casa"] or a["ospite"]))
+            a = cache[k]["a"]
+            if a:
+                e["_info"] = {"casa": a["ospite"], "ospite": a["casa"]} if inv else a
                 st["info"] += 1
         st["fotmob"] += f", {chieste} dettagli scaricati"
     except Exception as ex:  # noqa: BLE001
