@@ -860,6 +860,31 @@ def stesso_link(canali, dove):
     return out
 
 
+NAZIONI_COMP = [(r"^(SERIE A|SERIE B|SERIE BKT|SERIE C|COPPA ITALIA|SUPERCOPPA ITALIANA)\b(?!.*BRASIL)", "Italia"),
+                (r"^(PREMIER LEAGUE|EFL|FA CUP|CARABAO)\b(?!.*\()", "Inghilterra"), (r"^LALIGA|^COPA DEL REY", "Spagna"),
+                (r"^(2\. )?BUNDESLIGA$|^DFB", "Germania"), (r"^LIGUE [12]$|^COUPE DE FRANCE", "Francia"),
+                (r"^SCOTIA PREMIE|^SCOTTISH", "Scozia"), (r"^COPPA SVIZZERA|^SUPER LEAGUE$", "Svizzera"),
+                (r"BRASIL", "Brasile")]
+RE_COPPE_EUROPEE = re.compile(r"^(UEFA (CHAMPIONS|EUROPA|CONFERENCE|YOUTH|SUPER)|SUPERCOPPA (UEFA|EUROPEA))", re.I)
+RE_NAZIONALI = re.compile(r"^NAZIONALI(?! / INTERNAZIONALI)", re.I)
+
+
+def nazione_comp(nome):
+    """Nazione di una competizione dall'etichetta: '(Spagna, 2ª divisione)' -> Spagna, 'SERIE A' -> Italia; '' se non c'è."""
+    m = re.search(r"\(([^()]+)\)\s*$", nome or "")
+    if m:
+        n = m.group(1).split(",")[0].strip()
+        return "" if n.lower().startswith(("prima sport", "w")) else n
+    for rx, n in NAZIONI_COMP:
+        if re.search(rx, nome or "", re.I):
+            return n
+    return ""
+
+
+def tipo_comp(nome):
+    return "coppe" if RE_COPPE_EUROPEE.search(nome or "") else "nazionali" if RE_NAZIONALI.search(nome or "") else ""
+
+
 def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categorie=None):
     VPN_MANCANTI[:] = []
     esc = html.escape
@@ -868,6 +893,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     for g in gruppi:
         for e in g["partite"]:
             e["_cat"] = " ".join(sorted(cat_calcio(e, g["nome"])))
+            e["_naz"], e["_tipo"] = nazione_comp(g["nome"]), tipo_comp(g["nome"])
     ora_r = ora.astimezone(ROMA)
     aggiornato = f"{GIORNI_LUNGHI[ora_r.weekday()]} {ora_r:%d/%m/%Y} alle {ora_r:%H:%M}"
     giorni = [(primo + dt.timedelta(days=i)) for i in range(GIORNI_FINESTRA)]
@@ -889,7 +915,8 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
         canali = togli_link_doppi("".join(badge(c, dove, usati_c) for c in stesso_link(e["canali"], dove)))
         if not e["canali"]:
             canali = '<li class="senza-canali">Canali non ancora disponibili: potrebbero comparire nei prossimi aggiornamenti.</li>'
-        return (f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}" data-cat="{e.get("_cat", "")}">'
+        return (f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}" data-cat="{e.get("_cat", "")}"'
+                + (f' data-naz="{esc(e["_naz"])}"' if e.get("_naz") else '') + (f' data-tipo="{e["_tipo"]}"' if e.get("_tipo") else '') + '>'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span>'
                 + (f'<span class="notte">notte tra {GIORNI[(q.weekday() - 1) % 7].lower()} e {GIORNI[q.weekday()].lower()}</span>' if notte else '') +
@@ -1311,6 +1338,7 @@ TEMPLATE = """<!doctype html>
 <meta name="apple-mobile-web-app-title" content="Sport gratis">
 <script>(function () {{ try {{ var z = parseFloat(localStorage.getItem("zoom")); if (z >= 0.7 && z <= 1.6) document.documentElement.style.setProperty("--zoom", z); }} catch (e) {{}} }})();</script>
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="preload" href="fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -1487,11 +1515,74 @@ TEMPLATE = """<!doctype html>
     nav.filtri button {{ font-size:.66rem; min-height:44px; padding:2px; }}
     nav.sezioni button {{ font-size:.8rem; }}
   }}
+  /* ---- titolo in Bebas Neue (font locale, SIL OFL) ---- */
+  @font-face {{ font-family:"Bebas Neue"; src:url("fonts/bebas-neue-latin.woff2") format("woff2"); font-weight:400; font-style:normal; font-display:swap; }}
+  h1 {{ font-family:"Bebas Neue", "Oswald", system-ui, sans-serif; font-weight:400; font-size:1.45rem; letter-spacing:.045em; line-height:1.05; }}
+  h1 .h1p {{ font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; letter-spacing:.02em; margin-left:.3em; vertical-align:.35em; }}
+  /* ---- desktop: barra laterale (solo schermi larghi; su telefono non cambia nulla) ---- */
+  #barra, #ordina-top {{ display:none; }}
+  html.desk body {{ padding-left:calc(13.5rem + 28px); }}
+  html.desk nav.sezioni, html.desk section.pannello {{ display:none !important; }}
+  html.desk #barra {{ display:block; position:fixed; top:0; left:0; bottom:0; width:13.5rem; overflow-y:auto; background:#0b0b0b;
+         border-right:1px solid #262626; padding:16px 12px 80px; z-index:20; }}
+  html.desk #barra .cerca {{ margin:0 0 12px; padding-right:0; max-width:none; }}
+  html.desk #barra .cerca::before {{ content:""; position:absolute; left:12px; top:50%; width:14px; height:14px; transform:translateY(-60%);
+         border:2px solid #aaa; border-radius:50%; pointer-events:none; }}
+  html.desk #barra .cerca::after {{ content:""; position:absolute; left:25px; top:calc(50% + 4px); width:7px; height:2px; background:#aaa;
+         transform:rotate(45deg); pointer-events:none; }}
+  html.desk #barra .cerca input {{ padding-left:38px; font-size:.6rem; min-height:40px; }}
+  html.desk #barra .cerca button {{ right:4px; width:32px; height:32px; font-size:.6rem; }}
+  .acc {{ border:1px solid #2a2a2a; border-radius:12px; margin:0 0 12px; background:#111; overflow:hidden; }}
+  .acc-h {{ display:flex; align-items:stretch; border-bottom:1px solid #2a2a2a; }}
+  .acc.chiuso .acc-h {{ border-bottom:0; }}
+  .acc-sez {{ flex:1; font:inherit; font-size:.62rem; font-weight:900; letter-spacing:.05em; text-align:left; color:#fff; background:none;
+         border:0; padding:10px 12px; min-height:44px; cursor:pointer; }}
+  .acc-sez .n {{ display:block; font-size:.48rem; font-weight:600; color:#999; letter-spacing:0; margin-top:2px; }}
+  .acc.attiva .acc-sez {{ color:var(--giallo); }}
+  .acc.attiva {{ border-color:#5a4d00; }}
+  .acc-t {{ width:44px; font:inherit; font-size:.7rem; color:#ccc; background:none; border:0; border-left:1px solid #2a2a2a; cursor:pointer; }}
+  .acc-t span {{ display:inline-block; transition:transform .15s; }}
+  .acc.chiuso .acc-t span {{ transform:rotate(-90deg); }}
+  .acc-b {{ padding:6px 10px 12px; }}
+  .acc.chiuso .acc-b {{ display:none; }}
+  .b-et {{ margin:10px 0 6px; font-size:.48rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#8a8a8a; }}
+  html.desk #barra .scelta-b {{ grid-template-columns:1fr 1fr; gap:6px; }}
+  html.desk #barra .scelta-b button {{ grid-column:auto !important; font-size:.5rem; min-height:36px; border-width:1px; }}
+  html.desk #barra .scelta-b button:first-child {{ grid-column:1 / -1 !important; }}
+  html.desk #barra nav.filtri {{ position:static; display:grid; grid-template-columns:repeat(4, 1fr); gap:5px; padding:0; border:0; background:none; max-width:none; }}
+  html.desk #barra nav.filtri button {{ font-size:.5rem; min-height:36px; padding:2px; border-width:1px; line-height:1.1; }}
+  html.desk #barra nav.filtri button span {{ display:block; }}
+  .b-extra {{ display:grid; gap:6px; }}
+  .b-extra button, .b-naz button {{ font:inherit; font-size:.52rem; font-weight:700; text-align:left; min-height:36px; padding:6px 10px;
+         border-radius:9px; background:#161616; color:#fff; border:1px solid #444; cursor:pointer; display:flex; justify-content:space-between; gap:8px; }}
+  .b-extra button[aria-pressed="true"], .b-naz button[aria-pressed="true"] {{ background:var(--giallo); color:#000; border-color:var(--giallo); }}
+  .b-extra button .c, .b-naz button .c {{ color:#999; font-weight:600; }}
+  .b-extra button[aria-pressed="true"] .c, .b-naz button[aria-pressed="true"] .c {{ color:#000; }}
+  .b-extra button:disabled {{ opacity:.4; cursor:default; }}
+  .b-naz {{ display:grid; gap:4px; margin:6px 0 0 8px; padding-left:8px; border-left:2px solid #333; }}
+  .b-naz button {{ min-height:32px; font-weight:600; }}
+  html.desk #ordina-top {{ display:flex; align-items:center; gap:10px; max-width:1000px; margin:6px auto 0; }}
+  html.desk #ordina-top .lab {{ font-size:.5rem; font-weight:800; letter-spacing:.08em; color:#8a8a8a; text-transform:uppercase; }}
+  html.desk #ordina-top .viste {{ display:flex; gap:6px; }}
+  html.desk #ordina-top .viste button {{ font-size:.5rem; min-height:34px; padding:4px 12px; border-width:1px; border-radius:999px; }}
+  html.desk .su {{ left:calc(13.5rem + 40px); }}
+  html.desk nav.filtri, html.desk .cerca {{ padding-right:0; }}
 </style>
 </head>
 <body>
 <div class="zoom" role="group" aria-label="Dimensione del testo"><button type="button" id="zoom-meno" aria-label="Testo più piccolo" title="Testo più piccolo">−</button><button type="button" id="zoom-piu" aria-label="Testo più grande" title="Testo più grande">+</button></div>
 <button type="button" class="su" id="torna-su" aria-label="Torna su" hidden>↑ torna su</button>
+<aside id="barra" aria-label="Filtri">
+  <div id="b-cerca"></div>
+  <section class="acc" data-acc="calcio"><div class="acc-h"><button type="button" class="acc-sez" data-sezione="calcio">⚽ CALCIO <span class="n" id="bn-calcio"></span></button><button type="button" class="acc-t" aria-expanded="true" aria-label="Apri o chiudi CALCIO"><span>▾</span></button></div>
+    <div class="acc-b"><p class="b-et">Cosa vedere</p><div class="slot" data-slot="scelta-calcio"></div>
+      <p class="b-et">Giorno</p><div class="slot" data-slot="giorni-calcio"></div>
+      <p class="b-et">Filtra</p><div class="b-extra"><button type="button" data-extra="coppe" aria-pressed="false">🏆 Coppe europee <span class="c" data-conta="coppe"></span></button><button type="button" data-extra="nazionali" aria-pressed="false">🌍 Nazionali <span class="c" data-conta="nazionali"></span></button><button type="button" id="b-naz-t" aria-expanded="false" aria-pressed="false">🏳️ Per nazione <span class="c">▸</span></button></div>
+      <div class="b-naz" id="b-naz" hidden></div></div></section>
+  <section class="acc" data-acc="sport"><div class="acc-h"><button type="button" class="acc-sez" data-sezione="sport">🏁 ALTRI SPORT <span class="n" id="bn-sport"></span></button><button type="button" class="acc-t" aria-expanded="true" aria-label="Apri o chiudi ALTRI SPORT"><span>▾</span></button></div>
+    <div class="acc-b"><p class="b-et">Cosa vedere</p><div class="slot" data-slot="scelta-altri"></div>
+      <p class="b-et">Giorno</p><div class="slot" data-slot="giorni-sport"></div></div></section>
+</aside>
 <header>
   <h1>SPORT GRATIS E LEGALE IN TV <span class="h1p">{periodo}</span></h1>
   <p class="agg">Aggiornato {aggiornato} · orari italiani</p>
@@ -1517,6 +1608,7 @@ TEMPLATE = """<!doctype html>
 <div class="cerca" role="search"><input id="cerca" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search"
   placeholder="🔍 Cerca squadra, sport, competizione, canale…" aria-label="Cerca squadra, sport, competizione o canale"><button type="button" id="cerca-x" aria-label="Cancella la ricerca" title="Cancella" hidden>✕</button></div>
 <p id="nessun-risultato" class="nessun-risultato" role="status" hidden>Nessun risultato per «<span></span>»</p>
+<div id="ordina-top"><span class="lab">Ordina</span><div class="slot" data-slot="viste-calcio"></div><div class="slot" data-slot="viste-sport"></div></div>
 <main>
 <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera) · <span class="tag dz">DAZN GRATIS</span> = senza lucchetto su DAZN (account gratuito)</p>
 <p class="intro-altri" data-sez="sport" hidden>Dirette gratuite: SRF, RTS, RSI, ARD, DAZN Italia (senza lucchetto), canali Teleboy e canali in chiaro di tutto il mondo (LiveOnSat, NFL gratis secondo TechRadar). Tocca l'emittente per aprire la diretta.</p>
@@ -1569,7 +1661,7 @@ TEMPLATE = """<!doctype html>
   function piatto(t) {{ return (t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i').toLowerCase(); }}
   var campo = document.getElementById('cerca'), cx = document.getElementById('cerca-x');
   try {{ campo.value = sessionStorage.getItem('cerca') || ''; }} catch (e) {{}}
-  function cercato() {{ return piatto(campo.value).trim().split(/\s+/).filter(Boolean); }}
+  function cercato() {{ return piatto(campo.value).trim().split(/\\s+/).filter(Boolean); }}
   function trovato(p, parole) {{
     if (!parole.length) return true;
     if (p._t === undefined) {{
@@ -1577,6 +1669,13 @@ TEMPLATE = """<!doctype html>
       p._t = piatto(p.textContent + ' ' + (h ? h.textContent : ''));
     }}
     return parole.every(function (w) {{ return p._t.indexOf(w) >= 0; }});
+  }}
+  // filtri extra della barra laterale (solo desktop): coppe europee, nazionali, nazione
+  var EXTRA = '';
+  function extraOk(p) {{
+    if (!EXTRA || !document.documentElement.classList.contains('desk') || sezDi(p) !== 'calcio') return true;
+    if (EXTRA === 'coppe' || EXTRA === 'nazionali') return p.dataset.tipo === EXTRA;
+    return 'naz:' + (p.dataset.naz || '') === EXTRA;
   }}
   function sezDi(el) {{ return el.closest('[data-sez]').dataset.sez; }}
   function gruppo(sez) {{ return sez === 'sport' ? 'altri' : 'calcio'; }}
@@ -1589,7 +1688,9 @@ TEMPLATE = """<!doctype html>
   function aggiorna() {{
     var sez = S.sezione, vis = idVista(sez);
     premi(tutti('nav.sezioni button'), function (b) {{ return b.dataset.sezione === sez; }});
-    tutti('.pannello, nav.filtri, .intro-altri').forEach(function (el) {{ el.hidden = el.dataset.sez !== sez; }});
+    tutti('.pannello, nav.filtri, .intro-altri').forEach(function (el) {{ el.hidden = el.dataset.sez !== sez && !el.closest('#barra'); }});
+    tutti('#ordina-top .viste').forEach(function (el) {{ el.hidden = el.dataset.sez !== sez; }});
+    tutti('.acc').forEach(function (a) {{ a.classList.toggle('attiva', a.dataset.acc === sez); }});
     tutti('div.vista').forEach(function (d) {{ d.hidden = d.id !== vis; }});
     tutti('.viste').forEach(function (d) {{
       premi(tutti('button', d), function (b) {{ return b.dataset.vista === S.vista[d.dataset.sez]; }});
@@ -1611,7 +1712,7 @@ TEMPLATE = """<!doctype html>
     var parole = cercato();
     tutti('li.partita').forEach(function (p) {{
       var g = S.giorno[sezDi(p)];
-      p.hidden = !((g === 'tutti' || p.dataset.giorno === g) && catOk(p) && trovato(p, parole));
+      p.hidden = !((g === 'tutti' || p.dataset.giorno === g) && catOk(p) && trovato(p, parole) && extraOk(p));
     }});
     tutti('section.comp, section.giorno-sez').forEach(function (s) {{ s.hidden = !s.querySelector('li.partita:not([hidden])'); }});
     // PER CAMPIONATO / PER SPORT: sezioni in ordine di primo inizio tra le partite visibili (a parità, ordine fisso)
@@ -1664,6 +1765,12 @@ TEMPLATE = """<!doctype html>
     // "Dove vederli": le voci della sezione attiva
     tutti('li.dove').forEach(function (d) {{ d.hidden = (' ' + d.dataset.sez + ' ').indexOf(' ' + sez + ' ') < 0; }});
     try {{ sessionStorage.setItem('giorni', JSON.stringify(S.giorno)); }} catch (e) {{}}
+    tutti('#barra [data-extra]').forEach(function (b) {{ b.setAttribute('aria-pressed', EXTRA === b.dataset.extra ? 'true' : 'false'); }});
+    tutti('#b-naz button').forEach(function (b) {{ b.setAttribute('aria-pressed', EXTRA === 'naz:' + b.dataset.naz ? 'true' : 'false'); }});
+    var bn = document.getElementById('b-naz-t'); if (bn) bn.setAttribute('aria-pressed', EXTRA.indexOf('naz:') === 0 ? 'true' : 'false');
+    var c1 = document.getElementById('bn-calcio'), c2 = document.getElementById('bn-sport');
+    if (c1) c1.textContent = document.getElementById('n-partite').textContent + ' in programma';
+    if (c2) c2.textContent = document.getElementById('n-eventi').textContent + ' in programma';
   }}
   tutti('nav.sezioni button').forEach(function (b) {{ b.addEventListener('click', function () {{
     S.sezione = b.dataset.sezione; salva('sezione', S.sezione); aggiorna();
@@ -1697,6 +1804,61 @@ TEMPLATE = """<!doctype html>
   }}
   stato();
   setInterval(stato, 60000);
+  // ---- desktop: barra laterale (gli stessi comandi vengono spostati; su telefono restano dove sono) ----
+  var SPOSTA = [['.cerca', 'b-cerca'], ['.scelta-b[data-gruppo="calcio"]', 'scelta-calcio'], ['.scelta-b[data-gruppo="altri"]', 'scelta-altri'],
+               ['nav.filtri[data-sez="calcio"]', 'giorni-calcio'], ['nav.filtri[data-sez="sport"]', 'giorni-sport'],
+               ['.pannello .viste[data-sez="calcio"], #ordina-top .viste[data-sez="calcio"]', 'viste-calcio'],
+               ['.pannello .viste[data-sez="sport"], #ordina-top .viste[data-sez="sport"]', 'viste-sport']];
+  var segni = SPOSTA.map(function (x) {{
+    var el = document.querySelector(x[0]); var seg = document.createComment('posto');
+    if (el) el.parentNode.insertBefore(seg, el);
+    return {{ el: el, seg: seg, slot: x[1] === 'b-cerca' ? document.getElementById('b-cerca') : document.querySelector('[data-slot="' + x[1] + '"]') }};
+  }});
+  var mq = window.matchMedia('(min-width: 1000px)');
+  function layout() {{
+    var desk = mq.matches;
+    document.documentElement.classList.toggle('desk', desk);
+    segni.forEach(function (x) {{
+      if (!x.el) return;
+      if (desk) x.slot.appendChild(x.el); else x.seg.parentNode.insertBefore(x.el, x.seg.nextSibling);
+      if (!desk) x.el.hidden = false;
+    }});
+    campo.placeholder = desk ? 'Cerca squadra, sport, canale…' : '🔍 Cerca squadra, sport, competizione, canale…';
+    if (!desk) EXTRA = '';
+    aggiorna();
+  }}
+  if (mq.addEventListener) mq.addEventListener('change', layout); else mq.addListener(layout);
+  tutti('.acc').forEach(function (a) {{
+    var z = a.dataset.acc, t = a.querySelector('.acc-t');
+    function chiudi(c) {{ a.classList.toggle('chiuso', c); t.setAttribute('aria-expanded', c ? 'false' : 'true'); }}
+    chiudi(leggi('acc-' + z) === 'chiuso');
+    t.addEventListener('click', function () {{ var c = !a.classList.contains('chiuso'); chiudi(c); salva('acc-' + z, c ? 'chiuso' : 'aperto'); }});
+    a.querySelector('.acc-b').addEventListener('click', function () {{ if (S.sezione !== z) {{ S.sezione = z; salva('sezione', z); }} }}, true);
+    a.querySelector('.acc-sez').addEventListener('click', function () {{ S.sezione = z; salva('sezione', z); aggiorna(); }});
+  }});
+  // nazioni: elenco dalle partite di calcio, le più numerose prima
+  (function () {{
+    var conta = {{}}, box = document.getElementById('b-naz'), tasto = document.getElementById('b-naz-t');
+    if (!box) return;
+    tutti('#vista-campionato li.partita').forEach(function (p) {{ if (p.dataset.naz) conta[p.dataset.naz] = (conta[p.dataset.naz] || 0) + 1; }});
+    Object.keys(conta).sort(function (a, b) {{ return conta[b] - conta[a] || a.localeCompare(b); }}).forEach(function (n) {{
+      var b = document.createElement('button'); b.type = 'button'; b.dataset.naz = n; b.setAttribute('aria-pressed', 'false');
+      b.innerHTML = '<span></span><span class="c"></span>'; b.firstChild.textContent = n; b.lastChild.textContent = conta[n];
+      b.addEventListener('click', function () {{ EXTRA = EXTRA === 'naz:' + n ? '' : 'naz:' + n; aggiorna(); }});
+      box.appendChild(b);
+    }});
+    tasto.addEventListener('click', function () {{
+      box.hidden = !box.hidden; tasto.setAttribute('aria-expanded', box.hidden ? 'false' : 'true');
+      tasto.querySelector('.c').textContent = box.hidden ? '▸' : '▾';
+      if (box.hidden && EXTRA.indexOf('naz:') === 0) {{ EXTRA = ''; aggiorna(); }}
+    }});
+    ['coppe', 'nazionali'].forEach(function (t) {{
+      var n = tutti('#vista-campionato li.partita[data-tipo="' + t + '"]').length, b = document.querySelector('#barra [data-extra="' + t + '"]');
+      b.querySelector('.c').textContent = n; if (!n) b.disabled = true;
+      b.addEventListener('click', function () {{ EXTRA = EXTRA === t ? '' : t; aggiorna(); }});
+    }});
+  }})();
+  layout();
   // zoom (70%-160%, salvato) e "torna su"
   var PASSI = [0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.35, 1.5, 1.6];
   function zoomOra() {{ var z = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--zoom')); return z > 0 ? z : 1; }}

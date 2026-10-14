@@ -1531,3 +1531,16 @@ def test_afc_esclusa():
 
 
 test_afc_esclusa(); print("AFC Champions League esclusa: OK")
+
+
+def test_nazione_tipo():
+    assert p.nazione_comp("SERIE A") == "Italia" and p.nazione_comp("BRASILEIRÃO SERIE A (Brasile)") == "Brasile"
+    assert p.nazione_comp("LALIGA HYPERMOTION (Spagna, 2ª divisione)") == "Spagna" and p.nazione_comp("UEFA CHAMPIONS LEAGUE") == ""
+    assert p.nazione_comp("ALTRE PARTITE (Prima Sport)") == ""
+    assert p.tipo_comp("UEFA CONFERENCE LEAGUE") == "coppe" and p.tipo_comp("NAZIONALI – AMICHEVOLI") == "nazionali"
+    assert p.tipo_comp("NAZIONALI / INTERNAZIONALI – COPA LIBERTADORES") == ""
+    src = (p.RADICE / "scraper" / "palinsesto.py").read_text(encoding="utf-8")
+    assert 'id="barra"' in src and "bebas-neue-latin.woff2" in src and (p.RADICE / "static" / "fonts" / "bebas-neue-latin.woff2").exists()
+
+
+test_nazione_tipo(); print("barra laterale desktop: nazioni, coppe europee, nazionali: OK")
