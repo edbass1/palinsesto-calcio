@@ -907,13 +907,19 @@ def etichette_extra(e):
     a = e.get("_info")
     if a:
         def lato(nome, lista):
-            if not lista:
-                return f'<b>{esc(nome)}</b>: nessuna assenza segnalata'
-            return f'<b>{esc(nome)}</b>: ' + "; ".join(f"{esc(n)} ({esc(m)})" for n, m in lista)
-        corpo = (f'<span class="tip-t">Infortunati e squalificati</span>{lato(e["casa"], a.get("casa"))}<br>'
+            righe = []
+            for n, m in (lista or []):
+                sq = "squalific" in (m or "").lower()
+                det = (m or "").split(",", 1)[1].strip() if "," in (m or "") else ("squalificato" if sq else "infortunato")
+                righe.append(f'<span class="ti-r {"ti-sq" if sq else "ti-inf"}"><span class="ti-i">{"🟥" if sq else "🚑"}</span>'
+                             f'<span class="ti-p">{esc(n)}</span><span class="ti-m">{esc(det)}</span></span>')
+            if not righe:
+                righe.append('<span class="ti-ok">✅ nessuna assenza segnalata</span>')
+            return f'<span class="ti-s"><span class="ti-n">{esc(nome)}</span>{"".join(righe)}</span>'
+        corpo = (f'<span class="ti-h">🩺 Infortunati e squalificati</span>{lato(e["casa"], a.get("casa"))}'
                  f'{lato(e["ospite"], a.get("ospite"))}')
         t.append('<button type="button" class="tg tg-info" aria-label="Info partita: assenze">ℹ️ info partita'
-                 f'<span class="tip" role="tooltip">{corpo}<span class="tip-f">fonte: FotMob</span></span></button>')
+                 f'<span class="tip tip-info" role="tooltip">{corpo}<span class="tip-f">fonte: FotMob</span></span></button>')
     if e.get("_big"):
         t.append(f'<button type="button" class="tg tg-big" aria-label="Big match">🔝 Big match<span class="tip" role="tooltip">{esc(e["_big"])}</span></button>')
     if e.get("_salvezza"):
@@ -1630,6 +1636,27 @@ TEMPLATE = """<!doctype html>
   .tg:hover .tip, .tg:focus .tip, .tg.aperto .tip {{ display:block; }}
   @media (max-width: 999px) {{ .tg .tip {{ max-width:86vw; }} }}
   @media (hover: none) {{ .tg:hover .tip {{ display:none; }} .tg.aperto .tip {{ display:block; }} }}
+  /* popup info partita */
+  .tg .tip-info {{ width:min(24rem, calc(100vw - 16px)); max-width:calc(100vw - 16px); padding:0; overflow:auto; overscroll-behavior:contain; font-size:.8rem;
+                  background:linear-gradient(180deg,#16202e,#0f141b); border:1px solid #2f4a6b; border-radius:16px;
+                  box-shadow:0 14px 40px #000d, 0 0 0 1px #ffffff0d inset; cursor:default; }}
+  .tip-info .ti-h {{ display:block; padding:10px 14px; font-size:.95rem; font-weight:800; color:#fff; letter-spacing:.2px;
+                    background:linear-gradient(90deg,#1d4ed8,#0ea5e9); }}
+  .tip-info .ti-s {{ display:block; padding:10px 14px 4px; }}
+  .tip-info .ti-s + .ti-s {{ border-top:1px solid #ffffff14; }}
+  .tip-info .ti-n {{ display:block; font-size:.88rem; font-weight:800; color:var(--giallo, #facc15); margin:2px 2px 8px; text-transform:uppercase; letter-spacing:.4px; }}
+  .tip-info .ti-r {{ display:flex; align-items:center; gap:8px; padding:7px 9px; margin-bottom:5px; border-radius:10px; border-left:4px solid; }}
+  .tip-info .ti-inf {{ background:#ef44441f; border-color:#ef4444; }}
+  .tip-info .ti-sq {{ background:#f59e0b1f; border-color:#f59e0b; }}
+  .tip-info .ti-i {{ font-size:1rem; flex:none; }}
+  .tip-info .ti-p {{ font-weight:700; color:#fff; flex:1; min-width:0; }}
+  .tip-info .ti-m {{ font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:999px; white-space:nowrap; }}
+  .tip-info .ti-inf .ti-m {{ background:#ef4444; color:#fff; }}
+  .tip-info .ti-sq .ti-m {{ background:#f59e0b; color:#1a1200; }}
+  .tip-info .ti-ok {{ display:block; padding:8px 10px; margin-bottom:6px; border-radius:10px; background:#22c55e1f; color:#86efac; font-weight:700; }}
+  .tip-info .tip-f {{ padding:6px 16px 10px; color:#7d8ea3; font-size:.68rem; margin:0; }}
+  @media (max-width: 640px) {{ .tg .tip-info {{ font-size:.85rem; }}
+                              .tip-info .ti-m {{ white-space:normal; text-align:center; }} }}
 </style>
 </head>
 <body>
@@ -1932,11 +1959,33 @@ TEMPLATE = """<!doctype html>
       if (box.hidden && EXTRA) {{ EXTRA = ''; aggiorna(); }}
     }});
   }})();
+  // tieni sempre il popup dentro lo schermo: sposta a sinistra/destra, apri verso l'alto, scroll interno
+  function posizionaTip(t) {{
+    var p = t.querySelector('.tip'); if (!p) return;
+    p.style.left = ''; p.style.top = ''; p.style.bottom = ''; p.style.maxHeight = '';
+    var M = 8, vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    var r = p.getBoundingClientRect(); if (!r.width) return;
+    var z = r.width / (p.offsetWidth || r.width) || 1;
+    var dx = 0;
+    if (r.right > vw - M) dx = vw - M - r.right;
+    if (r.left + dx < M) dx = M - r.left;
+    if (dx) p.style.left = (p.offsetLeft + dx / z) + 'px';
+    var b = t.getBoundingClientRect(), sotto = vh - b.bottom - M - 6, sopra = b.top - M - 6;
+    if (r.height > sotto && sopra > sotto) {{ p.style.top = 'auto'; p.style.bottom = 'calc(100% + 6px)'; p.style.maxHeight = (sopra / z) + 'px'; }}
+    else p.style.maxHeight = (Math.max(sotto, 120) / z) + 'px';
+    p.style.overflowY = 'auto';
+  }}
+  document.addEventListener('mouseover', function (ev) {{
+    var t = ev.target.closest && ev.target.closest('.tg');
+    if (t && !(ev.relatedTarget && t.contains(ev.relatedTarget))) posizionaTip(t);
+  }});
+  document.addEventListener('focusin', function (ev) {{ var t = ev.target.closest && ev.target.closest('.tg'); if (t) posizionaTip(t); }});
   // etichette: un tocco apre/chiude la spiegazione, un tocco altrove la chiude
   document.addEventListener('click', function (ev) {{
     var t = ev.target.closest && ev.target.closest('.tg');
     tutti('.tg.aperto').forEach(function (x) {{ if (x !== t) x.classList.remove('aperto'); }});
     if (t) t.classList.toggle('aperto');
+    if (t && t.classList.contains('aperto')) posizionaTip(t);
   }});
   layout();
   // ogni clic su un filtro o comando (nazione, coppe, sezione, scelta, giorno, fisarmonica, X della ricerca) riporta la pagina in cima,
