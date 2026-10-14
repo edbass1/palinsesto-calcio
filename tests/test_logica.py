@@ -270,7 +270,7 @@ def test_dove():
     assert '<a href="#dv-prima-sport"' in h and '<a href="#dv-rsi"' in h and "Persiana Sports 2</li>" in h
     assert 'id="dv-golazo"' in h and 'id="dv-dazn"' in h and 'id="dv-rsi"' in h  # utente sempre, ricerca se usata
     assert 'id="dv-zdf"' not in h and 'target="_blank" rel="noopener noreferrer"' in h
-    assert "Calcio e Sport in TV · Sab 10 – Mar 13 ottobre" in h and h.count("data-filtro=") == 10 and "eekend" not in h
+    assert "SPORT GRATIS E LEGALE IN TV · Sab 10 – Mar 13 ottobre" in h and h.count("data-filtro=") == 10 and "eekend" not in h
 
 
 def test_ordine_tutto():
@@ -966,7 +966,7 @@ def test_categorie():
     h = p.genera_html(*p.finestra(ora)[:1], ora, g, [], [], [], al)
     assert "Scegli cosa vuoi vedere:" in h and h.count('data-gruppo="calcio" data-cat=') == 5 and h.count('data-gruppo="altri" data-cat=') == 2
     assert 'data-cat="elite italia"' in h and 'data-cat="minore"' in h and 'data-fine="%d" data-giorno' % (int(q.timestamp()) + 7200) in h
-    assert ">SUDAMERICA<" in h and ">CALCIO MINORE<" in h and 'data-sezione="sport"' in h and "Calcio e Sport in TV" in h
+    assert ">SUDAMERICA<" in h and ">CALCIO MINORE<" in h and 'data-sezione="sport"' in h and "SPORT GRATIS E LEGALE IN TV" in h
     assert 'id="vista-sport-tipo"' in h and 'data-vista="tipo"' in h and 'data-vista="altri"' not in h
     # PER CAMPIONATO: sezioni in ordine di primo calcio d'inizio, a parità ordine fisso
     q2 = q - dt.timedelta(hours=1)
@@ -1519,3 +1519,15 @@ def test_serie_a_senza_canali():
 
 
 test_serie_a_senza_canali(); print("Serie A senza canali con nota: OK")
+
+
+def test_afc_esclusa():
+    rx = U.regex_femminile(CONF_LOS["escludi_competizioni"])
+    for c in ("AFC Champions League", "AFC Champions League Elite", "AFC Champions League Two", "ACL Elite", "ACL Two",
+              "NAZIONALI / INTERNAZIONALI – AFC CHAMPIONS LEAGUE ELITE", "Asian AFC Champions League - Group A"):
+        assert U.femminile(rx, c, ("Al Hilal", "Al Ain")), c
+    for c in ("UEFA Champions League", "CAF Champions League", "AFC Asian Cup", "Serie A"):
+        assert not U.femminile(rx, c, ("Inter", "Milan")), c
+
+
+test_afc_esclusa(); print("AFC Champions League esclusa: OK")

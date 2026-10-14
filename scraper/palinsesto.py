@@ -1301,14 +1301,15 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Calcio e Sport in TV · {periodo}</title>
+<title>SPORT GRATIS E LEGALE IN TV · {periodo}</title>
 <meta name="description" content="Partite di calcio e altri sport in TV e in streaming gratis, oggi e nei prossimi 5 giorni, orari italiani.">
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Calcio e Sport">
+<meta name="apple-mobile-web-app-title" content="Sport gratis">
+<script>(function () {{ try {{ var z = parseFloat(localStorage.getItem("zoom")); if (z >= 0.7 && z <= 1.6) document.documentElement.style.setProperty("--zoom", z); }} catch (e) {{}} }})();</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -1316,7 +1317,7 @@ TEMPLATE = """<!doctype html>
   :root {{ --giallo:#ffd400; --azzurro:#8fe3ff; --grigio:#bdbdbd; --verde:#00e676; --rosso:#ff5252; }}
   * {{ box-sizing:border-box; }}
   [hidden] {{ display:none !important; }}
-  html {{ font-size:24px; -webkit-text-size-adjust:100%; }}
+  html {{ font-size:calc(24px * var(--zoom, 1)); -webkit-text-size-adjust:100%; }}
   body {{ margin:0; background:#000; color:#fff; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
          line-height:1.35; padding:0 max(16px, env(safe-area-inset-left)) 48px; }}
   main, header, footer {{ max-width:1000px; margin:0 auto; }}
@@ -1441,8 +1442,7 @@ TEMPLATE = """<!doctype html>
   footer a {{ color:var(--azzurro); }}
   .vuoto {{ font-size:1.3rem; margin-top:40px; }}
   @media (max-width: 640px) {{
-    html {{ font-size:21px; }}
-    h1 {{ font-size:1.6rem; }}
+    html {{ font-size:calc(21px * var(--zoom, 1)); }}
     li.partita {{ grid-template-columns:1fr; grid-template-areas:"quando" "squadre" "canali"; padding:14px; }}
     .quando {{ flex-direction:row; align-items:baseline; flex-wrap:wrap; gap:4px 12px; }}
     .stato {{ margin-top:0; align-self:center; }}
@@ -1451,11 +1451,49 @@ TEMPLATE = """<!doctype html>
     nav.filtri button span {{ display:block; }}
     li.partita {{ grid-template-rows:auto; }}
   }}
+  /* ---- intestazione e comandi più piccoli e sobri (le schede delle partite restano come sono) ---- */
+  header {{ padding:14px 0 4px; }}
+  h1 {{ font-size:.95rem; font-weight:900; letter-spacing:.06em; margin:0 0 6px; line-height:1.25; }}
+  .h1p {{ display:inline-block; margin:4px 0 0; font-size:.62rem; font-weight:700; letter-spacing:.02em; color:var(--giallo);
+         background:rgba(255,212,0,.08); border:1px solid rgba(255,212,0,.55); border-radius:999px; padding:.2em .8em; vertical-align:middle; }}
+  .agg {{ font-size:.58rem; margin:2px 0 0; color:#9a9a9a; }}
+  nav.sezioni {{ gap:8px; margin-top:6px; }}
+  nav.sezioni button {{ font-size:.78rem; min-height:2.6rem; padding:6px 6px; border-width:2px; border-radius:12px; letter-spacing:.03em; }}
+  nav.sezioni button .ico {{ display:inline; font-size:.9rem; }}
+  nav.sezioni button .n {{ font-size:.55rem; margin-top:2px; }}
+  nav.sezioni button[aria-pressed="true"] {{ box-shadow:0 0 0 2px #fff; }}
+  section.pannello {{ margin-top:8px; border-width:1px; border-top-width:3px; border-radius:10px; padding:2px 8px 8px; }}
+  .et {{ font-size:.62rem; margin:6px 0 4px; }}
+  .viste, .scelta-b {{ gap:6px; }}
+  .viste button, .scelta-b button {{ font-size:.62rem; min-height:max(40px, 1.9rem); padding:4px 6px; border-width:2px; border-radius:9px; }}
+  nav.filtri {{ padding:6px 0; gap:6px; border-bottom-width:1px; }}
+  nav.filtri button {{ font-size:.64rem; min-height:max(40px, 1.9rem); padding:4px 10px; border-width:2px; border-radius:9px; }}
+  .cerca {{ margin:6px auto 2px; }}
+  .cerca input {{ font-size:.7rem; min-height:max(42px, 2rem); padding:6px 48px 6px 12px; border-width:1px; border-radius:10px; }}
+  .cerca button {{ font-size:.8rem; width:34px; height:34px; border-radius:8px; }}
+  .nessun-risultato {{ font-size:.75rem; }}
+  .legenda {{ font-size:.58rem; }}
+  .intro-altri {{ font-size:.62rem; }}
+  /* zoom e torna su */
+  .zoom {{ position:fixed; top:max(8px, env(safe-area-inset-top)); right:max(8px, env(safe-area-inset-right)); z-index:30; display:flex; flex-direction:column; gap:6px; }}
+  .zoom button, .su {{ font:inherit; font-size:16px; font-weight:800; color:#fff; background:rgba(30,30,30,.92); border:1px solid #666;
+         cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.6); }}
+  .zoom button {{ width:40px; height:40px; border-radius:10px; line-height:1; padding:0; }}
+  .su {{ position:fixed; left:max(10px, env(safe-area-inset-left)); bottom:max(12px, env(safe-area-inset-bottom)); z-index:30;
+         font-size:13px; font-weight:700; min-height:40px; padding:6px 12px; border-radius:999px; opacity:.9; }}
+  .zoom button:focus-visible, .su:focus-visible {{ outline:3px solid var(--azzurro); outline-offset:2px; }}
+  @media (max-width: 1120px) {{ nav.filtri, .cerca {{ padding-right:50px; }} .cerca button {{ right:56px; }} h1, .agg {{ padding-right:50px; }} }}
+  @media (max-width: 640px) {{
+    nav.filtri button {{ font-size:.66rem; min-height:44px; padding:2px; }}
+    nav.sezioni button {{ font-size:.8rem; }}
+  }}
 </style>
 </head>
 <body>
+<div class="zoom" role="group" aria-label="Dimensione del testo"><button type="button" id="zoom-meno" aria-label="Testo più piccolo" title="Testo più piccolo">−</button><button type="button" id="zoom-piu" aria-label="Testo più grande" title="Testo più grande">+</button></div>
+<button type="button" class="su" id="torna-su" aria-label="Torna su" hidden>↑ torna su</button>
 <header>
-  <h1>Calcio e Sport in TV <span class="h1p">{periodo}</span></h1>
+  <h1>SPORT GRATIS E LEGALE IN TV <span class="h1p">{periodo}</span></h1>
   <p class="agg">Aggiornato {aggiornato} · orari italiani</p>
 </header>
 <nav class="sezioni" aria-label="Sezione">
@@ -1659,6 +1697,25 @@ TEMPLATE = """<!doctype html>
   }}
   stato();
   setInterval(stato, 60000);
+  // zoom (70%-160%, salvato) e "torna su"
+  var PASSI = [0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.35, 1.5, 1.6];
+  function zoomOra() {{ var z = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--zoom')); return z > 0 ? z : 1; }}
+  function zoom(d) {{
+    var z = zoomOra(), i = 0;
+    PASSI.forEach(function (x, k) {{ if (Math.abs(x - z) < Math.abs(PASSI[i] - z)) i = k; }});
+    z = PASSI[Math.max(0, Math.min(PASSI.length - 1, i + d))];
+    document.documentElement.style.setProperty('--zoom', z); salva('zoom', z);
+    document.getElementById('zoom-meno').disabled = z <= PASSI[0];
+    document.getElementById('zoom-piu').disabled = z >= PASSI[PASSI.length - 1];
+  }}
+  document.getElementById('zoom-meno').addEventListener('click', function () {{ zoom(-1); }});
+  document.getElementById('zoom-piu').addEventListener('click', function () {{ zoom(1); }});
+  zoom(0);
+  var su = document.getElementById('torna-su');
+  function mostraSu() {{ var m = document.querySelector('main'); su.hidden = !m || window.scrollY < m.offsetTop; }}
+  window.addEventListener('scroll', mostraSu, {{ passive: true }});
+  su.addEventListener('click', function () {{ window.scrollTo({{ top: 0, behavior: 'smooth' }}); }});
+  mostraSu();
   // ricarica la pagina ogni 30 minuti per prendere gli aggiornamenti
   setTimeout(function () {{ location.reload(); }}, 30 * 60 * 1000);
 }})();
