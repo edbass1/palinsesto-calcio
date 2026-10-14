@@ -100,6 +100,10 @@ def squadra(n, conf):
     return n
 
 
+RE_MOTORI = re.compile(r"\b(gt|nascar|euronascar|curse|cursa|masini|automobilism|motociclism|formula|f[1234]|rall?y|raliu|"
+                       r"dtm|wec|wrc|superbike|sbk|moto ?gp|moto[23]|indycar|karting|endurance|le mans|porsche|tcr|v8)\b", re.I)
+
+
 def analizza_titolo(t, conf):
     """-> dict(sport, genere 'M'/'F'/'', comp, resto) oppure None se è un titolo da saltare."""
     t = re.sub(r"\s*[\(\[]?\b(live|în direct|in direct)\b[\)\]]?\s*", " ", t, flags=re.I).strip(" -")
@@ -117,6 +121,9 @@ def analizza_titolo(t, conf):
     if sport:
         pref = {_senza_accenti(k).lower(): v for k, v in conf.get("titolo_sport", {}).items()}.get(_senza_accenti(base).lower(), "")
         return {"sport": sport, "genere": genere, "comp": comp.strip() or pref, "resto": resto}
+    # gare di motori con il nome del campionato come prefisso ("GT World Challenge: Portimao - Calificări", "EuroNASCAR: ...")
+    if RE_MOTORI.search(_senza_accenti(pre)):
+        return {"sport": "Motori", "genere": "", "comp": pre, "resto": resto}
     # prefisso che non è uno sport: sigla di competizione di calcio ("UYL: ...")
     return {"sport": "Calcio", "genere": "", "comp": pre, "resto": resto}
 

@@ -1548,10 +1548,6 @@ test_nazione_tipo(); print("barra laterale desktop: nazioni, coppe europee, nazi
 
 def test_etichette_extra():
     import extra_partite as X
-    assert X.americana_a_decimale("-160") == 1.625 and X.americana_a_decimale("+120") == 2.2 and X.americana_a_decimale(-300) < 1.40
-    ev = {"competitions": [{"odds": [{"total": {"over": {"close": {"line": "o2.5", "odds": "-300"}}}}]}]}
-    assert X.over_da_evento(ev) < 1.40
-    assert X.over_da_evento({"competitions": [{"odds": [{"total": {"over": {"close": {"line": "o3.5", "odds": "-300"}}}}]}]}) is None
     d = {"content": {"lineup": {"homeTeam": {"unavailable": [{"name": "A B", "unavailability": {"type": "injury", "expectedReturn": "Mid October 2026"}},
                                                              {"name": "C D", "unavailability": {"type": "international"}}]},
                                 "awayTeam": {"unavailable": [{"name": "E F", "unavailability": {"type": "suspension"}}]}}}}
@@ -1565,13 +1561,24 @@ def test_etichette_extra():
     assert X.rivalita_di("Roma U19", "Lazio U19", coppie) is None and X.rivalita_di("Manchester City", "Liverpool", coppie)
     assert X.rivalita_di("Arsenal", "Everton", coppie) is None and X.rivalita_di("Celta de Vigo", "Deportivo Alavés", coppie) is None
     assert X.rivalita_di("RC Celta", "Deportivo de La Coruña", coppie) or True
-    e = {"casa": "Millwall", "ospite": "West Ham", "_riv": "x", "_gol": True, "_info": {"casa": [("A", "squalificato")], "ospite": []}}
+    e = {"casa": "Millwall", "ospite": "West Ham", "_riv": "x", "_info": {"casa": [("A", "squalificato")], "ospite": []}}
     h = p.etichette_extra(e)
-    assert "info partita" in h and "rivalità" in h and "tanti gol previsti" in h and "nessuna assenza segnalata" in h
-    assert "1.4" not in h and p.etichette_extra({"casa": "a", "ospite": "b"}) == ""
+    assert "info partita" in h and "rivalità" in h and "tanti gol" not in h and "nessuna assenza segnalata" in h
+    assert p.etichette_extra({"casa": "a", "ospite": "b"}) == ""
     # abbinamento a squadre invertite: le assenze restano della squadra giusta
     m, inv = X.abbina({"ts": 1000, "casa": "Leeds", "ospite": "Manchester United"}, [{"ts": 1000, "casa": "Manchester United", "ospite": "Leeds United", "id": 1}])
     assert m and inv
 
 
-test_etichette_extra(); print("etichette info partita / rivalità / tanti gol: OK")
+test_etichette_extra(); print("etichette info partita / rivalità: OK")
+
+
+def test_motori_prima():
+    import primaplay as P
+    c = P.carica_conf()
+    for t in ("GT World Challenge: Portimao - Calificări", "EURONASCAR: Zolder - Cursa 1 V8GP", "Curse mașini istorice: Imola Classic - Grupa C"):
+        assert P.analizza_titolo(t, c)["sport"] == "Motori", t
+    assert P.analizza_titolo("UYL: Roma - Inter", c)["sport"] == "Calcio" and P.analizza_titolo("Liga 1: FCSB - Rapid", c)["sport"] == "Calcio"
+
+
+test_motori_prima(); print("gare di motori di Prima Sport in ALTRI SPORT: OK")

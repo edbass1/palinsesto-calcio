@@ -901,7 +901,7 @@ def tipo_comp(nome):
 
 
 def etichette_extra(e):
-    """Etichette accanto alle squadre: info partita (assenze), rivalità, tanti gol previsti. Spiegazione al passaggio / tocco."""
+    """Etichette accanto alle squadre: info partita (assenze) e rivalità. Spiegazione al passaggio / tocco."""
     esc = html.escape
     t = []
     a = e.get("_info")
@@ -915,9 +915,6 @@ def etichette_extra(e):
                  f'{lato(e["ospite"], a.get("ospite"))}<span class="tip-f">fonte: FotMob</span></span></button>')
     if e.get("_riv"):
         t.append(f'<button type="button" class="tg tg-riv" aria-label="Rivalità">🔥 rivalità<span class="tip" role="tooltip">{esc(e["_riv"])}</span></button>')
-    if e.get("_gol"):
-        t.append('<button type="button" class="tg tg-gol" aria-label="Tanti gol previsti">⚽ tanti gol previsti'
-                 '<span class="tip" role="tooltip">Secondo i bookmaker è molto probabile che si segnino almeno 3 gol.</span></button>')
     return f'<span class="tags">{"".join(t)}</span>' if t else ""
 
 
@@ -1609,13 +1606,12 @@ TEMPLATE = """<!doctype html>
   html.desk .su {{ left:calc(13.5rem + 40px); }}
   html.desk nav.filtri, html.desk .cerca {{ padding-right:0; }}
   .sottotitolo {{ color:#fff; font-size:.62rem; font-weight:600; margin:2px 0 6px; line-height:1.3; opacity:.95; }}
-  /* etichette sulle partite: info partita, rivalità, tanti gol previsti */
+  /* etichette sulle partite: info partita e rivalità */
   .squadre .tags {{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; width:100%; }}
   .tg {{ position:relative; font:inherit; font-size:.5rem; font-weight:700; line-height:1.2; padding:4px 9px; min-height:28px; border-radius:999px;
         border:1px solid #444; background:#1a1a1a; color:#ddd; cursor:help; }}
   .tg-info {{ border-color:#3b82c4; color:#9fd0ff; }}
   .tg-riv {{ border-color:#c2410c; color:#ffb38a; }}
-  .tg-gol {{ border-color:#15803d; color:#86efac; }}
   .tg .tip {{ display:none; position:absolute; z-index:30; left:0; top:calc(100% + 6px); width:max-content; max-width:min(24rem, 86vw, calc(100vw - 560px));
              background:#111; color:#eee; border:1px solid #555; border-radius:8px; padding:8px 11px; font-size:.55rem; font-weight:500;
              text-align:left; line-height:1.4; white-space:normal; box-shadow:0 6px 20px #000c; }}
@@ -1985,7 +1981,7 @@ def main():
     ap.add_argument("--out", default=str(RADICE / "site"))
     ap.add_argument("--ora", help="data/ora di riferimento ISO (per test), es. 2026-10-10T18:00+02:00")
     ap.add_argument("--json", action="store_true", help="scrive anche palinsesto.json")
-    ap.add_argument("--senza-extra", action="store_true", help="niente assenze/quote (solo rivalità non serve rete)")
+    ap.add_argument("--senza-extra", action="store_true", help="niente assenze FotMob (le rivalità restano)")
     a = ap.parse_args()
 
     ora = dt.datetime.fromisoformat(a.ora) if a.ora else dt.datetime.now(ROMA)

@@ -1,7 +1,6 @@
 """Etichette in più sulle schede delle partite di calcio:
 - info partita: infortunati e squalificati da FotMob (JSON pubblico, nessuna chiave);
 - rivalità: elenco curato in rivalita.json;
-- tanti gol previsti: quota Over 2.5 < 1.40 (DraftKings via API pubblica ESPN; la quota non si mostra).
 Tutto facoltativo: se una fonte non risponde, l'etichetta semplicemente non compare."""
 import datetime as dt
 import json
@@ -19,13 +18,8 @@ except ImportError:  # pragma: no cover
 RADICE = Path(__file__).resolve().parent.parent
 CACHE = RADICE / "dati" / "cache_extra.json"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"
-SOGLIA_OVER = 1.40
 MAX_DETTAGLI = 220      # richieste FotMob matchDetails per esecuzione
 TTL_S = 3 * 3600        # cache dei dettagli
-LEGHE_ESPN = ["ita.1", "ita.2", "eng.1", "eng.2", "esp.1", "esp.2", "ger.1", "ger.2", "fra.1", "fra.2", "ned.1", "por.1", "bel.1",
-              "sui.1", "sco.1", "tur.1", "aut.1", "gre.1", "den.1", "usa.1", "mex.1", "bra.1", "arg.1", "ksa.1",
-              "uefa.champions", "uefa.europa", "uefa.europa.conf", "ita.coppa_italia", "eng.fa", "eng.league_cup", "esp.copa_del_rey",
-              "ger.dfb_pokal", "fra.coupe_de_france", "fifa.worldq.uefa", "uefa.nations", "fifa.friendly"]
 
 
 def _get(url, timeout=15):
@@ -39,45 +33,6 @@ def _get(url, timeout=15):
 
 def _ts(iso):
     return int(dt.datetime.fromisoformat(iso.replace("Z", "+00:00")).timestamp())
-
-
-# ---------------- quote Over 2.5 (ESPN / DraftKings) ----------------
-def americana_a_decimale(a):
-    a = float(str(a).replace("+", ""))
-    return round(1 + (a / 100 if a > 0 else 100 / -a), 3)
-
-
-def over_da_evento(ev):
-    """Quota decimale Over 2.5 di un evento dello scoreboard ESPN, o None."""
-    for o in (ev.get("competitions") or [{}])[0].get("odds") or []:
-        ov = (((o or {}).get("total") or {}).get("over") or {})
-        for k in ("close", "open"):
-            x = ov.get(k) or {}
-            if x.get("line") == "o2.5" and x.get("odds") not in (None, "", "OFF"):
-                try:
-                    return americana_a_decimale(x["odds"])
-                except ValueError:
-                    pass
-    return None
-
-
-def quote_espn(giorni, log=print):
-    out = []
-    for lega in LEGHE_ESPN:
-        for g in giorni:
-            try:
-                d = _get(f"https://site.api.espn.com/apis/site/v2/sports/soccer/{lega}/scoreboard?dates={g:%Y%m%d}")
-            except Exception as ex:  # noqa: BLE001
-                log(f"  ESPN {lega} {g}: {ex}")
-                break
-            for ev in d.get("events") or []:
-                q = over_da_evento(ev)
-                cs = (ev.get("competitions") or [{}])[0].get("competitors") or []
-                casa = next((c["team"]["displayName"] for c in cs if c.get("homeAway") == "home"), None)
-                osp = next((c["team"]["displayName"] for c in cs if c.get("homeAway") == "away"), None)
-                if q and casa and osp:
-                    out.append({"ts": _ts(ev["date"]), "casa": casa, "ospite": osp, "over": q})
-    return out
 
 
 # ---------------- assenze (FotMob) ----------------
@@ -184,10 +139,10 @@ def abbina(e, lista):
 
 
 def arricchisci(gruppi, giorni, rete=True, log=print, cache_file=CACHE):
-    """Aggiunge a ogni partita di calcio e['_info'] (assenze), e['_riv'] (frase), e['_gol'] (bool). Restituisce i conteggi."""
+    """Aggiunge a ogni partita di calcio e['_info'] (assenze) ed e['_riv'] (frase).. Restituisce i conteggi."""
     partite = [e for g in gruppi for e in g["partite"] if e.get("ospite")]
     coppie = carica_rivalita()
-    st = {"rivalita": 0, "info": 0, "gol": 0, "fotmob": "spento", "espn": "spento"}
+    st = {"rivalita": 0, "info": 0, "fotmob": "spento"}
     for e in partite:
         r = rivalita_di(e["casa"], e["ospite"], coppie)
         if r:
@@ -201,17 +156,6 @@ def arricchisci(gruppi, giorni, rete=True, log=print, cache_file=CACHE):
         cache = {}
     ora = time.time()
     cache = {k: v for k, v in cache.items() if ora - v.get("t", 0) < TTL_S}
-    # quote
-    try:
-        quote = quote_espn(giorni, log)
-        st["espn"] = f"{len(quote)} quote"
-        for e in partite:
-            q, _ = abbina(e, quote)
-            if q and q["over"] < SOGLIA_OVER:
-                e["_gol"] = True
-                st["gol"] += 1
-    except Exception as ex:  # noqa: BLE001
-        log(f"  ESPN quote: {ex}")
     # assenze
     try:
         fm = partite_fotmob(giorni, log)
