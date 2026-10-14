@@ -1536,6 +1536,9 @@ TEMPLATE = """<!doctype html>
   /* ---- desktop: barra laterale (solo schermi larghi; su telefono non cambia nulla) ---- */
   #barra, #ordina-top {{ display:none; }}
   html.desk body {{ padding-left:calc(13.5rem + 28px); }}
+  /* su desktop lo zoom +/− ingrandisce solo la parte destra (elenco): la barra laterale resta sempre della stessa misura */
+  html.desk {{ font-size:24px; }}
+  html.desk body > :not(#barra):not(.zoom):not(.su):not(script) {{ zoom:var(--zoom, 1); }}
   html.desk nav.sezioni, html.desk section.pannello {{ display:none !important; }}
   html.desk #barra {{ display:block; position:fixed; top:0; left:0; bottom:0; width:13.5rem; overflow-y:auto; background:#0b0b0b;
          border-right:1px solid #262626; padding:16px 12px 80px; z-index:20; }}
