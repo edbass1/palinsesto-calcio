@@ -20,7 +20,7 @@ CACHE = RADICE / "dati" / "cache_extra.json"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"
 MAX_DETTAGLI = 220      # richieste FotMob matchDetails per esecuzione
 TTL_S = 3 * 3600        # cache dei dettagli
-LEGHE_INFO = {47: "Premier League", 55: "Serie A"}  # info partita solo per Premier League e Serie A (id FotMob)
+LEGHE_INFO = {47: "Premier League", 55: "Serie A", 54: "Bundesliga", 87: "LaLiga", 53: "Ligue 1"}  # info partita: 5 grandi campionati (id FotMob)
 
 
 def _get(url, timeout=15):

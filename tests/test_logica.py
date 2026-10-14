@@ -1578,7 +1578,7 @@ def test_etichette_extra():
     assert X.RE_COPPA.search("Coppa Italia") and X.RE_COPPA.search("DFB Pokal") and not X.RE_COPPA.search("Serie A")
     h2 = p.etichette_extra({"casa": "Inter", "ospite": "Milan", "_big": "1º contro 2º in classifica", "_salvezza": None})
     assert "Big match" in h2 and "1º contro 2º" in h2 and "Classifica" not in h2
-    assert X.LEGHE_INFO == {47: "Premier League", 55: "Serie A"}
+    assert X.LEGHE_INFO == {47: "Premier League", 55: "Serie A", 54: "Bundesliga", 87: "LaLiga", 53: "Ligue 1"}
     # abbinamento a squadre invertite: le assenze restano della squadra giusta
     m, inv = X.abbina({"ts": 1000, "casa": "Leeds", "ospite": "Manchester United"}, [{"ts": 1000, "casa": "Manchester United", "ospite": "Leeds United", "id": 1}])
     assert m and inv
