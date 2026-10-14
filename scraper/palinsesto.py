@@ -1885,6 +1885,14 @@ TEMPLATE = """<!doctype html>
     }});
   }})();
   layout();
+  // ogni clic su un filtro o comando (nazione, coppe, sezione, scelta, giorno, fisarmonica, X della ricerca) riporta la pagina in cima,
+  // così l'elenco filtrato si vede dall'inizio; zoom e digitazione nella ricerca no
+  document.addEventListener('click', function (ev) {{
+    var b = ev.target.closest && ev.target.closest('button');
+    if (!b || b.closest('.zoom') || b.id === 'torna-su') return;
+    if (!b.closest('#barra, nav.sezioni, section.pannello, nav.filtri, .cerca, .scelta-b')) return;
+    setTimeout(function () {{ window.scrollTo(0, 0); }}, 0);
+  }});
   // zoom (70%-160%, salvato) e "torna su"
   var PASSI = [0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.35, 1.5, 1.6];
   function zoomOra() {{ var z = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--zoom')); return z > 0 ? z : 1; }}
