@@ -1572,7 +1572,7 @@ TEMPLATE = """<!doctype html>
   .acc {{ border:1px solid #2a2a2a; border-radius:12px; margin:0 0 12px; background:#111; overflow:hidden; }}
   .acc-h {{ display:flex; align-items:stretch; border-bottom:1px solid #2a2a2a; }}
   .acc.chiuso .acc-h {{ border-bottom:0; }}
-  .acc-sez {{ flex:1; font:inherit; font-size:.62rem; font-weight:900; letter-spacing:.05em; text-align:left; color:#fff; background:none;
+  .acc-sez {{ flex:1; font:inherit; font-size:.62rem; font-weight:900; letter-spacing:.05em; text-align:left; color:var(--giallo); background:none;
          border:0; padding:10px 12px; min-height:44px; cursor:pointer; }}
   .acc-sez .n {{ display:block; font-size:.48rem; font-weight:600; color:#999; letter-spacing:0; margin-top:2px; }}
   .acc.attiva .acc-sez {{ color:var(--giallo); }}
@@ -1607,13 +1607,16 @@ TEMPLATE = """<!doctype html>
   html.desk nav.filtri, html.desk .cerca {{ padding-right:0; }}
   .sottotitolo {{ color:#fff; font-size:.62rem; font-weight:600; margin:2px 0 6px; line-height:1.3; opacity:.95; }}
   /* etichette sulle partite: info partita e rivalità */
-  .squadre .tags {{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; width:100%; }}
-  .tg {{ position:relative; font:inherit; font-size:.5rem; font-weight:700; line-height:1.2; padding:4px 9px; min-height:28px; border-radius:999px;
+  .squadre .tags {{ display:inline-flex; flex-wrap:wrap; gap:6px; margin-left:10px; vertical-align:middle; }}
+  .tg {{ position:static; font:inherit; font-size:.6rem; font-weight:700; line-height:1.2; padding:5px 11px; min-height:32px; border-radius:999px;
         border:1px solid #444; background:#1a1a1a; color:#ddd; cursor:help; }}
+  .squadre {{ position:relative; }}
+  li.partita:has(.tg:hover, .tg:focus, .tg.aperto) {{ position:relative; z-index:25; }}
+  @media (max-width: 640px) {{ .squadre .tags {{ margin-left:0; margin-top:4px; }} }}
   .tg-info {{ border-color:#3b82c4; color:#9fd0ff; }}
   .tg-riv {{ border-color:#c2410c; color:#ffb38a; }}
   .tg .tip {{ display:none; position:absolute; z-index:30; left:0; top:calc(100% + 6px); width:max-content; max-width:min(24rem, 86vw, calc(100vw - 560px));
-             background:#111; color:#eee; border:1px solid #555; border-radius:8px; padding:8px 11px; font-size:.55rem; font-weight:500;
+             background:#111; color:#eee; border:1px solid #555; border-radius:8px; padding:9px 12px; font-size:.64rem; font-weight:500;
              text-align:left; line-height:1.4; white-space:normal; box-shadow:0 6px 20px #000c; }}
   .tg .tip-t {{ display:block; font-weight:800; color:#fff; margin-bottom:3px; }}
   .tg .tip-f {{ display:block; color:#888; font-size:.85em; margin-top:4px; }}
