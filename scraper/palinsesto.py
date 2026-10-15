@@ -988,12 +988,28 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     # vista "altri sport": eventi in ordine di orario, per giorno, con lo sport in evidenza
     altri = sorted(altri or [], key=lambda e: (e["ts"], e["sport"]))
 
+    def categoria_filtro_sport(e):
+        testo = " ".join(str(e.get(k, "") or "") for k in ("sport", "titolo", "titolo_originale")).lower()
+        if re.search(r"\bnfl\b|american football|football americano|football américain", testo):
+            return "nfl"
+        if re.search(r"basket|basketball|nba|euroleague|fiba", testo):
+            return "basket"
+        if re.search(r"\btennis\b", testo):
+            return "tennis"
+        if re.search(r"volley|volleyball", testo):
+            return "volley"
+        if re.search(r"motogp|moto\s*[23]|motocross|superbike|\bmoto\b", testo):
+            return "moto"
+        if re.search(r"\bf1\b|formula\s*1|formula one|formel\s*1", testo):
+            return "f1"
+        return "altro"
+
     def scheda_altro(e):
         q = dt.datetime.fromtimestamp(e["ts"], ROMA)
         f = dt.datetime.fromtimestamp(e["fine"], ROMA)
         em = togli_link_doppi("".join(emittente_altro(x, dove, usati_s) for x in e["emittenti"]))
         return (f'<li class="partita evento" data-ts="{e["ts"]}" data-fine="{e["fine"]}" data-giorno="{q:%Y-%m-%d}"'
-                f' data-cat="{" ".join(sorted(cat_altro(e)))}">'
+                f' data-sport="{categoria_filtro_sport(e)}" data-cat="{" ".join(sorted(cat_altro(e)))}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span><span class="fino">fino alle {f:%H:%M}</span>'
                 '<span class="stato" aria-live="polite"></span></div>'
@@ -1676,7 +1692,9 @@ TEMPLATE = """<!doctype html>
       <div class="b-naz" id="b-naz" hidden></div></div></section>
   <section class="acc" data-acc="sport"><div class="acc-h"><button type="button" class="acc-sez" data-sezione="sport">🏁 ALTRI SPORT <span class="n" id="bn-sport"></span></button><button type="button" class="acc-t" aria-expanded="true" aria-label="Apri o chiudi ALTRI SPORT"><span>▾</span></button></div>
     <div class="acc-b"><p class="b-et">Cosa vedere</p><div class="slot" data-slot="scelta-altri"></div>
-      <p class="b-et">Giorno</p><div class="slot" data-slot="giorni-sport"></div></div></section>
+      <p class="b-et">Giorno</p><div class="slot" data-slot="giorni-sport"></div>
+      <p class="b-et">Filtra</p><div class="b-extra"><button type="button" id="b-sport-t" aria-expanded="false" aria-pressed="false"><span>🏅 Per sport</span> <span class="c">▸</span></button></div>
+      <div class="b-naz" id="b-sport" hidden></div></div></section>
 </aside>
 <header>
   <h1>SPORT GRATIS E LEGALE IN TV <span class="h1p">{periodo}</span></h1>
@@ -1762,7 +1780,10 @@ TEMPLATE = """<!doctype html>
   // filtri extra della barra laterale (solo desktop): coppe europee, nazionali, nazione
   var EXTRA = '';
   function extraOk(p) {{
-    if (!EXTRA || !document.documentElement.classList.contains('desk') || sezDi(p) !== 'calcio') return true;
+    if (!EXTRA || !document.documentElement.classList.contains('desk')) return true;
+    var sez = sezDi(p);
+    if (EXTRA.indexOf('sport:') === 0) return sez !== 'sport' || p.dataset.sport === EXTRA.slice(6);
+    if (sez !== 'calcio') return true;
     if (EXTRA === 'coppe' || EXTRA === 'nazionali') return p.dataset.tipo === EXTRA;
     return 'naz:' + (p.dataset.naz || '') === EXTRA;
   }}
@@ -1855,7 +1876,9 @@ TEMPLATE = """<!doctype html>
     tutti('li.dove').forEach(function (d) {{ d.hidden = (' ' + d.dataset.sez + ' ').indexOf(' ' + sez + ' ') < 0; }});
     try {{ sessionStorage.setItem('giorni', JSON.stringify(S.giorno)); }} catch (e) {{}}
     tutti('#b-naz button').forEach(function (b) {{ b.setAttribute('aria-pressed', EXTRA === b.dataset.k ? 'true' : 'false'); }});
-    var bn = document.getElementById('b-naz-t'); if (bn) bn.setAttribute('aria-pressed', EXTRA ? 'true' : 'false');
+    tutti('#b-sport button').forEach(function (b) {{ b.setAttribute('aria-pressed', EXTRA === b.dataset.k ? 'true' : 'false'); }});
+    var bn = document.getElementById('b-naz-t'); if (bn) bn.setAttribute('aria-pressed', EXTRA && EXTRA.indexOf('sport:') !== 0 ? 'true' : 'false');
+    var bs = document.getElementById('b-sport-t'); if (bs) bs.setAttribute('aria-pressed', EXTRA.indexOf('sport:') === 0 ? 'true' : 'false');
     var c1 = document.getElementById('bn-calcio'), c2 = document.getElementById('bn-sport');
     if (c1) c1.textContent = document.getElementById('n-partite').textContent + ' in programma';
     if (c2) c2.textContent = document.getElementById('n-eventi').textContent + ' in programma';
@@ -1962,6 +1985,41 @@ TEMPLATE = """<!doctype html>
       box.hidden = !box.hidden; tasto.setAttribute('aria-expanded', box.hidden ? 'false' : 'true');
       tasto.querySelector('.c').textContent = box.hidden ? '▸' : '▾';
       if (box.hidden && EXTRA) {{ EXTRA = ''; aggiorna(); }}
+    }});
+  }})();
+  // "Per sport": filtra gli eventi della sezione Altri sport
+  (function () {{
+    var box = document.getElementById('b-sport'), tasto = document.getElementById('b-sport-t');
+    if (!box || !tasto) return;
+    var categorie = [
+      {{ k: 'sport:basket', t: 'Basket', ico: '🏀' }},
+      {{ k: 'sport:f1', t: 'F1', ico: '🏎️' }},
+      {{ k: 'sport:moto', t: 'Moto', ico: '🏍️' }},
+      {{ k: 'sport:tennis', t: 'Tennis', ico: '🎾' }},
+      {{ k: 'sport:nfl', t: 'NFL', ico: '🏈' }},
+      {{ k: 'sport:volley', t: 'Volley', ico: '🏐' }},
+      {{ k: 'sport:altro', t: 'Altro Sport', ico: '🥇' }}
+    ];
+    var conta = {{}};
+    var viste = tutti('#vista-sport-tipo li.partita');
+    if (!viste.length) viste = tutti('#vista-sport-orario li.partita');
+    viste.forEach(function (p) {{ var k = 'sport:' + (p.dataset.sport || 'altro'); conta[k] = (conta[k] || 0) + 1; }});
+    categorie.forEach(function (v) {{
+      var k = v.k, n = conta[k] || 0;
+      var b = document.createElement('button'); b.type = 'button'; b.dataset.k = k;
+      b.setAttribute('aria-pressed', 'false');
+      var l = document.createElement('span'); l.className = 'nm';
+      var e = document.createElement('span'); e.className = 'ico'; e.textContent = v.ico; l.appendChild(e);
+      l.appendChild(document.createTextNode(' ' + v.t));
+      var c = document.createElement('span'); c.className = 'c'; c.textContent = n;
+      b.appendChild(l); b.appendChild(c);
+      b.addEventListener('click', function () {{ EXTRA = EXTRA === k ? '' : k; aggiorna(); }});
+      box.appendChild(b);
+    }});
+    tasto.addEventListener('click', function () {{
+      box.hidden = !box.hidden; tasto.setAttribute('aria-expanded', box.hidden ? 'false' : 'true');
+      tasto.querySelector('.c').textContent = box.hidden ? '▸' : '▾';
+      if (box.hidden && EXTRA.indexOf('sport:') === 0) {{ EXTRA = ''; aggiorna(); }}
     }});
   }})();
   // tieni sempre il popup dentro lo schermo: sposta a sinistra/destra, apri verso l'alto, scroll interno
