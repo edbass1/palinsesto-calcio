@@ -1248,12 +1248,12 @@ def test_blue_zoom():
 <channel id="blue.Zoom.F.ch"><display-name>blue Zoom F</display-name></channel>
 <programme channel="blue.Zoom.D.ch" start="20261012164500 +0000" stop="20261012190000 +0000"><title>Fussball: FC Stade Nyonnais - FC Aarau</title><desc>Challenge League</desc><premiere/></programme>
 <programme channel="blue.Zoom.D.ch" start="20261013013000 +0000" stop="20261013033000 +0000"><title>Fussball: FC Zürich - FC Thun</title><desc>Super League</desc></programme>
-<programme channel="blue.Zoom.F.ch" start="20261012061000 +0000" stop="20261012080000 +0000"><title>Basketball: KK Roter Stern Belgrad - Anadolu Efes Istanbul</title><desc>EuroLeague - Vivez toute la passion de l'EuroLeague de basket en direct sur blue Zoom!</desc></programme>
+<programme channel="blue.Zoom.F.ch" start="20261012061000 +0000" stop="20261012080000 +0000"><title>Basketball: KK Roter Stern Belgrad - Anadolu Efes Istanbul</title><desc>EuroLeague - Vivez toute la passion de l'EuroLeague de basket en direct sur blue Zoom!</desc><premiere/></programme>
 </tv>""".encode()
     ini = dt.datetime(2026, 10, 12, 0, tzinfo=p.ROMA)
     ev = E.analizza(xml, tb, conf, ini, ini + dt.timedelta(days=3))
-    assert len(ev) == 1 and ev[0]["sport"] == "Calcio" and "Nyonnais" in ev[0]["titolo"], ev
-    assert ev[0]["emittenti"][0]["nome"] == "blue Zoom de" and ev[0]["emittenti"][0]["vpn"] == "SVIZZERA"
+    assert len(ev) == 2 and any(x["sport"] == "Calcio" and "Nyonnais" in x["titolo"] for x in ev) and any(x["sport"] == "Basket" and "Roter Stern" in x["titolo"] for x in ev), ev
+    assert all(x["emittenti"][0]["vpn"] == "SVIZZERA" for x in ev)
 
 
 test_blue_zoom(); print("blue Zoom (guida CH1): dirette sì, repliche no – OK")
