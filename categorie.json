@@ -36,6 +36,13 @@
     "\\bUnder ?\\d\\d\\b"
    ]
   },
+  "seriea": {
+   "titolo": "SERIE A",
+   "_nota": "Solo il campionato di Serie A italiana (non Serie A brasiliana né altre).",
+   "competizioni": [
+    "SERIE A"
+   ]
+  },
   "italia": {
    "titolo": "CALCIO ITALIA",
    "competizioni": [

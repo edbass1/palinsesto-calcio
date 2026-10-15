@@ -930,11 +930,12 @@ def test_categorie():
     """Filtri ELITE CALCIO / CALCIO ITALIA / ELITE SPORT (categorie.json)."""
     cal, alt = p.classificatore(p.carica_categorie())
     E = lambda c, o="Y": {"casa": c, "ospite": o}
-    assert cal(E("Juventus", "Torino"), "SERIE A") == {"elite", "italia"}
+    assert cal(E("Juventus", "Torino"), "SERIE A") == {"elite", "italia", "seriea"}
     assert cal(E("Bari", "Palermo"), "SERIE B") == {"italia"}
     assert cal(E("Arsenal", "Leeds"), "PREMIER LEAGUE") == {"elite"}
     assert cal(E("Neftchi", "Qarabag"), "PREMIER LEAGUE (Azerbaigian)") == {"minore"}
     assert cal(E("Flamengo", "Santos"), "SERIE B BRASILE") == {"sudamerica"}
+    assert "seriea" not in cal(E("Flamengo", "Palmeiras"), "BRASILEIRÃO SERIE A (Brasile)")
     assert cal(E("Boca", "River"), "LIGA PROFESIONAL (Argentina)") == {"sudamerica"} and cal(E("A", "B"), "COPA LIBERTADORES") == {"sudamerica"}
     assert cal(E("America", "Chivas"), "LIGA MX (Messico)") == {"minore"}  # Nord America
     assert cal(E("Real Madrid", "Napoli"), "UEFA CHAMPIONS LEAGUE") == {"elite", "italia"}
@@ -964,9 +965,10 @@ def test_categorie():
          {"nome": "LIGA I (Romania)", "partite": [{"casa": "FCSB", "ospite": "Rapid", "quando": q, "ts": int(q.timestamp()), "canali": []}]}]
     al = [{"sport": "Formula 1", "titolo": "Gara", "ts": int(q.timestamp()), "fine": int(q.timestamp()) + 7200, "emittenti": []}]
     h = p.genera_html(*p.finestra(ora)[:1], ora, g, [], [], [], al)
-    assert "Scegli cosa vuoi vedere:" in h and h.count('data-gruppo="calcio" data-cat=') == 4 and 'data-cat="italia"' not in h.split('data-gruppo="calcio"', 1)[1][:2000] and h.count('data-gruppo="altri" data-cat=') == 2
-    assert 'data-cat="elite italia"' in h and 'data-cat="minore"' in h and 'data-fine="%d" data-giorno' % (int(q.timestamp()) + 7200) in h
-    assert ">SUDAMERICA<" in h and ">CALCIO MINORE<" in h and 'data-sezione="sport"' in h and "SPORT GRATIS E LEGALE IN TV" in h
+    assert "Scegli cosa vuoi vedere:" in h and h.count('data-gruppo="calcio" data-cat=') == 5 and 'data-cat="italia"' not in h.split('data-gruppo="calcio"', 1)[1][:2000] and h.count('data-gruppo="altri" data-cat=') == 2
+    assert 'data-cat="elite italia seriea"' in h and 'data-cat="minore"' in h and 'data-fine="%d" data-giorno' % (int(q.timestamp()) + 7200) in h
+    assert ">SERIE A<" in h and ">SUDAMERICA<" in h and ">CALCIO MINORE<" in h and 'data-sezione="sport"' in h and "SPORT GRATIS E LEGALE IN TV" in h
+    assert 'class="scelta-b cinque"' in h and 'id="crono"' in h and "Ordine cronologico" in h and "ordine-cronologico" in h
     assert 'id="vista-sport-tipo"' in h and 'data-vista="orario"' not in h and 'data-vista="altri"' not in h  # niente pulsanti di ordinamento
     # PER CAMPIONATO: sezioni in ordine di primo calcio d'inizio, a parità ordine fisso
     q2 = q - dt.timedelta(hours=1)

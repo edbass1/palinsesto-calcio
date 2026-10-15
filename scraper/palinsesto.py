@@ -1063,8 +1063,9 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     tasti = lambda g, voci: "".join(
         f'<button type="button" data-gruppo="{g}" data-cat="{k}" aria-pressed="{"true" if k == "tutto" else "false"}">{t}</button>'
         for k, t in voci)
-    scelta_c = tasti("calcio", [("tutto", "TUTTO"), ("elite", tit("calcio", "elite", "ELITE CALCIO")),
-                                 ("sudamerica", tit("calcio", "sudamerica", "SUDAMERICA")),
+    scelta_c = tasti("calcio", [("tutto", "TUTTO"), ("seriea", tit("calcio", "seriea", "SERIE A")),
+                                ("elite", tit("calcio", "elite", "ELITE CALCIO")),
+                                ("sudamerica", tit("calcio", "sudamerica", "SUDAMERICA")),
                                 ("minore", tit("calcio", "minore", "CALCIO MINORE"))])
     scelta_s = tasti("altri", [("tutto", "TUTTO"), ("elite", tit("altri", "elite", "ELITE SPORT"))])
     return TEMPLATE.format(
@@ -1108,6 +1109,7 @@ def classificatore(cat):
     el_comp, el_no = _intero(el.get("competizioni")), _intero(el.get("escludi_squadre"))
     it_comp, coppe = _intero(it.get("competizioni")), _intero(it.get("coppe_europee"))
     sa_comp = _intero(c.get("sudamerica", {}).get("competizioni"))
+    seriea_comp = _intero(c.get("seriea", {}).get("competizioni") or ["SERIE A"])
     naz = {x.lower() for x in it.get("nazionale", [])}
     rx_ita = re.compile(r"\b(?:" + "|".join(re.escape(x) for x in it.get("squadre", [])) + r")\b", re.I) if it.get("squadre") else None
     a = (cat or {}).get("altri", {}).get("elite", {})
@@ -1122,6 +1124,8 @@ def classificatore(cat):
     def calcio(e, comp):
         out = set()
         squadre = [x for x in (e.get("casa"), e.get("ospite")) if x]
+        if piena(seriea_comp, comp):
+            out.add("seriea")
         if piena(el_comp, comp) and not any(r.search(x) for r in el_no for x in squadre):
             out.add("elite")
         if (piena(it_comp, comp) or any(x.strip().lower() in naz for x in squadre)
@@ -1532,9 +1536,14 @@ TEMPLATE = """<!doctype html>
   .vuoto {{ font-size:1.3rem; margin-top:40px; }}
   @media (max-width: 640px) {{
     html {{ font-size:calc(21px * var(--zoom, 1)); }}
-    li.partita {{ grid-template-columns:1fr; grid-template-areas:"quando" "squadre" "canali"; padding:14px; }}
-    .quando {{ flex-direction:row; align-items:baseline; flex-wrap:wrap; gap:4px 12px; }}
-    .stato {{ margin-top:0; align-self:center; }}
+    li.partita {{ grid-template-columns:1fr; grid-template-areas:"quando" "squadre" "canali"; padding:12px; }}
+    .quando {{ flex-direction:row; align-items:baseline; flex-wrap:wrap; gap:4px 10px; }}
+    .giorno {{ font-size:.85rem; }}
+    .ora {{ font-size:1.35rem; }}
+    .squadre {{ font-size:.95rem; }}
+    ul.canali li {{ font-size:.82rem; padding:1px 8px; }}
+    .comp-tag {{ font-size:.68rem; padding:1px 8px; margin-bottom:4px; }}
+    .stato {{ margin-top:0; align-self:center; font-size:.7rem; }}
     nav.filtri {{ display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; }}
     nav.filtri button {{ padding:4px 2px; min-height:64px; font-size:.95rem; line-height:1.1; border-radius:10px; }}
     nav.filtri button span {{ display:block; }}
@@ -1633,6 +1642,12 @@ TEMPLATE = """<!doctype html>
   html.desk .su {{ left:calc(13.5rem + 40px); }}
   html.desk nav.filtri, html.desk .cerca {{ padding-right:0; }}
   .sottotitolo {{ color:#fff; font-size:.62rem; font-weight:600; margin:2px 0 6px; line-height:1.3; opacity:.95; }}
+  .ordine-crono {{ display:flex; align-items:center; gap:8px; max-width:1000px; margin:8px auto 2px; padding:6px 10px;
+                  font-size:.68rem; font-weight:700; color:#ddd; cursor:pointer; user-select:none;
+                  background:#111; border:1px solid #444; border-radius:10px; width:fit-content; }}
+  .ordine-crono input {{ width:1.15em; height:1.15em; accent-color:var(--giallo); cursor:pointer; flex:none; }}
+  .ordine-crono:has(input:checked) {{ border-color:var(--giallo); color:#fff; background:#1a1600; }}
+  @media (max-width: 640px) {{ .ordine-crono {{ font-size:.62rem; margin:6px 0 2px; }} }}
   /* etichette sulle partite: info partita e rivalità */
   .squadre .tags {{ display:inline-flex; flex-wrap:wrap; gap:6px; margin-left:10px; vertical-align:middle; }}
   .tg {{ position:static; font:inherit; font-size:.6rem; font-weight:700; line-height:1.2; padding:5px 11px; min-height:32px; border-radius:999px;
@@ -1701,13 +1716,14 @@ TEMPLATE = """<!doctype html>
   <p class="sottotitolo">Match gentilmente offerti da pay TV e canali pubblici</p>
   <p class="agg">Aggiornato {aggiornato} · orari italiani</p>
 </header>
+<label class="ordine-crono" for="crono"><input type="checkbox" id="crono" autocomplete="off"> Ordine cronologico</label>
 <nav class="sezioni" aria-label="Sezione">
   <button type="button" data-sezione="calcio" aria-pressed="true"><span class="ico" aria-hidden="true">⚽</span> CALCIO <span class="n" id="n-partite">{n}</span></button>
   <button type="button" data-sezione="sport" aria-pressed="false"><span class="ico" aria-hidden="true">🏁</span> ALTRI SPORT <span class="n" id="n-eventi">{n_altri}</span></button>
 </nav>
 <section class="pannello" data-sez="calcio" aria-label="Opzioni calcio">
   <p class="et">Scegli cosa vuoi vedere:</p>
-  <div class="scelta-b quattro" data-gruppo="calcio">{scelta_c}</div>
+  <div class="scelta-b cinque" data-gruppo="calcio">{scelta_c}</div>
 </section>
 <section class="pannello" data-sez="sport" aria-label="Opzioni altri sport" hidden>
   <p class="et">Scegli cosa vuoi vedere:</p>
@@ -1757,8 +1773,15 @@ TEMPLATE = """<!doctype html>
   var vecchia = leggi('vista');  // versioni precedenti: vista = campionato / orario / altri
   S.sezione = m ? m[1] : (mv && mv[1] === 'altri') ? 'sport' : (leggi('sezione') || (vecchia === 'altri' ? 'sport' : 'calcio'));
   if (S.sezione !== 'sport') S.sezione = 'calcio';
-  // ordinamento: sempre quello predefinito (per campionato / per sport); preferenze vecchie cancellate
+  // ordinamento: casella "Ordine cronologico" (localStorage); preferenze vecchie dei pulsanti vista cancellate
   try {{ localStorage.removeItem('vista-calcio'); localStorage.removeItem('vista-sport'); localStorage.removeItem('vista'); }} catch (e) {{}}
+  var crono = document.getElementById('crono');
+  function applicaCrono(on) {{
+    S.vista.calcio = on ? 'orario' : 'campionato';
+    S.vista.sport = on ? 'orario' : 'tipo';
+    if (crono) crono.checked = !!on;
+  }}
+  applicaCrono(leggi('ordine-cronologico') === '1');
   ['calcio', 'altri'].forEach(function (g) {{
     var v = leggi('scelta-' + g);
     if (v && document.querySelector('.scelta-b button[data-gruppo="' + g + '"][data-cat="' + v + '"]')) S.cat[g] = v;
@@ -1915,6 +1938,12 @@ TEMPLATE = """<!doctype html>
   tutti('.scelta-b button').forEach(function (b) {{ b.addEventListener('click', function () {{
     S.cat[b.dataset.gruppo] = b.dataset.cat; salva('scelta-' + b.dataset.gruppo, b.dataset.cat); aggiorna();
   }}); }});
+  if (crono) crono.addEventListener('change', function () {{
+    salva('ordine-cronologico', crono.checked ? '1' : '0');
+    applicaCrono(crono.checked);
+    aggiorna();
+    setTimeout(function () {{ window.scrollTo(0, 0); }}, 0);
+  }});
   tutti('nav.filtri button').forEach(function (b) {{ b.addEventListener('click', function () {{
     S.giorno[sezDi(b)] = b.dataset.filtro; aggiorna();
   }}); }});
@@ -2079,7 +2108,7 @@ TEMPLATE = """<!doctype html>
   document.addEventListener('click', function (ev) {{
     var b = ev.target.closest && ev.target.closest('button');
     if (!b || b.closest('.zoom') || b.id === 'torna-su') return;
-    if (!b.closest('#barra, nav.sezioni, section.pannello, nav.filtri, .cerca, .scelta-b')) return;
+    if (!b.closest('#barra, nav.sezioni, section.pannello, nav.filtri, .cerca, .scelta-b, .ordine-crono')) return;
     setTimeout(function () {{ window.scrollTo(0, 0); }}, 0);
   }});
   // zoom (70%-160%, salvato) e "torna su"
