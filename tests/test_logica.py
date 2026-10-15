@@ -511,7 +511,7 @@ def test_teleboy():
         "SRF Zwei Schweiz": "SRF zwei", "RSI La 2 Svizzera": "RSI LA 2", "RTS 2 Suisse": "RTS Deux", "RTS 1 Senegal": None,
         "TV8 Italia": "TV8", "TV8 Türkiye": None, "Sport1 Deutschland": "Sport1", "Sport 1 Czechia": None, "Sport 1 Israel": None,
         "Rai Sport": "Rai Sport 1", "Sportitalia SoloCalcio": None, "DMAX Italia": "DMAX Italia", "TV5 Monde": "TV5 Monde FBS",
-        "MDR Fernsehen": "MDR Sachsen", "ORF 1 Austria": "ORF 1", "ServusTV Österreich": "ServusTV", "Nitro Deutschland": "NITRO", "Prima Sport 1": None, "mySports 2": None, "Sport 1+": None,
+        "MDR Fernsehen": "MDR Sachsen", "ORF 1 Austria": "ORF 1", "ServusTV Österreich": "ServusTV", "Servus TV": "ServusTV", "Servus TV Österreich": "ServusTV", "Servus TV Austria": "ServusTV", "Nitro Deutschland": "NITRO", "Prima Sport 1": None, "mySports 2": None, "Sport 1+": None,
     }
     trovati = {n: tb.trova(n) for n in attesi}
     assert trovati == attesi, {n: (trovati[n], attesi[n]) for n in attesi if trovati[n] != attesi[n]}
