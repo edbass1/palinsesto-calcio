@@ -1,0 +1,30 @@
+name: Aggiorna Sito con Gemini
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt_utente:
+        description: 'Cosa vuoi che Gemini modifichi nel sito oggi?'
+        required: true
+        default: 'Aggiorna i palinsesti e sistema la pagina'
+
+jobs:
+  run-gemini:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scarica i file del sito
+        uses: actions/checkout@v4
+
+      - name: Esegui Gemini CLI
+        uses: google-gemini/gemini-cli@main
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        with:
+          prompt: ${{ github.event.inputs.prompt_utente }}
+
+      - name: Salva le modifiche sul sito
+        run: |
+          git config --global user.name "Gemini Bot"
+          git config --global user.email "bot@github.com"
+          git add .
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Aggiornamento effettuato da Gemini" && git push)
