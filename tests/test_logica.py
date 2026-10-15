@@ -1596,3 +1596,18 @@ def test_motori_prima():
 
 
 test_motori_prima(); print("gare di motori di Prima Sport in ALTRI SPORT: OK")
+
+
+# Blue Zoom: varianti nazionali su LiveOnSat e competizioni basket riconoscibili nella guida Teleboy.
+def test_blue_zoom():
+    conf = json.loads((p.RADICE / "liveonsat.json").read_text(encoding="utf-8"))
+    for nome in ("blue Zoom DE", "blue Zoom Schweiz", "BLUE ZOOM Suisse", "blue Zoom Österreich", "blue Zoom CH"):
+        pulito = L.pulisci_canale(nome, conf["alias_canali"])
+        assert pulito == "blue Zoom", (nome, pulito)
+        assert L.in_chiaro(pulito, conf["canali_in_chiaro"]), nome
+    import altri_sport as A
+    assert A.sport_di("EuroLeague: Real Madrid vs Monaco") == "Basket"
+    assert A.sport_di("EuroCup Basketball live") == "Basket"
+    assert A.sport_di("NBA: Boston Celtics vs New York Knicks") == "Basket"
+
+test_blue_zoom(); print("Blue Zoom (varianti LiveOnSat) e classificazione basket: OK")

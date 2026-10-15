@@ -1,432 +1,440 @@
 {
- "_nota": "Seconda fonte: LiveOnSat. Si prendono solo le partite con almeno un canale in chiaro: canali segnati in rosso da LiveOnSat (classe chan_live_free) oppure canali il cui nome corrisponde a una delle espressioni in 'canali_in_chiaro'. Le espressioni sono regex senza distinzione maiuscole/minuscole, applicate al nome del canale.",
- "pagine": [
-  "https://liveonsat.com/2day.php",
-  "https://liveonsat.com/uk-britain-ireland-all-football.php",
-  "https://liveonsat.com/europe-italy-all-football.php",
-  "https://liveonsat.com/europe-spain-all-football.php",
-  "https://liveonsat.com/europe-germany-all-football.php",
-  "https://liveonsat.com/europe-france-all-football.php",
-  "https://liveonsat.com/europe-portugal-primeira-liga.php",
-  "https://liveonsat.com/europe-netherlands-eredivisie.php",
-  "https://liveonsat.com/europe-belgium-pro-league.php",
-  "https://liveonsat.com/europe-switzerland-super-league.php",
-  "https://liveonsat.com/europe-austria-all-football.php",
-  "https://liveonsat.com/europe-turkey-super-lig.php",
-  "https://liveonsat.com/europe-greece-cyprus-football.php",
-  "https://liveonsat.com/europe-romania-liga-1.php",
-  "https://liveonsat.com/europe-european-football.php",
-  "https://liveonsat.com/international-all-football.php",
-  "https://liveonsat.com/club-uefa-champions-league.php",
-  "https://liveonsat.com/club-uefa-europa-league.php",
-  "https://liveonsat.com/club-uefa-europa-conference-league.php",
-  "https://liveonsat.com/club-asia-africa-all-football.php",
-  "https://liveonsat.com/americas-all-football.php",
-  "https://liveonsat.com/europe-poland-elstraklasa.php",
-  "https://liveonsat.com/europe-azerbaijan-premyer-liqa.php"
- ],
- "_nota_escludi": "Canali da non mostrare mai, per tutte le fonti (LiveOnSat e LiveSoccerTV): basta che il nome contenga una di queste parole (maiuscole/minuscole indifferenti). Se una partita resta senza canali, non viene mostrata. DAZN è sempre escluso.",
- "escludi_canali": [
-  "dazn",
-  "megogo",
-  "gem sport",
-  "persiana",
-  "irib",
-  "varzish",
-  "varzesh",
-  "meraj",
-  "sportynet+",
-  "sportynet +",
-  "sporty net+",
-  "nosso futebol+",
-  "nosso futebol plus",
-  "solh"
- ],
- "canali_in_chiaro": [
-  {
-   "regex": "^BBC\\b",
-   "nota": "BBC One/Two/Three/Scotland/Alba/iPlayer/Red Button (UK)"
+  "_nota": "Seconda fonte: LiveOnSat. Si prendono solo le partite con almeno un canale in chiaro: canali segnati in rosso da LiveOnSat (classe chan_live_free) oppure canali il cui nome corrisponde a una delle espressioni in 'canali_in_chiaro'. Le espressioni sono regex senza distinzione maiuscole/minuscole, applicate al nome del canale. Le varianti nazionali di blue Zoom sono considerate canali disponibili.",
+  "pagine": [
+    "https://liveonsat.com/2day.php",
+    "https://liveonsat.com/uk-britain-ireland-all-football.php",
+    "https://liveonsat.com/europe-italy-all-football.php",
+    "https://liveonsat.com/europe-spain-all-football.php",
+    "https://liveonsat.com/europe-germany-all-football.php",
+    "https://liveonsat.com/europe-france-all-football.php",
+    "https://liveonsat.com/europe-portugal-primeira-liga.php",
+    "https://liveonsat.com/europe-netherlands-eredivisie.php",
+    "https://liveonsat.com/europe-belgium-pro-league.php",
+    "https://liveonsat.com/europe-switzerland-super-league.php",
+    "https://liveonsat.com/europe-austria-all-football.php",
+    "https://liveonsat.com/europe-turkey-super-lig.php",
+    "https://liveonsat.com/europe-greece-cyprus-football.php",
+    "https://liveonsat.com/europe-romania-liga-1.php",
+    "https://liveonsat.com/europe-european-football.php",
+    "https://liveonsat.com/international-all-football.php",
+    "https://liveonsat.com/club-uefa-champions-league.php",
+    "https://liveonsat.com/club-uefa-europa-league.php",
+    "https://liveonsat.com/club-uefa-europa-conference-league.php",
+    "https://liveonsat.com/club-asia-africa-all-football.php",
+    "https://liveonsat.com/americas-all-football.php",
+    "https://liveonsat.com/europe-poland-elstraklasa.php",
+    "https://liveonsat.com/europe-azerbaijan-premyer-liqa.php"
+  ],
+  "_nota_escludi": "Canali da non mostrare mai, per tutte le fonti (LiveOnSat e LiveSoccerTV): basta che il nome contenga una di queste parole (maiuscole/minuscole indifferenti). Se una partita resta senza canali, non viene mostrata. DAZN è sempre escluso.",
+  "escludi_canali": [
+    "dazn",
+    "megogo",
+    "gem sport",
+    "persiana",
+    "irib",
+    "varzish",
+    "varzesh",
+    "meraj",
+    "sportynet+",
+    "sportynet +",
+    "sporty net+",
+    "nosso futebol+",
+    "nosso futebol plus",
+    "solh"
+  ],
+  "canali_in_chiaro": [
+    {
+      "regex": "^BBC\\b",
+      "nota": "BBC One/Two/Three/Scotland/Alba/iPlayer/Red Button (UK)"
+    },
+    {
+      "regex": "^ITV\\b",
+      "nota": "ITV1/ITV4/ITVX (UK)"
+    },
+    {
+      "regex": "^STV\\b",
+      "nota": "STV / STV Player (Scozia)"
+    },
+    {
+      "regex": "^Channel ?[45]\\b",
+      "nota": "Channel 4 / Channel 5 (UK)"
+    },
+    {
+      "regex": "^S4C\\b",
+      "nota": "S4C (Galles)"
+    },
+    {
+      "regex": "^RT[ÉE]\\b",
+      "nota": "RTÉ (Irlanda)"
+    },
+    {
+      "regex": "^Virgin Media (One|Two|Three|Player)\\b",
+      "nota": "Virgin Media Television (Irlanda)"
+    },
+    {
+      "regex": "^TG4\\b",
+      "nota": "TG4 (Irlanda)"
+    },
+    {
+      "regex": "^TF1\\b",
+      "nota": "TF1 (Francia)"
+    },
+    {
+      "regex": "^France ?[2345]\\b|^France\\.?tv\\b",
+      "nota": "France Télévisions"
+    },
+    {
+      "regex": "^(M6|W9|TMC|6ter|TFX)\\b",
+      "nota": "canali in chiaro francesi"
+    },
+    {
+      "regex": "^L'?[EÉ]quipe\\b",
+      "nota": "L'Équipe (TNT, in chiaro in Francia)"
+    },
+    {
+      "regex": "^TV5 ?Monde\\b",
+      "nota": "TV5 Monde"
+    },
+    {
+      "regex": "^Rai\\b|^RaiPlay\\b",
+      "nota": "Rai 1/2/3/Rai Sport/RaiPlay"
+    },
+    {
+      "regex": "^(Canale ?5|Italia ?1|Rete ?4|20 Mediaset|TV8 Italia|Cielo|Nove|Sportitalia)\\b",
+      "nota": "canali in chiaro italiani"
+    },
+    {
+      "regex": "^ARD\\b|^Das Erste\\b|^ZDF\\b",
+      "nota": "ARD / ZDF (Germania)"
+    },
+    {
+      "regex": "^(BR|NDR|WDR|MDR|SWR|HR|SR|RBB) Fernsehen\\b",
+      "nota": "terzi programmi ARD"
+    },
+    {
+      "regex": "^Sport ?1 (Deutschland|Germany)\\b|^Sport1\\b",
+      "nota": "Sport1 (in chiaro in Germania)"
+    },
+    {
+      "regex": "^(RTL|Nitro|ProSieben|Sat\\.?1|Kabel ?eins) (Deutschland|Österreich)\\b",
+      "nota": "canali commerciali in chiaro (D/A)"
+    },
+    {
+      "regex": "^ORF\\b|^ServusTV\\b|^Servus TV\\b|^Puls ?(4|24)\\b",
+      "nota": "Austria"
+    },
+    {
+      "regex": "^SRF\\b|^RSI\\b|^Play RTS\\b|^RTS (1|2|Un|Deux)? ?Suisse\\b|^RTS (Un|Deux)\\b|^Play Suisse\\b",
+      "nota": "SRG SSR (Svizzera)"
+    },
+    {
+      "regex": "^NOS\\b|^NPO\\b",
+      "nota": "NOS / NPO (Olanda)"
+    },
+    {
+      "regex": "^VRT\\b|^Sporza\\b|^[EÉ][eé]n\\b|^Canvas\\b|^RTBF\\b|^La Une\\b|^Tipik\\b|^Auvio\\b",
+      "nota": "VRT / RTBF (Belgio)"
+    },
+    {
+      "regex": "^TVE\\b|^RTVE\\b|^La ?1\\b|^La ?2\\b|^Teledeporte\\b|^TV3 Catalunya\\b|^Esport ?3\\b|^3Cat\\b",
+      "nota": "RTVE / TV3 (Spagna)"
+    },
+    {
+      "regex": "^RTP\\b|^TVI\\b|^SIC\\b",
+      "nota": "RTP / TVI / SIC (Portogallo)"
+    },
+    {
+      "regex": "^ERT\\b",
+      "nota": "ERT (Grecia)"
+    },
+    {
+      "regex": "^TVP\\b",
+      "nota": "TVP (Polonia)"
+    },
+    {
+      "regex": "^TRT\\b",
+      "nota": "TRT (Turchia)"
+    },
+    {
+      "regex": "^(DR ?(1|2|TV)|NRK ?\\d?|SVT ?\\d?|Yle)\\b",
+      "nota": "servizio pubblico nordico"
+    },
+    {
+      "regex": "^[ČC]T ?(sport|1|2)\\b",
+      "nota": "Česká televize"
+    },
+    {
+      "regex": "^Sporty ?TV\\b",
+      "nota": "Sporty TV (Africa, in chiaro)"
+    },
+    {
+      "regex": "^Dubai Sports?\\b(?! ?[2-9])",
+      "nota": "Dubai Sports 1 (Emirati) – gratis su dubaiplus.net con registrazione (link utente)"
+    },
+    {
+      "regex": "^VTM\\b",
+      "nota": "VTM, VTM 2, VTM 3, VTM 4, VTM GOLD, VTM Non-Stop (Belgio, gratis su VTM GO)"
+    },
+    {
+      "regex": "^RTL ?(TVI|Club|Plug|District|Play)\\b|^(Club|Plug) ?RTL\\b",
+      "nota": "RTL Belgium: RTL tvi, RTL Club, RTL Plug, RTL District (gratis su RTL Play). Non RTL Germania/Lussemburgo."
+    },
+    {
+      "regex": "^blue\\s*zoom\\b",
+      "nota": "blue Zoom DE/Schweiz/Suisse e varianti nazionali (dirette sportive)"
+    }
+  ],
+  "alias_canali": [
+    {
+      "regex": "^TV5 ?Monde\\b",
+      "nome": "TV5 Monde"
+    },
+    {
+      "regex": "^ITV ?1\\b",
+      "nome": "ITV1 UK"
+    },
+    {
+      "regex": "^Sporty ?TV Africa\\b",
+      "nome": "Sporty TV Africa"
+    },
+    {
+      "regex": "^BBC iPlayer\\b",
+      "nome": "BBC iPlayer"
+    },
+    {
+      "regex": "^Dubai Sports?\\b(?! ?[2-9])",
+      "nome": "Dubai Sports 1"
+    },
+    {
+      "regex": "^VTM ?GO\\b|^VTM( HD)?( Belgium| Belgi[eë])?$",
+      "nome": "VTM"
+    },
+    {
+      "regex": "^VTM ?2\\b",
+      "nome": "VTM 2"
+    },
+    {
+      "regex": "^VTM ?3\\b",
+      "nome": "VTM 3"
+    },
+    {
+      "regex": "^VTM ?4\\b",
+      "nome": "VTM 4"
+    },
+    {
+      "regex": "^VTM ?Gold\\b",
+      "nome": "VTM GOLD"
+    },
+    {
+      "regex": "^VTM ?Non-?Stop",
+      "nome": "VTM Non-Stop"
+    },
+    {
+      "regex": "^RTL ?TVI\\b",
+      "nome": "RTL tvi"
+    },
+    {
+      "regex": "^(RTL ?Club|Club ?RTL)\\b",
+      "nome": "RTL Club"
+    },
+    {
+      "regex": "^(RTL ?Plug|Plug ?RTL)\\b",
+      "nome": "RTL Plug"
+    },
+    {
+      "regex": "^RTL ?District\\b",
+      "nome": "RTL District"
+    },
+    {
+      "regex": "^blue\\s*zoom\\b",
+      "nome": "blue Zoom"
+    }
+  ],
+  "_nota_pagine": "LiveOnSat non ha pagine per giorno: 2day.php copre solo oggi; per i 3 giorni successivi servono le pagine dei campionati (che elencano diverse settimane).",
+  "_nota_escludi_competizioni": "Calcio femminile escluso da tutte le fonti: si scarta la partita se il nome della competizione o di una squadra contiene una di queste parole intere (maiuscole/minuscole indifferenti; vale anche con 's' o \"'s\" finale, es. women -> womens, women's). In più, sempre: squadra che finisce con ' W' (es. 'Arsenal W') e '(W)' ovunque. Nello stesso elenco ci sono anche i campionati e le coppe di calcio degli Stati Uniti (MLS, USL, NWSL, US Open Cup, Leagues Cup, NISA, MLS Next Pro...), esclusi dalla sezione calcio. Gli sport americani di ALTRI SPORT (NFL, NBA, NHL...) non sono toccati. Esclusa anche la UEFA Youth League e ogni partita U19 (competizione o squadre, es. 'Leipzig U19 - PSV U19'). Esclusa sempre anche la AFC Champions League (Elite e Two, ACL).",
+  "escludi_competizioni": [
+    "women",
+    "woman",
+    "femminile",
+    "femminili",
+    "féminine",
+    "feminine",
+    "féminin",
+    "femenino",
+    "femenina",
+    "frauen",
+    "frauen-bundesliga",
+    "dames",
+    "vrouwen",
+    "ladies",
+    "wsl",
+    "nwsl",
+    "liga f",
+    "d1 arkema",
+    "arkema",
+    "kvinner",
+    "damallsvenskan",
+    "uefa women's",
+    "women's world cup",
+    "femmes",
+    "feminino",
+    "feminina",
+    "femenil",
+    "mls",
+    "major league soccer",
+    "mls next pro",
+    "mls next",
+    "usl",
+    "usl championship",
+    "usl league one",
+    "usl league two",
+    "usl super league",
+    "us open cup",
+    "u.s. open cup",
+    "lamar hunt",
+    "leagues cup",
+    "nisa",
+    "national independent soccer association",
+    "npsl",
+    "mls is back",
+    "campeones cup",
+    "uefa youth league",
+    "youth league",
+    "uyl",
+    "u19",
+    "u-19",
+    "under 19",
+    "under-19",
+    "sub-19",
+    "sub19",
+    "afc champions",
+    "afc champions league",
+    "afc champions league elite",
+    "afc champions league two",
+    "acl elite",
+    "acl two",
+    "acl 2",
+    "afc cl"
+  ],
+  "_nota_escludi_russi_iraniani": "Canali russi e iraniani esclusi da tutte le fonti. Un canale è escluso se: il nome contiene una parola di 'paesi' (es. 'TV Start Russia'), oppure corrisponde a un'espressione di 'nomi' (regex, maiuscole/minuscole indifferenti), oppure su Teleboy ha paese in 'paesi_teleboy'. 'mai_escludere' vince sempre (es. Idman TV, Azerbaigian). Nomi verificati sui dati LiveOnSat del 10/10/2026: TV Start Russia HD, TV Start Triumph HD, MATCH! Futbol 1-3, MATCH! Premier, MATCH! Russia, MATCH! TV, Okko Futbol, Okko Prime Sport, viju+ Sport (Russia); IRIB Varzesh, GEM Sport 1, Meraj TV, Persiana Sport/Sports 2/3 (Iran). Gli altri nomi sono canali russi/iraniani noti, messi per sicurezza. Attenzione: 'Nova Sports Start' e 'Magenta Hellas Sport Start' sono greci e NON sono esclusi.",
+  "escludi_russi_iraniani": {
+    "paesi": [
+      "russia",
+      "russian",
+      "rossija",
+      "россия",
+      "iran",
+      "iranian"
+    ],
+    "paesi_teleboy": [
+      "ru",
+      "ir"
+    ],
+    "nomi": [
+      "^tv ?start\\b",
+      "^start( tv)?\\b",
+      "\\bstart tv\\b",
+      "\\btv start\\b",
+      "^match!",
+      "^match ?tv\\b",
+      "^match! ?(futbol|premier|arena|igra|strana)",
+      "\\bokko\\b",
+      "\\bviju\\b",
+      "\\bkhl\\b",
+      "\\bpervyi\\b",
+      "\\bperviy kanal\\b",
+      "\\bchannel one russia\\b",
+      "\\brossiya\\b",
+      "\\bnash futbol\\b",
+      "\\bkinopoisk\\b",
+      "\\birib\\b",
+      "\\bvarzesh\\b",
+      "\\bvarzish\\b",
+      "\\bpersiana\\b",
+      "^gem (sport|tv|series|drama|life|kids|bollywood|rubix|onyx|river)\\b",
+      "\\bmeraj\\b",
+      "\\bmanoto\\b",
+      "\\btapesh\\b",
+      "\\bnavahang\\b"
+    ]
   },
-  {
-   "regex": "^ITV\\b",
-   "nota": "ITV1/ITV4/ITVX (UK)"
+  "mai_escludere": [
+    "idman"
+  ],
+  "_nota_pagine_altri_sport": "Pagine LiveOnSat degli altri sport (sezione ALTRI SPORT): pagina -> [sport, durata media in minuti]. Stesse regole del calcio: solo canali in chiaro (rossi) o nella lista 'canali_in_chiaro' o su Teleboy, stesse esclusioni. Su LiveOnSat non esistono pagine di tennis, ciclismo, cricket, freccette, snooker o MotoGP (404 al 10/10/2026).",
+  "pagine_altri_sport": {
+    "https://liveonsat.com/usa-nfl-football.php": [
+      "Football americano",
+      210
+    ],
+    "https://liveonsat.com/usa-nba-basketball.php": [
+      "Basket",
+      150
+    ],
+    "https://liveonsat.com/usa-nhl-hockey.php": [
+      "Hockey su ghiaccio",
+      165
+    ],
+    "https://liveonsat.com/x-international-basketball.php": [
+      "Basket",
+      120
+    ],
+    "https://liveonsat.com/x-international-icehockey.php": [
+      "Hockey su ghiaccio",
+      150
+    ],
+    "https://liveonsat.com/x-rugby-union.php": [
+      "Rugby",
+      120
+    ],
+    "https://liveonsat.com/x-rugby-league.php": [
+      "Rugby a 13",
+      120
+    ],
+    "https://liveonsat.com/x-aussie-rules.php": [
+      "Football australiano",
+      150
+    ],
+    "https://liveonsat.com/x-gaa.php": [
+      "Sport gaelici",
+      90
+    ],
+    "https://liveonsat.com/x-formula1.php": [
+      "Formula 1",
+      120
+    ],
+    "https://liveonsat.com/x-boxing-mma.php": [
+      "Boxe",
+      240
+    ],
+    "https://liveonsat.com/x-olympic-handball.php": [
+      "Pallamano",
+      105
+    ],
+    "https://liveonsat.com/x-volleyball.php": [
+      "Pallavolo",
+      120
+    ]
   },
-  {
-   "regex": "^STV\\b",
-   "nota": "STV / STV Player (Scozia)"
-  },
-  {
-   "regex": "^Channel ?[45]\\b",
-   "nota": "Channel 4 / Channel 5 (UK)"
-  },
-  {
-   "regex": "^S4C\\b",
-   "nota": "S4C (Galles)"
-  },
-  {
-   "regex": "^RT[ÉE]\\b",
-   "nota": "RTÉ (Irlanda)"
-  },
-  {
-   "regex": "^Virgin Media (One|Two|Three|Player)\\b",
-   "nota": "Virgin Media Television (Irlanda)"
-  },
-  {
-   "regex": "^TG4\\b",
-   "nota": "TG4 (Irlanda)"
-  },
-  {
-   "regex": "^TF1\\b",
-   "nota": "TF1 (Francia)"
-  },
-  {
-   "regex": "^France ?[2345]\\b|^France\\.?tv\\b",
-   "nota": "France Télévisions"
-  },
-  {
-   "regex": "^(M6|W9|TMC|6ter|TFX)\\b",
-   "nota": "canali in chiaro francesi"
-  },
-  {
-   "regex": "^L'?[EÉ]quipe\\b",
-   "nota": "L'Équipe (TNT, in chiaro in Francia)"
-  },
-  {
-   "regex": "^TV5 ?Monde\\b",
-   "nota": "TV5 Monde"
-  },
-  {
-   "regex": "^Rai\\b|^RaiPlay\\b",
-   "nota": "Rai 1/2/3/Rai Sport/RaiPlay"
-  },
-  {
-   "regex": "^(Canale ?5|Italia ?1|Rete ?4|20 Mediaset|TV8 Italia|Cielo|Nove|Sportitalia)\\b",
-   "nota": "canali in chiaro italiani"
-  },
-  {
-   "regex": "^ARD\\b|^Das Erste\\b|^ZDF\\b",
-   "nota": "ARD / ZDF (Germania)"
-  },
-  {
-   "regex": "^(BR|NDR|WDR|MDR|SWR|HR|SR|RBB) Fernsehen\\b",
-   "nota": "terzi programmi ARD"
-  },
-  {
-   "regex": "^Sport ?1 (Deutschland|Germany)\\b|^Sport1\\b",
-   "nota": "Sport1 (in chiaro in Germania)"
-  },
-  {
-   "regex": "^(RTL|Nitro|ProSieben|Sat\\.?1|Kabel ?eins) (Deutschland|Österreich)\\b",
-   "nota": "canali commerciali in chiaro (D/A)"
-  },
-  {
-   "regex": "^ORF\\b|^ServusTV\\b|^Servus TV\\b|^Puls ?(4|24)\\b",
-   "nota": "Austria"
-  },
-  {
-   "regex": "^SRF\\b|^RSI\\b|^Play RTS\\b|^RTS (1|2|Un|Deux)? ?Suisse\\b|^RTS (Un|Deux)\\b|^Play Suisse\\b",
-   "nota": "SRG SSR (Svizzera)"
-  },
-  {
-   "regex": "^NOS\\b|^NPO\\b",
-   "nota": "NOS / NPO (Olanda)"
-  },
-  {
-   "regex": "^VRT\\b|^Sporza\\b|^[EÉ][eé]n\\b|^Canvas\\b|^RTBF\\b|^La Une\\b|^Tipik\\b|^Auvio\\b",
-   "nota": "VRT / RTBF (Belgio)"
-  },
-  {
-   "regex": "^TVE\\b|^RTVE\\b|^La ?1\\b|^La ?2\\b|^Teledeporte\\b|^TV3 Catalunya\\b|^Esport ?3\\b|^3Cat\\b",
-   "nota": "RTVE / TV3 (Spagna)"
-  },
-  {
-   "regex": "^RTP\\b|^TVI\\b|^SIC\\b",
-   "nota": "RTP / TVI / SIC (Portogallo)"
-  },
-  {
-   "regex": "^ERT\\b",
-   "nota": "ERT (Grecia)"
-  },
-  {
-   "regex": "^TVP\\b",
-   "nota": "TVP (Polonia)"
-  },
-  {
-   "regex": "^TRT\\b",
-   "nota": "TRT (Turchia)"
-  },
-  {
-   "regex": "^(DR ?(1|2|TV)|NRK ?\\d?|SVT ?\\d?|Yle)\\b",
-   "nota": "servizio pubblico nordico"
-  },
-  {
-   "regex": "^[ČC]T ?(sport|1|2)\\b",
-   "nota": "Česká televize"
-  },
-  {
-   "regex": "^Sporty ?TV\\b",
-   "nota": "Sporty TV (Africa, in chiaro)"
-  },
-  {
-   "regex": "^Dubai Sports?\\b(?! ?[2-9])",
-   "nota": "Dubai Sports 1 (Emirati) – gratis su dubaiplus.net con registrazione (link utente)"
-  },
-  {
-   "regex": "^VTM\\b",
-   "nota": "VTM, VTM 2, VTM 3, VTM 4, VTM GOLD, VTM Non-Stop (Belgio, gratis su VTM GO)"
-  },
-  {
-   "regex": "^RTL ?(TVI|Club|Plug|District|Play)\\b|^(Club|Plug) ?RTL\\b",
-   "nota": "RTL Belgium: RTL tvi, RTL Club, RTL Plug, RTL District (gratis su RTL Play). Non RTL Germania/Lussemburgo."
+  "_nota_canali_per_sport": "Canali presi sempre per uno sport di ALTRI SPORT (pagine 'pagine_altri_sport'), anche se LiveOnSat non li segna in chiaro. Regex sul nome del canale.",
+  "canali_per_sport": {
+    "Basket": [
+      {
+        "regex": "^Idman\\b",
+        "nota": "Idman TV (Azerbaigian)"
+      },
+      {
+        "regex": "^X ?Sports\\b",
+        "nota": "X Sports (Brasile)"
+      },
+      {
+        "regex": "^Sporty ?TV\\b",
+        "nota": "Sporty TV (Nigeria)"
+      },
+      {
+        "regex": "^RTSH\\b",
+        "nota": "RTSH 1 / RTSH Sport (Albania)"
+      }
+    ]
   }
- ],
- "alias_canali": [
-  {
-   "regex": "^TV5 ?Monde\\b",
-   "nome": "TV5 Monde"
-  },
-  {
-   "regex": "^ITV ?1\\b",
-   "nome": "ITV1 UK"
-  },
-  {
-   "regex": "^Sporty ?TV Africa\\b",
-   "nome": "Sporty TV Africa"
-  },
-  {
-   "regex": "^BBC iPlayer\\b",
-   "nome": "BBC iPlayer"
-  },
-  {
-   "regex": "^Dubai Sports?\\b(?! ?[2-9])",
-   "nome": "Dubai Sports 1"
-  },
-  {
-   "regex": "^VTM ?GO\\b|^VTM( HD)?( Belgium| Belgi[eë])?$",
-   "nome": "VTM"
-  },
-  {
-   "regex": "^VTM ?2\\b",
-   "nome": "VTM 2"
-  },
-  {
-   "regex": "^VTM ?3\\b",
-   "nome": "VTM 3"
-  },
-  {
-   "regex": "^VTM ?4\\b",
-   "nome": "VTM 4"
-  },
-  {
-   "regex": "^VTM ?Gold\\b",
-   "nome": "VTM GOLD"
-  },
-  {
-   "regex": "^VTM ?Non-?Stop",
-   "nome": "VTM Non-Stop"
-  },
-  {
-   "regex": "^RTL ?TVI\\b",
-   "nome": "RTL tvi"
-  },
-  {
-   "regex": "^(RTL ?Club|Club ?RTL)\\b",
-   "nome": "RTL Club"
-  },
-  {
-   "regex": "^(RTL ?Plug|Plug ?RTL)\\b",
-   "nome": "RTL Plug"
-  },
-  {
-   "regex": "^RTL ?District\\b",
-   "nome": "RTL District"
-  }
- ],
- "_nota_pagine": "LiveOnSat non ha pagine per giorno: 2day.php copre solo oggi; per i 3 giorni successivi servono le pagine dei campionati (che elencano diverse settimane).",
- "_nota_escludi_competizioni": "Calcio femminile escluso da tutte le fonti: si scarta la partita se il nome della competizione o di una squadra contiene una di queste parole intere (maiuscole/minuscole indifferenti; vale anche con 's' o \"'s\" finale, es. women -> womens, women's). In più, sempre: squadra che finisce con ' W' (es. 'Arsenal W') e '(W)' ovunque. Nello stesso elenco ci sono anche i campionati e le coppe di calcio degli Stati Uniti (MLS, USL, NWSL, US Open Cup, Leagues Cup, NISA, MLS Next Pro...), esclusi dalla sezione calcio. Gli sport americani di ALTRI SPORT (NFL, NBA, NHL...) non sono toccati. Esclusa anche la UEFA Youth League e ogni partita U19 (competizione o squadre, es. 'Leipzig U19 - PSV U19'). Esclusa sempre anche la AFC Champions League (Elite e Two, ACL).",
- "escludi_competizioni": [
-  "women",
-  "woman",
-  "femminile",
-  "femminili",
-  "féminine",
-  "feminine",
-  "féminin",
-  "femenino",
-  "femenina",
-  "frauen",
-  "frauen-bundesliga",
-  "dames",
-  "vrouwen",
-  "ladies",
-  "wsl",
-  "nwsl",
-  "liga f",
-  "d1 arkema",
-  "arkema",
-  "kvinner",
-  "damallsvenskan",
-  "uefa women's",
-  "women's world cup",
-  "femmes",
-  "feminino",
-  "feminina",
-  "femenil",
-  "mls",
-  "major league soccer",
-  "mls next pro",
-  "mls next",
-  "usl",
-  "usl championship",
-  "usl league one",
-  "usl league two",
-  "usl super league",
-  "us open cup",
-  "u.s. open cup",
-  "lamar hunt",
-  "leagues cup",
-  "nisa",
-  "national independent soccer association",
-  "npsl",
-  "mls is back",
-  "campeones cup",
-  "uefa youth league",
-  "youth league",
-  "uyl",
-  "u19",
-  "u-19",
-  "under 19",
-  "under-19",
-  "sub-19",
-  "sub19",
-  "afc champions",
-  "afc champions league",
-  "afc champions league elite",
-  "afc champions league two",
-  "acl elite",
-  "acl two",
-  "acl 2",
-  "afc cl"
- ],
- "_nota_escludi_russi_iraniani": "Canali russi e iraniani esclusi da tutte le fonti. Un canale è escluso se: il nome contiene una parola di 'paesi' (es. 'TV Start Russia'), oppure corrisponde a un'espressione di 'nomi' (regex, maiuscole/minuscole indifferenti), oppure su Teleboy ha paese in 'paesi_teleboy'. 'mai_escludere' vince sempre (es. Idman TV, Azerbaigian). Nomi verificati sui dati LiveOnSat del 10/10/2026: TV Start Russia HD, TV Start Triumph HD, MATCH! Futbol 1-3, MATCH! Premier, MATCH! Russia, MATCH! TV, Okko Futbol, Okko Prime Sport, viju+ Sport (Russia); IRIB Varzesh, GEM Sport 1, Meraj TV, Persiana Sport/Sports 2/3 (Iran). Gli altri nomi sono canali russi/iraniani noti, messi per sicurezza. Attenzione: 'Nova Sports Start' e 'Magenta Hellas Sport Start' sono greci e NON sono esclusi.",
- "escludi_russi_iraniani": {
-  "paesi": [
-   "russia",
-   "russian",
-   "rossija",
-   "россия",
-   "iran",
-   "iranian"
-  ],
-  "paesi_teleboy": [
-   "ru",
-   "ir"
-  ],
-  "nomi": [
-   "^tv ?start\\b",
-   "^start( tv)?\\b",
-   "\\bstart tv\\b",
-   "\\btv start\\b",
-   "^match!",
-   "^match ?tv\\b",
-   "^match! ?(futbol|premier|arena|igra|strana)",
-   "\\bokko\\b",
-   "\\bviju\\b",
-   "\\bkhl\\b",
-   "\\bpervyi\\b",
-   "\\bperviy kanal\\b",
-   "\\bchannel one russia\\b",
-   "\\brossiya\\b",
-   "\\bnash futbol\\b",
-   "\\bkinopoisk\\b",
-   "\\birib\\b",
-   "\\bvarzesh\\b",
-   "\\bvarzish\\b",
-   "\\bpersiana\\b",
-   "^gem (sport|tv|series|drama|life|kids|bollywood|rubix|onyx|river)\\b",
-   "\\bmeraj\\b",
-   "\\bmanoto\\b",
-   "\\btapesh\\b",
-   "\\bnavahang\\b"
-  ]
- },
- "mai_escludere": [
-  "idman"
- ],
- "_nota_pagine_altri_sport": "Pagine LiveOnSat degli altri sport (sezione ALTRI SPORT): pagina -> [sport, durata media in minuti]. Stesse regole del calcio: solo canali in chiaro (rossi) o nella lista 'canali_in_chiaro' o su Teleboy, stesse esclusioni. Su LiveOnSat non esistono pagine di tennis, ciclismo, cricket, freccette, snooker o MotoGP (404 al 10/10/2026).",
- "pagine_altri_sport": {
-  "https://liveonsat.com/usa-nfl-football.php": [
-   "Football americano",
-   210
-  ],
-  "https://liveonsat.com/usa-nba-basketball.php": [
-   "Basket",
-   150
-  ],
-  "https://liveonsat.com/usa-nhl-hockey.php": [
-   "Hockey su ghiaccio",
-   165
-  ],
-  "https://liveonsat.com/x-international-basketball.php": [
-   "Basket",
-   120
-  ],
-  "https://liveonsat.com/x-international-icehockey.php": [
-   "Hockey su ghiaccio",
-   150
-  ],
-  "https://liveonsat.com/x-rugby-union.php": [
-   "Rugby",
-   120
-  ],
-  "https://liveonsat.com/x-rugby-league.php": [
-   "Rugby a 13",
-   120
-  ],
-  "https://liveonsat.com/x-aussie-rules.php": [
-   "Football australiano",
-   150
-  ],
-  "https://liveonsat.com/x-gaa.php": [
-   "Sport gaelici",
-   90
-  ],
-  "https://liveonsat.com/x-formula1.php": [
-   "Formula 1",
-   120
-  ],
-  "https://liveonsat.com/x-boxing-mma.php": [
-   "Boxe",
-   240
-  ],
-  "https://liveonsat.com/x-olympic-handball.php": [
-   "Pallamano",
-   105
-  ],
-  "https://liveonsat.com/x-volleyball.php": [
-   "Pallavolo",
-   120
-  ]
- },
- "_nota_canali_per_sport": "Canali presi sempre per uno sport di ALTRI SPORT (pagine 'pagine_altri_sport'), anche se LiveOnSat non li segna in chiaro. Regex sul nome del canale.",
- "canali_per_sport": {
-  "Basket": [
-   {
-    "regex": "^Idman\\b",
-    "nota": "Idman TV (Azerbaigian)"
-   },
-   {
-    "regex": "^X ?Sports\\b",
-    "nota": "X Sports (Brasile)"
-   },
-   {
-    "regex": "^Sporty ?TV\\b",
-    "nota": "Sporty TV (Nigeria)"
-   },
-   {
-    "regex": "^RTSH\\b",
-    "nota": "RTSH 1 / RTSH Sport (Albania)"
-   }
-  ]
- }
 }
