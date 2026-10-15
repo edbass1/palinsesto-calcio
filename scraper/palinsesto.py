@@ -1642,12 +1642,18 @@ TEMPLATE = """<!doctype html>
   html.desk .su {{ left:calc(13.5rem + 40px); }}
   html.desk nav.filtri, html.desk .cerca {{ padding-right:0; }}
   .sottotitolo {{ color:#fff; font-size:.62rem; font-weight:600; margin:2px 0 6px; line-height:1.3; opacity:.95; }}
-  .ordine-crono {{ display:flex; align-items:center; gap:8px; max-width:1000px; margin:8px auto 2px; padding:6px 10px;
-                  font-size:.68rem; font-weight:700; color:#ddd; cursor:pointer; user-select:none;
-                  background:#111; border:1px solid #444; border-radius:10px; width:fit-content; }}
-  .ordine-crono input {{ width:1.15em; height:1.15em; accent-color:var(--giallo); cursor:pointer; flex:none; }}
+  /* centrata nella fascia nera tra legenda e primo banner, senza aggiungere altezza */
+  .ordine-crono-wrap {{ height:0; position:relative; z-index:4; pointer-events:none; }}
+  .ordine-crono {{ pointer-events:auto; position:absolute; left:50%; top:18px; transform:translate(-50%, -50%);
+                  display:flex; align-items:center; gap:6px; width:max-content; max-width:calc(100% - 16px);
+                  margin:0; padding:3px 12px; font-size:.62rem; font-weight:700; color:#ddd; cursor:pointer; user-select:none;
+                  background:#0a0a0a; border:1px solid #555; border-radius:999px; white-space:nowrap;
+                  box-shadow:0 0 0 4px #000; }}
+  .ordine-crono input {{ width:1.05em; height:1.05em; accent-color:var(--giallo); cursor:pointer; flex:none; }}
   .ordine-crono:has(input:checked) {{ border-color:var(--giallo); color:#fff; background:#1a1600; }}
-  @media (max-width: 640px) {{ .ordine-crono {{ font-size:.62rem; margin:6px 0 2px; }} }}
+  @media (max-width: 640px) {{
+    .ordine-crono {{ font-size:.58rem; padding:2px 10px; top:16px; }}
+  }}
   /* etichette sulle partite: info partita e rivalità */
   .squadre .tags {{ display:inline-flex; flex-wrap:wrap; gap:6px; margin-left:10px; vertical-align:middle; }}
   .tg {{ position:static; font:inherit; font-size:.6rem; font-weight:700; line-height:1.2; padding:5px 11px; min-height:32px; border-radius:999px;
@@ -1716,7 +1722,6 @@ TEMPLATE = """<!doctype html>
   <p class="sottotitolo">Match gentilmente offerti da pay TV e canali pubblici</p>
   <p class="agg">Aggiornato {aggiornato} · orari italiani</p>
 </header>
-<label class="ordine-crono" for="crono"><input type="checkbox" id="crono" autocomplete="off"> Ordine cronologico</label>
 <nav class="sezioni" aria-label="Sezione">
   <button type="button" data-sezione="calcio" aria-pressed="true"><span class="ico" aria-hidden="true">⚽</span> CALCIO <span class="n" id="n-partite">{n}</span></button>
   <button type="button" data-sezione="sport" aria-pressed="false"><span class="ico" aria-hidden="true">🏁</span> ALTRI SPORT <span class="n" id="n-eventi">{n_altri}</span></button>
@@ -1736,6 +1741,7 @@ TEMPLATE = """<!doctype html>
 <p id="nessun-risultato" class="nessun-risultato" role="status" hidden>Nessun risultato per «<span></span>»</p>
 <main>
 <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera) · <span class="tag dz">DAZN GRATIS</span> = senza lucchetto su DAZN (account gratuito)</p>
+<div class="ordine-crono-wrap"><label class="ordine-crono" for="crono"><input type="checkbox" id="crono" autocomplete="off"> Ordine cronologico</label></div>
 <div id="vista-campionato" class="vista" data-sez="calcio">
 {sezioni}
 </div>
@@ -2108,7 +2114,7 @@ TEMPLATE = """<!doctype html>
   document.addEventListener('click', function (ev) {{
     var b = ev.target.closest && ev.target.closest('button');
     if (!b || b.closest('.zoom') || b.id === 'torna-su') return;
-    if (!b.closest('#barra, nav.sezioni, section.pannello, nav.filtri, .cerca, .scelta-b, .ordine-crono')) return;
+    if (!b.closest('#barra, nav.sezioni, section.pannello, nav.filtri, .cerca, .scelta-b, .ordine-crono-wrap, .ordine-crono')) return;
     setTimeout(function () {{ window.scrollTo(0, 0); }}, 0);
   }});
   // zoom (70%-160%, salvato) e "torna su"
