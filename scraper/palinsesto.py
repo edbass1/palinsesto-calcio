@@ -1842,6 +1842,29 @@ TEMPLATE = """<!doctype html>
         var gr = function (s) {{ var el = !tt || elite(s); return el && s.dataset.testa ? 0 : el ? 1 : 2; }};
         k.forEach(function (x) {{ x.k = [gr(x.s)].concat(x.k); }});
         k.sort(function (a, b) {{ return (a.k[0] - b.k[0]) || (a.k[1] - b.k[1]) || (a.k[2] - b.k[2]); }});
+      }} else if (id === 'vista-campionato' && S.cat.calcio === 'sudamerica') {{
+        // Sudamerica: tutti i campionati brasiliani prima degli altri Paesi;
+        // all'interno del Brasile: Serie A, B, C, D e poi gli altri tornei.
+        var nomeComp = function (s) {{
+          var h = s.querySelector('h2');
+          return piatto(h ? h.textContent : '');
+        }};
+        var rangoBrasile = function (s) {{
+          var n = nomeComp(s);
+          if (!/brasil|brasile|brazil/.test(n)) return 99;
+          if (/\bserie a\b/.test(n)) return 0;
+          if (/\bserie b\b/.test(n)) return 1;
+          if (/\bserie c\b/.test(n)) return 2;
+          if (/\bserie d\b/.test(n)) return 3;
+          return 4;
+        }};
+        k.forEach(function (x) {{
+          var rb = rangoBrasile(x.s);
+          x.k = [rb < 99 ? 0 : 1, rb].concat(x.k);
+        }});
+        k.sort(function (a, b) {{
+          return (a.k[0] - b.k[0]) || (a.k[1] - b.k[1]) || (a.k[2] - b.k[2]) || (a.k[3] - b.k[3]);
+        }});
       }} else if (id === 'vista-campionato' && S.cat.calcio === 'tutto') {{
         // TUTTO: blocco A (coppe europee + nazionali) e blocco B (Serie A, poi gli altri grandi campionati):
         // prima il blocco con la partita visibile più vicina; il resto (C) sempre in fondo
