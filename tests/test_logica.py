@@ -1339,6 +1339,18 @@ def test_ictimai():
 test_ictimai(); print("Ictimai TV -> YouTube: OK")
 
 
+def test_m4_sport():
+    dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    for nome in ("M4 Sport", "M4Sport", "M4 Sport Hungary", "MTV4", "MTV 4"):
+        assert p.voce_dove(nome, dove)["id"] == "m4-sport", nome
+    assert (p.voce_dove("Match 4 Hungary HD", dove) or {}).get("id") != "m4-sport"
+    h = p.badge({"nome": "M4 Sport Hungary", "fta": True}, dove, set())
+    assert 'href="#dv-m4-sport"' in h and "mediaklikk.hu/elo/mtv4live/" in h and "SENZA VPN" in h and "VPN Ungheria" not in h, h
+
+
+test_m4_sport(); print("M4 Sport -> MediKlikk SENZA VPN: OK")
+
+
 def test_los_pagina_vuota():
     import urllib.request as UR
     class R:

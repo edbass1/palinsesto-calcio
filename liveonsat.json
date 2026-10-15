@@ -182,6 +182,10 @@
     {
       "regex": "^blue\\s*zoom\\b",
       "nota": "blue Zoom DE/Schweiz/Suisse e varianti nazionali (dirette sportive)"
+    },
+    {
+      "regex": "^M4 ?Sport\\b|^MTV ?4\\b",
+      "nota": "M4 Sport / MTV4 (Ungheria) – gratis su mediaklikk.hu senza VPN"
     }
   ],
   "alias_canali": [

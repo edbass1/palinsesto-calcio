@@ -1306,6 +1306,25 @@
       "vpn_tag": "VPN Azerbaigian"
     },
     {
+      "id": "m4-sport",
+      "nome": "M4 Sport (Ungheria)",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^M4 ?Sport\\b",
+        "^MTV ?4\\b"
+      ],
+      "vpn": "non serve",
+      "note": "Diretta su MediKlikk, senza VPN.",
+      "link": [
+        {
+          "url": "https://mediaklikk.hu/elo/mtv4live/",
+          "testo": "M4 Sport – MediKlikk"
+        }
+      ],
+      "vpn_tag": "SENZA VPN"
+    },
+    {
       "id": "mbc-action",
       "nome": "MBC Action (Shahid)",
       "fonte": "ricerca",
