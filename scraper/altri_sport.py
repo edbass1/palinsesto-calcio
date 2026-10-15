@@ -47,7 +47,7 @@ SPORT = [
     (r"kunstturnen|ginnastica|gymnastique|turnen", "Ginnastica artistica"),
     (r"curling", "Curling"),
     (r"handball|pallamano", "Pallamano"),
-    (r"basketball|basket", "Basket"),
+    (r"euroleague|eurocup|nba|basketball|basket", "Basket"),
     (r"volleyball|pallavolo|volley", "Pallavolo"),
     (r"leichtathletik|atletica|athlétisme|marathon|maratona", "Atletica"),
     (r"schwimmen|nuoto|natation", "Nuoto"),
