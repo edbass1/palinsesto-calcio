@@ -224,8 +224,7 @@
       "more than sports",
       "sportdigital",
       "motorvision",
-      "auto motor",
-      "^blue zoom"
+      "auto motor"
     ],
     "sport_del_canale": {
       "supertennis": "Tennis"
@@ -246,7 +245,8 @@
     ],
     "_nota_canali_solo_diretta_esplicita": "Canali la cui guida è quasi tutta repliche senza segnalarle (SuperTennis): si tengono solo i programmi con 'live/diretta' o marcati prima visione.",
     "canali_solo_diretta_esplicita": [
-      "supertennis"
+      "supertennis",
+      "^blue zoom"
     ],
     "parole_replica": [
       "replica",
