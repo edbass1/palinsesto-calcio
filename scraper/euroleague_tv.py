@@ -175,6 +175,25 @@ def a_eventi(partite, conf, inizio, fine):
                     "sport": "Basket", "titolo": f'{p["comp"]}: {tit}', "titolo_orig": f'{p["comp"]} {tit}',
                     "titolo_src": tit, "evento": True, "lingua": "en", "descrizione": p["comp"], "comp": p["comp"],
                     "da_los": True, "emittenti": em})
+
+    # Eventi LBA specificamente confermati dall'utente su EuroLeague TV (VPN Turchia).
+    # Sono solo queste partite, non l'intero calendario LBA.
+    url = "https://app.euroleague.tv/schedule"
+    for p in conf.get("lba_manual", []):
+        try:
+            ts = int(dt.datetime.fromisoformat(p["inizio"]).timestamp())
+        except (KeyError, TypeError, ValueError, OverflowError):
+            continue
+        if not (inizio.timestamp() - 2 * 3600 <= ts < fine.timestamp()):
+            continue
+        tit = f'{p["casa"]} - {p["ospite"]}'
+        em = [{"nome": "EuroLeague TV", "pagina": None, "link": None, "url": url,
+               "vpn": "TURCHIA", "fta": True}]
+        out.append({"id": f'lba-manual:{ts}:{tit.lower()}', "ts": ts,
+                    "fine": ts + conf.get("durata_min", 120) * 60,
+                    "sport": "Basket", "titolo": f'LBA: {tit}', "titolo_orig": f'LBA {tit}',
+                    "titolo_src": tit, "evento": True, "lingua": "it", "descrizione": "LBA · EuroLeague TV",
+                    "comp": "LBA", "da_los": False, "emittenti": em})
     return out
 
 
