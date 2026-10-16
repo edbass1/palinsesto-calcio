@@ -332,7 +332,19 @@
         "nome": "RTSH 1",
         "vpn": "ALBANIA"
       }
-    }
+    },
+    "lba_manual": [
+      {
+        "inizio": "2026-10-17T16:00:00+02:00",
+        "casa": "BC Roma",
+        "ospite": "Umana Reyer Venezia"
+      },
+      {
+        "inizio": "2026-10-18T12:00:00+02:00",
+        "casa": "Napoli Basketball",
+        "ospite": "Armani Olimpia Milano"
+      }
+    ]
   },
   "_nota_escludi_salvo_partecipanti": "Programmi (studio, pre/post partita, show...) tolti da ALTRI SPORT in tutte le fonti, a meno che il titolo abbia due partecipanti ('A vs B', 'A @ B', 'A - B'; un prefisso di lega/sport come 'NFL - ' non conta). Il football americano richiede sempre due squadre nel titolo o nella descrizione.",
   "escludi_salvo_partecipanti": [
