@@ -1505,6 +1505,24 @@
       ],
       "vpn": "Azerbaigian",
       "vpn_tag": "VPN Azerbaigian"
+    },
+    {
+      "id": "euroleague-tv",
+      "nome": "EuroLeague TV",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^EuroLeague TV$"
+      ],
+      "vpn": "Turchia",
+      "vpn_tag": "VPN Turchia",
+      "note": "Per queste due partite LBA: registrazione gratuita e VPN impostata sulla Turchia; disponibilità secondo il catalogo regionale.",
+      "link": [
+        {
+          "url": "https://app.euroleague.tv/schedule",
+          "testo": "EuroLeague TV – calendario"
+        }
+      ]
     }
   ]
 }
