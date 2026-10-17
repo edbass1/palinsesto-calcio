@@ -22,8 +22,7 @@
     "https://liveonsat.com/club-uefa-europa-conference-league.php",
     "https://liveonsat.com/club-asia-africa-all-football.php",
     "https://liveonsat.com/americas-all-football.php",
-    "https://liveonsat.com/europe-poland-elstraklasa.php",
-    "https://liveonsat.com/europe-azerbaijan-premyer-liqa.php"
+    "https://liveonsat.com/europe-poland-elstraklasa.php"
   ],
   "_nota_escludi": "Canali da non mostrare mai, per tutte le fonti (LiveOnSat e LiveSoccerTV): basta che il nome contenga una di queste parole (maiuscole/minuscole indifferenti). MBC (MBC Action e tutti i canali MBC), CRTV Cameroon, La Nouvelle Chaîne Ivoirienne (NCI) e ORTB Benin sono esclusi perché non visibili. Se una partita resta senza canali, non viene mostrata. DAZN è sempre escluso.",
   "escludi_canali": [
@@ -330,7 +329,16 @@
     "acl elite",
     "acl two",
     "acl 2",
-    "afc cl"
+    "afc cl",
+    "azerbaijan",
+    "azerbaigian",
+    "azerbaijani",
+    "azerbaijan cup",
+    "azerbaijan premier league",
+    "premyer liqa",
+    "premyer-liqa",
+    "azerbaijan first division",
+    "azerbaijan second division"
   ],
   "_nota_escludi_russi_iraniani": "Canali russi e iraniani esclusi da tutte le fonti. Un canale è escluso se: il nome contiene una parola di 'paesi' (es. 'TV Start Russia'), oppure corrisponde a un'espressione di 'nomi' (regex, maiuscole/minuscole indifferenti), oppure su Teleboy ha paese in 'paesi_teleboy'. 'mai_escludere' vince sempre (es. Idman TV, Azerbaigian). Nomi verificati sui dati LiveOnSat del 10/10/2026: TV Start Russia HD, TV Start Triumph HD, MATCH! Futbol 1-3, MATCH! Premier, MATCH! Russia, MATCH! TV, Okko Futbol, Okko Prime Sport, viju+ Sport (Russia); IRIB Varzesh, GEM Sport 1, Meraj TV, Persiana Sport/Sports 2/3 (Iran). Gli altri nomi sono canali russi/iraniani noti, messi per sicurezza. Attenzione: 'Nova Sports Start' e 'Magenta Hellas Sport Start' sono greci e NON sono esclusi.",
   "escludi_russi_iraniani": {
