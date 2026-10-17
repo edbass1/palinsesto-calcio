@@ -25,7 +25,7 @@
     "https://liveonsat.com/europe-poland-elstraklasa.php",
     "https://liveonsat.com/europe-azerbaijan-premyer-liqa.php"
   ],
-  "_nota_escludi": "Canali da non mostrare mai, per tutte le fonti (LiveOnSat e LiveSoccerTV): basta che il nome contenga una di queste parole (maiuscole/minuscole indifferenti). MBC (MBC Action e tutti i canali MBC) e CRTV Cameroon sono esclusi perché non visibili. Se una partita resta senza canali, non viene mostrata. DAZN è sempre escluso.",
+  "_nota_escludi": "Canali da non mostrare mai, per tutte le fonti (LiveOnSat e LiveSoccerTV): basta che il nome contenga una di queste parole (maiuscole/minuscole indifferenti). MBC (MBC Action e tutti i canali MBC), CRTV Cameroon e La Nouvelle Chaîne Ivoirienne (NCI) sono esclusi perché non visibili. Se una partita resta senza canali, non viene mostrata. DAZN è sempre escluso.",
   "escludi_canali": [
     "dazn",
     "megogo",
@@ -42,7 +42,10 @@
     "nosso futebol plus",
     "solh",
     "mbc",
-    "crtv cameroon"
+    "crtv cameroon",
+    "la nouvelle chaîne ivoirienne",
+    "la nouvelle chaine ivoirienne",
+    "nci"
   ],
   "canali_in_chiaro": [
     {
