@@ -1361,25 +1361,6 @@
       "vpn_tag": "VPN Camerun"
     },
     {
-      "id": "nci",
-      "nome": "NCI – La Nouvelle Chaîne Ivoirienne",
-      "fonte": "ricerca",
-      "verificato": true,
-      "canali": [
-        "^La Nouvelle Cha[iî]ne Ivo",
-        "^NCI\\b"
-      ],
-      "vpn": "Costa d'Avorio",
-      "note": "Gratuito.",
-      "link": [
-        {
-          "url": "https://www.nci.ci",
-          "testo": "NCI"
-        }
-      ],
-      "vpn_tag": "VPN Costa d'Avorio"
-    },
-    {
       "id": "ortb",
       "nome": "ORTB (Benin)",
       "fonte": "ricerca",
