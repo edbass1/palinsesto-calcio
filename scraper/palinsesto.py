@@ -60,6 +60,8 @@ COMPETIZIONI = [
     ("/portugal/liga-sagres/", "PRIMEIRA LIGA (Portogallo)", 43),
     ("/turkey/super-lig/", "SÜPER LIG (Turchia)", 44),
     ("/greece/super-league/", "SUPER LEAGUE (Grecia)", 45),
+    ("/romania/liga-1/", "LIGA I (Romania)", 46),
+    ("/romania/liga-ll/", "LIGA II (Romania)", 47),
     ("/saudi-arabia/pro-league/", "SAUDI PRO LEAGUE (Arabia Saudita)", 60),
     ("/brazil/serie-a-brasileirao/", "BRASILEIRÃO SERIE A (Brasile)", 70),
     ("/brazil/serie-b/", "SERIE B BRASILE", 71),
