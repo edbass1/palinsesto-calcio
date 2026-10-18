@@ -681,9 +681,9 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
     # Escludi da TUTTE le fonti i campionati nazionali di calcio romeni.
     # Non filtrare in base ai nomi delle squadre: coppe europee e nazionali restano ammesse.
     rx_campionati_romeni = re.compile(
-        r"(?:/romania/|\\bromanian\\s+(?:superliga|liga\\s*(?:1|2|i{1,2}))\\b|"
-        r"\\b(?:cupa|supercupa)\\s+rom[aâ]niei\\b|"
-        r"\\bliga\\s*(?:i{1,2}|[12])\\s*\\(\\s*romania\\s*\\))",
+        r"(?:/romania/|\bromanian\s+(?:superliga|liga\s*(?:1|2|i{1,2}))\b|"
+        r"\b(?:cupa|supercupa)\s+rom[aâ]niei\b|"
+        r"\bliga\s*(?:i{1,2}|[12])\s*\(\s*romania\s*\))",
         re.I,
     )
     eventi = [
