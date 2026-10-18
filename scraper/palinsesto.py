@@ -1357,7 +1357,7 @@ def badge(c, dove, usati, competizione=""):
             # Idman TV: diretta web per tutte le partite; YouTube in aggiunta per la Bundesliga.
             if v.get("id") == "idman" and re.search(r"bundesliga", competizione or "", re.I):
                 yt = next((x.get("url") for x in v.get("link", [])
-                           if re.search(r"(?:youtube\\.com|youtu\\.be)", x.get("url", ""), re.I)), None)
+                           if re.search(r"(?:youtube\.com|youtu\.be)", x.get("url", ""), re.I)), None)
                 if yt and yt != sito:
                     extra += f' <a class="diretta" href="{esc(yt)}" target="_blank" rel="noopener" title="Idman TV su YouTube">{testo_link(yt, "▶ YouTube")}</a>'
             link = sito
