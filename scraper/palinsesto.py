@@ -688,12 +688,17 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         r"\bliga\s*(?:i{1,2}|[12])\s*\(\s*romania\s*\))",
         re.I,
     )
-    eventi = [
+    tolte_campionati_romeni = [
         e for e in eventi
-        if not rx_campionati_romeni.search(
+        if rx_campionati_romeni.search(
             " ".join(str(e.get(k, "")) for k in ("competizione", "comp_orig", "titolo"))
         )
     ]
+    st["campionati_romeni_tolti"] = [
+        f'{e.get("casa", "")} - {e.get("ospite", "")} [{e.get("competizione", "")}]'
+        for e in tolte_campionati_romeni
+    ]
+    eventi = [e for e in eventi if e not in tolte_campionati_romeni]
     # canali visibili su Teleboy (tutte le fonti)
     for e in eventi:
         for k in e["canali"]:
