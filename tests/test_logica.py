@@ -1295,7 +1295,7 @@ def test_prima_register():
     assert "orange.ro" not in ppv.lower() and "Orange TV" not in ppv, ppv
     assert 'href="#dv-prima-sport-ppv"' in ppv, ppv
     s = p.sezione_dove(dove, {"prima-sport", "prima-sport-ppv"})
-    assert s.count('<li>Aprite questo link con Google Chrome') == 1 and "In breve:" in s
+    assert s.count('<li>Aprite questo link con Google Chrome') == 2 and "In breve:" in s
     assert "Non sono disponibili su Orange TV" in s and "solo nell'app PrimaPlay" in s
 
 
