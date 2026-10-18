@@ -1133,8 +1133,8 @@
       "note": "ERTFLIX, gratuito con account.",
       "link": [
         {
-          "url": "https://www.ertflix.gr/en/live-tv",
-          "testo": "ERTFLIX – dirette"
+          "url": "https://www.ertflix.gr/#/channels",
+          "testo": "ERTFLIX – canali in diretta"
         }
       ],
       "vpn_tag": "VPN Grecia"
