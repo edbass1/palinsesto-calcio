@@ -60,8 +60,6 @@ COMPETIZIONI = [
     ("/portugal/liga-sagres/", "PRIMEIRA LIGA (Portogallo)", 43),
     ("/turkey/super-lig/", "SÜPER LIG (Turchia)", 44),
     ("/greece/super-league/", "SUPER LEAGUE (Grecia)", 45),
-    ("/romania/liga-1/", "LIGA I (Romania)", 46),
-    ("/romania/liga-ll/", "LIGA II (Romania)", 47),
     ("/saudi-arabia/pro-league/", "SAUDI PRO LEAGUE (Arabia Saudita)", 60),
     ("/brazil/serie-a-brasileirao/", "BRASILEIRÃO SERIE A (Brasile)", 70),
     ("/brazil/serie-b/", "SERIE B BRASILE", 71),
@@ -680,6 +678,20 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         else:
             st["tolte_esclusi"].append(f'{e["casa"]} - {e["ospite"]}')
     eventi = rimasti
+    # Escludi da TUTTE le fonti i campionati nazionali di calcio romeni.
+    # Non filtrare in base ai nomi delle squadre: coppe europee e nazionali restano ammesse.
+    rx_campionati_romeni = re.compile(
+        r"(?:/romania/|\\bromanian\\s+(?:superliga|liga\\s*(?:1|2|i{1,2}))\\b|"
+        r"\\b(?:cupa|supercupa)\\s+rom[aâ]niei\\b|"
+        r"\\bliga\\s*(?:i{1,2}|[12])\\s*\\(\\s*romania\\s*\\))",
+        re.I,
+    )
+    eventi = [
+        e for e in eventi
+        if not rx_campionati_romeni.search(
+            " ".join(str(e.get(k, "")) for k in ("competizione", "comp_orig", "titolo"))
+        )
+    ]
     # canali visibili su Teleboy (tutte le fonti)
     for e in eventi:
         for k in e["canali"]:
