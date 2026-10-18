@@ -52,6 +52,8 @@ COMPETIZIONI_LOS = [
     (r"^Portuguese Liga 1$", 43, "PRIMEIRA LIGA (Portogallo)"),
     (r"^(Türkiye|Turkish) Süper Lig$", 44, "SÜPER LIG (Turchia)"),
     (r"^Greek Super League 1$", 45, "SUPER LEAGUE (Grecia)"),
+    (r"^Romanian Superliga$", 46, "LIGA I (Romania)"),
+    (r"^Romanian Liga 2$", 47, "LIGA II (Romania)"),
     (r"^Saudi Pro League$", 60, "SAUDI PRO LEAGUE (Arabia Saudita)"),
     (r"^Brazilian Série A$", 70, "BRASILEIRÃO SERIE A (Brasile)"),
     (r"^Brazilian Série B$", 71, "SERIE B BRASILE"),
