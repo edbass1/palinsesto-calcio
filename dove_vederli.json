@@ -1282,11 +1282,15 @@
         "^Idman\\b"
       ],
       "vpn": "Azerbaigian",
-      "note": "Gratuito.",
+      "note": "Gratuito. Per le partite non di Bundesliga usa la diretta web di CanliTV; per la Bundesliga sono disponibili sia questa diretta sia le dirette su YouTube. La disponibilità può variare in base alla partita.",
       "link": [
         {
+          "url": "https://tr.canlitv.watch/idman-tv",
+          "testo": "Idman TV – diretta web"
+        },
+        {
           "url": "https://www.youtube.com/@idmantvresmi/streams",
-          "testo": "Idman TV"
+          "testo": "Idman TV – YouTube (Bundesliga)"
         }
       ],
       "vpn_tag": "VPN Azerbaigian"
