@@ -129,23 +129,27 @@
     },
     {
       "id": "prima-sport-ppv",
-      "nome": "Prima Sport PPV (PPV1, PPV2, PPV3)",
+      "nome": "Prima Sport PPV (PPV1, PPV2, PPV3 e altri)",
       "fonte": "utente",
       "canali": [
         "^Prima Sport ?PPV"
       ],
-      "vpn": "non serve",
-      "note": "Registrazione su Orange, senza VPN.",
+      "vpn": "Romania per la registrazione; solo app TV",
+      "note": "I canali Prima Sport PPV, di qualunque numero, sono disponibili solo nell'app PrimaPlay installata su una TV compatibile. Non sono disponibili su Orange TV. Per registrarsi può essere necessaria una VPN impostata sulla Romania; dopo la registrazione, accedere dall'app TV.",
       "link": [
         {
-          "url": "https://www.orange.ro/accounts/create-user",
-          "testo": "Orange – registrazione"
+          "url": "https://www.primaplay.ro/register",
+          "testo": "PrimaPlay – registrazione"
+        },
+        {
+          "url": "https://www.primaplay.ro/transmisiuni",
+          "testo": "Programma PrimaPlay"
         }
       ],
-      "vpn_tag": "SENZA VPN",
+      "vpn_tag": "Solo app TV · VPN Romania per registrazione",
       "link_card": {
-        "url": "https://www.orange.ro/accounts/create-user",
-        "testo": "Orange TV"
+        "url": "https://www.primaplay.ro/register",
+        "testo": "PrimaPlay · app TV"
       }
     },
     {
