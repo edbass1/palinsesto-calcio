@@ -1288,7 +1288,7 @@ test_scooore(); print("Scooore (solo conferma di partite già presenti): OK")
 def test_prima_register():
     dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
     standard = p.badge({"nome": "Prima Sport 2", "fta": False}, dove, set())
-    assert 'href="https://www.orange.ro/accounts/create-user"' in standard and "▶ Orange TV" in standard and "SENZA VPN" in standard and "primaplay.ro" not in standard, standard
+    assert 'href="https://tvgo.orange.ro/livetv?genreId=supergenrelive%2C9"' in standard and "▶ Orange TV" in standard and "SENZA VPN" in standard and "primaplay.ro" not in standard, standard
     assert 'href="#dv-prima-sport"' in standard, standard
     ppv = p.badge({"nome": "Prima Sport PPV27", "fta": False}, dove, set())
     assert 'href="https://www.primaplay.ro/register"' in ppv and "PrimaPlay · app TV" in ppv and "Solo app TV" in ppv, ppv
