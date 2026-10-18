@@ -956,6 +956,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     for g in gruppi:
         for e in g["partite"]:
             e["_cat"] = " ".join(sorted(cat_calcio(e, g["nome"])))
+            e["_comp"] = g["nome"]
             e["_naz"], e["_tipo"] = nazione_comp(g["nome"]), tipo_comp(g["nome"])
     ora_r = ora.astimezone(ROMA)
     aggiornato = f"{GIORNI_LUNGHI[ora_r.weekday()]} {ora_r:%d/%m/%Y} alle {ora_r:%H:%M}"
@@ -976,7 +977,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
         if comp:
             squadre = f'<span class="comp-tag">{esc(comp)}</span>' + squadre
         squadre += etichette_extra(e)
-        canali = togli_link_doppi("".join(badge(c, dove, usati_c) for c in stesso_link(e["canali"], dove)))
+        canali = togli_link_doppi("".join(badge(c, dove, usati_c, e.get("_comp", "")) for c in stesso_link(e["canali"], dove)))
         if not e["canali"]:
             canali = '<li class="senza-canali">Canali non ancora disponibili: potrebbero comparire nei prossimi aggiornamenti.</li>'
         return (f'<li class="partita" data-ts="{e["ts"]}" data-giorno="{q:%Y-%m-%d}" data-cat="{e.get("_cat", "")}"'
@@ -1316,7 +1317,7 @@ def emittente_altro(x, dove, usati):
             + '</li>')
 
 
-def badge(c, dove, usati):
+def badge(c, dove, usati, competizione=""):
     esc = html.escape
     dtt = None if c.get("url") else dtt_di(c["nome"], c.get("teleboy") or "")  # canale italiano: + riga '🇮🇹 DTT n'
     testo = esc(c["nome"])
@@ -1353,6 +1354,12 @@ def badge(c, dove, usati):
         if sito and not extra and v["id"] != "teleboy" and not dtt:
             extra = (f' <a class="diretta" href="{esc(sito)}" title="Come vederli">▶ {esc(v["link_card"]["testo"])}</a>'
                      if sito.startswith("#") else None) or f' <a class="diretta" href="{esc(sito)}" target="_blank" rel="noopener" title="Sito di streaming">{testo_link(sito, "▶ " + v["link_card"]["testo"] if v.get("link_card", {}).get("testo") else "▶ sito")}</a>'
+            # Idman TV: diretta web per tutte le partite; YouTube in aggiunta per la Bundesliga.
+            if v.get("id") == "idman" and re.search(r"bundesliga", competizione or "", re.I):
+                yt = next((x.get("url") for x in v.get("link", [])
+                           if re.search(r"(?:youtube\\.com|youtu\\.be)", x.get("url", ""), re.I)), None)
+                if yt and yt != sito:
+                    extra += f' <a class="diretta" href="{esc(yt)}" target="_blank" rel="noopener" title="Idman TV su YouTube">{testo_link(yt, "▶ YouTube")}</a>'
             link = sito
     vt = testo_vpn(c["nome"], None, v, tb) if (v or tb or link) else testo_vpn(c["nome"])
     if dtt and not link:
