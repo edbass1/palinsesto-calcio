@@ -410,7 +410,10 @@ def test_primaplay():
     dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
     assert p.voce_dove("Prima Sport PPV2", dove)["id"] == "prima-sport-ppv" and p.voce_dove("Prima Sport 3", dove)["id"] == "prima-sport"
     v = p.voce_dove("Prima Sport PPV1", dove)
-    assert v["link"][0]["url"] == "https://www.orange.ro/accounts/create-user" and v["fonte"] == "utente"
+    assert v["link"][0]["url"] == "https://www.primaplay.ro/register" and v["fonte"] == "utente"
+    assert "solo nell'app PrimaPlay" in v["note"] and "Non sono disponibili su Orange TV" in v["note"]
+    assert v["link_card"]["url"] == "https://www.primaplay.ro/register"
+    assert "orange.ro" not in json.dumps(v).lower()
     return f"{len(cal)} calcio, {len(alt)} altri sport, {len(nuove)} nuove"
 
 
@@ -1284,12 +1287,16 @@ test_scooore(); print("Scooore (solo conferma di partite già presenti): OK")
 
 def test_prima_register():
     dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
-    for nome in ("Prima Sport 2", "Prima Sport PPV1"):
-        h = p.badge({"nome": nome, "fta": False}, dove, set())
-        assert 'href="https://www.orange.ro/accounts/create-user"' in h and "▶ Orange TV" in h and "SENZA VPN" in h and "primaplay.ro" not in h, h
-        assert 'href="#dv-prima-sport' in h, h
+    standard = p.badge({"nome": "Prima Sport 2", "fta": False}, dove, set())
+    assert 'href="https://www.orange.ro/accounts/create-user"' in standard and "▶ Orange TV" in standard and "SENZA VPN" in standard and "primaplay.ro" not in standard, standard
+    assert 'href="#dv-prima-sport"' in standard, standard
+    ppv = p.badge({"nome": "Prima Sport PPV27", "fta": False}, dove, set())
+    assert 'href="https://www.primaplay.ro/register"' in ppv and "PrimaPlay · app TV" in ppv and "Solo app TV" in ppv, ppv
+    assert "orange.ro" not in ppv.lower() and "Orange TV" not in ppv, ppv
+    assert 'href="#dv-prima-sport-ppv"' in ppv, ppv
     s = p.sezione_dove(dove, {"prima-sport", "prima-sport-ppv"})
-    assert s.count('<li>Aprite questo link con Google Chrome') == 2 and "In breve:" in s
+    assert s.count('<li>Aprite questo link con Google Chrome') == 1 and "In breve:" in s
+    assert "Non sono disponibili su Orange TV" in s and "solo nell'app PrimaPlay" in s
 
 
 test_prima_register(); print("Prima Sport -> guida a due metodi: OK")
