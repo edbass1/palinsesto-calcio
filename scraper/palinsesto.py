@@ -1420,6 +1420,7 @@ TEMPLATE = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SPORT GRATIS E LEGALE IN TV · {periodo}</title>
 <meta name="description" content="Partite di calcio e altri sport in TV e in streaming gratis, oggi e nei prossimi 5 giorni, orari italiani.">
+<meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
