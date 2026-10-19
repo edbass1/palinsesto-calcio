@@ -329,17 +329,17 @@
     },
     {
       "id": "bbc-alba",
-      "nome": "BBC Alba",
+      "nome": "BBC Alba (BBC iPlayer)",
       "fonte": "utente",
       "canali": [
         "^BBC Alba"
       ],
       "vpn": "UK",
-      "note": "",
+      "note": "Per le partite di Serie A trasmesse tramite BBC iPlayer, usare sempre il link diretto BBC Alba indicato dall’utente.",
       "link": [
         {
-          "url": "https://www.bbc.co.uk/tv/bbcalba",
-          "testo": "BBC Alba"
+          "url": "https://www.bbc.co.uk/iplayer/live/bbcalba",
+          "testo": "BBC Alba – diretta su iPlayer"
         }
       ],
       "vpn_tag": "VPN UK"
