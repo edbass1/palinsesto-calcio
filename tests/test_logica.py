@@ -879,7 +879,7 @@ def test_unione():
     # 62 - 3 di USL Championship (calcio USA escluso) - 2 di Serie C Brasile solo su SportyNet+ (tolto) = 57
     assert sum("(USA)" in x for x in st["femminili_tolte"]) == 3, st["femminili_tolte"]
     assert st["livesoccertv"] == 57 and st["liveonsat"] > 0 and st["uniti"] and st["solo_liveonsat"] > 0, st
-    assert st["totale"] == 57 + st["liveonsat"] - len(st["uniti"]) - len(st["tolte_esclusi"]) + len(st["serie_a_senza_canali"]) - len(st["campionati_romeni_tolti"]), st  # escluse le partite romene
+    assert st["totale"] == 57 + st["liveonsat"] - len(st["uniti"]) - len(st["tolte_esclusi"]) + len(st["serie_a_senza_canali"]) - len(st["campionati_romeni_tolti"]) - len(st.get("saudi_pro_league_tolte", [])), st  # escluse le partite romene e la Saudi Pro League
     # doppioni uniti: canali LiveSoccerTV + canali in chiaro LiveOnSat, una sola riga
     psg = tutte["PSG - Le Mans"]
     assert [(c["nome"], c["fta"]) for c in psg["canali"]] == [("TV5 Monde", True)], psg["canali"]  # Persiana esclusa
