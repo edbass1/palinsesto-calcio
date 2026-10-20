@@ -702,8 +702,8 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
     # Escludi da TUTTE le fonti la sola Saudi Pro League, anche nei futuri aggiornamenti.
     # Non escludere le altre competizioni saudite: il filtro riguarda il nome/percorso della lega.
     rx_saudi_pro_league = re.compile(
-        r"(?:/saudi-arabia/pro-league(?:/|\\b)|\\bsaudi\\s+pro\\s+league\\b|"
-        r"\\bsaudi\\s+arabian\\s+professional\\s+league\\b)",
+        r"(?:/saudi-arabia/pro-league(?:/|\b)|\bsaudi\s+pro\s+league\b|"
+        r"\bsaudi\s+arabian\s+professional\s+league\b)",
         re.I,
     )
     tolte_saudi_pro = [
