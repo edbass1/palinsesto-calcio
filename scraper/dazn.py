@@ -247,11 +247,12 @@ SPORT_ALTRI = {"volley": "Pallavolo", "motori": "Motori", "football americano": 
                "baseball": "Baseball", "golf": "Golf", "triathlon": "Triathlon", "sport estremi": "Sport estremi",
                "equitazione | salto ostacoli": "Equitazione", "tennis": "Tennis", "rugby": "Rugby", "pallamano": "Pallamano",
                "atletica": "Atletica", "freccette": "Freccette", "mma": "MMA", "padel": "Padel", "biliardo": "Biliardo"}
-PAGINA_IT = "https://www.dazn.com/it-IT/home"
+PAGINE_DAZN = {"it": "https://www.dazn.com/it-IT/home", "es": "https://www.dazn.com/es-ES/home", "de": "https://www.dazn.com/de-DE/home", "pt": "https://www.dazn.com/pt-PT/home", "fr": "https://www.dazn.com/fr-FR/home", "be": "https://www.dazn.com/fr-BE/home"}
+LINGUE_DAZN = {"it": "it", "es": "es", "de": "de", "pt": "pt", "fr": "fr", "be": "fr"}
 
 
 def _rail(rid, params, paese="it", tentativi=3):
-    q = urllib.parse.urlencode({"id": rid, "params": params, "languageCode": "it" if paese == "it" else "en",
+    q = urllib.parse.urlencode({"id": rid, "params": params, "languageCode": LINGUE_DAZN.get(paese, "en"),
                                 "country": paese, "platform": "web", "brand": "dazn"})
     err = None
     for i in range(tentativi):
@@ -265,25 +266,25 @@ def _rail(rid, params, paese="it", tentativi=3):
     return None, err
 
 
-def scarica_altri_it():
-    """Riquadri DAZN Italia di tutti gli sport tranne il calcio: file Live/ComingUp della home e di ogni sport
-    (la home arriva solo a ~24 ore, le pagine dei singoli sport più avanti). (tiles, errore)"""
+def scarica_altri(paese="it"):
+    """Riquadri DAZN di un paese per tutti gli sport tranne il calcio: file Live/ComingUp della home e di ogni sport.
+    (tiles, errore)."""
     home, err = [], None
     for rid in ("Live", "ComingUp"):
-        t, e = _rail(rid, "PageType:Home;ContentType:None")
+        t, e = _rail(rid, "PageType:Home;ContentType:None", paese=paese)
         home += t or []
         err = err or e
     if not home:
         return None, err
     tiles = list(home)
     for sid in sorted({(t.get("Sport") or {}).get("Id") for t in home} - {None, CALCIO}):
-        t, _ = _rail("ComingUp", f"PageType:Sport;ContentType:Sport;ContentId:{sid}")
+        t, _ = _rail("ComingUp", f"PageType:Sport;ContentType:Sport;ContentId:{sid}", paese=paese)
         tiles += t or []
     return tiles, None
 
 
-def analizza_altri(tiles):
-    """Eventi gratis non di calcio, nel formato di altri_sport (una voce per EventId)."""
+def analizza_altri(tiles, paese="it"):
+    """Eventi gratis non di calcio di un paese DAZN, nel formato di altri_sport (una voce per EventId)."""
     out = {}
     for t in tiles:
         sp = t.get("Sport") or {}
@@ -310,12 +311,32 @@ def analizza_altri(tiles):
         nome_sport = SPORT_ALTRI.get(sp.get("Title", "").strip().lower()) or sp.get("Title", "Sport").split("|")[0].strip()
         out[k] = {"id": f"dazn:{k}", "ts": ts, "fine": fine, "sport": nome_sport, "titolo": titolo,
                   "titolo_orig": f'{t.get("Title") or ""} {comp}', "titolo_src": t.get("Title") or "", "evento": True,
-                  "lingua": "it", "descrizione": t.get("Description") or "",
-                  "emittenti": [{"nome": "DAZN Italia", "pagina": PAGINA_IT, "link": None, "vpn": None, "dazn_gratis": True}]}
+                  "lingua": LINGUE_DAZN.get(paese, "en"), "descrizione": t.get("Description") or "",
+                  "emittenti": [{"nome": "DAZN " + PAESI.get(paese, paese.upper()), "pagina": PAGINE_DAZN.get(paese, PAGINE_DAZN["it"]), "link": None, "vpn": None, "dazn_gratis": True}]}
     return list(out.values())
 
 
+def scarica_altri_it():
+    """Compatibilità: scarica gli altri sport di DAZN Italia."""
+    return scarica_altri("it")
+
+
 def altri_sport_it():
-    """(eventi, errore) per altri_sport.raccogli_altri."""
-    tiles, err = scarica_altri_it()
-    return (analizza_altri(tiles), None) if tiles is not None else ([], err)
+    """Compatibilità: (eventi, errore) per gli altri sport gratuiti di DAZN Italia."""
+    tiles, err = scarica_altri("it")
+    return (analizza_altri(tiles, "it"), None) if tiles is not None else ([], err)
+
+
+def altri_sport(paesi=None):
+    """(eventi, errore) per gli altri sport gratis di tutte le versioni DAZN abilitate.
+    Se qualche paese non risponde, conserva comunque gli eventi degli altri paesi."""
+    paesi = paesi or PAESI
+    eventi, falliti = [], []
+    for paese in paesi:
+        tiles, err = scarica_altri(paese)
+        if tiles is None:
+            falliti.append(PAESI.get(paese, paese))
+            continue
+        eventi.extend(analizza_altri(tiles, paese))
+    errore = ("paesi non raggiungibili: " + ", ".join(falliti)) if falliti else None
+    return eventi, errore
