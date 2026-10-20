@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test offline: finestra di 4 giorni, LiveSoccerTV (pagine salvate il 9/10/2026, 51 partite attese),
+"""Test offline: finestra di 4 giorni, LiveSoccerTV (pagine salvate il 9/10/2026, 48 partite attese (esclusa Saudi Pro League)),
 LiveOnSat (pagine salvate il 10/10/2026): canali in chiaro, orari, unione dei doppioni."""
 import datetime as dt, gzip, html, json, re, sys
 from pathlib import Path
@@ -77,17 +77,17 @@ p.GIORNI_FINESTRA = 4
 
 
 def test_fixture():
-    """Solo LiveSoccerTV, finestra ven 9 – lun 12: esclude anche i campionati nazionali romeni."""
+    """Solo LiveSoccerTV, finestra ven 9 – lun 12: esclude i campionati nazionali romeni e la Saudi Pro League."""
     canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
     p.scarica = finto_lstv
     v, ini, fine = p.finestra(dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA))
     gruppi, falliti, senza = p.raccogli(canali, ini, fine)
     n = sum(len(g["partite"]) for g in gruppi)
-    assert n == 51 and not falliti and set(senza) <= {"RTL TVI", "Club RTL", "RTL Play", "VTM", "VTM 2", "VTM 4", "VTM GO"}, (n, falliti, senza)  # canali belgi: nessuna partita 9-12/10
+    assert n == 48 and not falliti and set(senza) <= {"RTL TVI", "Club RTL", "RTL Play", "VTM", "VTM 2", "VTM 4", "VTM GO"}, (n, falliti, senza)  # canali belgi: nessuna partita 9-12/10
     assert not any("SportyNet+" in k["nome"] for g in gruppi for e in g["partite"] for k in e["canali"])
     assert not any("Romania" in g["nome"] or "Romanian" in g["nome"] for g in gruppi)
     prima_18 = [e for g in gruppi for e in g["partite"] if e["quando"] < dt.datetime(2026, 10, 9, 18, tzinfo=p.ROMA)]
-    assert sorted(e["casa"] for e in prima_18) == ["Al Fateh"], prima_18
+    assert not prima_18, prima_18  # Al Fateh era Saudi Pro League, ora esclusa
     nomi = [g["nome"] for g in gruppi]
     assert nomi[:6] == ["SERIE A", "SERIE B", "PREMIER LEAGUE", "LALIGA", "BUNDESLIGA", "LIGUE 1"], nomi
     serie_a = [(e["quando"].strftime("%a %H:%M"), f'{e["casa"]} - {e["ospite"]}', [c["nome"] for c in e["canali"]])
@@ -96,7 +96,7 @@ def test_fixture():
     psg = [e for g in gruppi for e in g["partite"] if "PSG" in e["titolo"]][0]
     assert [c["nome"] for c in psg["canali"]] == ["TV5 Monde"]
     html = p.genera_html(v, dt.datetime(2026, 10, 9, 12, 47, tzinfo=p.ROMA), gruppi, ["Canale X (HTTP 404)"], [])
-    assert "non scaricati" in html and "Canale X" in html and html.count('class="partita"') == 2 * 51
+    assert "non scaricati" in html and "Canale X" in html and html.count('class="partita"') == 2 * 48
     assert not any("dazn" in c["nome"].lower() for g in gruppi for e in g["partite"] for c in e["canali"])
     return n
 
