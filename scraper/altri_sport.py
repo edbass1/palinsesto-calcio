@@ -486,7 +486,7 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
     if scarica_dazn_fn is not None:  # DAZN Italia, eventi gratis (solo sport diversi dal calcio)
         ev, err = scarica_dazn_fn()
         if err:
-            falliti.append("DAZN Italia")
+            falliti.append(f"DAZN altri sport: {err}")
         tutti += [e for e in ev if e["sport"] != "Calcio"]
     tutti = [e for e in tutti if inizio.timestamp() <= e["ts"] < fine.timestamp() and e["fine"] > ora.timestamp()]
     tenuti = []
