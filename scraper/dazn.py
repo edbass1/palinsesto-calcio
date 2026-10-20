@@ -241,7 +241,7 @@ if __name__ == "__main__":
     print(__doc__)
 
 
-# ---------- altri sport gratis (solo DAZN Italia) ----------
+# ---------- altri sport gratis (DAZN Italia, Spagna, Germania, Portogallo, Francia e Belgio) ----------
 SPORT_ALTRI = {"volley": "Pallavolo", "motori": "Motori", "football americano": "Football americano", "basket": "Basket",
                "tennistavolo": "Tennistavolo", "boxe": "Boxe", "ciclismo": "Ciclismo", "hockey su ghiaccio": "Hockey su ghiaccio",
                "baseball": "Baseball", "golf": "Golf", "triathlon": "Triathlon", "sport estremi": "Sport estremi",
