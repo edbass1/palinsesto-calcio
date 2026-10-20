@@ -699,6 +699,24 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         for e in tolte_campionati_romeni
     ]
     eventi = [e for e in eventi if e not in tolte_campionati_romeni]
+    # Escludi da TUTTE le fonti la sola Saudi Pro League, anche nei futuri aggiornamenti.
+    # Non escludere le altre competizioni saudite: il filtro riguarda il nome/percorso della lega.
+    rx_saudi_pro_league = re.compile(
+        r"(?:/saudi-arabia/pro-league(?:/|\\b)|\\bsaudi\\s+pro\\s+league\\b|"
+        r"\\bsaudi\\s+arabian\\s+professional\\s+league\\b)",
+        re.I,
+    )
+    tolte_saudi_pro = [
+        e for e in eventi
+        if rx_saudi_pro_league.search(
+            " ".join(str(e.get(k, "")) for k in ("competizione", "comp_orig", "titolo"))
+        )
+    ]
+    st["saudi_pro_league_tolte"] = [
+        f'{e.get("casa", "")} - {e.get("ospite", "")} [{e.get("competizione", "")}]'
+        for e in tolte_saudi_pro
+    ]
+    eventi = [e for e in eventi if e not in tolte_saudi_pro]
     # canali visibili su Teleboy (tutte le fonti)
     for e in eventi:
         for k in e["canali"]:
