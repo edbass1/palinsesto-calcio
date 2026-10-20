@@ -632,7 +632,7 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
             inizio, fine, conf_altri.get("ora") or dt.datetime.now(ROMA), rx_f,
             scarica_srg_fn=conf_altri.get("scarica_srg_fn"), scarica_ard_fn=conf_altri.get("scarica_ard_fn"),
             conf=conf_altri.get("conf"), programmi_tolti=st.setdefault("programmi_tolti", []),
-            scarica_dazn_fn=conf_altri.get("scarica_dazn_fn", dazn.altri_sport_it if conf_dazn is not None else None),
+            scarica_dazn_fn=conf_altri.get("scarica_dazn_fn", dazn.altri_sport if conf_dazn is not None else None),
             scarica_los_fn=conf_altri.get("scarica_los_fn", altri_los.fn_raccogli(
                 conf_los, teleboy, inizio, fine, stat=st.setdefault("altri_los", {})) if conf_los else None),
             scarica_pp_fn=(lambda: (altri_pp, None)) if (conf_pp is not None or conf_digi is not None) else None,
