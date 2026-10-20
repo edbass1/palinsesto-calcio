@@ -721,7 +721,7 @@ def test_traduzioni():
 
 
 def test_dazn_altri():
-    """DAZN Italia: eventi gratis di altri sport (no calcio, no a pagamento) nella sezione ALTRI SPORT."""
+    """DAZN: eventi gratis di altri sport (no calcio, no a pagamento) nella sezione ALTRI SPORT."""
     import gzip
     import altri_sport as A
     import dazn as D
@@ -743,7 +743,7 @@ def test_dazn_altri():
     assert 'DAZN Italia</a> <span class="tag dz">DAZN GRATIS</span>' in h
     _, _, avv = A.raccogli_altri(ini, fine, ora, U.regex_femminile(CONF_LOS["escludi_competizioni"]),
                                  scarica_dazn_fn=lambda: ([], "HTTP Error 403"))
-    assert avv == ["Altri sport: non raggiungibile DAZN Italia"], avv
+    assert avv == ["Altri sport: non raggiungibile DAZN altri sport: HTTP Error 403"], avv
     return ev
 
 
