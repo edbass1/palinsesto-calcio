@@ -414,6 +414,22 @@ def unisci_eventi(eventi):
     return uniti
 
 
+CALCIO_GENERICO = []  # ultima raccolta: eventi di calcio senza squadre (es. "UEFA Champions League") tolti da ALTRI SPORT
+CALCIO_TOLTO_ALTRI = []  # ... e la loro descrizione per il log
+RE_CALCIO_ALTRI = re.compile(r"\buefa\b|\bfu(?:ß|ss)ball|\bsoccer\b|\bvoetbal|\bcalcio\b(?! a 5)|\bfootball\b(?! americano)(?! americain)", re.I)
+
+
+def e_calcio(e):
+    """True se un evento degli altri sport è in realtà calcio (sport 'Calcio' o 'UEFA', 'Fußball', 'calcio'... nel titolo).
+    Non tocca 'Champions League' di pallamano/pallavolo (EHF, CEV): serve proprio la parola UEFA o calcio/football."""
+    if e.get("sport") == "Calcio":
+        return True
+    if e.get("sport") in ("Football americano", "Calcio a 5", "Futsal", "Rugby", "Football australiano"):
+        return False
+    testo = " ".join(str(x) for x in (e.get("titolo"), e.get("titolo_src")) if x)
+    return bool(RE_CALCIO_ALTRI.search(testo)) and not re.search(r"american|nfl|rugby|futsal|australian|gaelic", testo, re.I)
+
+
 BASKET_TOLTI = []  # ultima raccolta: "titolo – motivo" delle partite di basket tolte (per il log)
 
 
@@ -518,16 +534,23 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
             if it != e["titolo"]:
                 e["titolo_originale"] = None if completa else e["titolo"]
                 e["titolo"] = it
+    CALCIO_GENERICO[:] = []
+    CALCIO_TOLTO_ALTRI[:] = []
     for e in uniti:
         testi = " ".join(e["testi"])
-        if e["sport"] == "Calcio":
+        if e["sport"] == "Calcio" or e_calcio(e):
+            # il calcio non entra MAI in ALTRI SPORT: o va nella sezione calcio o si toglie
             if rx_femminile.search(testi) or re.search(r"\bfrauen|\bfemminil|\bféminin|\bwomen", testi, re.I):
                 continue  # niente calcio femminile
             sq = calcio_squadre(e)
             if sq:
                 casa, ospite = (traduci.nazione(x) for x in sq[:2])  # nazionali: "Schweiz" -> "Svizzera"
                 calcio.append(dict(e, casa=casa, ospite=ospite, comp=sq[2]))
-                continue
+            else:  # "UEFA Champions League" senza squadre: si prova solo ad aggiungere il canale a una partita già nota
+                CALCIO_GENERICO.append(e)
+                CALCIO_TOLTO_ALTRI.append(f'{dt.datetime.fromtimestamp(e["ts"], ROMA):%d/%m %H:%M} {e["titolo"]} '
+                                          f'({", ".join(x["nome"] for x in e["emittenti"])})')
+            continue
         altri.append(e)
     avvisi = [f"Altri sport: non raggiungibile {', '.join(falliti)}"] if falliti else []
     return altri, calcio, avvisi
@@ -551,4 +574,9 @@ def competizione_calcio(testo):
     for rx, ordine, etichetta in COMP_CALCIO:
         if re.search(rx, testo or "", re.I):
             return ordine, etichetta
-    return 80, "CALCIO SVIZZERA E GERMANIA (dirette streaming)"
+    return 80, COMP_SCONOSCIUTA
+
+
+# competizione non riconosciuta: la partita streaming si usa solo per aggiungere il canale a una partita già nota,
+# mai come scheda nuova (niente più sezione "CALCIO SVIZZERA E GERMANIA (dirette streaming)" con repliche notturne)
+COMP_SCONOSCIUTA = "CALCIO (dirette streaming)"

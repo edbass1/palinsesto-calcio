@@ -302,8 +302,24 @@ def ordine_di(etichetta):
     return 80
 
 
-def unisci_stream(eventi, partite, converti=None, fonte="Streaming"):
-    """Dirette streaming (SRG/ARD): se la partita c'è già si aggiunge il canale, altrimenti si aggiunge la partita."""
+def stream_solo_unione(p, nuovo):
+    """Motivo per cui una partita streaming NON può diventare una scheda nuova (solo unione a una partita già nota):
+    - viene da una guida TV (Teleboy/epgshare01, VTM...): lì le repliche (anche notturne, es. Sportitalia alle 00:00)
+      sembrano dirette;
+    - la competizione non è riconosciuta (finirebbe in una sezione generica senza fonte di calendario);
+    - inizia di notte (00:00-06:59, ora italiana) senza conferma di altre fonti."""
+    if p.get("da_epg"):
+        return "da guida TV, non confermata da altre fonti"
+    if nuovo["competizione"] == altri_sport.COMP_SCONOSCIUTA:
+        return "competizione non riconosciuta"
+    if nuovo["quando"].hour < 7:
+        return "di notte, non confermata da altre fonti"
+    return None
+
+
+def unisci_stream(eventi, partite, converti=None, fonte="Streaming", scartate=None):
+    """Dirette streaming (SRG/ARD/guide TV): se la partita c'è già si aggiunge il canale, altrimenti si aggiunge la
+    partita solo se è affidabile (stream_solo_unione); le altre finiscono in scartate (lista, per il log)."""
     uniti = []
     for p in partite:
         nuovo = (converti or evento_stream)(p)
@@ -315,6 +331,12 @@ def unisci_stream(eventi, partite, converti=None, fonte="Streaming"):
             if sc > punteggio:
                 migliore, punteggio = e, sc
         if migliore is None:
+            motivo = None if converti else stream_solo_unione(p, nuovo)
+            if motivo:
+                if scartate is not None:
+                    scartate.append(f'{nuovo["quando"]:%d/%m %H:%M} {nuovo["casa"]} - {nuovo["ospite"]} '
+                                    f'({", ".join(k["nome"] for k in nuovo["canali"])}) – {motivo}')
+                continue
             eventi.append(nuovo)
             continue
         for k in nuovo["canali"]:
@@ -323,6 +345,40 @@ def unisci_stream(eventi, partite, converti=None, fonte="Streaming"):
         migliore["fonti"].append(fonte)
         uniti.append(f'{migliore["casa"]} - {migliore["ospite"]}')
     return eventi, uniti
+
+
+RX_PREMIER_AZERBAIGIAN = re.compile(
+    r"/azerbaijan/premier-league|\bpremyer[\s-]*liqa|"
+    r"\bazerba(?:ij|ig|idj)\w*\b.{0,40}\bpremier\s+league\b|\bpremier\s+league\b.{0,40}\bazerba(?:ij|ig|idj)\w*\b",
+    re.I)
+
+
+def e_premier_azerbaigian(testo):
+    """True per la Premier League dell'Azerbaigian (esclusa sempre); False per quella inglese."""
+    return bool(RX_PREMIER_AZERBAIGIAN.search(testo or ""))
+
+
+def unisci_calcio_generico(eventi, generici):
+    """Calcio senza squadre tolto da ALTRI SPORT (es. "CALCIO UEFA Champions League" su VTM GO): il canale si aggiunge
+    solo se c'è UNA sola partita della stessa competizione che inizia entro 45 minuti dall'inizio della diretta e il
+    canale non c'è già (niente doppioni di partite o di canali). Restituisce le descrizioni delle unioni fatte."""
+    fatti = []
+    for g in generici:
+        ordine, etichetta = altri_sport.competizione_calcio(" ".join([g.get("titolo") or ""] + list(g.get("testi") or [])))
+        if etichetta == altri_sport.COMP_SCONOSCIUTA:
+            continue
+        candidati = [e for e in eventi if e["competizione"] == etichetta and 0 <= e["ts"] - g["ts"] <= 45 * 60]
+        nuovi = evento_stream(dict(g, casa="", ospite="", comp=""))["canali"]
+        chiavi = {unisci.chiave_canale(k["nome"]) for k in nuovi}
+        if any(unisci.chiave_canale(c["nome"]) in chiavi for e in candidati for c in e["canali"]):
+            continue  # il canale è già su una di queste partite
+        if len(candidati) != 1:
+            continue  # nessuna o più partite possibili: non si indovina
+        e = candidati[0]
+        e["canali"] += nuovi
+        e["fonti"].append("Streaming")
+        fatti.append(f'{e["casa"]} - {e["ospite"]} + {", ".join(k["nome"] for k in nuovi)}')
+    return fatti
 
 
 FINESTRA_DOPPIONI_S = 3 * 3600
@@ -641,8 +697,12 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
             scarica_tb_fn=conf_altri.get("scarica_tb_fn", epg_teleboy.fn_raccogli(
                 teleboy, altri_sport.regole_conf().get("teleboy_epg", {}), inizio, fine) if teleboy is not None else None))
         falliti += avvisi
-        st["altri_sport"] = altri
-        eventi, st["uniti_stream"] = unisci_stream(eventi, calcio_stream)
+        # il calcio non entra MAI in ALTRI SPORT (controllo finale, qualunque sia la fonte)
+        st["altri_sport"] = [e for e in altri if not altri_sport.e_calcio(e)]
+        st["calcio_tolto_altri"] = list(altri_sport.CALCIO_TOLTO_ALTRI)
+        st["stream_scartate"] = []
+        eventi, st["uniti_stream"] = unisci_stream(eventi, calcio_stream, scartate=st["stream_scartate"])
+        st["uniti_calcio_generico"] = unisci_calcio_generico(eventi, altri_sport.CALCIO_GENERICO)
         st["calcio_stream"] = len(calcio_stream)
     eventi, st["uniti_doppioni"] = unisci_doppioni(eventi)
     eventi, st["repliche"] = togli_repliche(eventi)
@@ -717,6 +777,13 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         for e in tolte_saudi_pro
     ]
     eventi = [e for e in eventi if e not in tolte_saudi_pro]
+    # Escludi da TUTTE le fonti la Premier League dell'Azerbaigian (Premyer Liqa), anche nei futuri aggiornamenti.
+    # La Premier League inglese resta: serve il riferimento all'Azerbaigian (percorso, nome o etichetta).
+    tolte_azer = [e for e in eventi if e_premier_azerbaigian(
+        " ".join(str(e.get(k, "")) for k in ("competizione", "comp_orig", "titolo")))]
+    st["premier_azerbaigian_tolte"] = [
+        f'{e.get("casa", "")} - {e.get("ospite", "")} [{e.get("competizione", "")}]' for e in tolte_azer]
+    eventi = [e for e in eventi if e not in tolte_azer]
     # canali visibili su Teleboy (tutte le fonti)
     for e in eventi:
         for k in e["canali"]:
@@ -2259,6 +2326,12 @@ def main():
         print("  link senza VPN:", x)
     for x in altri_sport.BASKET_TOLTI:
         print("  basket tolto:", x)
+    for chiave, testo in (("calcio_tolto_altri", "calcio tolto da ALTRI SPORT"),
+                          ("uniti_calcio_generico", "canale del calcio di ALTRI SPORT unito a"),
+                          ("stream_scartate", "calcio streaming scartato"),
+                          ("premier_azerbaigian_tolte", "Premier League Azerbaigian tolta")):
+        for x in st.get(chiave, []):
+            print(f"  {testo}: {x}")
     if "primaplay" in st:
         pp = st["primaplay"]
         print(f"  Prima Play (programma Prima Sport): {pp.get('errore') or str(pp.get('calcio', 0)) + ' partite di calcio, ' + str(pp.get('altri', 0)) + ' altri sport'}"

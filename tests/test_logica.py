@@ -1634,3 +1634,84 @@ def test_blue_zoom():
     assert A.sport_di("NBA: Boston Celtics vs New York Knicks") == "Basket"
 
 test_blue_zoom(); print("Blue Zoom (varianti LiveOnSat) e classificazione basket: OK")
+
+
+# Fix 21/10/2026: (1) niente più sezione "CALCIO SVIZZERA E GERMANIA (dirette streaming)" (repliche notturne della guida
+# Teleboy, es. Manchester City - PSG alle 00:00 su Sportitalia); (2) Premier League dell'Azerbaigian sempre esclusa;
+# (3) il calcio non entra MAI in ALTRI SPORT (es. "CALCIO UEFA Champions League" su VTM GO).
+def test_fix_calcio_streaming_azerbaigian_altri():
+    import altri_sport as A
+    assert "SVIZZERA E GERMANIA" not in A.competizione_calcio("Fussball, Manchester City - Paris Saint Germain")[1]
+    assert A.competizione_calcio("UEFA Champions League")[1] == "UEFA CHAMPIONS LEAGUE"
+    ora = dt.datetime(2026, 10, 21, 15, 0, tzinfo=p.ROMA)
+    notte = int(dt.datetime(2026, 10, 23, 0, 0, tzinfo=p.ROMA).timestamp())
+    sera = int(dt.datetime(2026, 10, 21, 21, 0, tzinfo=p.ROMA).timestamp())
+
+    def em(nome, **k):
+        return dict({"nome": nome, "pagina": "https://www.teleboy.ch/it/live", "link": "https://tv.teleboy.ch/live(player:live/577)",
+                     "vpn": "SVIZZERA", "teleboy": True}, **k)
+
+    def stream(casa, ospite, ts, comp="", da_epg=True, canale="Sportitalia HD"):
+        return {"ts": ts, "fine": ts + 7200, "casa": casa, "ospite": ospite, "comp": comp, "testi": [f"{comp} {casa} - {ospite}"],
+                "da_epg": da_epg, "emittenti": [em(canale)]}
+
+    def partita(casa, ospite, ts, comp="UEFA CHAMPIONS LEAGUE", canali=("RTL Club",)):
+        return {"ts": ts, "quando": dt.datetime.fromtimestamp(ts, p.ROMA), "titolo": f"{casa} v {ospite}", "ordine": 4,
+                "competizione": comp, "casa": casa, "ospite": ospite, "canali": [{"nome": c, "fta": True} for c in canali],
+                "fonti": ["LiveSoccerTV"]}
+
+    # (1) replica dalla guida TV senza partita vera: scartata, niente scheda nuova
+    scartate = []
+    ev, uniti = p.unisci_stream([], [stream("Manchester City", "Paris Saint Germain", notte)], scartate=scartate)
+    assert ev == [] and uniti == [] and "guida TV" in scartate[0], scartate
+    # competizione sconosciuta (anche da SRG/ARD) o di notte: scartata
+    assert p.unisci_stream([], [stream("Lugano", "Basel", sera, da_epg=False)], scartate=[])[0] == []
+    assert p.unisci_stream([], [stream("Lugano", "Basel", notte, "Super League", da_epg=False)], scartate=[])[0] == []
+    # diretta streaming riconosciuta (SRF Super League, sera): resta
+    ev, _ = p.unisci_stream([], [stream("Lugano", "Basel", sera, "Super League", da_epg=False, canale="SRF zwei")])
+    assert len(ev) == 1 and ev[0]["competizione"] == "SUPER LEAGUE (Svizzera)"
+    # partita vera già nota: il canale della guida si aggiunge una volta sola
+    vera = partita("Manchester City", "Paris Saint Germain", sera)
+    ev, uniti = p.unisci_stream([vera], [stream("Manchester City", "Paris Saint-Germain", sera)] * 2)
+    assert len(ev) == 1 and [k["nome"] for k in vera["canali"]] == ["RTL Club", "Sportitalia HD"], vera["canali"]
+
+    # (2) Premier League dell'Azerbaigian esclusa, quella inglese no
+    for t in ("PREMIER LEAGUE (Azerbaigian)", "/competitions/azerbaijan/premier-league/ Premier League", "Azerbaijan Premier League",
+              "Premyer Liqa", "Azerbaijan - Premier League", "PREMIER LEAGUE (Azerbaijan)"):
+        assert p.e_premier_azerbaigian(t), t
+    for t in ("PREMIER LEAGUE", "/competitions/england/premier-league/ Premier League", "English Premier League", "PREMIER LEAGUE (Inghilterra)"):
+        assert not p.e_premier_azerbaigian(t), t
+    assert p.e_premier_azerbaigian(p.competizione("/competitions/azerbaijan/premier-league/", "Premier League")[1])
+
+    # (3) calcio in ALTRI SPORT: mai; il canale va sulla partita giusta solo se non è ambiguo e non c'è già
+    vtm = {"id": "epg:vtm:1", "ts": sera - 1800, "fine": sera + 8400, "sport": "Calcio", "titolo": "UEFA Champions League",
+           "titolo_orig": "UEFA Champions League", "titolo_src": "UEFA Champions League", "evento": True, "lingua": "nl",
+           "descrizione": "", "da_epg": True,
+           "emittenti": [{"nome": "VTM GO", "pagina": "https://www.vtmgo.be", "link": "https://www.vtmgo.be/vtmgo/live-kijken/vtm",
+                          "vpn": "BELGIO", "fta": True, "da_guida": True}]}
+    darts = dict(vtm, id="epg:vtm:2", sport="Freccette", titolo="PDC European Darts Championship: First Round",
+                 titolo_orig="PDC European Darts Championship: First Round", titolo_src="PDC European Darts Championship")
+    ehf = dict(vtm, id="epg:vtm:3", sport="Pallamano", titolo="EHF Champions League: Kiel - Veszprém",
+               titolo_orig="EHF Champions League: Kiel - Veszprém", titolo_src="EHF Champions League")
+    vuoto = lambda *a: ([], None)
+    altri, calcio, _ = A.raccogli_altri(ora, ora + dt.timedelta(days=4), ora, U.regex_femminile([]), scarica_srg_fn=vuoto,
+                                        scarica_ard_fn=vuoto, scarica_tb_fn=lambda: ([dict(vtm), dict(darts), dict(ehf)], None))
+    assert not any(A.e_calcio(e) for e in altri) and "UEFA" not in " ".join(e["titolo"] for e in altri), [e["titolo"] for e in altri]
+    assert {e["sport"] for e in altri} == {"Freccette", "Pallamano"}, altri  # EHF Champions League (pallamano) resta
+    assert calcio == [] and len(A.CALCIO_GENERICO) == 1 and A.CALCIO_TOLTO_ALTRI
+    assert A.e_calcio({"sport": "Sport", "titolo": "Fußball: UEFA Europa League"}) and not A.e_calcio({"sport": "Football americano", "titolo": "NFL Football"})
+    # più partite di Champions alle 21:00, VTM GO già su Bruges - Lens: niente da aggiungere (nessun doppione)
+    br = partita("Bruges", "Lens", sera, canali=("RTL Club", "VTM GO"))
+    altra = partita("Inter", "Arsenal", sera)
+    assert p.unisci_calcio_generico([br, altra], A.CALCIO_GENERICO) == []
+    assert [k["nome"] for k in br["canali"]].count("VTM GO") == 1 and [k["nome"] for k in altra["canali"]] == ["RTL Club"]
+    # più partite possibili e canale assente: non si indovina
+    br2, altra2 = partita("Bruges", "Lens", sera), partita("Inter", "Arsenal", sera)
+    assert p.unisci_calcio_generico([br2, altra2], A.CALCIO_GENERICO) == []
+    # una sola partita possibile: il canale si aggiunge, una volta sola
+    sola = partita("Bruges", "Lens", sera)
+    assert len(p.unisci_calcio_generico([sola], A.CALCIO_GENERICO)) == 1
+    assert p.unisci_calcio_generico([sola], A.CALCIO_GENERICO) == [] and [k["nome"] for k in sola["canali"]] == ["RTL Club", "VTM GO"]
+
+
+test_fix_calcio_streaming_azerbaigian_altri(); print("niente CALCIO SVIZZERA E GERMANIA, Premier Azerbaigian tolta, calcio fuori da ALTRI SPORT: OK")
