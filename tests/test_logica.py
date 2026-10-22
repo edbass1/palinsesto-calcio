@@ -1728,7 +1728,7 @@ def test_rtsh_esclusa():
     ora = dt.datetime(2026, 10, 22, 15, 0, tzinfo=p.ROMA)
     ts = int(dt.datetime(2026, 10, 22, 21, 0, tzinfo=p.ROMA).timestamp())
     def sch(casa, ospite, canali):
-        return {"ts": ts, "quando": dt.datetime.fromtimestamp(ts, p.ROMA), "casa": casa, "ospite": ospite, "competizione": "UEFA CONFERENCE LEAGUE",
+        return {"ts": ts, "quando": dt.datetime.fromtimestamp(ts, p.ROMA), "casa": casa, "ospite": ospite, "competizione": "UEFA CONFERENCE LEAGUE", "ordine": 6,
                 "canali": [{"nome": c, "fta": True} for c in canali], "fonti": ["LiveOnSat"]}
     sola, mista = sch("AGF Aarhus", "Egnatia", ["RTSH Sport"]), sch("Shkendija", "Rijeka", ["RTSH 1", "Arena Sport 1", "Arena Sport 1"])
     altri = [{"titolo": "Basket", "sport": "Basket", "ts": ts, "fine": ts + 7200, "emittenti": [{"nome": "RTSH 1"}]},
