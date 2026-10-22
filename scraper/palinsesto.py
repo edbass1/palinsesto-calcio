@@ -358,6 +358,40 @@ def e_premier_azerbaigian(testo):
     return bool(RX_PREMIER_AZERBAIGIAN.search(testo or ""))
 
 
+def regola_ovunque(conf_los=None):
+    """Funzione nome canale -> True se va tolto da TUTTE le sezioni (liveonsat.json -> escludi_ovunque, es. RTSH)."""
+    if conf_los is None:
+        try:
+            conf_los = json.loads((RADICE / "liveonsat.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            conf_los = {}
+    rxs = [re.compile(x, re.I) for x in conf_los.get("escludi_ovunque", []) if x]
+    return lambda nome: any(r.search(nome or "") for r in rxs)
+
+
+def togli_ovunque(eventi, altri, dove, esclusa):
+    """Toglie i canali esclusi ovunque: dalle schede calcio (scheda tolta se non resta nessun canale), da ALTRI SPORT
+    (evento tolto se non resta nessuna emittente) e dalle voci di Dove vederli. Restituisce (eventi, altri, dove, tolte)."""
+    tolte = []
+    ev2 = []
+    for e in eventi:
+        prima = len(e["canali"])
+        e["canali"] = [k for k in e["canali"] if not esclusa(k["nome"]) and not esclusa(k.get("teleboy") or "")]
+        if len(e["canali"]) < prima:
+            tolte.append(f'{e.get("casa", "")} - {e.get("ospite", "")}' + ("" if e["canali"] else " (scheda tolta)"))
+        if e["canali"] or (prima == 0 and e.get("senza_canali")):
+            ev2.append(e)
+    al2 = []
+    for e in altri or []:
+        em = [x for x in e.get("emittenti", []) if not esclusa(x.get("nome")) and not esclusa(x.get("teleboy_nome") or "")]
+        if len(em) < len(e.get("emittenti", [])):
+            tolte.append(f'{e.get("titolo", "")}' + ("" if em else " (evento tolto)"))
+        if em:
+            al2.append(dict(e, emittenti=em))
+    dove2 = [v for v in (dove or []) if not esclusa(v.get("nome")) and not any(esclusa(c.lstrip("^")) for c in v.get("canali", []))]
+    return ev2, al2, dove2, tolte
+
+
 def unisci_calcio_generico(eventi, generici):
     """Calcio senza squadre tolto da ALTRI SPORT (es. "CALCIO UEFA Champions League" su VTM GO): il canale si aggiunge
     solo se c'è UNA sola partita della stessa competizione che inizia entro 45 minuti dall'inizio della diretta e il
@@ -784,6 +818,8 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
     st["premier_azerbaigian_tolte"] = [
         f'{e.get("casa", "")} - {e.get("ospite", "")} [{e.get("competizione", "")}]' for e in tolte_azer]
     eventi = [e for e in eventi if e not in tolte_azer]
+    # canali tolti per sempre da tutte le sezioni (liveonsat.json -> escludi_ovunque, es. RTSH Albania)
+    eventi, st["altri_sport"], _, st["tolti_ovunque"] = togli_ovunque(eventi, st.get("altri_sport"), [], regola_ovunque(conf_los))
     # canali visibili su Teleboy (tutte le fonti)
     for e in eventi:
         for k in e["canali"]:
@@ -2282,6 +2318,7 @@ def main():
     primo, inizio, fine = finestra(ora)
     file_dove = Path(a.dove)
     dove = json.loads(file_dove.read_text(encoding="utf-8")).get("voci", []) if file_dove.exists() else []
+    dove = togli_ovunque([], [], dove, regola_ovunque())[2]
     conf_los = None if a.senza_liveonsat else json.loads(Path(a.liveonsat).read_text(encoding="utf-8"))
     st = {}
     tb = None
@@ -2329,7 +2366,8 @@ def main():
     for chiave, testo in (("calcio_tolto_altri", "calcio tolto da ALTRI SPORT"),
                           ("uniti_calcio_generico", "canale del calcio di ALTRI SPORT unito a"),
                           ("stream_scartate", "calcio streaming scartato"),
-                          ("premier_azerbaigian_tolte", "Premier League Azerbaigian tolta")):
+                          ("premier_azerbaigian_tolte", "Premier League Azerbaigian tolta"),
+                          ("tolti_ovunque", "canale escluso ovunque (RTSH...) tolto da")):
         for x in st.get(chiave, []):
             print(f"  {testo}: {x}")
     if "primaplay" in st:

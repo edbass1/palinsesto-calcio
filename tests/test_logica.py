@@ -1015,7 +1015,7 @@ def test_altri_los_nfl():
     return altri
 
 def test_euroleague_tv():
-    """EuroLeague/EuroCup: partite sui canali scelti (Idman TV, X Sports, Sporty TV, RTSH 1) dalle pagine TV Listings."""
+    """EuroLeague/EuroCup: partite sui canali scelti (Idman TV, X Sports, Sporty TV) dalle pagine TV Listings."""
     import gzip
     import altri_sport as A
     import euroleague_tv as E
@@ -1035,7 +1035,7 @@ def test_euroleague_tv():
     assert err is None, err
     t = {e["titolo"]: [(x["nome"], x["vpn"]) for x in e["emittenti"]] for e in ev}
     assert t["EuroLeague: Real Madrid - Partizan Mozzart Bet Belgrade"] == [("Idman TV", "AZERBAIGIAN"), ("X Sports", "BRASILE"), ("Sporty TV", "NIGERIA")], t
-    assert ("RTSH 1", "ALBANIA") in t["EuroLeague: Panathinaikos AKTOR Athens - Fenerbahce Tarfin Istanbul"]
+    assert not any("RTSH" in n for v in t.values() for n, _ in v)  # RTSH tolta per sempre (22/10/2026)
     rm = next(e for e in ev if "Real Madrid" in e["titolo"])
     assert rm["ts"] == int(dt.datetime(2026, 10, 8, 18, 45, tzinfo=dt.timezone.utc).timestamp()) and rm["sport"] == "Basket"
     assert len(ev) == 9 and not any("Paris Basketball" in e["titolo"] for e in ev), sorted(t)  # Paris-ASVEL era il 7/10
@@ -1043,12 +1043,12 @@ def test_euroleague_tv():
     # nella pagina: link "Dove vederli" (X Sports dell'utente, Sporty TV Africa, RTSH 1 senza link web)
     dove = json.loads((QUI.parent / "dove_vederli.json").read_text())["voci"]
     voce = lambda n: (p.voce_dove(n, dove) or {}).get("id")
-    assert [voce(n) for n in ("Idman TV", "X Sports", "Sporty TV", "RTSH 1")] == ["idman", "x-sports", "sporty-tv-africa", "rtsh"]
+    assert [voce(n) for n in ("Idman TV", "X Sports", "Sporty TV")] == ["idman", "x-sports", "sporty-tv-africa"]
     rx = U.regex_femminile(CONF_LOS["escludi_competizioni"])
     vuoto = lambda *a: ([], None)
     altri, _, _ = A.raccogli_altri(ini, fine, ini, rx, scarica_srg_fn=vuoto, scarica_ard_fn=vuoto, scarica_el_fn=lambda: (ev, err))
     h = p.genera_html(ini.date(), ini, [], [], [], dove, altri)
-    assert 'href="#dv-x-sports"' in h and "youtube.com/@xsports.brasil/streams" in h and "VPN Brasile" in h and ogni_link_ha_vpn(h) and "Solo via app da scaricare" in h
+    assert 'href="#dv-x-sports"' in h and "youtube.com/@xsports.brasil/streams" in h and "VPN Brasile" in h and ogni_link_ha_vpn(h) and "rtsh" not in h.lower()
     # pagina non raggiungibile e nessun file dati: nessun avviso nella pagina, solo nel log
     st2 = {}
     ev2, err = E.raccogli(conf, ini, fine, lambda u: (None, "HTTP Error 429"), fj, st2, file_dati=str(F / "non-esiste.json"))
@@ -1715,3 +1715,32 @@ def test_fix_calcio_streaming_azerbaigian_altri():
 
 
 test_fix_calcio_streaming_azerbaigian_altri(); print("niente CALCIO SVIZZERA E GERMANIA, Premier Azerbaigian tolta, calcio fuori da ALTRI SPORT: OK")
+
+
+# RTSH (Albania) tolta per sempre da tutte le sezioni (richiesta utente 22/10/2026)
+def test_rtsh_esclusa():
+    import altri_sport as A
+    for f in ("dove_vederli.json", "altri_sport.json", "teleboy_canali.json"):
+        assert "rtsh" not in (p.RADICE / f).read_text(encoding="utf-8").lower(), f
+    assert not any("rtsh" in r["regex"].lower() for v in CONF_LOS["canali_per_sport"].values() for r in v)
+    esclusa = p.regola_ovunque()
+    assert esclusa("RTSH Sport") and esclusa("RTSH 1") and esclusa("rtsh sport hd") and not esclusa("RTS 1") and not esclusa("RTL Club")
+    ora = dt.datetime(2026, 10, 22, 15, 0, tzinfo=p.ROMA)
+    ts = int(dt.datetime(2026, 10, 22, 21, 0, tzinfo=p.ROMA).timestamp())
+    def sch(casa, ospite, canali):
+        return {"ts": ts, "quando": dt.datetime.fromtimestamp(ts, p.ROMA), "casa": casa, "ospite": ospite, "competizione": "UEFA CONFERENCE LEAGUE",
+                "canali": [{"nome": c, "fta": True} for c in canali], "fonti": ["LiveOnSat"]}
+    sola, mista = sch("AGF Aarhus", "Egnatia", ["RTSH Sport"]), sch("Shkendija", "Rijeka", ["RTSH 1", "Arena Sport 1", "Arena Sport 1"])
+    altri = [{"titolo": "Basket", "sport": "Basket", "ts": ts, "fine": ts + 7200, "emittenti": [{"nome": "RTSH 1"}]},
+             {"titolo": "Volley", "sport": "Pallavolo", "ts": ts, "fine": ts + 7200, "emittenti": [{"nome": "RTSH Sport"}, {"nome": "RAI 2"}]}]
+    dove = [{"id": "rtsh", "nome": "RTSH 1 (Albania)", "canali": ["^RTSH\\b"]}, {"id": "rts", "nome": "RTS", "canali": ["^RTS\\b"]}]
+    ev, al, dv, tolte = p.togli_ovunque([sola, mista], altri, dove, esclusa)
+    assert [e["casa"] for e in ev] == ["Shkendija"] and [k["nome"] for k in ev[0]["canali"]] == ["Arena Sport 1", "Arena Sport 1"]
+    assert [e["titolo"] for e in al] == ["Volley"] and [x["nome"] for x in al[0]["emittenti"]] == ["RAI 2"]
+    assert [v["id"] for v in dv] == ["rts"] and len(tolte) == 4
+    # nella pagina generata non c'è nessun RTSH
+    h = p.genera_html(*p.finestra(ora)[:1], ora, p.raggruppa(ev), [], [], dv, al)
+    assert "rtsh" not in h.lower()
+
+
+test_rtsh_esclusa(); print("RTSH tolta ovunque: OK")

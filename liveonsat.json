@@ -24,8 +24,13 @@
     "https://liveonsat.com/europe-poland-elstraklasa.php"
   ],
   "_nota_escludi": "Canali da non mostrare mai, per tutte le fonti (LiveOnSat e LiveSoccerTV): basta che il nome contenga una di queste parole (maiuscole/minuscole indifferenti). MBC (MBC Action e tutti i canali MBC), CRTV Cameroon, La Nouvelle Chaîne Ivoirienne (NCI) e ORTB Benin sono esclusi perché non visibili. Se una partita resta senza canali, non viene mostrata. DAZN è sempre escluso.",
+  "_nota_escludi_ovunque": "Canali tolti per sempre da TUTTE le sezioni (calcio e ALTRI SPORT) e da Dove vederli, su richiesta dell'utente (22/10/2026: RTSH, Albania). Regex sul nome del canale, maiuscole/minuscole indifferenti.",
+  "escludi_ovunque": [
+    "\\brtsh"
+  ],
   "escludi_canali": [
     "dazn",
+    "rtsh",
     "megogo",
     "gem sport",
     "persiana",
@@ -453,10 +458,6 @@
       {
         "regex": "^Sporty ?TV\\b",
         "nota": "Sporty TV (Nigeria)"
-      },
-      {
-        "regex": "^RTSH\\b",
-        "nota": "RTSH 1 / RTSH Sport (Albania)"
       }
     ]
   }

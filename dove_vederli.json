@@ -475,18 +475,6 @@
       "vpn_tag": "VPN Brasile"
     },
     {
-      "id": "rtsh",
-      "nome": "RTSH 1 (Albania)",
-      "fonte": "utente",
-      "canali": [
-        "^RTSH\\b"
-      ],
-      "vpn": "Albania",
-      "note": "Solo via app da scaricare",
-      "link": [],
-      "vpn_tag": "VPN Albania"
-    },
-    {
       "id": "bbc",
       "nome": "BBC (One, Two, Three, Four, Scotland, iPlayer)",
       "fonte": "ricerca",

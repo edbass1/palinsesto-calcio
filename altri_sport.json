@@ -301,7 +301,7 @@
     ]
   },
   "euroleague_tv": {
-    "_nota": "Partite di EuroLeague ed EuroCup trasmesse dai canali qui sotto, lette dalle pagine ufficiali «TV Listings» (canali per partita); l'orario viene dal calendario ufficiale. Chiave = nome del canale come scritto sulla pagina (maiuscolo); 'nome' e 'vpn' = come appare sulle schede. Si possono aggiungere canali (es. 'RTSH SPORT').",
+    "_nota": "Partite di EuroLeague ed EuroCup trasmesse dai canali qui sotto, lette dalle pagine ufficiali «TV Listings» (canali per partita); l'orario viene dal calendario ufficiale. Chiave = nome del canale come scritto sulla pagina (maiuscolo); 'nome' e 'vpn' = come appare sulle schede. Si possono aggiungere canali (es. 'NOVA').",
     "pagine": [
       {
         "nome": "EuroLeague",
@@ -327,10 +327,6 @@
       "SPORTY TV": {
         "nome": "Sporty TV",
         "vpn": "NIGERIA"
-      },
-      "RTSH 1": {
-        "nome": "RTSH 1",
-        "vpn": "ALBANIA"
       }
     },
     "lba_manual": [
