@@ -1500,6 +1500,22 @@
           "testo": "EuroLeague TV – calendario"
         }
       ]
+    },
+    {
+      "id": "aztv",
+      "nome": "AZTV (Azerbaigian)",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^AZTV\\b"
+      ],
+      "note": "Sito ufficiale dell'emittente AZTV.",
+      "link": [
+        {
+          "url": "https://www.aztv.az/az",
+          "testo": "AZTV – sito ufficiale"
+        }
+      ]
     }
   ]
 }
