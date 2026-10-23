@@ -1507,7 +1507,7 @@
       "fonte": "utente",
       "verificato": true,
       "canali": [
-        "^AzTV(?:\\s+HD)?\\b"
+        "^AzTV\\b"
       ],
       "note": "Sito ufficiale di AzTV. Non serve VPN.",
       "link": [
