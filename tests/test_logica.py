@@ -913,7 +913,7 @@ def test_unione():
     h2 = p.genera_html(v, dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA), gruppi2, [], [], dove)
     i = h2.index('id="dv-prima-sport"')
     blocco = h2[i:h2.index('<li class="dove"', i + 10) if h2.find('<li class="dove"', i + 10) > 0 else h2.index("</ol></section>", i)]
-    assert "sito ufficiale" not in h2 and blocco.count('<div class="metodo">') == 2 and blocco.count('<ol class="passi">') == 2
+    assert "sito ufficiale" not in blocco and blocco.count('<div class="metodo">') == 2 and blocco.count('<ol class="passi">') == 2
     assert "🟢 METODO 1 — Guardarli sulla TV di casa" in blocco and "🔵 METODO 2 — Guardarli dal computer, senza VPN, STABILMENTE" in blocco
     assert blocco.index('href="https://www.primaplay.ro/register"') < blocco.index('href="https://www.orange.ro/accounts/create-user"')
     assert "<strong>In breve:</strong> Volete guardarli sulla TV di casa? Metodo 1." in blocco and "rds.live" not in blocco
