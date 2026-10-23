@@ -1782,4 +1782,26 @@ def test_digi_sport_romania():
     assert scheda.count("digisport.ro/live/digisport-1") == 1, "un solo link Digi Sport 1 per partita"
 
 
+
+def test_digi_da_liveonsat_e_doppioni_sabato():
+    """LiveOnSat è la fonte di riserva per Digi Sport Romania: anche senza digisport.ro il canale resta (Gil Vicente-Porto)."""
+    import primaplay as PP
+    h = gzip.decompress((QUI / "fixtures_liveonsat_digi_2026-10-23" / "europe-portugal-primeira-liga.php.gz").read_bytes()).decode()
+    conf = dict(CONF_LOS, pagine=["x"], pausa_secondi=0)
+    ini = dt.datetime(2026, 10, 24, 0, 0, tzinfo=dt.timezone.utc)
+    partite, falliti = L.raccogli_los(conf, ini, ini + dt.timedelta(days=1), scarica_fn=lambda u: (h, None))
+    gv = [x for x in partite if "Gil Vicente" in x["titolo"]]
+    assert not falliti and gv and "Digi Sport 3" in gv[0]["canali_fta"], gv
+    # DAZN "A Coruna" = "Deportivo La Coruña" (niente scheda doppia), ma mai con l'Alavés
+    assert U.stessa_partita(0, "Atletico Madrid", "A Coruna", 0, "Atlético Madrid", "Deportivo La Coruña") > 0
+    assert U.stessa_partita(0, "Deportivo Alavés", "Getafe", 0, "A Coruna", "Getafe") == 0
+    # sessioni Moto2/Moto3 di Prima Play: mai partite di calcio
+    c = PP.carica_conf()
+    for t in ("Moto 2: MP al Australiei - Antrenamente 3", "Moto 3: MP al Australiei - Calificări", "Moto2: MP al Australiei - Cursa"):
+        assert PP.analizza_titolo(t, c)["sport"] == "Motomondiale", t
+    assert PP.analizza_titolo("UYL: Man City - PSG", c)["sport"] == "Calcio"
+
+
+test_digi_da_liveonsat_e_doppioni_sabato(); print("Digi da LiveOnSat senza digisport.ro, A Coruna, Moto2/3 Prima Play: OK")
+
 test_digi_sport_romania(); print("Digi Sport Romania (digisport.ro nuovo HTML, LiveOnSat ogni competizione): OK")

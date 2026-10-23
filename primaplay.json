@@ -46,7 +46,7 @@
   "rugby": "Rugby",
   "golf": "Golf",
   "formula 1": "Formula 1",
-  "motogp": "Motomondiale",
+  "motogp": "Motomondiale", "moto 2": "Motomondiale", "moto2": "Motomondiale", "moto 3": "Motomondiale", "moto3": "Motomondiale",
   "raliu": "Motori",
   "fotbal american": "Football americano",
   "nfl": "Football americano",
@@ -145,7 +145,7 @@
   "Varsovia": "Warsaw"
  },
  "_nota_titolo_sport": "Prefisso del titolo quando lo sport da solo non basta (es. basket 3x3).",
- "titolo_sport": {
+ "titolo_sport": {"moto 2": "Moto2", "moto2": "Moto2", "moto 3": "Moto3", "moto3": "Moto3", 
   "baschet 3x3": "Basket 3x3"
  }
 }
