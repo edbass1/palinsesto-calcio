@@ -1758,6 +1758,11 @@ def test_digi_sport_romania():
              '<td> <span class="tag"> LIVE </span> Serie A: Napoli-Roma <br> Etapa 8 </td> </tr></table>')
     r = DG.righe(nuovo, dt.date(2026, 10, 23))
     assert [(x[0].strftime("%d/%m %H:%M"), x[2], x[3]) for x in r] == [("24/10 07:20", "", "Stirile Digi Sport"), ("24/10 21:45", "LIVE", "Serie A: Napoli-Roma")], r
+    # competizioni romene -> etichette italiane già usate (niente sezioni doppie "CUPA LIGII ANGLIEI" / "LIGA PORTUGAL")
+    cc = DG.carica_conf()["competizioni_calcio"]
+    assert L.competizione_los(cc["Cupa Ligii Angliei"])[1] == "LEAGUE CUP (Inghilterra)"
+    assert L.competizione_los(cc["Liga Portugal"])[1] == "PRIMEIRA LIGA (Portogallo)"
+    assert L.competizione_los(cc["Cupa Germaniei"])[1] == "CUP (DFB-POKAL) (Germania)"
     alias, regole = CONF_LOS["alias_canali"], CONF_LOS["canali_in_chiaro"]
     for n, atteso in (("Digi Sport 2 Romania HD", "Digi Sport 2"), ("Digi Sport 4 Romania", "Digi Sport 4"), ("DigiSport 1 Romania", "Digi Sport 1")):
         assert L.pulisci_canale(n, alias) == atteso and L.in_chiaro(atteso, regole), n
