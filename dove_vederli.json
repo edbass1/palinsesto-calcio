@@ -1509,13 +1509,15 @@
       "canali": [
         "^AZTV\\b"
       ],
-      "note": "Sito ufficiale dell'emittente AZTV.",
+      "note": "Sito ufficiale dell'emittente AZTV. Non serve VPN.",
       "link": [
         {
           "url": "https://www.aztv.az/az",
           "testo": "AZTV – sito ufficiale"
         }
-      ]
+      ],
+      "vpn": "Nessuna",
+      "vpn_tag": "SENZA VPN"
     }
   ]
 }
