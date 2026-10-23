@@ -1503,13 +1503,13 @@
     },
     {
       "id": "aztv",
-      "nome": "AZTV (Azerbaigian)",
+      "nome": "AzTV HD (Azerbaigian)",
       "fonte": "utente",
       "verificato": true,
       "canali": [
-        "^AZTV\\b"
+        "^AzTV(?:\\s+HD)?\\b"
       ],
-      "note": "Sito ufficiale dell'emittente AZTV. Non serve VPN.",
+      "note": "Sito ufficiale di AzTV. Non serve VPN.",
       "link": [
         {
           "url": "https://www.aztv.az/az",
