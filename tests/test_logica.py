@@ -113,12 +113,13 @@ def test_fta():
     assert set(lu["canali_fta"]) == {"Play RTS Sport", "RSI La 2 Svizzera", "RTS 2 Suisse", "SRF Play", "SRF Zwei Schweiz"}, lu
     # "DAZN España HD FTA" è rosso ma va escluso
     r = trova("2day", "Rayo Vallecano v Athletic Bilbao")
-    assert r["canali_fta"] == ["Persiana Sports 3"], r
+    assert r["canali_fta"] == ["Digi Sport 1", "Persiana Sports 3"], r  # Digi Sport 1 Romania: sempre preso (23/10/2026)
     # alias: varianti TV5 Monde unite, ITV 1 England -> ITV1 UK
     assert trova("2day", "Paris St Germain v Le Mans")["canali_fta"] == ["Persiana Sports 2", "TV5 Monde"]
     assert "ITV1 UK" in trova("uk-britain-ireland-all-football", "Southampton v Portsmouth")["canali_fta"]
-    # Genoa-Fiorentina: nessun canale in chiaro
-    assert trova("europe-italy-all-football", "Genoa v Fiorentina")["canali_fta"] == []
+    # Genoa-Fiorentina: nessun canale in chiaro, solo Digi Sport Romania (sempre preso, 23/10/2026)
+    assert [c for c in trova("europe-italy-all-football", "Genoa v Fiorentina")["canali_fta"] if not c.startswith("Digi Sport")] == []
+    assert any(c.startswith("Digi Sport") for c in trova("europe-italy-all-football", "Genoa v Fiorentina")["canali_fta"])
     # HTML sintetico: differita (chan_other_free) e rinviata ignorate
     finto = ('<span class = comp_head>Italian Serie A - Week 1</span><div class = blockfix >'
              '<div class = fLeft style="width:270px">Roma v Lazio</div>'
@@ -187,9 +188,9 @@ def test_esclusi():
     ars = grezzo["Arsenal v Leeds United"]["canali_fta"]
     assert ars == ["GEM Sport 1", "Idman TV", "IRIB Varzesh", "Meraj TV", "Persiana Sport", "Solh TV"], ars
     assert titoli["Arsenal v Leeds United"]["canali_fta"] == ["Idman TV"]  # Solh escluso
-    # Rayo-Athletic aveva solo Persiana Sports 3 (+ DAZN): sparisce
-    assert grezzo["Rayo Vallecano v Athletic Bilbao"]["canali_fta"] == ["DAZN España HD FTA", "Persiana Sports 3"]
-    assert "Rayo Vallecano v Athletic Bilbao" not in titoli
+    # Rayo-Athletic: Persiana Sports 3 e DAZN tolti, resta solo Digi Sport 1 (Romania, sempre preso dal 23/10/2026)
+    assert set(grezzo["Rayo Vallecano v Athletic Bilbao"]["canali_fta"]) == {"Digi Sport 1", "DAZN España HD FTA", "Persiana Sports 3"}
+    assert titoli["Rayo Vallecano v Athletic Bilbao"]["canali_fta"] == ["Digi Sport 1"]
     # HTML sintetico: maiuscole/minuscole indifferenti
     finto = ('<span class = comp_head>X</span><div class = blockfix ><div class = fLeft style="a">A v B</div>'
              '<div data-timestamp="1791648000"></div>'
@@ -885,7 +886,7 @@ def test_unione():
     assert [(c["nome"], c["fta"]) for c in psg["canali"]] == [("TV5 Monde", True)], psg["canali"]  # Persiana esclusa
     assert psg["fonti"] == ["LiveSoccerTV", "LiveOnSat"]
     como = tutte["Como - Roma"]
-    assert [c["nome"] for c in como["canali"]] == ["Prima Sport 1", "Sporty TV Africa"], como["canali"]
+    assert [c["nome"] for c in como["canali"]] == ["Prima Sport 1", "Sporty TV Africa", "Digi Sport 1"], como["canali"]  # + Digi Sport Romania (LiveOnSat)
     sot = tutte["Southampton - Portsmouth"]
     assert [(c["nome"], c["fta"]) for c in sot["canali"][:2]] == [("Golazo Network", False), ("ITV1 UK", True)], sot["canali"]
     assert not any(k.startswith("Paris St Germain") or k.startswith("Como 1907") for k in tutte)
@@ -1744,3 +1745,36 @@ def test_rtsh_esclusa():
 
 
 test_rtsh_esclusa(); print("RTSH tolta ovunque: OK")
+
+
+# Digi Sport Romania (23/10/2026): (1) nuovo HTML di digisport.ro (<h3 class="schedule-title">, spazi nelle celle) letto;
+# (2) su LiveOnSat ogni "Digi Sport N Romania" è preso per qualsiasi partita di calcio, con link digisport.ro e VPN Romania.
+def test_digi_sport_romania():
+    import digisport as DG
+    nuovo = ('<h3>Cine va câștiga derby-ul FCSB - Rapid (sâmbătă, ora 21:00, DGS 1)?</h3>'
+             '<div class="schedule-wrapper active"> <h3 class="schedule-title"> Sambata 24 Octombrie </h3> <table class="schedule-table">'
+             '<tr class=""> <td class="schedule-icon" data-schedule="stiri"></td> <td> 07:20 </td> <td> Stirile Digi Sport </td> </tr>'
+             '<tr class="schedule-table-now"> <td class="schedule-icon" data-schedule="fotbal"></td> <td> 21:45 </td> '
+             '<td> <span class="tag"> LIVE </span> Serie A: Napoli-Roma <br> Etapa 8 </td> </tr></table>')
+    r = DG.righe(nuovo, dt.date(2026, 10, 23))
+    assert [(x[0].strftime("%d/%m %H:%M"), x[2], x[3]) for x in r] == [("24/10 07:20", "", "Stirile Digi Sport"), ("24/10 21:45", "LIVE", "Serie A: Napoli-Roma")], r
+    alias, regole = CONF_LOS["alias_canali"], CONF_LOS["canali_in_chiaro"]
+    for n, atteso in (("Digi Sport 2 Romania HD", "Digi Sport 2"), ("Digi Sport 4 Romania", "Digi Sport 4"), ("DigiSport 1 Romania", "Digi Sport 1")):
+        assert L.pulisci_canale(n, alias) == atteso and L.in_chiaro(atteso, regole), n
+    for n in ("Digi Sport 1 Hungary HD", "Digi Sport 1 HD Hungary"):
+        assert not L.in_chiaro(L.pulisci_canale(n, alias), regole), n
+    # link e VPN della voce digi-sport per qualsiasi competizione (qui LaLiga), un solo link per partita
+    dove = json.loads((QUI.parent / "dove_vederli.json").read_text())["voci"]
+    v = p.voce_dove("Digi Sport 3", dove)
+    assert v["id"] == "digi-sport" and v["vpn_tag"] == "VPN Romania"
+    ora = dt.datetime(2026, 10, 23, 9, 0, tzinfo=p.ROMA)
+    q = ora + dt.timedelta(hours=10)
+    g = [{"nome": "LALIGA", "partite": [{"casa": "Barcellona", "ospite": "Real Madrid", "quando": q, "ts": int(q.timestamp()),
+                                          "canali": [{"nome": "Digi Sport 1", "fta": True}, {"nome": "Digi Sport 1", "fta": False}]}]}]
+    h = p.genera_html(*p.finestra(ora)[:1], ora, g, [], [], dove, [])
+    assert "digisport.ro/live/digisport-1" in h and "VPN Romania" in h
+    i = h.index("Barcellona"); scheda = h[i:h.index("</ol>", i) if "</ol>" in h[i:] else i + 5000]
+    assert scheda.count("digisport.ro/live/digisport-1") == 1, "un solo link Digi Sport 1 per partita"
+
+
+test_digi_sport_romania(); print("Digi Sport Romania (digisport.ro nuovo HTML, LiveOnSat ogni competizione): OK")

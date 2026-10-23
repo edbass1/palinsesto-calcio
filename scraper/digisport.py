@@ -54,8 +54,10 @@ def _anno(giorno, mese, oggi):
 def righe(h, oggi):
     """[(datetime aware, categoria, etichetta 'LIVE'/'PREMIERA'/'', titolo, dettaglio)] in ordine."""
     out, giorno, ultimo = [], None, None
-    patt = re.compile(r'<h3>\s*\w+\s+(\d{1,2})\s+(\w+)\s*</h3>|<tr[^>]*>\s*<td class="schedule-icon" data-schedule="([^"]*)"></td>'
-                      r'\s*<td>(\d{1,2}):(\d{2})</td>\s*<td>(.*?)</td>\s*</tr>', re.S)
+    # dal 22/10/2026 il sito usa <h3 class="schedule-title"> e spazi dentro le celle (<td> 07:20 </td>)
+    patt = re.compile(r'<h3(?:\s+class="schedule-title")?>\s*\w+\s+(\d{1,2})\s+(\w+)\s*</h3>|'
+                      r'<tr[^>]*>\s*<td class="schedule-icon" data-schedule="([^"]*)">\s*</td>'
+                      r'\s*<td>\s*(\d{1,2}):(\d{2})\s*</td>\s*<td>(.*?)</td>\s*</tr>', re.S)
     for m in patt.finditer(h):
         if m.group(1):
             mese = MESI.get(_sa(m.group(2)).lower())

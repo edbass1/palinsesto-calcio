@@ -59,6 +59,10 @@
   ],
   "canali_in_chiaro": [
     {
+      "regex": "^Digi Sport [1-4]$",
+      "nota": "Digi Sport 1-4 Romania (su LiveOnSat 'Digi Sport 2 Romania HD'): sempre presi, per ogni partita di calcio e ogni competizione; link digisport.ro/live e VPN Romania da dove_vederli.json (voce digi-sport). Non Digi Sport Ungheria."
+    },
+    {
       "regex": "^BBC\\b",
       "nota": "BBC One/Two/Three/Scotland/Alba/iPlayer/Red Button (UK)"
     },
@@ -204,6 +208,22 @@
     }
   ],
   "alias_canali": [
+    {
+      "regex": "^Digi ?Sport ?1(?: ?Romania)?$",
+      "nome": "Digi Sport 1"
+    },
+    {
+      "regex": "^Digi ?Sport ?2(?: ?Romania)?$",
+      "nome": "Digi Sport 2"
+    },
+    {
+      "regex": "^Digi ?Sport ?3(?: ?Romania)?$",
+      "nome": "Digi Sport 3"
+    },
+    {
+      "regex": "^Digi ?Sport ?4(?: ?Romania)?$",
+      "nome": "Digi Sport 4"
+    },
     {
       "regex": "^TV5 ?Monde\\b",
       "nome": "TV5 Monde"
