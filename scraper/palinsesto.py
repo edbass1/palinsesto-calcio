@@ -24,6 +24,7 @@ import extra_partite as extra_mod  # noqa: E402
 import dazn  # noqa: E402
 import primaplay  # noqa: E402
 import altri_sport  # noqa: E402
+import sport_nomi  # noqa: E402
 import epg_teleboy  # noqa: E402
 import digisport  # noqa: E402
 import scooore  # noqa: E402
@@ -1126,18 +1127,27 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
                           f'<h2 class="giorno-h">{GIORNI_LUNGHI[d.weekday()].upper()} {d.day} {MESI[d.month - 1].upper()}</h2>'
                           f'<ol class="partite">{"".join(scheda(e, c) for e, c in del_giorno)}</ol></section>')
 
-    # vista "altri sport": eventi in ordine di orario, per giorno, con lo sport in evidenza
-    altri = sorted(altri or [], key=lambda e: (e["ts"], e["sport"]))
+    # vista "altri sport": eventi in ordine di orario, per giorno, con lo sport in evidenza.
+    # Lo sport è il nome italiano (sport.json), così Basquetebol e Basket finiscono nella stessa sezione.
+    altri = sorted(altri or [], key=lambda e: (e["ts"], e.get("sport") or ""))
+    for e in altri:
+        sport_nomi.applica(e)
 
     def categoria_filtro_sport(e):
-        testo = " ".join(str(e.get(k, "") or "") for k in ("sport", "titolo", "titolo_originale")).lower()
-        if re.search(r"\bnfl\b|american football|football americano|football américain", testo):
+        sp = sport_nomi.normalizza(e.get("sport") or "")
+        fisso = sport_nomi.FILTRO.get(sp) or None
+        if fisso:
+            return fisso
+        testo = " ".join(str(e.get(k, "") or "") for k in ("sport", "titolo", "titolo_originale", "sport_orig")).lower()
+        if re.search(r"\bnfl\b|american football|football americano|football américain|f[uú]tbol americano|futebol americano", testo):
             return "nfl"
-        if re.search(r"basket|basketball|nba|euroleague|fiba", testo):
+        if re.search(r"\bbasket\b|basketball|basquetebol|baloncesto|baschet|pallacanestro|\bnba\b|euroleague|fiba", testo):
             return "basket"
-        if re.search(r"\btennis\b", testo):
+        # «Tennis de table» è tennistavolo, non il pulsante Tennis
+        if sp != "Tennistavolo" and re.search(r"\btennis\b|\bt[eé]nis\b", testo) and not re.search(
+                r"tennis de table|tennis de mesa|tenis de mesa|table tennis|tischtennis|tennistavolo", testo):
             return "tennis"
-        if re.search(r"volley|volleyball", testo):
+        if re.search(r"volley|volleyball|pallavolo|voleibol|\bvolei\b", testo):
             return "volley"
         if re.search(r"motogp|moto\s*[23]|motocross|superbike|\bmoto\b", testo):
             return "moto"
@@ -1149,8 +1159,10 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
         q = dt.datetime.fromtimestamp(e["ts"], ROMA)
         f = dt.datetime.fromtimestamp(e["fine"], ROMA)
         em = togli_link_doppi("".join(emittente_altro(x, dove, usati_s) for x in e["emittenti"]))
+        orig_sp = e.get("sport_orig") or ""
+        alias = f' data-alias="{html.escape(orig_sp, quote=True)}"' if orig_sp else ""
         return (f'<li class="partita evento" data-ts="{e["ts"]}" data-fine="{e["fine"]}" data-giorno="{q:%Y-%m-%d}"'
-                f' data-sport="{categoria_filtro_sport(e)}" data-cat="{" ".join(sorted(cat_altro(e)))}">'
+                f' data-sport="{categoria_filtro_sport(e)}"{alias} data-cat="{" ".join(sorted(cat_altro(e)))}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span><span class="fino">fino alle {f:%H:%M}</span>'
                 '<span class="stato" aria-live="polite"></span></div>'
@@ -1215,6 +1227,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
         bottoni=bottoni, sezioni="\n".join(sezioni), orario="\n".join(orario), avvisi=avvisi, note=note,
         altri="\n".join(sez_altri), n_altri=len(altri),
         dove=sezione_dove(dove, usati, sez_dove), durata=DURATA_PARTITA_S,
+        alias_sport=json.dumps(sport_nomi.mappa_ricerca(), ensure_ascii=False),
         vuoto_nascosto=' hidden' if gruppi else '')
 
 
@@ -1941,8 +1954,10 @@ TEMPLATE = """<!doctype html>
     if (v && document.querySelector('.scelta-b button[data-gruppo="' + g + '"][data-cat="' + v + '"]')) S.cat[g] = v;
   }});
   try {{ var gs = JSON.parse(sessionStorage.getItem('giorni') || 'null'); if (gs) S.giorno = gs; }} catch (e) {{}}
-  // ricerca: minuscole e senza accenti; testo di ogni evento = scheda + titolo della sezione (competizione / sport)
-  function piatto(t) {{ return (t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i').toLowerCase(); }}
+  // ricerca: minuscole e senza accenti; testo di ogni evento = scheda + titolo della sezione
+  // (competizione / sport) + nomi stranieri dello stesso sport (sport.json) + etichetta originale della fonte
+  function piatto(t) {{ return (t || '').replace(/ß/g, 'ss').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i').toLowerCase(); }}
+  var ALIAS_SPORT = {alias_sport};
   var campo = document.getElementById('cerca'), cx = document.getElementById('cerca-x');
   try {{ campo.value = sessionStorage.getItem('cerca') || ''; }} catch (e) {{}}
   function cercato() {{ return piatto(campo.value).trim().split(/\\s+/).filter(Boolean); }}
@@ -1950,7 +1965,9 @@ TEMPLATE = """<!doctype html>
     if (!parole.length) return true;
     if (p._t === undefined) {{
       var sz = p.closest('section'), h = sz && sz.querySelector('h2');
-      p._t = piatto(p.textContent + ' ' + (h ? h.textContent : ''));
+      var tag = p.querySelector('.comp-tag');
+      var al = tag ? (ALIAS_SPORT[piatto(tag.textContent)] || '') : '';
+      p._t = piatto(p.textContent + ' ' + al + ' ' + (p.getAttribute('data-alias') || '') + ' ' + (h ? h.textContent : ''));
     }}
     return parole.every(function (w) {{ return p._t.indexOf(w) >= 0; }});
   }}

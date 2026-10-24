@@ -8,6 +8,7 @@ from pathlib import Path
 import time
 import urllib.request
 
+import sport_nomi
 import traduci
 from zoneinfo import ZoneInfo
 
@@ -23,55 +24,66 @@ PAGINE = {"SRF": "https://www.srf.ch/play/tv/sport-livestreams", "RTS": "https:/
 ARD_PAGINA = "https://api.ardmediathek.de/page-gateway/pages/ard/editorial/ebc4fa69-c557-47c5-ba61-6488211bc602?pageSize=50"
 ARD_SITO = "https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/livestreams-ard-"
 
-# parola iniziale del titolo (de/fr/it) -> sport in italiano
+# parola nello sport o nel titolo (it/en/pt/es/fr/de/ro/nl/pl/...) -> sport in italiano.
+# L'ordine conta: la prima espressione che compare vince (football americano prima di football,
+# tennis da tavolo prima del tennis, hockey su pista prima di hockey).
 SPORT = [
-    (r"nfl|american football|football américain|football americano", "Football americano"),
-    (r"fussball|fußball|calcio|football", "Calcio"),
-    (r"formel 1|formula 1|formule 1", "Formula 1"),
+    (r"nfl|american football|football am[ée]ricain|football americano|f[uú]tbol americano|futebol americano|fotbal american", "Football americano"),
+    (r"australian football|aussie rules|football australiano", "Football australiano"),
+    (r"gaelic football|sport gaelici|giochi gaelici|\bgaa\b", "Sport gaelici"),
+    (r"calcio a 5|futsal|futebol de sal[aã]o|f[uú]tbol sala|zaalvoetbal", "Calcio a 5"),
+    (r"fu(?:ß|ss)ball|futebol(?! americano)|f[uú]tbol(?! americano)|voetbal|fotbal(?! american)|soccer|calcio(?! a 5)|football(?! americano)(?! am[ée]ricain)", "Calcio"),
+    (r"formel 1|formula 1|formule 1|formula one", "Formula 1"),
     (r"motorrad|motomondiale|moto ?gp|moto ?[23]\b", "Motomondiale"),
-    (r"rad\b|radsport|ciclismo|cyclisme", "Ciclismo"),
-    (r"ski alpin|sci alpino|ski alpin|riesenslalom|slalom|abfahrt|super-g", "Sci alpino"),
-    (r"biathlon", "Biathlon"),
-    (r"langlauf|sci di fondo|ski de fond", "Sci di fondo"),
-    (r"skispringen|salto con gli sci|saut à ski", "Salto con gli sci"),
-    (r"(?<!tisch)tennis(?! de table)", "Tennis"),
-    (r"hockey pista|hockey su pista|rollhockey|rink hockey|hockey sur patins", "Hockey pista"),
-    (r"eishockey|hockey su ghiaccio|hockey sur glace|hockey", "Hockey su ghiaccio"),
-    (r"baseball|softball", "Baseball"),
-    (r"wasserball|pallanuoto|water ?polo", "Pallanuoto"),
-    (r"fechten|scherma|escrime", "Scherma"),
-    (r"bogenschie|tiro con l'arco|tir à l'arc|archery", "Tiro con l'arco"),
-    (r"klettern|arrampicata|escalade", "Arrampicata"),
-    (r"\bmma\b|kickbox", "Sport da combattimento"),
+    (r"rad\b|radsport|ciclismo|cyclisme|cycling|wielrennen|kolarstwo|ciclism\b|wielersport", "Ciclismo"),
+    (r"ski alpin|sci alpino|alpiner ski|alpine skiing|esqu[ií] alpino|riesenslalom|slalom|abfahrt|super-g", "Sci alpino"),
+    (r"biathlon|biatlo|biatlon", "Biathlon"),
+    (r"langlauf|sci di fondo|ski de fond|esqu[ií] de fundo|cross-country ski", "Sci di fondo"),
+    (r"skispringen|salto con gli sci|saut [aà] ski|ski jumping|salto de esqu[ií]", "Salto con gli sci"),
+    (r"\bsci\b|\bski\b|\bschi\b|esqu[ií]|narty|skidor|skisport|skifahren|\bskiing\b", "Sci"),
+    (r"tischtennis|tennistavolo|tennis de table|tennis de mesa|tenis de mesa|tenis de masa|t[eé]nis de mesa|tennis da tavolo|table tennis|ping[- ]?pong|tafeltennis", "Tennistavolo"),
+    (r"(?<!tisch)(?<!table )tennis(?! de table)(?!tavolo)(?! de mesa)(?! da tavolo)|t[eé]nis(?! de mesa)(?! de table)(?! da tavolo)", "Tennis"),
+    (r"beach ?volley|beachvolleyball|volley(?:ball)? de plage|v[oô]lei de praia|volei pe plaja|voley playa|volley playa|strandvolley", "Beach volley"),
+    (r"hockey pista|hockey su pista|rollhockey|rink hockey|roller hockey|hockey sur patins|h[oó]quei em patins|hockey sobre patines", "Hockey pista"),
+    (r"hockey su prato|field hockey|hockey sur gazon|feldhockey|h[oó]quei em campo", "Hockey su prato"),
+    (r"eishockey|hockey su ghiaccio|hockey sur glace|h[oó]quei no gelo|hockey sobre hielo|ijshockey|ice hockey|hochei(?: pe gheata)?|ishockey|hockey", "Hockey su ghiaccio"),
+    (r"baseball|softball|beisebol|b[eé]isbol", "Baseball"),
+    (r"wasserball|pallanuoto|water ?polo|polo aqu[aá]tico|polo pe apa|vaterpolo", "Pallanuoto"),
+    (r"fechten|scherma|escrime|esgrima|schermen|scrima", "Scherma"),
+    (r"bogenschie|tiro con l'arco|tir [aà] l'arc|archery|tiro com arco|tiro con arco", "Tiro con l'arco"),
+    (r"klettern|arrampicata|escalade|escalada|climbing", "Arrampicata"),
+    (r"\bmma\b|mixed martial|artes marciais|artes marciales|arts martiaux mixtes", "MMA"),
+    (r"kick ?box", "Kickboxing"),
+    (r"muay ?thai", "Muay Thai"),
     (r"unihockey|floorball", "Unihockey"),
-    (r"kunstturnen|ginnastica|gymnastique|turnen", "Ginnastica artistica"),
+    (r"kunstturnen|ginnastica|gymnastique|turnen|gimnastica|gymnastics", "Ginnastica artistica"),
     (r"curling", "Curling"),
-    (r"handball|pallamano", "Pallamano"),
-    (r"euroleague|eurocup|nba|basketball|basket", "Basket"),
-    (r"volleyball|pallavolo|volley", "Pallavolo"),
-    (r"leichtathletik|atletica|athlétisme|marathon|maratona", "Atletica"),
-    (r"schwimmen|nuoto|natation", "Nuoto"),
-    (r"box|boxe|pugilato", "Boxe"),
-    (r"tanz|danza|danse", "Danza sportiva"),
+    (r"handball|pallamano|handebol|andebol|balonmano|handbal|handbol", "Pallamano"),
+    (r"euroleague|eurocup|nba|basketball|basket-ball|basquetebol|basquete|baloncesto|b[aá]squetbol|basquet\b|baschet|pallacanestro|basketbol|basket", "Basket"),
+    (r"volleyball|pallavolo|volley|v[oô]lei\b|voleibol", "Pallavolo"),
+    (r"leichtathletik|atletica|athl[eé]tisme|atletismo|atletism\b|atletiek|athletics|marathon|maratona", "Atletica"),
+    (r"schwimmen|nuoto|natation|swimming|nata[cç][aã]o|nataci[oó]n|zwemmen|\binot\b", "Nuoto"),
+    (r"box|boxe|pugilato|boxeo|boxen|boksen|pugilismo", "Boxe"),
+    (r"eiskunstlauf|pattinaggio|patinage|figure skating|danse sur glace|eistanz|ice dance|danza su ghiaccio", "Pattinaggio"),
+    (r"tanzsport|danza sportiva|danse sportive|tanz|danza|danse", "Danza sportiva"),
     (r"golf", "Golf"),
-    (r"reiten|equitazione|hippisme|springreiten", "Equitazione"),
+    (r"reiten|equitazione|hippisme|springreiten|equita[cç][aã]o|equitaci[oó]n", "Equitazione"),
     (r"schwingen|lotta svizzera|lutte suisse", "Lotta svizzera"),
-    (r"rudern|canottaggio|aviron", "Canottaggio"),
-    (r"segeln|vela|voile", "Vela"),
-    (r"triathlon", "Triathlon"),
+    (r"rudern|canottaggio|aviron|rowing", "Canottaggio"),
+    (r"segeln|vela|voile|sailing", "Vela"),
+    (r"triathlon|triatlo|triatl[oó]n", "Triathlon"),
     (r"uci|gravel|paris-tours|giro d|tour de france|vuelta|radrennen|cyclo-cross|querfeldein|lombardei", "Ciclismo"),
     (r"snooker", "Snooker"),
-    (r"darts|freccette|fléchettes", "Freccette"),
-    (r"dtm|superbike|motorsport|nascar|rallye|rally|wec|indycar|formel e|formula e|gt masters|motocross|sport auto", "Motori"),
+    (r"darts|freccette|fl[eé]chettes|dardos|darten", "Freccette"),
+    (r"dtm|superbike|motorsport|desportos motorizados|deportes de motor|nascar|rallye|rally|wec|indycar|formel e|formula e|gt masters|motocross|sport auto|automobilismo|\bmotor\b", "Motori"),
+    (r"rugby league|rugby a 13|rugby [aà] xiii", "Rugby a 13"),
     (r"rugby", "Rugby"),
     (r"badminton", "Badminton"),
-    (r"tischtennis|tennistavolo|tennis de table|table tennis", "Tennistavolo"),
     (r"judo", "Judo"),
-    (r"ringen|lutte|wrestling", "Lotta"),
-    (r"bobsport|bob-weltcup|zweierbob|viererbob|monobob|rodeln|skeleton|slittino", "Bob e slittino"),
-    (r"eiskunstlauf|pattinaggio|patinage", "Pattinaggio"),
+    (r"ringen|lutte|wrestling|luta|lucha|worstelen|lupte", "Lotta"),
+    (r"bobsport|bob-weltcup|zweierbob|viererbob|monobob|rodeln|skeleton|slittino|bobsleigh", "Bob e slittino"),
     (r"skicross|snowboard|freeski", "Sport invernali"),
-    (r"nfl|american football|football américain", "Football americano"),
+    (r"sport estremi|extreme sports|adventure sports|desportos radicais|deportes extremos", "Sport estremi"),
     (r"sportschau|sportpanorama|sport", "Programma sportivo"),
 ]
 # squadre di basket ARD (i titoli dicono solo "A gegen B")
@@ -79,10 +91,15 @@ BASKET_ARD = re.compile(r"gladiators trier|telekom baskets|alba berlin|ratiophar
 
 
 def sport_di(testo):
+    """Sport italiano di un titolo. Prima le espressioni note, poi l'etichetta iniziale
+    («Basquetebol: …», «Ténis: …») tramite sport.json."""
     t = testo.lower()
     for rx, nome in SPORT:
         if re.search(r"(?<![a-zà-ü])(?:" + rx + r")", t):
             return nome
+    testa = re.split(r"[:|,]", testo, maxsplit=1)[0].strip()
+    if testa and len(testa.split()) <= 6 and sport_nomi.conosciuto(testa):
+        return sport_nomi.normalizza(testa)
     return None
 
 
@@ -345,8 +362,11 @@ def _priorita(e):
 def unisci_eventi(eventi):
     """Stesso evento su più emittenti: stesso id swisstxt, oppure stesso sport, emittente diversa,
     inizio entro 45 minuti e titoli simili (es. GP di F1 su SRF, RTS e RSI). Con due squadre nel titolo
-    (NFL, NBA, rugby...) devono coincidere le squadre; per guida TV e LiveOnSat serve una parola in comune."""
+    (NFL, NBA, rugby...) devono coincidere le squadre; per guida TV e LiveOnSat serve una parola in comune.
+    Lo sport è prima portato al nome italiano, così «Basquetebol» e «Basket» sono lo stesso evento."""
     import difflib
+    for e in eventi:
+        sport_nomi.applica(e)
     uniti = []
     for e in sorted(eventi, key=lambda e: (e["ts"], -_priorita(e))):
         gia = None
@@ -503,7 +523,9 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
         ev, err = scarica_dazn_fn()
         if err:
             falliti.append(f"DAZN altri sport: {err}")
-        tutti += [e for e in ev if e["sport"] != "Calcio"]
+        tutti += [e for e in ev if sport_nomi.normalizza(e.get("sport") or "") != "Calcio"]
+    for e in tutti:
+        sport_nomi.applica(e)  # stesso sport, qualunque lingua della fonte, prima di unire e filtrare
     tutti = [e for e in tutti if inizio.timestamp() <= e["ts"] < fine.timestamp() and e["fine"] > ora.timestamp()]
     tenuti = []
     rx_salvo = _rx_salvo()
