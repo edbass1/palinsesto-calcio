@@ -306,11 +306,17 @@ def analizza_altri(tiles, paese="it"):
         testa = " ".join(comp.lower().split()[:2])
         if comp and comp.lower() not in titolo.lower() and testa not in titolo.lower() and not sfida:
             titolo = f"{comp}, {titolo}"
-        nome_sport = sport_nomi.normalizza((sp.get("Title") or "").strip()) or "Sport"
-        out[k] = {"id": f"dazn:{k}", "ts": ts, "fine": fine, "sport": nome_sport, "titolo": titolo,
-                  "titolo_orig": f'{t.get("Title") or ""} {comp}', "titolo_src": t.get("Title") or "", "evento": True,
-                  "lingua": LINGUE_DAZN.get(paese, "en"), "descrizione": t.get("Description") or "",
-                  "emittenti": [{"nome": "DAZN " + PAESI.get(paese, paese.upper()), "pagina": PAGINE_DAZN.get(paese, PAGINE_DAZN["it"]), "link": None, "vpn": None, "dazn_gratis": True}]}
+        raw_sport = re.sub(r"\s+", " ", ((sp.get("Title") or "").replace("\u00a0", " "))).strip()
+        nome_sport = sport_nomi.normalizza(raw_sport) or "Sport"
+        riga = {"id": f"dazn:{k}", "ts": ts, "fine": fine, "sport": nome_sport, "titolo": titolo,
+                "titolo_orig": f'{t.get("Title") or ""} {comp}', "titolo_src": t.get("Title") or "", "evento": True,
+                "lingua": LINGUE_DAZN.get(paese, "en"), "descrizione": t.get("Description") or "",
+                "emittenti": [{"nome": "DAZN " + PAESI.get(paese, paese.upper()), "pagina": PAGINE_DAZN.get(paese, PAGINE_DAZN["it"]), "link": None, "vpn": None, "dazn_gratis": True}]}
+        # il nome della fonte serve ai filtri: la lista del basket e lo scarto del calcio
+        # valgono solo per chi si chiamava già così, non per Basquetebol o Futebol
+        if raw_sport and sport_nomi.chiave(raw_sport) != sport_nomi.chiave(nome_sport):
+            riga["sport_orig"] = raw_sport
+        out[k] = riga
     return list(out.values())
 
 

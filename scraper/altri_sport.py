@@ -278,8 +278,11 @@ def e_programma(e, rx_prog, rx_ev, rx_salvo=None):
     m = rx_salvo.search(titolo) if rx_salvo else None
     if m and not due_partecipanti(titolo):
         return f"programma «{m.group(0)}» senza due partecipanti"
-    if e.get("sport") == "Football americano" and not (due_partecipanti(titolo) or due_partecipanti(e.get("titolo") or "")
-                                                       or due_partecipanti(e.get("descrizione") or "")):
+    # vale per lo sport già chiamato «Football americano». «Fútbol americano» e simili
+    # erano una sezione visibile: unificarli non deve togliere le schede senza due squadre
+    if (e.get("sport") == "Football americano" and not e.get("sport_orig")
+            and not (due_partecipanti(titolo) or due_partecipanti(e.get("titolo") or "")
+                     or due_partecipanti(e.get("descrizione") or ""))):
         return "football americano senza due squadre"
     if e.get("evento") is False and e.get("sport") not in ("Sport", "Programma sportivo"):
         return None  # SRG: il titolo inizia con uno sport preciso ("TENNIS ...", "Sci alpino: ...")
@@ -302,6 +305,21 @@ def calcio_squadre(ev):
             if a.strip() and b.strip():
                 return a.strip(), b.strip(), comp.strip()
     return None
+
+
+def squadre_per_calcio(ev, largo=False):
+    """Come calcio_squadre. Con largo anche «A x B» e «A vs B» (Futebol, Football)."""
+    sq = calcio_squadre(ev)
+    if sq or not largo:
+        return sq
+    t = ev.get("titolo") or ""
+    comp, _, ultimo = t.rpartition(",")
+    ultimo = ultimo.strip()
+    m = re.search(r"\s+(?:x|vs\.?|v|@)\s+", ultimo, re.I)
+    if not m:
+        return None
+    a, b = ultimo[:m.start()].strip(), ultimo[m.end():].strip()
+    return (a, b, comp.strip()) if a and b else None
 
 
 PAROLE_VUOTE = {"live", "rennen", "gara", "course", "race", "finale", "final", "runde", "round", "grand", "prix", "premio",
@@ -400,6 +418,8 @@ def unisci_eventi(eventi):
         gia["_fonti"].append(e)
         gia["ids"].add(e["id"])
         gia["testi"].append(e["titolo_orig"])
+        if e.get("sport_orig") and not gia.get("sport_orig"):
+            gia["sport_orig"] = e["sport_orig"]
         gia["fine"] = max(gia["fine"], e["fine"])
         if not gia.get("_squadre") or e.get("nfl_soprannomi") is None and squadre_evento(e):
             gia["_squadre"] = gia.get("_squadre") or squadre_evento(e)
@@ -453,8 +473,20 @@ def e_calcio(e):
 BASKET_TOLTI = []  # ultima raccolta: "titolo – motivo" delle partite di basket tolte (per il log)
 
 
+def _escluso_donne(rx):
+    """True se la regex di basket_esclusi è basket femminile (non 3x3 né G League)."""
+    p = rx.pattern
+    return "3x3" not in p and "League" not in p
+
+
 def filtro_basket(cat=None):
-    """Funzione evento -> None (tenere) o motivo (togliere), secondo categorie.json -> basket_ammessi / basket_esclusi."""
+    """Funzione evento -> None (tenere) o motivo (togliere).
+
+    basket_ammessi e le esclusioni che non sono il femminile (3x3, G League) valgono solo
+    per gli eventi che la fonte chiamava già Basket: erano già filtrati prima.
+    Basquetebol, Basketball, Baloncesto e gli altri nomi si spostano nella sezione Basket
+    e restano in pagina. Il basket femminile si toglie comunque.
+    """
     if cat is None:
         try:
             cat = json.loads((Path(__file__).resolve().parent.parent / "categorie.json").read_text(encoding="utf-8"))
@@ -463,12 +495,19 @@ def filtro_basket(cat=None):
     ammessi = [(v["nome"], [re.compile(r, re.I) for r in v.get("regex", [])], v.get("solo_titolo", False))
                for v in cat.get("basket_ammessi", [])]
     esclusi = [re.compile(r, re.I) for r in cat.get("basket_esclusi", [])]
+    donne = [r for r in esclusi if _escluso_donne(r)]
 
     def fn(e):
         if e.get("sport") != "Basket" or not ammessi:
             return None
-        testo = " | ".join(str(x) for x in [e.get("titolo"), e.get("titolo_orig"), e.get("titolo_src"), e.get("comp"),
-                                            e.get("descrizione"), *(e.get("testi") or [])] if x)
+        testo = " | ".join(str(x) for x in [e.get("sport"), e.get("sport_orig"), e.get("titolo"), e.get("titolo_orig"),
+                                            e.get("titolo_src"), e.get("comp"), e.get("descrizione"),
+                                            *(e.get("testi") or [])] if x)
+        for r in donne:
+            if r.search(testo):
+                return f"escluso ({r.pattern})"
+        if e.get("sport_orig") and sport_nomi.chiave(e["sport_orig"]) != "basket":
+            return None
         for r in esclusi:
             if r.search(testo):
                 return f"escluso ({r.pattern})"
@@ -478,6 +517,17 @@ def filtro_basket(cat=None):
                 return None
         return "competizione non nella lista basket_ammessi"
     return fn
+
+
+def fonte_calcio(e):
+    """True se la fonte lo chiamava già Calcio. Futebol, Football e Soccer no."""
+    return sport_nomi.chiave(e.get("sport_orig") or e.get("sport") or "") == "calcio"
+
+
+def gia_calcio(e):
+    """True se, col nome della fonte, l'evento era già instradato al calcio (sport o titolo)."""
+    return e_calcio({"sport": e.get("sport_orig") or e.get("sport"), "titolo": e.get("titolo"),
+                     "titolo_src": e.get("titolo_src")})
 
 
 def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None, scarica_ard_fn=None,
@@ -523,7 +573,9 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
         ev, err = scarica_dazn_fn()
         if err:
             falliti.append(f"DAZN altri sport: {err}")
-        tutti += [e for e in ev if sport_nomi.normalizza(e.get("sport") or "") != "Calcio"]
+        # solo il calcio già chiamato «Calcio» (raccolto con le partite). Futebol, Football,
+        # Soccer e Fußball entrano e finiscono nella sezione calcio, senza sparire
+        tutti += [e for e in ev if not fonte_calcio(e)]
     for e in tutti:
         sport_nomi.applica(e)  # stesso sport, qualunque lingua della fonte, prima di unire e filtrare
     tutti = [e for e in tutti if inizio.timestamp() <= e["ts"] < fine.timestamp() and e["fine"] > ora.timestamp()]
@@ -561,17 +613,22 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
     for e in uniti:
         testi = " ".join(e["testi"])
         if e["sport"] == "Calcio" or e_calcio(e):
-            # il calcio non entra MAI in ALTRI SPORT: o va nella sezione calcio o si toglie
-            if rx_femminile.search(testi) or re.search(r"\bfrauen|\bfemminil|\bféminin|\bwomen", testi, re.I):
-                continue  # niente calcio femminile
-            sq = calcio_squadre(e)
+            # il calcio non entra in ALTRI SPORT. Quello che la fonte chiamava già calcio segue
+            # le regole di prima (femminile tolto; senza squadre solo come canale in più).
+            # Futebol, Football, Soccer e gli altri nomi si spostano nel calcio e restano schede
+            gia = gia_calcio(e)
+            if gia and (rx_femminile.search(testi) or re.search(r"\bfrauen|\bfemminil|\bféminin|\bwomen", testi, re.I)):
+                continue
+            sq = squadre_per_calcio(e, largo=not gia)
             if sq:
                 casa, ospite = (traduci.nazione(x) for x in sq[:2])  # nazionali: "Schweiz" -> "Svizzera"
-                calcio.append(dict(e, casa=casa, ospite=ospite, comp=sq[2]))
-            else:  # "UEFA Champions League" senza squadre: si prova solo ad aggiungere il canale a una partita già nota
+                calcio.append(dict(e, casa=casa, ospite=ospite, comp=sq[2], da_etichetta=not gia))
+            elif gia:  # "UEFA Champions League" senza squadre: si prova solo ad aggiungere il canale a una partita già nota
                 CALCIO_GENERICO.append(e)
                 CALCIO_TOLTO_ALTRI.append(f'{dt.datetime.fromtimestamp(e["ts"], ROMA):%d/%m %H:%M} {e["titolo"]} '
                                           f'({", ".join(x["nome"] for x in e["emittenti"])})')
+            else:
+                calcio.append(dict(e, casa=e.get("titolo") or "Calcio", ospite="", comp="", da_etichetta=True))
             continue
         altri.append(e)
     avvisi = [f"Altri sport: non raggiungibile {', '.join(falliti)}"] if falliti else []

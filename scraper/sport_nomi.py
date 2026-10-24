@@ -63,11 +63,20 @@ def _carica(percorso=None):
 
 EXACT, ALIAS_DI, FILTRO, _PREFIX = _carica()
 
+# I test la spengono per confrontare gli eventi visibili prima e dopo l'unificazione.
+ATTIVA = True
+
+
+def imposta(attiva=True):
+    """Accende o spegne l'unificazione dei nomi."""
+    global ATTIVA
+    ATTIVA = bool(attiva)
+
 
 def normalizza(nome):
     """Etichetta di sport (qualunque lingua) -> nome italiano. Se non è uno sport noto, resta com'è."""
     raw = re.sub(r"\s+", " ", (nome or "").replace("\u00a0", " ")).strip()
-    if not raw:
+    if not raw or not ATTIVA:
         return raw
     k = chiave(raw)
     if k in EXACT:
@@ -101,7 +110,7 @@ def applica(evento):
     """Scrive lo sport italiano sull'evento. Conserva il nome della fonte se era diverso."""
     orig = re.sub(r"\s+", " ", (evento.get("sport") or "").replace("\u00a0", " ")).strip()
     can = normalizza(orig) or orig or "Sport"
-    if orig and chiave(orig) != chiave(can):
+    if ATTIVA and orig and chiave(orig) != chiave(can):
         evento.setdefault("sport_orig", orig)
     evento["sport"] = can
     return evento

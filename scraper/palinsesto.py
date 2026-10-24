@@ -308,7 +308,10 @@ def stream_solo_unione(p, nuovo):
     - viene da una guida TV (Teleboy/epgshare01, VTM...): lì le repliche (anche notturne, es. Sportitalia alle 00:00)
       sembrano dirette;
     - la competizione non è riconosciuta (finirebbe in una sezione generica senza fonte di calendario);
-    - inizia di notte (00:00-06:59, ora italiana) senza conferma di altre fonti."""
+    - inizia di notte (00:00-06:59, ora italiana) senza conferma di altre fonti.
+    Un evento che era già una scheda con un altro nome (Futebol, Football, Soccer) resta una scheda nel calcio."""
+    if p.get("da_etichetta"):
+        return None
     if p.get("da_epg"):
         return "da guida TV, non confermata da altre fonti"
     if nuovo["competizione"] == altri_sport.COMP_SCONOSCIUTA:
