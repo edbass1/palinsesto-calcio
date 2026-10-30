@@ -1310,15 +1310,15 @@
         "^M4 ?Sport\\b",
         "^MTV ?4\\b"
       ],
-      "vpn": "non serve",
-      "note": "Diretta su MediKlikk, senza VPN.",
+      "vpn": "Ungheria",
+      "note": "Diretta su MediKlikk; per la visione serve una VPN impostata sull'Ungheria.",
       "link": [
         {
           "url": "https://mediaklikk.hu/elo/mtv4live/",
           "testo": "M4 Sport – MediKlikk"
         }
       ],
-      "vpn_tag": "SENZA VPN"
+      "vpn_tag": "VPN Ungheria"
     },
     {
       "id": "mbc-action",
