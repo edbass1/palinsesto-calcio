@@ -128,6 +128,9 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None, guida=None):
             sport = next((v for r, v in (guida.get("sport_da_testo") or {}).items() if re.search(r, f"{titolo} {sotto}", re.I)), None)
         if not sport or sport == "Programma sportivo":
             continue  # non è sport (o è un programma generico)
+        # TV8 trasmette anche qualifiche e gare F1 in differita: non scartarle come repliche,
+        # ma solo quando il programma è davvero Formula 1 sul canale italiano TV8.
+        tv8_f1 = bool(re.search(r"^TV8$", n, re.I) and sport == "Formula 1")
         testo = f"{titolo} {sotto}"
         tutto = f"{testo} {desc}"
         live_parola = bool(rx_live.search(testo if any(r.search(n) for r in live_solo_titolo) else tutto))
@@ -138,7 +141,7 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None, guida=None):
         m = None
         if ts_fine - ts < minimo:
             motivo = "troppo breve"
-        elif rx_rep.search(tutto):
+        elif rx_rep.search(tutto) and not tv8_f1:
             motivo = f"replica/sintesi («{rx_rep.search(tutto).group(0)}»)"
         elif rx_prog.search(testo) or rx_titoli_no.search(testo):
             motivo = f"programma («{(rx_prog.search(testo) or rx_titoli_no.search(testo)).group(0)}»)"
@@ -156,7 +159,7 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None, guida=None):
         elif not (A.RE_PARTECIPANTI.search(testo) or A.due_partecipanti(testo) or rx_torneo.search(testo)
                   or ((prima or live_parola or simultanea) and rx_ev.search(tutto))):
             motivo = "non sembra una gara"
-        elif not (prima or live_parola or sportivo or simultanea):
+        elif not (prima or live_parola or sportivo or simultanea or tv8_f1):
             motivo = ("non in diretta (canale con guida piena di repliche: serve 'live' o prima visione)" if esplicita
                       else "non in diretta (canale non sportivo, niente 'live' né prima visione)")
         if diag is not None:
@@ -178,6 +181,11 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None, guida=None):
         else:
             em = {"nome": n, "pagina": PAGINA, "link": teleboy.link(n) or PAGINA, "vpn": "SVIZZERA",
                   "teleboy": True, "teleboy_nome": n}
+        if tv8_f1:
+            modalita_tv8 = ("DIFFERITA" if rx_rep.search(tutto) else
+                            "DIRETTA" if (prima or live_parola) else None)
+            if modalita_tv8:
+                em["tv8_modalita"] = modalita_tv8
         tenuti[k] = {"id": f"{'epg' if guida else 'teleboy'}:{p.get('channel')}:{ts}", "ts": ts, "fine": ts_fine, "sport": sport, "titolo": tit,
                        "titolo_orig": f"{titolo} {sotto} {desc}", "titolo_src": titolo, "evento": True,
                        "lingua": (guida or {}).get("lingua") or LINGUE.get(teleboy.paese(n) or "", "de"),
