@@ -13,6 +13,8 @@ import urllib.parse
 import urllib.request
 from zoneinfo import ZoneInfo
 
+import sport_nomi
+
 URL = "https://epg.discovery.indazn.com/eu/v5/epgWithDatesRange"   # riserva (bloccato dai server GitHub)
 RAIL = "https://rail-router.discovery.indazn.com/eu/v10/Rail"        # fonte principale (raggiungibile da GitHub)
 CALCIO = "289u5typ3vp4ifwh5thalohmq"  # id dello sport "calcio", uguale in tutti i paesi
@@ -242,11 +244,7 @@ if __name__ == "__main__":
 
 
 # ---------- altri sport gratis (DAZN Italia, Spagna, Germania, Portogallo, Francia e Belgio) ----------
-SPORT_ALTRI = {"volley": "Pallavolo", "motori": "Motori", "football americano": "Football americano", "basket": "Basket",
-               "tennistavolo": "Tennistavolo", "boxe": "Boxe", "ciclismo": "Ciclismo", "hockey su ghiaccio": "Hockey su ghiaccio",
-               "baseball": "Baseball", "golf": "Golf", "triathlon": "Triathlon", "sport estremi": "Sport estremi",
-               "equitazione | salto ostacoli": "Equitazione", "tennis": "Tennis", "rugby": "Rugby", "pallamano": "Pallamano",
-               "atletica": "Atletica", "freccette": "Freccette", "mma": "MMA", "padel": "Padel", "biliardo": "Biliardo"}
+# Il nome dello sport arriva nella lingua del paese («Basquetebol», «Boxeo», «Ténis»): sport.json lo unifica.
 PAGINE_DAZN = {"it": "https://www.dazn.com/it-IT/home", "es": "https://www.dazn.com/es-ES/home", "de": "https://www.dazn.com/de-DE/home", "pt": "https://www.dazn.com/pt-PT/home", "fr": "https://www.dazn.com/fr-FR/home", "be": "https://www.dazn.com/fr-BE/home"}
 LINGUE_DAZN = {"it": "it", "es": "es", "de": "de", "pt": "pt", "fr": "fr", "be": "fr"}
 
@@ -308,11 +306,17 @@ def analizza_altri(tiles, paese="it"):
         testa = " ".join(comp.lower().split()[:2])
         if comp and comp.lower() not in titolo.lower() and testa not in titolo.lower() and not sfida:
             titolo = f"{comp}, {titolo}"
-        nome_sport = SPORT_ALTRI.get(sp.get("Title", "").strip().lower()) or sp.get("Title", "Sport").split("|")[0].strip()
-        out[k] = {"id": f"dazn:{k}", "ts": ts, "fine": fine, "sport": nome_sport, "titolo": titolo,
-                  "titolo_orig": f'{t.get("Title") or ""} {comp}', "titolo_src": t.get("Title") or "", "evento": True,
-                  "lingua": LINGUE_DAZN.get(paese, "en"), "descrizione": t.get("Description") or "",
-                  "emittenti": [{"nome": "DAZN " + PAESI.get(paese, paese.upper()), "pagina": PAGINE_DAZN.get(paese, PAGINE_DAZN["it"]), "link": None, "vpn": None, "dazn_gratis": True}]}
+        raw_sport = re.sub(r"\s+", " ", ((sp.get("Title") or "").replace("\u00a0", " "))).strip()
+        nome_sport = sport_nomi.normalizza(raw_sport) or "Sport"
+        riga = {"id": f"dazn:{k}", "ts": ts, "fine": fine, "sport": nome_sport, "titolo": titolo,
+                "titolo_orig": f'{t.get("Title") or ""} {comp}', "titolo_src": t.get("Title") or "", "evento": True,
+                "lingua": LINGUE_DAZN.get(paese, "en"), "descrizione": t.get("Description") or "",
+                "emittenti": [{"nome": "DAZN " + PAESI.get(paese, paese.upper()), "pagina": PAGINE_DAZN.get(paese, PAGINE_DAZN["it"]), "link": None, "vpn": None, "dazn_gratis": True}]}
+        # il nome della fonte serve ai filtri: la lista del basket e lo scarto del calcio
+        # valgono solo per chi si chiamava già così, non per Basquetebol o Futebol
+        if raw_sport and sport_nomi.chiave(raw_sport) != sport_nomi.chiave(nome_sport):
+            riga["sport_orig"] = raw_sport
+        out[k] = riga
     return list(out.values())
 
 

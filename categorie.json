@@ -200,7 +200,7 @@
    "Superbike"
   ]
  },
- "_nota_basket_ammessi": "Basket: si tengono SOLO le partite che corrispondono a una di queste voci (regex, maiuscole/minuscole indifferenti, cercate in titolo, titolo originale, competizione e descrizione di tutte le fonti unite). Tutto il resto del basket viene tolto. 'basket_esclusi' vince sempre (basket femminile, NBA G League...).",
+ "_nota_basket_ammessi": "Vale per gli eventi che la fonte chiama già Basket: si tengono SOLO le partite che corrispondono a una di queste voci (regex, maiuscole/minuscole indifferenti, cercate in titolo, titolo originale, competizione e descrizione di tutte le fonti unite). Tutto il resto di quel basket viene tolto. 'basket_esclusi' vince sempre (basket femminile, NBA G League...). Un evento arrivato con un altro nome (Basquetebol, Basketball, Baloncesto, Baschet...) si sposta nella sezione Basket e resta in pagina: questa lista non lo toglie. Il basket femminile si toglie comunque.",
  "basket_ammessi": [
   {
    "nome": "NBA",
@@ -267,11 +267,16 @@
  ],
  "basket_esclusi": [
   "femminil",
+  "feminin",
+  "femenin",
   "\\bwomen",
   "\\bwoman",
   "frauen",
   "damen",
   "féminin",
+  "\\bfemmes\\b",
+  "mulheres",
+  "mujeres",
   "\\bWNBA\\b",
   "Liga Femenina",
   "\\bLBF\\b",

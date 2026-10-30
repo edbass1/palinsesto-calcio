@@ -8,6 +8,7 @@ from pathlib import Path
 import time
 import urllib.request
 
+import sport_nomi
 import traduci
 from zoneinfo import ZoneInfo
 
@@ -23,55 +24,66 @@ PAGINE = {"SRF": "https://www.srf.ch/play/tv/sport-livestreams", "RTS": "https:/
 ARD_PAGINA = "https://api.ardmediathek.de/page-gateway/pages/ard/editorial/ebc4fa69-c557-47c5-ba61-6488211bc602?pageSize=50"
 ARD_SITO = "https://www.ardmediathek.de/sammlung/die-sport-livestreams-der-ard/livestreams-ard-"
 
-# parola iniziale del titolo (de/fr/it) -> sport in italiano
+# parola nello sport o nel titolo (it/en/pt/es/fr/de/ro/nl/pl/...) -> sport in italiano.
+# L'ordine conta: la prima espressione che compare vince (football americano prima di football,
+# tennis da tavolo prima del tennis, hockey su pista prima di hockey).
 SPORT = [
-    (r"nfl|american football|football américain|football americano", "Football americano"),
-    (r"fussball|fußball|calcio|football", "Calcio"),
-    (r"formel 1|formula 1|formule 1", "Formula 1"),
+    (r"nfl|american football|football am[ée]ricain|football americano|f[uú]tbol americano|futebol americano|fotbal american", "Football americano"),
+    (r"australian football|aussie rules|football australiano", "Football australiano"),
+    (r"gaelic football|sport gaelici|giochi gaelici|\bgaa\b", "Sport gaelici"),
+    (r"calcio a 5|futsal|futebol de sal[aã]o|f[uú]tbol sala|zaalvoetbal", "Calcio a 5"),
+    (r"fu(?:ß|ss)ball|futebol(?! americano)|f[uú]tbol(?! americano)|voetbal|fotbal(?! american)|soccer|calcio(?! a 5)|football(?! americano)(?! am[ée]ricain)", "Calcio"),
+    (r"formel 1|formula 1|formule 1|formula one", "Formula 1"),
     (r"motorrad|motomondiale|moto ?gp|moto ?[23]\b", "Motomondiale"),
-    (r"rad\b|radsport|ciclismo|cyclisme", "Ciclismo"),
-    (r"ski alpin|sci alpino|ski alpin|riesenslalom|slalom|abfahrt|super-g", "Sci alpino"),
-    (r"biathlon", "Biathlon"),
-    (r"langlauf|sci di fondo|ski de fond", "Sci di fondo"),
-    (r"skispringen|salto con gli sci|saut à ski", "Salto con gli sci"),
-    (r"(?<!tisch)tennis(?! de table)", "Tennis"),
-    (r"hockey pista|hockey su pista|rollhockey|rink hockey|hockey sur patins", "Hockey pista"),
-    (r"eishockey|hockey su ghiaccio|hockey sur glace|hockey", "Hockey su ghiaccio"),
-    (r"baseball|softball", "Baseball"),
-    (r"wasserball|pallanuoto|water ?polo", "Pallanuoto"),
-    (r"fechten|scherma|escrime", "Scherma"),
-    (r"bogenschie|tiro con l'arco|tir à l'arc|archery", "Tiro con l'arco"),
-    (r"klettern|arrampicata|escalade", "Arrampicata"),
-    (r"\bmma\b|kickbox", "Sport da combattimento"),
+    (r"rad\b|radsport|ciclismo|cyclisme|cycling|wielrennen|kolarstwo|ciclism\b|wielersport", "Ciclismo"),
+    (r"ski alpin|sci alpino|alpiner ski|alpine skiing|esqu[ií] alpino|riesenslalom|slalom|abfahrt|super-g", "Sci alpino"),
+    (r"biathlon|biatlo|biatlon", "Biathlon"),
+    (r"langlauf|sci di fondo|ski de fond|esqu[ií] de fundo|cross-country ski", "Sci di fondo"),
+    (r"skispringen|salto con gli sci|saut [aà] ski|ski jumping|salto de esqu[ií]", "Salto con gli sci"),
+    (r"\bsci\b|\bski\b|\bschi\b|esqu[ií]|narty|skidor|skisport|skifahren|\bskiing\b", "Sci"),
+    (r"tischtennis|tennistavolo|tennis de table|tennis de mesa|tenis de mesa|tenis de masa|t[eé]nis de mesa|tennis da tavolo|table tennis|ping[- ]?pong|tafeltennis", "Tennistavolo"),
+    (r"(?<!tisch)(?<!table )tennis(?! de table)(?!tavolo)(?! de mesa)(?! da tavolo)|t[eé]nis(?! de mesa)(?! de table)(?! da tavolo)", "Tennis"),
+    (r"beach ?volley|beachvolleyball|volley(?:ball)? de plage|v[oô]lei de praia|volei pe plaja|voley playa|volley playa|strandvolley", "Beach volley"),
+    (r"hockey pista|hockey su pista|rollhockey|rink hockey|roller hockey|hockey sur patins|h[oó]quei em patins|hockey sobre patines", "Hockey pista"),
+    (r"hockey su prato|field hockey|hockey sur gazon|feldhockey|h[oó]quei em campo", "Hockey su prato"),
+    (r"eishockey|hockey su ghiaccio|hockey sur glace|h[oó]quei no gelo|hockey sobre hielo|ijshockey|ice hockey|hochei(?: pe gheata)?|ishockey|hockey", "Hockey su ghiaccio"),
+    (r"baseball|softball|beisebol|b[eé]isbol", "Baseball"),
+    (r"wasserball|pallanuoto|water ?polo|polo aqu[aá]tico|polo pe apa|vaterpolo", "Pallanuoto"),
+    (r"fechten|scherma|escrime|esgrima|schermen|scrima", "Scherma"),
+    (r"bogenschie|tiro con l'arco|tir [aà] l'arc|archery|tiro com arco|tiro con arco", "Tiro con l'arco"),
+    (r"klettern|arrampicata|escalade|escalada|climbing", "Arrampicata"),
+    (r"\bmma\b|mixed martial|artes marciais|artes marciales|arts martiaux mixtes", "MMA"),
+    (r"kick ?box", "Kickboxing"),
+    (r"muay ?thai", "Muay Thai"),
     (r"unihockey|floorball", "Unihockey"),
-    (r"kunstturnen|ginnastica|gymnastique|turnen", "Ginnastica artistica"),
+    (r"kunstturnen|ginnastica|gymnastique|turnen|gimnastica|gymnastics", "Ginnastica artistica"),
     (r"curling", "Curling"),
-    (r"handball|pallamano", "Pallamano"),
-    (r"euroleague|eurocup|nba|basketball|basket", "Basket"),
-    (r"volleyball|pallavolo|volley", "Pallavolo"),
-    (r"leichtathletik|atletica|athlétisme|marathon|maratona", "Atletica"),
-    (r"schwimmen|nuoto|natation", "Nuoto"),
-    (r"box|boxe|pugilato", "Boxe"),
-    (r"tanz|danza|danse", "Danza sportiva"),
+    (r"handball|pallamano|handebol|andebol|balonmano|handbal|handbol", "Pallamano"),
+    (r"euroleague|eurocup|nba|basketball|basket-ball|basquetebol|basquete|baloncesto|b[aá]squetbol|basquet\b|baschet|pallacanestro|basketbol|basket", "Basket"),
+    (r"volleyball|pallavolo|volley|v[oô]lei\b|voleibol", "Pallavolo"),
+    (r"leichtathletik|atletica|athl[eé]tisme|atletismo|atletism\b|atletiek|athletics|marathon|maratona", "Atletica"),
+    (r"schwimmen|nuoto|natation|swimming|nata[cç][aã]o|nataci[oó]n|zwemmen|\binot\b", "Nuoto"),
+    (r"box|boxe|pugilato|boxeo|boxen|boksen|pugilismo", "Boxe"),
+    (r"eiskunstlauf|pattinaggio|patinage|figure skating|danse sur glace|eistanz|ice dance|danza su ghiaccio", "Pattinaggio"),
+    (r"tanzsport|danza sportiva|danse sportive|tanz|danza|danse", "Danza sportiva"),
     (r"golf", "Golf"),
-    (r"reiten|equitazione|hippisme|springreiten", "Equitazione"),
+    (r"reiten|equitazione|hippisme|springreiten|equita[cç][aã]o|equitaci[oó]n", "Equitazione"),
     (r"schwingen|lotta svizzera|lutte suisse", "Lotta svizzera"),
-    (r"rudern|canottaggio|aviron", "Canottaggio"),
-    (r"segeln|vela|voile", "Vela"),
-    (r"triathlon", "Triathlon"),
+    (r"rudern|canottaggio|aviron|rowing", "Canottaggio"),
+    (r"segeln|vela|voile|sailing", "Vela"),
+    (r"triathlon|triatlo|triatl[oó]n", "Triathlon"),
     (r"uci|gravel|paris-tours|giro d|tour de france|vuelta|radrennen|cyclo-cross|querfeldein|lombardei", "Ciclismo"),
     (r"snooker", "Snooker"),
-    (r"darts|freccette|fléchettes", "Freccette"),
-    (r"dtm|superbike|motorsport|nascar|rallye|rally|wec|indycar|formel e|formula e|gt masters|motocross|sport auto", "Motori"),
+    (r"darts|freccette|fl[eé]chettes|dardos|darten", "Freccette"),
+    (r"dtm|superbike|motorsport|desportos motorizados|deportes de motor|nascar|rallye|rally|wec|indycar|formel e|formula e|gt masters|motocross|sport auto|automobilismo|\bmotor\b", "Motori"),
+    (r"rugby league|rugby a 13|rugby [aà] xiii", "Rugby a 13"),
     (r"rugby", "Rugby"),
     (r"badminton", "Badminton"),
-    (r"tischtennis|tennistavolo|tennis de table|table tennis", "Tennistavolo"),
     (r"judo", "Judo"),
-    (r"ringen|lutte|wrestling", "Lotta"),
-    (r"bobsport|bob-weltcup|zweierbob|viererbob|monobob|rodeln|skeleton|slittino", "Bob e slittino"),
-    (r"eiskunstlauf|pattinaggio|patinage", "Pattinaggio"),
+    (r"ringen|lutte|wrestling|luta|lucha|worstelen|lupte", "Lotta"),
+    (r"bobsport|bob-weltcup|zweierbob|viererbob|monobob|rodeln|skeleton|slittino|bobsleigh", "Bob e slittino"),
     (r"skicross|snowboard|freeski", "Sport invernali"),
-    (r"nfl|american football|football américain", "Football americano"),
+    (r"sport estremi|extreme sports|adventure sports|desportos radicais|deportes extremos", "Sport estremi"),
     (r"sportschau|sportpanorama|sport", "Programma sportivo"),
 ]
 # squadre di basket ARD (i titoli dicono solo "A gegen B")
@@ -79,10 +91,15 @@ BASKET_ARD = re.compile(r"gladiators trier|telekom baskets|alba berlin|ratiophar
 
 
 def sport_di(testo):
+    """Sport italiano di un titolo. Prima le espressioni note, poi l'etichetta iniziale
+    («Basquetebol: …», «Ténis: …») tramite sport.json."""
     t = testo.lower()
     for rx, nome in SPORT:
         if re.search(r"(?<![a-zà-ü])(?:" + rx + r")", t):
             return nome
+    testa = re.split(r"[:|,]", testo, maxsplit=1)[0].strip()
+    if testa and len(testa.split()) <= 6 and sport_nomi.conosciuto(testa):
+        return sport_nomi.normalizza(testa)
     return None
 
 
@@ -261,8 +278,11 @@ def e_programma(e, rx_prog, rx_ev, rx_salvo=None):
     m = rx_salvo.search(titolo) if rx_salvo else None
     if m and not due_partecipanti(titolo):
         return f"programma «{m.group(0)}» senza due partecipanti"
-    if e.get("sport") == "Football americano" and not (due_partecipanti(titolo) or due_partecipanti(e.get("titolo") or "")
-                                                       or due_partecipanti(e.get("descrizione") or "")):
+    # vale per lo sport già chiamato «Football americano». «Fútbol americano» e simili
+    # erano una sezione visibile: unificarli non deve togliere le schede senza due squadre
+    if (e.get("sport") == "Football americano" and not e.get("sport_orig")
+            and not (due_partecipanti(titolo) or due_partecipanti(e.get("titolo") or "")
+                     or due_partecipanti(e.get("descrizione") or ""))):
         return "football americano senza due squadre"
     if e.get("evento") is False and e.get("sport") not in ("Sport", "Programma sportivo"):
         return None  # SRG: il titolo inizia con uno sport preciso ("TENNIS ...", "Sci alpino: ...")
@@ -285,6 +305,21 @@ def calcio_squadre(ev):
             if a.strip() and b.strip():
                 return a.strip(), b.strip(), comp.strip()
     return None
+
+
+def squadre_per_calcio(ev, largo=False):
+    """Come calcio_squadre. Con largo anche «A x B» e «A vs B» (Futebol, Football)."""
+    sq = calcio_squadre(ev)
+    if sq or not largo:
+        return sq
+    t = ev.get("titolo") or ""
+    comp, _, ultimo = t.rpartition(",")
+    ultimo = ultimo.strip()
+    m = re.search(r"\s+(?:x|vs\.?|v|@)\s+", ultimo, re.I)
+    if not m:
+        return None
+    a, b = ultimo[:m.start()].strip(), ultimo[m.end():].strip()
+    return (a, b, comp.strip()) if a and b else None
 
 
 PAROLE_VUOTE = {"live", "rennen", "gara", "course", "race", "finale", "final", "runde", "round", "grand", "prix", "premio",
@@ -345,8 +380,11 @@ def _priorita(e):
 def unisci_eventi(eventi):
     """Stesso evento su più emittenti: stesso id swisstxt, oppure stesso sport, emittente diversa,
     inizio entro 45 minuti e titoli simili (es. GP di F1 su SRF, RTS e RSI). Con due squadre nel titolo
-    (NFL, NBA, rugby...) devono coincidere le squadre; per guida TV e LiveOnSat serve una parola in comune."""
+    (NFL, NBA, rugby...) devono coincidere le squadre; per guida TV e LiveOnSat serve una parola in comune.
+    Lo sport è prima portato al nome italiano, così «Basquetebol» e «Basket» sono lo stesso evento."""
     import difflib
+    for e in eventi:
+        sport_nomi.applica(e)
     uniti = []
     for e in sorted(eventi, key=lambda e: (e["ts"], -_priorita(e))):
         gia = None
@@ -380,6 +418,8 @@ def unisci_eventi(eventi):
         gia["_fonti"].append(e)
         gia["ids"].add(e["id"])
         gia["testi"].append(e["titolo_orig"])
+        if e.get("sport_orig") and not gia.get("sport_orig"):
+            gia["sport_orig"] = e["sport_orig"]
         gia["fine"] = max(gia["fine"], e["fine"])
         if not gia.get("_squadre") or e.get("nfl_soprannomi") is None and squadre_evento(e):
             gia["_squadre"] = gia.get("_squadre") or squadre_evento(e)
@@ -433,8 +473,20 @@ def e_calcio(e):
 BASKET_TOLTI = []  # ultima raccolta: "titolo – motivo" delle partite di basket tolte (per il log)
 
 
+def _escluso_donne(rx):
+    """True se la regex di basket_esclusi è basket femminile (non 3x3 né G League)."""
+    p = rx.pattern
+    return "3x3" not in p and "League" not in p
+
+
 def filtro_basket(cat=None):
-    """Funzione evento -> None (tenere) o motivo (togliere), secondo categorie.json -> basket_ammessi / basket_esclusi."""
+    """Funzione evento -> None (tenere) o motivo (togliere).
+
+    basket_ammessi e le esclusioni che non sono il femminile (3x3, G League) valgono solo
+    per gli eventi che la fonte chiamava già Basket: erano già filtrati prima.
+    Basquetebol, Basketball, Baloncesto e gli altri nomi si spostano nella sezione Basket
+    e restano in pagina. Il basket femminile si toglie comunque.
+    """
     if cat is None:
         try:
             cat = json.loads((Path(__file__).resolve().parent.parent / "categorie.json").read_text(encoding="utf-8"))
@@ -443,12 +495,19 @@ def filtro_basket(cat=None):
     ammessi = [(v["nome"], [re.compile(r, re.I) for r in v.get("regex", [])], v.get("solo_titolo", False))
                for v in cat.get("basket_ammessi", [])]
     esclusi = [re.compile(r, re.I) for r in cat.get("basket_esclusi", [])]
+    donne = [r for r in esclusi if _escluso_donne(r)]
 
     def fn(e):
         if e.get("sport") != "Basket" or not ammessi:
             return None
-        testo = " | ".join(str(x) for x in [e.get("titolo"), e.get("titolo_orig"), e.get("titolo_src"), e.get("comp"),
-                                            e.get("descrizione"), *(e.get("testi") or [])] if x)
+        testo = " | ".join(str(x) for x in [e.get("sport"), e.get("sport_orig"), e.get("titolo"), e.get("titolo_orig"),
+                                            e.get("titolo_src"), e.get("comp"), e.get("descrizione"),
+                                            *(e.get("testi") or [])] if x)
+        for r in donne:
+            if r.search(testo):
+                return f"escluso ({r.pattern})"
+        if e.get("sport_orig") and sport_nomi.chiave(e["sport_orig"]) != "basket":
+            return None
         for r in esclusi:
             if r.search(testo):
                 return f"escluso ({r.pattern})"
@@ -458,6 +517,17 @@ def filtro_basket(cat=None):
                 return None
         return "competizione non nella lista basket_ammessi"
     return fn
+
+
+def fonte_calcio(e):
+    """True se la fonte lo chiamava già Calcio. Futebol, Football e Soccer no."""
+    return sport_nomi.chiave(e.get("sport_orig") or e.get("sport") or "") == "calcio"
+
+
+def gia_calcio(e):
+    """True se, col nome della fonte, l'evento era già instradato al calcio (sport o titolo)."""
+    return e_calcio({"sport": e.get("sport_orig") or e.get("sport"), "titolo": e.get("titolo"),
+                     "titolo_src": e.get("titolo_src")})
 
 
 def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None, scarica_ard_fn=None,
@@ -503,7 +573,11 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
         ev, err = scarica_dazn_fn()
         if err:
             falliti.append(f"DAZN altri sport: {err}")
-        tutti += [e for e in ev if e["sport"] != "Calcio"]
+        # solo il calcio già chiamato «Calcio» (raccolto con le partite). Futebol, Football,
+        # Soccer e Fußball entrano e finiscono nella sezione calcio, senza sparire
+        tutti += [e for e in ev if not fonte_calcio(e)]
+    for e in tutti:
+        sport_nomi.applica(e)  # stesso sport, qualunque lingua della fonte, prima di unire e filtrare
     tutti = [e for e in tutti if inizio.timestamp() <= e["ts"] < fine.timestamp() and e["fine"] > ora.timestamp()]
     tenuti = []
     rx_salvo = _rx_salvo()
@@ -539,17 +613,22 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
     for e in uniti:
         testi = " ".join(e["testi"])
         if e["sport"] == "Calcio" or e_calcio(e):
-            # il calcio non entra MAI in ALTRI SPORT: o va nella sezione calcio o si toglie
-            if rx_femminile.search(testi) or re.search(r"\bfrauen|\bfemminil|\bféminin|\bwomen", testi, re.I):
-                continue  # niente calcio femminile
-            sq = calcio_squadre(e)
+            # il calcio non entra in ALTRI SPORT. Quello che la fonte chiamava già calcio segue
+            # le regole di prima (femminile tolto; senza squadre solo come canale in più).
+            # Futebol, Football, Soccer e gli altri nomi si spostano nel calcio e restano schede
+            gia = gia_calcio(e)
+            if gia and (rx_femminile.search(testi) or re.search(r"\bfrauen|\bfemminil|\bféminin|\bwomen", testi, re.I)):
+                continue
+            sq = squadre_per_calcio(e, largo=not gia)
             if sq:
                 casa, ospite = (traduci.nazione(x) for x in sq[:2])  # nazionali: "Schweiz" -> "Svizzera"
-                calcio.append(dict(e, casa=casa, ospite=ospite, comp=sq[2]))
-            else:  # "UEFA Champions League" senza squadre: si prova solo ad aggiungere il canale a una partita già nota
+                calcio.append(dict(e, casa=casa, ospite=ospite, comp=sq[2], da_etichetta=not gia))
+            elif gia:  # "UEFA Champions League" senza squadre: si prova solo ad aggiungere il canale a una partita già nota
                 CALCIO_GENERICO.append(e)
                 CALCIO_TOLTO_ALTRI.append(f'{dt.datetime.fromtimestamp(e["ts"], ROMA):%d/%m %H:%M} {e["titolo"]} '
                                           f'({", ".join(x["nome"] for x in e["emittenti"])})')
+            else:
+                calcio.append(dict(e, casa=e.get("titolo") or "Calcio", ospite="", comp="", da_etichetta=True))
             continue
         altri.append(e)
     avvisi = [f"Altri sport: non raggiungibile {', '.join(falliti)}"] if falliti else []

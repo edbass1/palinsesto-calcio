@@ -1805,3 +1805,332 @@ def test_digi_da_liveonsat_e_doppioni_sabato():
 test_digi_da_liveonsat_e_doppioni_sabato(); print("Digi da LiveOnSat senza digisport.ro, A Coruna, Moto2/3 Prima Play: OK")
 
 test_digi_sport_romania(); print("Digi Sport Romania (digisport.ro nuovo HTML, LiveOnSat ogni competizione): OK")
+
+
+def test_sport_nomi():
+    """Stesso sport, qualunque lingua della fonte, nella stessa sezione italiana. La ricerca trova anche la parola straniera."""
+    import sport_nomi as S
+    import altri_sport as A
+    import dazn as D
+    # etichette viste sul sito e nelle altre lingue delle fonti
+    casi = {
+        "Basquetebol": "Basket", "Baloncesto": "Basket", "Basketball": "Basket", "Baschet": "Basket",
+        "Basket-ball": "Basket", "Koszykówka": "Basket", "Pallacanestro": "Basket", "Basket": "Basket",
+        "Ténis": "Tennis", "Tenis": "Tennis", "Tennis": "Tennis",
+        "Tennis de table": "Tennistavolo", "Tenis de mesa": "Tennistavolo", "Tischtennis": "Tennistavolo",
+        "Table tennis": "Tennistavolo", "Tennistavolo": "Tennistavolo",
+        "Boxeo": "Boxe", "Boxing": "Boxe", "Boxen": "Boxe", "Boxe": "Boxe",
+        "Fútbol americano": "Football americano", "Futebol americano": "Football americano",
+        "American Football": "Football americano", "Football américain": "Football americano",
+        "Fotbal american": "Football americano", "Football Americano": "Football americano",
+        "Hockey sur glace": "Hockey su ghiaccio", "Eishockey": "Hockey su ghiaccio",
+        "Hóquei no gelo": "Hockey su ghiaccio", "Ice Hockey": "Hockey su ghiaccio", "Hochei": "Hockey su ghiaccio",
+        "Motor": "Motori", "Motorsport": "Motori", "Desportos motorizados": "Motori",
+        "Deportes de motor": "Motori", "Motori": "Motori", "Moto": "Motori", "Formula E": "Motori",
+        "Formula 1": "Formula 1", "Formel 1": "Formula 1", "Formule 1": "Formula 1", "F1": "Formula 1",
+        "Volley": "Pallavolo", "Voleibol": "Pallavolo", "Vôlei": "Pallavolo", "Volei": "Pallavolo",
+        "Volleyball": "Pallavolo", "Pallavolo": "Pallavolo", "Beach volley": "Beach volley",
+        "Handebol": "Pallamano", "Balonmano": "Pallamano", "Handbal": "Pallamano", "Handball": "Pallamano",
+        "Ciclismo": "Ciclismo", "Cycling": "Ciclismo", "Cyclisme": "Ciclismo", "Radsport": "Ciclismo",
+        "Wielrennen": "Ciclismo", "Ciclism": "Ciclismo", "Kolarstwo": "Ciclismo",
+        "Futebol": "Calcio", "Fútbol": "Calcio", "Fußball": "Calcio", "Voetbal": "Calcio", "Fotbal": "Calcio",
+        "Calcio": "Calcio", "Futsal": "Calcio a 5", "Calcio a 5": "Calcio a 5",
+        "Rugby": "Rugby", "Rugby League": "Rugby a 13", "Golf": "Golf", "MMA": "MMA",
+        "Sci alpino": "Sci alpino", "Ski": "Sci", "Esquí": "Sci", "Sci": "Sci",
+        "Equitazione | Salto ostacoli": "Equitazione", "Sport Estremi": "Sport estremi",
+        "Squash": "Squash", "Muay Thai": "Muay Thai", "Curling": "Curling", "Darts": "Freccette",
+        "Nuoto": "Nuoto", "Swimming": "Nuoto", "Natação": "Nuoto", "Motomondiale": "Motomondiale", "MotoGP": "Motomondiale",
+        "Ginnastica": "Ginnastica artistica", "Gimnastica": "Ginnastica artistica", "Polo": "Pallanuoto",
+        "Live TV": "Live TV", "TV Live": "TV Live", "OTHER": "OTHER", "Series & Shows": "Series & Shows",
+    }
+    for src, atteso in casi.items():
+        assert S.normalizza(src) == atteso, (src, S.normalizza(src), atteso)
+    # ogni nome già emesso dagli scraper resta se stesso (o l'unificazione voluta, es. Ginnastica)
+    for _rx, nome in A.SPORT:
+        assert S.normalizza(nome) == nome, nome
+    pp = json.loads((QUI.parent / "primaplay.json").read_text(encoding="utf-8"))["sport"]
+    for k, v in pp.items():
+        atteso = "Ginnastica artistica" if v == "Ginnastica" else v
+        assert S.normalizza(k) == atteso, (k, S.normalizza(k), atteso)
+        assert S.normalizza(v) == atteso, (v, S.normalizza(v))
+    for k, v in json.loads((QUI.parent / "digisport.json").read_text(encoding="utf-8"))["sport_elite"].items():
+        assert S.normalizza(k) == v, (k, S.normalizza(k), v)
+        assert S.normalizza(v) == v
+    los = json.loads((QUI.parent / "liveonsat.json").read_text(encoding="utf-8"))["pagine_altri_sport"]
+    for _u, (sp, _d) in los.items():
+        assert S.normalizza(sp) == sp, sp
+    cat = json.loads((QUI.parent / "categorie.json").read_text(encoding="utf-8"))
+    for sp in cat["altri"]["elite"]["sport"] + cat["altri"]["sport_in_testa"]:
+        assert S.normalizza(sp) == sp, sp
+    # ogni Sport.Title dei JSON DAZN salvati ha un esito noto
+    dazn_attesi = {
+        "Adventure Sports": "Sport estremi", "American Football": "Football americano", "BKFC": "BKFC",
+        "Bare Knuckle Fighting": "BKFC", "Bare Knuckle Fighting Championship": "BKFC", "Baseball": "Baseball",
+        "Basket": "Basket", "Basketball": "Basket", "Boxe": "Boxe", "Boxing": "Boxe", "Calcio": "Calcio",
+        "Ciclismo": "Ciclismo", "Curling": "Curling", "Cycling": "Ciclismo", "Darts": "Freccette",
+        "Equestrian": "Equitazione", "Equestrian Jumping": "Equitazione", "Equestrian Sports": "Equitazione",
+        "Equitazione | Salto ostacoli": "Equitazione", "Extreme Sports": "Sport estremi", "Football": "Calcio",
+        "Football Americano": "Football americano", "Futsal": "Calcio a 5", "Golf": "Golf",
+        "Hockey su ghiaccio": "Hockey su ghiaccio", "Ice Hockey": "Hockey su ghiaccio", "Live TV": "Live TV",
+        "MMA": "MMA", "Motori": "Motori", "Motorsport": "Motori", "Nuoto": "Nuoto", "OTHER": "OTHER",
+        "Series & Shows": "Series & Shows", "Sport Estremi": "Sport estremi", "Swimming": "Nuoto",
+        "TV Live": "TV Live", "Table Tennis": "Tennistavolo", "Tennis": "Tennis", "Tennistavolo": "Tennistavolo",
+        "Triathlon": "Triathlon", "Volley": "Pallavolo", "Volleyball": "Pallavolo",
+    }
+    visti = set()
+    for f in (QUI).rglob("*.json.gz"):
+        if "dazn" not in f.name and "dazn" not in str(f.parent):
+            continue
+        data = json.loads(gzip.open(f).read())
+
+        def walk(o):
+            if isinstance(o, dict):
+                sp = o.get("Sport")
+                if isinstance(sp, dict) and sp.get("Title"):
+                    visti.add(sp["Title"])
+                for x in o.values():
+                    walk(x)
+            elif isinstance(o, list):
+                for x in o:
+                    walk(x)
+        walk(data)
+    assert visti, "nessun titolo sport nei fixture DAZN"
+    sconosciuti = visti - set(dazn_attesi)
+    assert not sconosciuti, sconosciuti
+    for t in visti:
+        assert S.normalizza(t) == dazn_attesi[t], (t, S.normalizza(t))
+    # riconoscimento dal titolo, non solo dall'etichetta DAZN
+    assert A.sport_di("Basquetebol: Benfica x Porto") == "Basket"
+    assert A.sport_di("Baloncesto: Barcelona - Madrid") == "Basket"
+    assert A.sport_di("Ténis: ATP Osaka") == "Tennis"
+    assert A.sport_di("Table tennis") == "Tennistavolo"
+    assert A.sport_di("Tennistavolo") == "Tennistavolo"
+    assert A.sport_di("Tennis de table") == "Tennistavolo"
+    assert A.sport_di("Calcio a 5: Meta Catania") == "Calcio a 5"
+    assert A.sport_di("Fútbol americano: Steelers - Saints") == "Football americano"
+    assert A.sport_di("Pattinaggio di figura, Danza: Programma libero") == "Pattinaggio"
+    assert A.sport_di("Danza sportiva: finale") == "Danza sportiva"
+    assert A.sport_di("EuroLeague: Real Madrid vs Monaco") == "Basket"
+    assert S.filtro_di("Basquetebol") == "basket" and S.filtro_di("Pallavolo") == "volley"
+    assert S.filtro_di("Ténis") == "tennis" and S.filtro_di("Fútbol americano") == "nfl"
+    assert S.filtro_di("Formula 1") == "f1" and S.filtro_di("Motomondiale") == "moto"
+    assert S.filtro_di("Motori") is None and S.filtro_di("Ciclismo") is None
+    # DAZN: l'etichetta portoghese/spagnola diventa il nome italiano, il calcio no
+    def tile(sport, titolo, eid):
+        return {"Sport": {"Id": "x", "Title": sport}, "Type": "Live", "EventId": eid,
+                "Start": "2026-10-10T18:00:00Z", "End": "2026-10-10T20:00:00Z", "Title": titolo,
+                "Competition": {"Title": ""}, "IsFreeToView": True}
+    bsk = D.analizza_altri([tile("Basquetebol", "Barcelona x Zaragoza", "b1")], "pt")[0]
+    assert bsk["sport"] == "Basket" and bsk["sport_orig"] == "Basquetebol"
+    assert D.analizza_altri([tile("Ténis", "WTA Osaka", "t1")], "pt")[0]["sport"] == "Tennis"
+    assert D.analizza_altri([tile("Boxeo", "Canelo vs Mbilli", "x1")], "es")[0]["sport"] == "Boxe"
+    assert D.analizza_altri([tile("Volley", "Lube - Trento", "v1")], "it")[0]["sport"] == "Pallavolo"
+    cal = D.analizza_altri([tile("Futebol", "Benfica - Porto", "c1")], "pt")[0]
+    assert cal["sport"] == "Calcio" and cal["sport_orig"] == "Futebol"
+    # stessa partita da due paesi: un solo evento, sotto Basket.
+    # La lista bianca resta per lo sport già chiamato Basket. Liga Betclic maschile, arrivata come Basquetebol, resta.
+    ora = dt.datetime(2026, 10, 10, 16, 0, tzinfo=p.ROMA)
+    ts = int((ora + dt.timedelta(hours=3)).timestamp())
+
+    def ev(sport, titolo, nome):
+        return {"id": f"{nome}:{titolo}", "ts": ts, "fine": ts + 7200, "sport": sport, "titolo": titolo,
+                "titolo_orig": titolo, "titolo_src": titolo, "evento": True, "lingua": "pt", "descrizione": "",
+                "emittenti": [{"nome": nome, "pagina": "https://x", "link": None, "dazn_gratis": True}]}
+    uniti = A.unisci_eventi([ev("Basquetebol", "Barcelona - Real Madrid", "DAZN Portogallo"),
+                             ev("Basket", "Barcelona - Real Madrid", "DAZN Italia")])
+    assert len(uniti) == 1 and uniti[0]["sport"] == "Basket", uniti
+    assert {x["nome"] for x in uniti[0]["emittenti"]} == {"DAZN Portogallo", "DAZN Italia"}
+    f = A.filtro_basket()
+    acb = ev("Basquetebol", "Liga ACB, Barcelona x Zaragoza", "DAZN Portogallo")
+    S.applica(acb)
+    assert acb["sport"] == "Basket" and acb.get("sport_orig") == "Basquetebol" and f(acb) is None
+    fem = ev("Basquetebol", "Liga Betclic Feminina, A x B", "DAZN Portogallo")
+    S.applica(fem)
+    assert f(fem), fem
+    casa = ev("Basquetebol", "Liga Betclic Masculina, Queluz x Benfica", "DAZN Portogallo")
+    S.applica(casa)
+    assert f(casa) is None, f(casa)
+    nativo = ev("Basket", "BBL, ALBA Berlin - Bayern", "DAZN Germania")
+    S.applica(nativo)
+    assert f(nativo), nativo
+    # pagina: una sola sezione per sport, pulsante Per sport e ricerca sulla parola straniera
+    eventi = [ev("Basquetebol", "Liga ACB, Barcelona x Zaragoza", "DAZN Portogallo"),
+              ev("Basket", "EuroLeague: Milano - Madrid", "DAZN Italia"),
+              ev("Ténis", "WTA Osaka", "DAZN Portogallo"),
+              ev("Tennis", "ATP Almaty", "DAZN Italia"),
+              ev("Pallavolo", "Lube - Trento", "DAZN Italia"),
+              ev("Boxeo", "Canelo vs Mbilli", "DAZN Spagna"),
+              ev("Fútbol americano", "Steelers - Saints", "DAZN Spagna"),
+              ev("Hockey sur glace", "Kings - Devils", "DAZN Francia"),
+              ev("Motor", "Supercars", "DAZN Spagna"),
+              ev("Desportos motorizados", "TCR World Tour", "DAZN Portogallo")]
+    for i, e in enumerate(eventi):
+        e["ts"] = int((ora + dt.timedelta(hours=1 + i)).timestamp())
+        e["fine"] = e["ts"] + 7200
+        e["id"] = f"s{i}"
+    h = p.genera_html(p.finestra(ora)[0], ora, [], [], [], [], eventi)
+    for vietato in ("BASQUETEBOL", "TÉNIS", "BOXEO", "FÚTBOL AMERICANO", "HOCKEY SUR GLACE",
+                    ">MOTOR<", "DESPORTOS MOTORIZADOS"):
+        assert vietato not in h, vietato
+    for titolo in ("BASKET", "TENNIS", "PALLAVOLO", "BOXE", "FOOTBALL AMERICANO", "HOCKEY SU GHIACCIO", "MOTORI"):
+        assert f"<h2>{titolo}</h2>" in h, titolo
+    assert h.count("<h2>BASKET</h2>") == 1 and h.count("<h2>TENNIS</h2>") == 1 and h.count("<h2>MOTORI</h2>") == 1
+    assert 'data-sport="basket"' in h and 'data-sport="volley"' in h and 'data-sport="tennis"' in h
+    assert 'data-sport="nfl"' in h
+    assert 'data-alias="Basquetebol"' in h and 'data-alias="Ténis"' in h
+    assert "basquetebol" in h and "baloncesto" in h and "baschet" in h and "boxeo" in h
+    assert "ALIAS_SPORT" in h and "data-alias" in h
+    assert "background:#000" in h and "font-size:1.35rem" in h
+
+
+test_sport_nomi(); print("nomi sport unificati (tutte le lingue): OK")
+
+
+def test_normalizzazione_non_nasconde():
+    """Unificare il nome sposta l'evento nella sezione italiana. Non lo toglie, salvo il basket femminile."""
+    import copy
+    import sport_nomi as S
+    import altri_sport as A
+    import dazn as D
+
+    ora = dt.datetime(2026, 10, 10, 16, 0, tzinfo=p.ROMA)
+    inizio, fine = ora, ora + dt.timedelta(days=4)
+    base = int((ora + dt.timedelta(hours=2)).timestamp())
+    cat = json.loads((QUI.parent / "categorie.json").read_text(encoding="utf-8"))
+    rx_donne = [r for r in cat["basket_esclusi"] if "3x3" not in r and "League" not in r]
+
+    def ev(i, sport, titolo):
+        ts = base + i * 4000
+        return {"id": f"e{i}", "ts": ts, "fine": ts + 7200, "sport": sport, "titolo": titolo,
+                "titolo_orig": titolo, "titolo_src": titolo, "evento": True, "lingua": "it",
+                "descrizione": "", "comp": "",
+                "emittenti": [{"nome": "DAZN Portogallo", "pagina": "https://x", "link": None, "vpn": None, "dazn_gratis": True}]}
+
+    eventi = [
+        ev(1, "Basquetebol", "Liga Betclic Masculina, Queluz x Benfica"),
+        ev(2, "Basketball", "BBL, ALBA Berlin - Bayern"),
+        ev(3, "Baloncesto", "Liga ACB, Barcelona - Madrid"),
+        ev(4, "Basquetebol", "Liga Betclic Feminina, Uniao x Benfica"),
+        ev(5, "Basket", "WNBA, Las Vegas Aces - NY Liberty"),
+        ev(6, "Basket", "NBA, Los Angeles Lakers - Boston Celtics"),
+        ev(7, "Basket", "BBL, Alba Berlin - Ulm"),
+        ev(8, "Futebol", "Liga Portugal, Benfica - Porto"),
+        ev(9, "Football", "Premier League, Arsenal vs Chelsea"),
+        ev(10, "Fußball", "Frauen-Bundesliga, Wolfsburg - Essen"),
+        ev(11, "Soccer", "MLS, Miami - Atlanta"),
+        ev(12, "Ténis", "WTA Osaka"),
+        ev(13, "Boxeo", "Canelo vs Mbilli"),
+        ev(14, "Fútbol americano", "All Access Semana 6"),
+        ev(15, "Football americano", "All Access Semana 7"),
+        ev(16, "Volley", "Lube - Trento"),
+        ev(17, "Motor", "Supercars Bathurst"),
+        ev(18, "Koszykówka", "Greek Basket League, Olympiacos - Panathinaikos"),
+        ev(19, "Basquetebol", "FIBA 3x3 World Tour Bucharest"),
+        ev(20, "Basket", "FIBA 3x3 World Tour Lausanne"),
+        ev(21, "Futsal", "Meta Catania - Real San Giuseppe"),
+        ev(22, "Futebol", "Taca de Portugal"),
+        ev(23, "Basketball", "NBA G League, Austin - Mexico"),
+        ev(24, "Basket", "NBA G League, South Bay - Rip City"),
+        ev(25, "Basquetebol Feminino", "Schio x Venezia"),
+        ev(26, "Pallacanestro", "LNB Pro A, Monaco - Lyon"),
+        ev(27, "Hockey sur glace", "Kings - Devils"),
+        ev(28, "Desportos motorizados", "TCR World Tour"),
+    ]
+
+    def donne_basket(e):
+        if S.normalizza(e["sport"]) != "Basket":
+            return False
+        testo = " ".join([e["sport"], e["titolo"]])
+        return any(re.search(r, testo, re.I) for r in rx_donne)
+
+    ids_donne = {e["id"] for e in eventi if donne_basket(e)}
+    assert ids_donne == {"e4", "e5", "e25"}, ids_donne
+
+    def visibili(attiva, fonte):
+        precedente = S.ATTIVA
+        S.imposta(attiva)
+        try:
+            dati = copy.deepcopy(fonte)
+            vuoto = lambda *a, **k: ([], None)
+            altri, calcio, _ = A.raccogli_altri(
+                inizio, fine, ora, U.regex_femminile([]),
+                scarica_srg_fn=vuoto, scarica_ard_fn=vuoto,
+                scarica_dazn_fn=lambda: (dati, None))
+            tenuti, _ = p.unisci_stream([], calcio, scartate=[])
+            chiavi = {(e["ts"], e["casa"], e["ospite"]) for e in tenuti}
+            ids = set()
+            for e in altri:
+                ids |= set(e.get("ids") or {e["id"]})
+            for e in calcio:
+                if (e["ts"], e["casa"], e["ospite"]) in chiavi:
+                    ids |= set(e.get("ids") or {e["id"]})
+            return ids, altri, calcio, tenuti
+        finally:
+            S.imposta(precedente)
+
+    prima, _, _, _ = visibili(False, eventi)
+    dopo, altri, calcio, tenuti = visibili(True, eventi)
+    spariti = prima - dopo
+    assert spariti <= ids_donne, spariti
+    assert prima - ids_donne <= dopo, prima - ids_donne - dopo
+    assert spariti == {"e4", "e25"}, spariti
+    assert "e5" not in prima and "e5" not in dopo
+    assert {"e1", "e2", "e3", "e6", "e8", "e9", "e10", "e11", "e18", "e19", "e22", "e23", "e26"} <= dopo
+    assert "e7" not in prima and "e20" not in prima and "e24" not in prima
+    assert "e15" not in prima and "e15" not in dopo
+
+    sport_di = {e["titolo"]: e["sport"] for e in altri}
+    assert sport_di["Liga Betclic Masculina, Queluz x Benfica"] == "Basket"
+    assert sport_di["BBL, ALBA Berlin - Bayern"] == "Basket"
+    assert sport_di["Greek Basket League, Olympiacos - Panathinaikos"] == "Basket"
+    assert sport_di["FIBA 3x3 World Tour Bucharest"] == "Basket"
+    assert sport_di["NBA G League, Austin - Mexico"] == "Basket"
+    assert sport_di["LNB Pro A, Monaco - Lyon"] == "Basket"
+    assert sport_di["WTA Osaka"] == "Tennis"
+    assert sport_di["Canelo vs Mbilli"] == "Boxe"
+    assert sport_di["Lube - Trento"] == "Pallavolo"
+    assert sport_di["All Access Semana 6"] == "Football americano"
+    assert sport_di["Supercars Bathurst"] == "Motori"
+    assert sport_di["TCR World Tour"] == "Motori"
+    assert sport_di["Kings - Devils"] == "Hockey su ghiaccio"
+    assert sport_di["Meta Catania - Real San Giuseppe"] == "Calcio a 5"
+    assert "Liga Betclic Feminina" not in " ".join(sport_di)
+    assert not any("Benfica - Porto" in e["titolo"] or e["titolo"] == "Taca de Portugal" for e in altri)
+
+    def squadre(casa, ospite):
+        return any(e["casa"] == casa and e["ospite"] == ospite for e in calcio)
+
+    assert squadre("Benfica", "Porto") and squadre("Arsenal", "Chelsea") and squadre("Miami", "Atlanta")
+    assert squadre("Wolfsburg", "Essen")
+    assert any(e["casa"] == "Taca de Portugal" and e["ospite"] == "" for e in calcio)
+    assert all(e.get("da_etichetta") for e in calcio if e["casa"] in ("Benfica", "Arsenal", "Miami", "Wolfsburg", "Taca de Portugal"))
+
+    h = p.genera_html(inizio.date(), ora, p.raggruppa(tenuti), [], [], None, altri)
+    for testo in ("Queluz", "ALBA Berlin", "Olympiacos", "Barcelona", "Lakers", "Benfica", "Porto",
+                  "Arsenal", "Chelsea", "Wolfsburg", "Taca de Portugal", "Austin", "Bucharest", "Monaco",
+                  "WTA Osaka", "Canelo", "Lube", "Supercars", "Kings"):
+        assert testo in h, testo
+    assert "Liga Betclic Feminina" not in h and "Schio" not in h
+    assert "<h2>BASKET</h2>" in h and "<h2>TENNIS</h2>" in h and "<h2>PALLAVOLO</h2>" in h
+    assert h.count("<h2>BASKET</h2>") == 1
+
+    def tile(sport, titolo, eid, ora_z):
+        return {"Sport": {"Id": "x", "Title": sport}, "Type": "Live", "EventId": eid,
+                "Start": ora_z, "End": "2026-10-10T22:00:00Z", "Title": titolo,
+                "Competition": {"Title": ""}, "IsFreeToView": True}
+
+    prod = D.analizza_altri([
+        tile("Basquetebol", "Liga Betclic Masculina, Queluz x Benfica", "p1", "2026-10-10T18:00:00Z"),
+        tile("Basquetebol", "Liga Betclic Feminina, Uniao x Benfica", "p2", "2026-10-10T19:00:00Z"),
+        tile("Futebol", "Liga Portugal, Benfica - Porto", "p3", "2026-10-10T20:00:00Z"),
+        tile("Basket", "BBL, Alba Berlin - Ulm", "p4", "2026-10-10T21:00:00Z"),
+    ], "pt")
+    assert prod[0]["sport_orig"] == "Basquetebol" and prod[2]["sport_orig"] == "Futebol" and "sport_orig" not in prod[3]
+    ids_p, altri_p, calcio_p, _ = visibili(True, prod)
+    assert "dazn:p1" in ids_p and "dazn:p2" not in ids_p and "dazn:p3" in ids_p and "dazn:p4" not in ids_p
+    assert any("Queluz" in e["titolo"] and e["sport"] == "Basket" for e in altri_p)
+    assert any(e["casa"] == "Benfica" and e["ospite"] == "Porto" for e in calcio_p)
+    return len(dopo)
+
+
+test_normalizzazione_non_nasconde(); print("normalizzazione non nasconde eventi (salvo basket femminile): OK")
