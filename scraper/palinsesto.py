@@ -1682,6 +1682,10 @@ TEMPLATE = """<!doctype html>
   .avviso h2 {{ background:none; color:var(--rosso); padding:0; }}
   footer {{ margin-top:40px; color:var(--grigio); font-size:.85rem; border-top:2px solid #333; padding-top:16px; }}
   footer a {{ color:var(--azzurro); }}
+  .visite {{ display:flex; flex-wrap:wrap; align-items:baseline; gap:.2em .45em; margin:0 0 12px; font-size:.85rem; line-height:1.45; }}
+  .visite span {{ white-space:nowrap; }}
+  .visite .v-piu::before {{ content:"· "; font-weight:400; }}
+  .visite strong {{ color:#fff; font-weight:800; font-variant-numeric:tabular-nums; }}
   .vuoto {{ font-size:1.3rem; margin-top:40px; }}
   @media (max-width: 640px) {{
     html {{ font-size:calc(21px * var(--zoom, 1)); }}
@@ -1909,6 +1913,7 @@ TEMPLATE = """<!doctype html>
 {dove}
 </main>
 <footer>
+  <p id="visite" class="visite" hidden aria-live="polite"><span>Visite:</span><span>ultime 24 ore <strong data-v="24">0</strong></span><span class="v-piu">ultima settimana <strong data-v="7">0</strong></span><span class="v-piu">ultimo mese <strong data-v="30">0</strong></span><span class="v-piu">totale <strong data-v="t">0</strong></span></p>
   {note}
   <p>Fonti: <a href="https://www.livesoccertv.com/">LiveSoccerTV</a> (canali scelti) e
   <a href="https://liveonsat.com/">LiveOnSat</a> (solo canali in chiaro). I palinsesti possono cambiare all'ultimo momento.
@@ -2289,6 +2294,7 @@ TEMPLATE = """<!doctype html>
   setTimeout(function () {{ location.reload(); }}, 30 * 60 * 1000);
 }})();
 </script>
+<script src="visite.js"></script>
 </body>
 </html>
 """

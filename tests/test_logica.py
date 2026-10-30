@@ -1782,6 +1782,27 @@ def test_digi_sport_romania():
     assert scheda.count("digisport.ro/live/digisport-1") == 1, "un solo link Digi Sport 1 per partita"
 
 
+def test_contatore_visite():
+    """Il contatore è nel template (sopravvive alla rigenerazione) e parte nascosto."""
+    h = p.genera_html(dt.date(2026, 10, 10), dt.datetime(2026, 10, 10, 12, tzinfo=p.ROMA), [], [], [])
+    i = h.index('id="visite"')
+    pezzo = h[h.rindex("<p", 0, i):h.index("</p>", i)]
+    assert "hidden" in pezzo and 'class="visite"' in pezzo
+    for testo in ("Visite:", "ultime 24 ore", "ultima settimana", "ultimo mese", "totale"):
+        assert testo in pezzo, testo
+    assert 'src="visite.js"' in h
+    js = (QUI.parent / "static" / "visite.js").read_text(encoding="utf-8")
+    for testo in ("abacus.jasoncameron.dev", "Europe/Rome", "localStorage", "sessionStorage",
+                  "visite-giorno", "visite-sessione", "palinsesto-totale", "catch"):
+        assert testo in js, testo
+    import shutil, subprocess
+    if shutil.which("node"):
+        r = subprocess.run(["node", str(QUI.parent / "static" / "visite.js")], capture_output=True, text=True, timeout=15)
+        assert r.returncode == 0, r.stderr or r.stdout
+
+
+test_contatore_visite(); print("Contatore visite: OK")
+
 
 def test_digi_da_liveonsat_e_doppioni_sabato():
     """LiveOnSat è la fonte di riserva per Digi Sport Romania: anche senza digisport.ro il canale resta (Gil Vicente-Porto)."""
