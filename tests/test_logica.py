@@ -1357,10 +1357,10 @@ def test_m4_sport():
         assert p.voce_dove(nome, dove)["id"] == "m4-sport", nome
     assert (p.voce_dove("Match 4 Hungary HD", dove) or {}).get("id") != "m4-sport"
     h = p.badge({"nome": "M4 Sport Hungary", "fta": True}, dove, set())
-    assert 'href="#dv-m4-sport"' in h and "mediaklikk.hu/elo/mtv4live/" in h and "SENZA VPN" in h and "VPN Ungheria" not in h, h
+    assert 'href="#dv-m4-sport"' in h and "mediaklikk.hu/elo/mtv4live/" in h and "VPN Ungheria" in h and "SENZA VPN" not in h, h
 
 
-test_m4_sport(); print("M4 Sport -> MediKlikk SENZA VPN: OK")
+test_m4_sport(); print("M4 Sport -> MediKlikk VPN Ungheria: OK")
 
 
 def test_los_pagina_vuota():
