@@ -1518,6 +1518,24 @@
       ],
       "vpn": "Nessuna",
       "vpn_tag": "SENZA VPN"
+    },
+    {
+      "id": "esport3",
+      "nome": "Esport3 (Catalunya, 3Cat)",
+      "fonte": "utente",
+      "verificato": true,
+      "canali": [
+        "^Esport ?3\\b"
+      ],
+      "vpn": "Spagna",
+      "vpn_tag": "VPN Spagna",
+      "note": "Diretta gratuita di Esport3 su 3Cat (Catalunya).",
+      "link": [
+        {
+          "url": "https://www.3cat.cat/3cat/directes/esport3/",
+          "testo": "Esport3 – diretta"
+        }
+      ]
     }
   ]
 }

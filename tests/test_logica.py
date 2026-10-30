@@ -1363,6 +1363,33 @@ def test_m4_sport():
 test_m4_sport(); print("M4 Sport -> MediKlikk VPN Ungheria: OK")
 
 
+def test_esport3():
+    """Esport 3 (Catalunya, 3Cat): ogni variante del nome apre la diretta su 3cat.cat."""
+    dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    url = "https://www.3cat.cat/3cat/directes/esport3/"
+    for nome in ("Esport 3", "Esport3", "Esport 3 Catalunya", "Esport3 Catalunya", "ESPORT 3 HD"):
+        v = p.voce_dove(nome, dove)
+        assert v and v["id"] == "esport3" and p.sito_ufficiale(v, nome) == url, nome
+        assert L.in_chiaro(nome, CONF_LOS["canali_in_chiaro"]), nome
+    for nome in ("TV3 Catalunya", "3Cat", "Super3", "La 1", "Teledeporte"):
+        assert (p.voce_dove(nome, dove) or {}).get("id") != "esport3", nome
+    h = p.badge({"nome": "Esport 3 Catalunya", "fta": True}, dove, set())
+    assert f'href="{url}"' in h and 'href="#dv-esport3"' in h and 'target="_blank"' in h and "flags/es.svg" in h, h
+    altro = p.emittente_altro({"nome": "Esport3", "fta": True}, dove, set())
+    assert url in altro and 'target="_blank"' in altro, altro
+    ora = dt.datetime(2026, 10, 25, 9, tzinfo=p.ROMA)
+    q = ora + dt.timedelta(hours=5)
+    g = [{"nome": "LALIGA HYPERMOTION", "partite": [{"casa": "Sabadell", "ospite": "Tenerife", "quando": q,
+          "ts": int(q.timestamp()), "canali": [{"nome": "Esport 3 Catalunya", "fta": True}]}]}]
+    pagina = p.genera_html(*p.finestra(ora)[:1], ora, g, [], [], dove, [])
+    i = pagina.index("Sabadell")
+    scheda = pagina[i:pagina.index("</ol>", i)]
+    assert scheda.count(url) == 1 and 'id="dv-esport3"' in pagina, scheda
+
+
+test_esport3(); print("Esport 3 Catalunya -> diretta 3Cat: OK")
+
+
 def test_los_pagina_vuota():
     import urllib.request as UR
     class R:
