@@ -1338,7 +1338,7 @@ def testo_vpn(nome, vpn_src=None, v=None, teleboy=False):
 BANDIERE = {"Svizzera": "ch", "Irlanda": "ie", "UK": "gb", "Regno Unito": "gb", "Germania": "de", "Francia": "fr",
             "Nigeria": "ng", "Ghana": "gh", "Brasile": "br", "Turchia": "tr", "Azerbaigian": "az", "Albania": "al",
             "USA": "us", "Stati Uniti": "us", "Australia": "au", "Nuova Zelanda": "nz", "Austria": "at", "Belgio": "be",
-            "Benin": "bj", "Camerun": "cm", "Costa d'Avorio": "ci", "Emirati Arabi": "ae", "Grecia": "gr", "Mozambico": "mz",
+            "Benin": "bj", "Camerun": "cm", "Costa d'Avorio": "ci", "Emirati Arabi": "ae", "Grecia": "gr", "Ungheria": "hu", "Mozambico": "mz",
             "Olanda": "nl", "Paesi Bassi": "nl", "Polonia": "pl", "Portogallo": "pt", "Rep. Ceca": "cz", "Senegal": "sn",
             "Spagna": "es", "Zambia": "zm", "Italia": "it", "Romania": "ro", "Canada": "ca", "Argentina": "ar", "Messico": "mx"}
 RE_PAESI = re.compile(r"(?:%s)(?:\s*(?:/|,|\bo\b)\s*(?:%s))*" % (("|".join(map(re.escape, sorted(BANDIERE, key=len, reverse=True))),) * 2), re.I)
