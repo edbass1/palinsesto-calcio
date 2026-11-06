@@ -640,6 +640,14 @@ def unisci_primaplay(eventi, partite, tutte_los=(), escludi=None, fonte="Prima P
                  "canali": [k], "fonti": [fonte]}
         eventi.append(nuovo)
         nuove.append(f'{p["casa"]} - {p["ospite"]} [{etichetta}] ({p["canale"]})')
+    # Evita il PPV duplicato quando la partita ha già un canale Prima Sport lineare (1-5).
+    # I PPV restano disponibili per le partite senza un canale lineare.
+    rx_prima_lineare = re.compile(r"^Prima Sport\\s+[1-5](?:\\s|$)", re.I)
+    rx_prima_ppv = re.compile(r"^Prima Sport\\s*PPV", re.I)
+    for e in eventi:
+        nomi = [c.get("nome", "") for c in e.get("canali", [])]
+        if any(rx_prima_lineare.search(nome.strip()) for nome in nomi):
+            e["canali"] = [c for c in e["canali"] if not rx_prima_ppv.search(c.get("nome", "").strip())]
     return eventi, uniti, nuove
 
 
