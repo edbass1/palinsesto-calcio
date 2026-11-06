@@ -342,6 +342,21 @@ def _priorita(e):
     return 3
 
 
+def _chiave_gp(testo):
+    """Normalizza i nomi internazionali dello stesso GP."""
+    import unicodedata
+    t = unicodedata.normalize("NFKD", testo or "").encode("ascii", "ignore").decode().lower()
+    t = re.sub(r"\b(?:brazilian|brazil|brasil|brasile|bresil)\b", "brasil", t)
+    vuote = {"gp", "gran", "grand", "premio", "prix", "del", "della", "di", "du", "de", "gara", "race", "rennen", "course", "formel", "formula", "1", "live", "diretta"}
+    return " ".join(x for x in re.findall(r"[a-z0-9]+", t) if x not in vuote and not x.isdigit())
+
+def _stesso_gp(a, b):
+    """Riconosce lo stesso GP anche con titoli tradotti diversamente."""
+    import difflib
+    ka = _chiave_gp(a.get("titolo") or a.get("titolo_orig"))
+    kb = _chiave_gp(b.get("titolo") or b.get("titolo_orig"))
+    return bool(ka and kb and (ka == kb or difflib.SequenceMatcher(None, ka, kb).ratio() >= 0.68))
+
 def unisci_eventi(eventi):
     """Stesso evento su più emittenti: stesso id swisstxt, oppure stesso sport, emittente diversa,
     inizio entro 45 minuti e titoli simili (es. GP di F1 su SRF, RTS e RSI). Con due squadre nel titolo
@@ -356,6 +371,10 @@ def unisci_eventi(eventi):
                 break
             if (u["sport"] == e["sport"] and e["sport"] not in ("Sport", "Programma sportivo", "Calcio")
                     and abs(u["ts"] - e["ts"]) <= 45 * 60):
+                # I titoli dei GP possono essere tradotti/formulati diversamente.
+                if e["sport"] in ("Formula 1", "Motori", "Motomondiale") and _stesso_gp(u, e):
+                    gia = u
+                    break
                 sa, sb = u.get("_squadre") or squadre_evento(u), squadre_evento(e)
                 if sa and sb:
                     if _stesse_squadre(sa, sb):
@@ -380,6 +399,10 @@ def unisci_eventi(eventi):
         gia["_fonti"].append(e)
         gia["ids"].add(e["id"])
         gia["testi"].append(e["titolo_orig"])
+        # Preferisce l'orario della guida TV, che coincide con l'inizio della gara,
+        # al collegamento streaming che può partire in anticipo.
+        if e.get("da_epg") and not gia.get("da_epg"):
+            gia["ts"] = e["ts"]
         gia["fine"] = max(gia["fine"], e["fine"])
         if not gia.get("_squadre") or e.get("nfl_soprannomi") is None and squadre_evento(e):
             gia["_squadre"] = gia.get("_squadre") or squadre_evento(e)
