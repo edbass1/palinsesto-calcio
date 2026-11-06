@@ -379,11 +379,11 @@ def _sessione_moto(e):
     # Le prove libere non devono mai comparire, anche se la fonte le chiama FP o training.
     if re.search(r"\b(?:free\s*practice|practice|prove?\s+libere?|fp\s*[1-3]|training|warm[\s-]*up|warmup)\b", t, re.I):
         return (classe, "prove-libere", "")
-    if re.search(r"\b(?:sprint(?:\s+race)?|gara\s+sprint)\b", t, re.I):
-        sessione = "sprint"
-    elif re.search(r"\b(?:qualif(?:ying|ication|ications?)?|qualifiche?|qualifica|q[1-3])\b", t, re.I):
+    if re.search(r"\b(?:qualif(?:ying|ication|ications?)?|qualifiche?|qualifica|q[1-3])\b", t, re.I):
         sessione = "qualifiche"
-    elif re.search(r"\b(?:gara|race|grand\s+prix|grandprix|gran\s+premio|gp)\b", t, re.I):
+    elif re.search(r"\b(?:sprint(?:\s+race)?|gara\s+sprint)\b", t, re.I):
+        sessione = "sprint"
+    elif re.search(r"\b(?:gara|race|grand\s+prix|grandprix|gran\s+premio)\b", t, re.I):
         sessione = "gara"
     else:
         return None
@@ -427,7 +427,7 @@ def unisci_eventi(eventi):
                 gia = u
                 break
             if (u["sport"] == e["sport"] and e["sport"] not in ("Sport", "Programma sportivo", "Calcio")
-                    and abs(u["ts"] - e["ts"]) <= 45 * 60):
+                    and abs(u["ts"] - e["ts"]) <= (90 * 60 if e["sport"] == "Motomondiale" else 45 * 60)):
                 # Moto: classe e sessione devono coincidere (MotoGP non va confusa con Moto2/Moto3,
                 # né qualifiche con Sprint o gara). Per F1 resta il confronto del GP.
                 if e["sport"] == "Motomondiale":
