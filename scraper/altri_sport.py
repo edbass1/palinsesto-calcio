@@ -377,7 +377,7 @@ def _sessione_moto(e):
         return None
 
     # Le prove libere non devono mai comparire, anche se la fonte le chiama FP o training.
-    if re.search(r"\b(?:free\s*practice|practice|prove?\s+libere?|fp\s*[1-3]|training|warm[\s-]*up|warmup)\b", t, re.I):
+    if re.search(r"\b(?:free\s*practice|practice|prove?\s+libere?|fp\s*[1-3]|training|warm[\s-]*up|warmup|antrenamente?)\b", t, re.I):
         return (classe, "prove-libere", "")
     if re.search(r"\b(?:qualif(?:ying|ication|ications?)?|qualifiche?|qualifica|q[1-3])\b", t, re.I):
         sessione = "qualifiche"
@@ -392,7 +392,7 @@ def _sessione_moto(e):
     import unicodedata
     nome = unicodedata.normalize("NFKD", t).encode("ascii", "ignore").decode().lower()
     nome = re.sub(r"\b(?:motogp|moto\s*2|moto2|moto\s*3|moto3|free\s*practice|practice|prove?\s+libere?|"
-                  r"fp\s*[1-3]|training|warm[\s-]*up|sprint(?:\s+race)?|gara\s+sprint|qualifying|qualification|"
+                  r"fp\s*[1-3]|training|warm[\s-]*up|antrenamente?|sprint(?:\s+race)?|gara\s+sprint|qualifying|qualification|"
                   r"qualifications|qualifiche|qualifica|q[1-3]|gara|race|grand\s+prix|grandprix|gran\s+premio|gp)\b",
                   " ", nome)
     nome = re.sub(r"\b(?:del|della|di|the|de|du|der|des|la|le|el|da|do)\b", " ", nome)
