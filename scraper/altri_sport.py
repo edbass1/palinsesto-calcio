@@ -357,6 +357,63 @@ def _stesso_gp(a, b):
     kb = _chiave_gp(b.get("titolo") or b.get("titolo_orig"))
     return bool(ka and kb and (ka == kb or difflib.SequenceMatcher(None, ka, kb).ratio() >= 0.68))
 
+
+def _testo_moto(e):
+    return " ".join(str(e.get(k) or "") for k in ("titolo", "titolo_src", "titolo_orig", "descrizione")
+                    ) + " " + " ".join(str(x) for x in (e.get("testi") or []))
+
+
+def _sessione_moto(e):
+    """Classe e sessione canonica MotoGP/Moto2/Moto3; None per prove libere o sessioni non utili."""
+    t = _testo_moto(e).lower()
+    t = t.replace("motogp", " moto gp ")
+    if re.search(r"\bmoto\s*3\b|\bmoto3\b", t):
+        classe = "moto3"
+    elif re.search(r"\bmoto\s*2\b|\bmoto2\b", t):
+        classe = "moto2"
+    elif re.search(r"\bmoto\s*gp\b", t):
+        classe = "motogp"
+    else:
+        return None
+
+    # Le prove libere non devono mai comparire, anche se la fonte le chiama FP o training.
+    if re.search(r"\b(?:free\s*practice|practice|prove?\s+libere?|fp\s*[1-3]|training|warm[\s-]*up|warmup)\b", t, re.I):
+        return (classe, "prove-libere", "")
+    if re.search(r"\b(?:sprint(?:\s+race)?|gara\s+sprint)\b", t, re.I):
+        sessione = "sprint"
+    elif re.search(r"\b(?:qualif(?:ying|ication|ications?)?|qualifiche?|qualifica|q[1-3])\b", t, re.I):
+        sessione = "qualifiche"
+    elif re.search(r"\b(?:gara|race|grand\s+prix|grandprix|gran\s+premio|gp)\b", t, re.I):
+        sessione = "gara"
+    else:
+        return None
+
+    # Elimina dal nome del GP le parole che descrivono classe e sessione.
+    import unicodedata
+    nome = unicodedata.normalize("NFKD", t).encode("ascii", "ignore").decode().lower()
+    nome = re.sub(r"\b(?:motogp|moto\s*2|moto2|moto\s*3|moto3|free\s*practice|practice|prove?\s+libere?|"
+                  r"fp\s*[1-3]|training|warm[\s-]*up|sprint(?:\s+race)?|gara\s+sprint|qualifying|qualification|"
+                  r"qualifications|qualifiche|qualifica|q[1-3]|gara|race|grand\s+prix|grandprix|gran\s+premio|gp)\b",
+                  " ", nome)
+    nome = re.sub(r"\b(?:del|della|di|the|de|du|der|des|la|le|el|da|do)\b", " ", nome)
+    nome = " ".join(re.findall(r"[a-z]{3,}", nome))
+    return classe, sessione, nome
+
+
+def _stessa_sessione_moto(a, b):
+    """Unisce le fonti della stessa sessione, senza confondere classi o sessioni diverse."""
+    sa, sb = _sessione_moto(a), _sessione_moto(b)
+    if not sa or not sb or sa[1] == "prove-libere" or sb[1] == "prove-libere":
+        return False
+    if sa[0] != sb[0] or sa[1] != sb[1]:
+        return False
+    if sa[2] and sb[2]:
+        import difflib
+        return sa[2] == sb[2] or difflib.SequenceMatcher(None, sa[2], sb[2]).ratio() >= 0.62
+    # Se una guida omette il nome del GP, accorpa soltanto sessioni omonime molto vicine.
+    return abs(a["ts"] - b["ts"]) <= 90 * 60
+
+
 def unisci_eventi(eventi):
     """Stesso evento su più emittenti: stesso id swisstxt, oppure stesso sport, emittente diversa,
     inizio entro 45 minuti e titoli simili (es. GP di F1 su SRF, RTS e RSI). Con due squadre nel titolo
@@ -371,8 +428,14 @@ def unisci_eventi(eventi):
                 break
             if (u["sport"] == e["sport"] and e["sport"] not in ("Sport", "Programma sportivo", "Calcio")
                     and abs(u["ts"] - e["ts"]) <= 45 * 60):
-                # I titoli dei GP possono essere tradotti/formulati diversamente.
-                if e["sport"] in ("Formula 1", "Motori", "Motomondiale") and _stesso_gp(u, e):
+                # Moto: classe e sessione devono coincidere (MotoGP non va confusa con Moto2/Moto3,
+                # né qualifiche con Sprint o gara). Per F1 resta il confronto del GP.
+                if e["sport"] == "Motomondiale":
+                    if _stessa_sessione_moto(u, e):
+                        gia = u
+                        break
+                    continue
+                if e["sport"] in ("Formula 1", "Motori") and _stesso_gp(u, e):
                     gia = u
                     break
                 sa, sb = u.get("_squadre") or squadre_evento(u), squadre_evento(e)
@@ -531,6 +594,14 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
     tenuti = []
     rx_salvo = _rx_salvo()
     for e in tutti:
+        # Per il Motomondiale: mai prove libere; soltanto qualifiche, Sprint e gara.
+        if e.get("sport") == "Motomondiale":
+            sessione_moto = _sessione_moto(e)
+            if not sessione_moto or sessione_moto[1] == "prove-libere":
+                if programmi_tolti is not None:
+                    quando = dt.datetime.fromtimestamp(e["ts"], ROMA).strftime("%d/%m %H:%M")
+                    programmi_tolti.append(f'{e["emittenti"][0]["nome"]} {quando} {e.get("titolo_src") or e["titolo"]} – sessione moto non ammessa')
+                continue
         motivo = e_programma(e, rx_prog, rx_ev, rx_salvo)
         if motivo is None:
             tenuti.append(e)
