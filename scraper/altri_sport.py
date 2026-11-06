@@ -383,7 +383,7 @@ def _sessione_moto(e):
         sessione = "qualifiche"
     elif re.search(r"\b(?:sprint(?:\s+race)?|gara\s+sprint)\b", t, re.I):
         sessione = "sprint"
-    elif re.search(r"\b(?:gara|race|grand\s+prix|grandprix|gran\s+premio)\b", t, re.I):
+    elif re.search(r"\b(?:gara|race|grand\s+prix|grandprix|gran\s+premio|gp)\b", t, re.I):
         sessione = "gara"
     else:
         return None
