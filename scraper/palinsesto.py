@@ -1416,11 +1416,13 @@ def testo_link(url, predefinito):
 def emittente_altro(x, dove, usati):
     """Riga di un'emittente in ALTRI SPORT: nome (link al sito o a "Dove vederli"), etichette, link, VPN accanto al link."""
     esc = html.escape
-    dtt = dtt_di(x["nome"])  # canale italiano: riga '🇮🇹 DTT n' + solo il link Teleboy (con VPN 🇨🇭)
-    v = None if x.get("pagina") else voce_dove(x["nome"], dove)
+    dtt = dtt_di(x["nome"])
+    v = None if dtt or x.get("pagina") else voce_dove(x["nome"], dove)
     if v:
         usati.add(v["id"])
-    if x.get("pagina"):
+    if dtt:
+        nome = esc(x["nome"])  # canali italiani: solo indicazione DTT, nessun link
+    elif x.get("pagina"):
         nome = f'<a href="{esc(x["pagina"])}" target="_blank" rel="noopener">{esc(x["nome"])}</a>'
     elif v:
         nome = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{esc(x["nome"])}</a>'
@@ -1428,15 +1430,13 @@ def emittente_altro(x, dove, usati):
         nome = esc(x["nome"])
     tag = ('<span class="tag" aria-label="in chiaro">IN CHIARO</span> ' if x.get("fta") else '')
     tag2 = (('<span class="tag dz">DAZN GRATIS</span> ' if x.get("dazn_gratis") else '')
-            + ('<span class="tag tb">TELEBOY</span> ' if x.get("teleboy") else '')
+            + ('<span class="tag tb">TELEBOY</span> ' if x.get("teleboy") and not dtt else '')
             + (f'<span class="tag">{esc(x["tv8_modalita"])}</span> ' if x.get("tv8_modalita") else ''))
-    link = x.get("link") or (sito_ufficiale(v, x["nome"]) if v else None) or x.get("pagina")
+    link = None if dtt else (x.get("link") or (sito_ufficiale(v, x["nome"]) if v else None) or x.get("pagina"))
     etichetta = "▶ diretta" if x.get("link") else ("▶ " + v["link_card"]["testo"] if (v or {}).get("link_card", {}).get("testo") else "▶ sito")
     tb = bool(x.get("teleboy")) or "teleboy.ch" in (link or "")
     if tb and x.get("link"):
         etichetta = "▶ Teleboy"
-    if dtt and not tb:  # niente RaiPlay/sito sulle schede dei canali italiani
-        link = None
     vt = testo_vpn(x["nome"], x.get("vpn"), v or voce_dove(x["nome"], dove), tb)
     if dtt and not link:
         vt = None
@@ -1453,7 +1453,7 @@ def badge(c, dove, usati, competizione=""):
     testo = esc(c["nome"])
     if c.get("dazn_gratis"):
         testo = f'{testo} <span class="tag dz" aria-label="gratis su DAZN con account gratuito">DAZN GRATIS</span>'
-    if c.get("teleboy"):
+    if c.get("teleboy") and not dtt:
         testo = f'{testo} <span class="tag tb" aria-label="su Teleboy">TELEBOY</span>'
     if c["fta"]:
         testo = f'<span class="tag" aria-label="in chiaro">IN CHIARO</span> {testo}'
@@ -1466,18 +1466,18 @@ def badge(c, dove, usati, competizione=""):
                  + (f' <a class="diretta" href="{esc(link)}" target="_blank" rel="noopener">{testo_link(link, "▶ Teleboy" if tb else "▶ diretta")}</a>' if link else '')
                  + pill_vpn(vt, c["nome"], link or c["url"]))
         return f'<li class="fta">{testo}</li>' if c["fta"] else f'<li>{testo}</li>'
-    v_tb = next((x for x in dove if x["id"] == "teleboy"), None) if c.get("teleboy") else None
+    v_tb = next((x for x in dove if x["id"] == "teleboy"), None) if c.get("teleboy") and not dtt else None
     if v_tb is not None:
         v_tb.setdefault("_canali_pagina", set()).add(c["nome"])
         usati.add("teleboy")
     v = voce_dove(c["nome"], [x for x in dove if x.get("fonte") == "utente" and x["id"] != "teleboy"]) or v_tb
     extra = (f' <a class="diretta" href="{esc(c["teleboy_link"])}" target="_blank" rel="noopener" '
-             f'title="Canale {esc(c["teleboy"])} su Teleboy">▶ Teleboy</a>') if c.get("teleboy_link") else ""
+             f'title="Canale {esc(c["teleboy"])} su Teleboy">▶ Teleboy</a>') if c.get("teleboy_link") and not dtt else ""
     tb = bool(extra)
     if not v:
         v = voce_dove(c["nome"], dove)
-    link = c.get("teleboy_link")
-    if v:
+    link = None if dtt else c.get("teleboy_link")
+    if v and not dtt:
         usati.add(v["id"])
         testo = f'<a href="#dv-{esc(v["id"])}" title="Dove vederlo">{testo}</a>'
         sito = sito_ufficiale(v, c["nome"])
