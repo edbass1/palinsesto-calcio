@@ -1126,16 +1126,19 @@ test_youth_league(); print("UEFA Youth League / U19 escluse: OK")
 
 def test_dtt_italia():
     for nome, lcn in [("Rai Sport HD", 58), ("SuperTennis", 64), ("Sportitalia HD", 60), ("TV8", 8), ("Nove", 9),
-                      ("Cielo", 26), ("DMAX Italia", 52), ("Rai 2", 2), ("Canale 5", 5)]:
+                      ("Cielo", 26), ("DMAX Italia", 52), ("Rai 2", 2), ("Canale 5", 5),
+                      ("Rete 4", 4), ("Italia 1", 6), ("La7", 7), ("Rai 1", 1)]:
         assert (p.dtt_di(nome) or {}).get("lcn") == lcn, nome
     assert p.dtt_di("TV8 Int") is None and p.dtt_di("DMAX") is None and p.dtt_di("TV8 Mont Blanc") is None
     dove = json.loads((p.RADICE / "dove_vederli.json").read_text(encoding="utf-8"))["voci"]
+    # Tutti i canali italiani riconosciuti devono mostrare soltanto il numero DTT:
+    # niente collegamento Teleboy, bandiera/VPN svizzera o link alternativo.
     h = p.badge({"nome": "SuperTennis", "fta": True, "teleboy": "SuperTennis", "teleboy_link": "https://www.teleboy.ch/it/live/550"}, dove, set())
-    assert "DTT 64" in h and "flags/it.svg" in h and "▶ Teleboy</a>" in h and "flags/ch.svg" in h and "raiplay" not in h, h
+    assert "DTT 64" in h and "flags/it.svg" in h and "Teleboy" not in h and "flags/ch.svg" not in h and "href=" not in h and "raiplay" not in h, h
     h = p.emittente_altro({"nome": "Rai Sport", "pagina": None, "link": "https://www.teleboy.ch/it/live/271", "vpn": "SVIZZERA",
                            "teleboy": True, "fta": True}, dove, set())
-    assert "DTT 58" in h and "raiplay" not in h and "▶ Teleboy</a>" in h and "flags/ch.svg" in h, h
-    h = p.badge({"nome": "Rai 2", "fta": True}, dove, set())  # senza Teleboy: solo DTT, niente RaiPlay
+    assert "DTT 58" in h and "Teleboy" not in h and "flags/ch.svg" not in h and "href=" not in h and "raiplay" not in h, h
+    h = p.badge({"nome": "Rai 2", "fta": True}, dove, set())
     assert "DTT 2" in h and "▶" not in h and "raiplay" not in h, h
 
 
