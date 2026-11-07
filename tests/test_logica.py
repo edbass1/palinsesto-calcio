@@ -1826,8 +1826,18 @@ def test_differite_tv8_separate():
             "teleboy": True, "tv8_modalita": "DIFFERITA", "tv8_orario": "21:30"
         }]
     }
-    h = p.genera_html(*p.finestra(ora)[:1], ora, [], [], [], [], [evento])
+    evento_moto = {
+        "titolo": "GP Qatar: Gara", "titolo_src": "GP Qatar: Gara",
+        "titolo_orig": "GP Qatar: Gara, gara della Moto3 a Losail",
+        "descrizione": "Ventesimo appuntamento: a Losail si corre la gara della Moto3.",
+        "sport": "Motomondiale", "ts": ts + 3600, "fine": ts + 7200,
+        "emittenti": [{"nome": "TV8", "fta": True, "tv8_modalita": "DIFFERITA"}]
+    }
+    h = p.genera_html(*p.finestra(ora)[:1], ora, [], [], [], [], [evento, evento_moto])
     assert h.count('class="comp differite-tv8"') == 2
+    assert "Moto3 – GP Qatar: Gara" in h
+    assert p.altri_sport._sessione_moto({"titolo": "MotoGP Grid", "descrizione": "Pregara della MotoGP"}) is None
+    assert p.altri_sport._sessione_moto({"titolo": "MotoGP Zona Rossa", "descrizione": "Commenti dopo la gara della MotoGP"}) is None
     primo_blocco = h.index('<section class="comp differite-tv8">')
     inizio_vista = h.index('id="vista-sport-tipo"')
     assert "TV8" not in h[inizio_vista:primo_blocco], "TV8 differita non deve stare tra le dirette"
