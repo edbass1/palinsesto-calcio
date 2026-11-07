@@ -386,7 +386,13 @@ def _testo_moto(e):
 
 
 def _sessione_moto(e):
-    """Classe e sessione canonica MotoGP/Moto2/Moto3; None per prove libere o sessioni non utili."""
+    """Classe e sessione canonica MotoGP/Moto2/Moto3; None per show e sessioni non utili."""
+    # I titoli di studio/paddock citano spesso la gara nella descrizione, ma non sono gare.
+    titolo = " ".join(str(e.get(k) or "") for k in ("titolo", "titolo_src", "titolo_originale"))
+    if re.search(r"\b(?:grid|zona\s+rossa|paddock|fan\s+parade|race\s+anatomy|talent\s+time|"
+                 r"warm[\s-]*up|warmup|pre[\s-]*gara|post[\s-]*gara|podio|podium|highlights?|magazine)\b",
+                 titolo, re.I):
+        return None
     t = _testo_moto(e).lower()
     t = t.replace("motogp", " moto gp ")
     if re.search(r"\bmoto\s*3\b|\bmoto3\b", t):
