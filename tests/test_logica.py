@@ -1811,3 +1811,30 @@ def test_digi_da_liveonsat_e_doppioni_sabato():
 test_digi_da_liveonsat_e_doppioni_sabato(); print("Digi da LiveOnSat senza digisport.ro, A Coruna, Moto2/3 Prima Play: OK")
 
 test_digi_sport_romania(); print("Digi Sport Romania (digisport.ro nuovo HTML, LiveOnSat ogni competizione): OK")
+
+
+# TV8: le differite sono in un blocco autonomo e l'orario mostrato è quello EPG.
+def test_differite_tv8_separate():
+    ora = dt.datetime(2026, 11, 7, 12, 0, tzinfo=p.ROMA)
+    ts = int(dt.datetime(2026, 11, 8, 21, 30, tzinfo=p.ROMA).timestamp())
+    evento = {
+        "titolo": "GP San Paolo - Gara", "sport": "Formula 1",
+        "ts": ts, "fine": ts + 7200,
+        "emittenti": [{
+            "nome": "TV8", "pagina": "https://www.teleboy.ch/it/live",
+            "link": "https://www.teleboy.ch/it/live", "vpn": "SVIZZERA",
+            "teleboy": True, "tv8_modalita": "DIFFERITA", "tv8_orario": "21:30"
+        }]
+    }
+    h = p.genera_html(*p.finestra(ora)[:1], ora, [], [], [], [], [evento])
+    assert h.count('class="comp differite-tv8"') == 2
+    primo_blocco = h.index('<section class="comp differite-tv8">')
+    inizio_vista = h.index('id="vista-sport-tipo"')
+    assert "TV8" not in h[inizio_vista:primo_blocco], "TV8 differita non deve stare tra le dirette"
+    blocco = h[primo_blocco:h.index("</section>", primo_blocco)]
+    assert "DIFFERITE TV8" in blocco and "GP San Paolo - Gara" in blocco
+    assert "21:30" in blocco and "DTT 8" in blocco
+    assert "teleboy.ch" not in blocco and "VPN" not in blocco
+    assert "DIFFERITA" not in blocco.replace("DIFFERITE TV8", "")
+    
+test_differite_tv8_separate(); print("Differite TV8 in sezione separata, orario EPG e solo DTT 8: OK")
