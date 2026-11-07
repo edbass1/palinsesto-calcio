@@ -1170,13 +1170,20 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
         q = dt.datetime.fromtimestamp(e["ts"], ROMA)
         f = dt.datetime.fromtimestamp(e["fine"], ROMA)
         em = togli_link_doppi("".join(emittente_altro(x, dove, usati_s) for x in e["emittenti"]))
+        titolo = e["titolo"]
+        if e.get("sport") == "Motomondiale":
+            sessione = altri_sport._sessione_moto(e)
+            if sessione:
+                classe = {"moto3": "Moto3", "moto2": "Moto2", "motogp": "MotoGP"}.get(sessione[0])
+                if classe and not re.search(r"\bMoto\s*3\b|\bMoto\s*2\b|\bMotoGP\b", titolo, re.I):
+                    titolo = f"{classe} – {titolo}"
         return (f'<li class="partita evento" data-ts="{e["ts"]}" data-fine="{e["fine"]}" data-giorno="{q:%Y-%m-%d}"'
                 f' data-sport="{categoria_filtro_sport(e)}" data-cat="{" ".join(sorted(cat_altro(e)))}">'
                 f'<div class="quando"><span class="giorno">{GIORNI[q.weekday()]} {q:%d/%m}</span>'
                 f'<span class="ora">{q:%H:%M}</span><span class="fino">fino alle {f:%H:%M}</span>'
                 '<span class="stato" aria-live="polite"></span></div>'
                 f'<div class="squadre"><span class="comp-tag">{esc(e["sport"].upper())}</span>'
-                f'<span class="sq">{esc(e["titolo"])}</span>'
+                f'<span class="sq">{esc(titolo)}</span>'
                 + (f'<span class="orig" lang="{esc(e.get("lingua") or "de")}">{esc(e["titolo_originale"])}</span>'
                    if e.get("titolo_originale") else '') + '</div>'
                 f'<ul class="canali" aria-label="Dove">{em}</ul></li>')
