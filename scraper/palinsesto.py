@@ -1236,10 +1236,10 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
                                 ("minore", tit("calcio", "minore", "CALCIO MINORE"))])
     scelta_s = tasti("altri", [("tutto", "TUTTO"), ("elite", tit("altri", "elite", "ELITE SPORT"))])
     return TEMPLATE.format(
-        scelta_c=scelta_c, scelta_s=scelta_s, bottoni_s=bottoni_s, per_sport="\n".join(sez_sport),
+        scelta_c=scelta_c, scelta_s=scelta_s, bottoni_s=bottoni_s, per_sport="\n".join(sez_sport + ([sez_differite] if sez_differite else [])),
         periodo=esc(periodo(primo)), aggiornato=esc(aggiornato), n=n_partite,
         bottoni=bottoni, sezioni="\n".join(sezioni), orario="\n".join(orario), avvisi=avvisi, note=note,
-        altri="\n".join(sez_altri), n_altri=len(altri),
+        altri="\n".join(sez_altri + ([sez_differite] if sez_differite else [])), n_altri=len(altri) + len(differite_tv8),
         dove=sezione_dove(dove, usati, sez_dove), durata=DURATA_PARTITA_S,
         vuoto_nascosto=' hidden' if gruppi else '')
 
