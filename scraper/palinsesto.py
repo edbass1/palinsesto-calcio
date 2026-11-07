@@ -1081,6 +1081,19 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     VPN_MANCANTI[:] = []
     esc = html.escape
     unifica_canali(gruppi, altri, dove)
+    # Le differite TV8 non devono comparire nelle liste delle dirette: si separa
+    # soltanto la voce TV8, mantenendo eventuali altre emittenti nella lista normale.
+    differite_tv8, altri_normali = [], []
+    for e in (altri or []):
+        em_diff = [x for x in e.get("emittenti", []) if x.get("tv8_modalita") == "DIFFERITA"]
+        if em_diff:
+            differite_tv8.append({**e, "emittenti": em_diff})
+            em_restanti = [x for x in e.get("emittenti", []) if x.get("tv8_modalita") != "DIFFERITA"]
+            if em_restanti:
+                altri_normali.append({**e, "emittenti": em_restanti})
+        else:
+            altri_normali.append(e)
+    altri = altri_normali
     cat_calcio, cat_altro = classificatore(categorie if categorie is not None else carica_categorie())
     for g in gruppi:
         for e in g["partite"]:
@@ -1182,6 +1195,11 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     in_testa = {x.lower() for x in (categorie if categorie is not None else carica_categorie()).get("altri", {}).get("sport_in_testa", [])}
     sez_sport = [f'<section class="comp" data-ordine="{i}"' + (' data-testa="1"' if sp.lower() in in_testa else '') + f'><h2>{esc(sp.upper())}</h2><ol class="partite">{"".join(scheda_altro(e) for e in ev)}</ol></section>'
                  for i, (sp, ev) in sorted(enumerate(fissi), key=lambda x: (min(e["ts"] for e in x[1][1]), x[0]))]
+    # Blocco autonomo, fuori dall'elenco delle dirette e senza badge inline.
+    sez_differite = ""
+    if differite_tv8:
+        sez_differite = (f'<section class="comp differite-tv8"><h2>DIFFERITE TV8</h2>'
+                         f'<ol class="partite">{"".join(scheda_altro(e) for e in sorted(differite_tv8, key=lambda x: x["ts"]))}</ol></section>')
     if not sez_altri:
         sez_altri.append('<p class="vuoto">Nessun altro sport in diretta in questi giorni.</p>')
         sez_sport.append('<p class="vuoto">Nessun altro sport in diretta in questi giorni.</p>')
@@ -1197,7 +1215,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
         note += f'<p>Canali senza partite in questi giorni: {esc(", ".join(senza))}.</p>'
 
     giorni_c = {e["quando"].date() for g in gruppi for e in g["partite"]}
-    giorni_s = {dt.datetime.fromtimestamp(e["ts"], ROMA).date() for e in altri}
+    giorni_s = {dt.datetime.fromtimestamp(e["ts"], ROMA).date() for e in (altri + differite_tv8)}
 
     def bottoni_giorni(pieni):
         return '<button type="button" data-filtro="tutti" aria-pressed="true">Tutti</button>' + "".join(
@@ -1430,8 +1448,7 @@ def emittente_altro(x, dove, usati):
         nome = esc(x["nome"])
     tag = ('<span class="tag" aria-label="in chiaro">IN CHIARO</span> ' if x.get("fta") else '')
     tag2 = (('<span class="tag dz">DAZN GRATIS</span> ' if x.get("dazn_gratis") else '')
-            + ('<span class="tag tb">TELEBOY</span> ' if x.get("teleboy") and not dtt else '')
-            + (f'<span class="tag">{esc(x["tv8_modalita"])}{", ore " + esc(x["tv8_orario"]) if x.get("tv8_orario") else ""}</span> ' if x.get("tv8_modalita") else ''))
+            + ('<span class="tag tb">TELEBOY</span> ' if x.get("teleboy") and not dtt else ''))
     link = None if dtt else (x.get("link") or (sito_ufficiale(v, x["nome"]) if v else None) or x.get("pagina"))
     etichetta = "▶ diretta" if x.get("link") else ("▶ " + v["link_card"]["testo"] if (v or {}).get("link_card", {}).get("testo") else "▶ sito")
     tb = bool(x.get("teleboy")) or "teleboy.ch" in (link or "")
