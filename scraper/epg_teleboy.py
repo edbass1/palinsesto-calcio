@@ -6,8 +6,11 @@ import re
 import time
 import urllib.request
 import xml.etree.ElementTree as ET
+from zoneinfo import ZoneInfo
 
 import altri_sport as A
+
+ROMA = ZoneInfo("Europe/Rome")
 
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
 PAGINA = "https://www.teleboy.ch/it/live"
@@ -185,6 +188,7 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None, guida=None):
             # una prima messa in onda, non una diretta. TV8 è live solo se
             # la guida lo segnala esplicitamente; altrimenti è DIFFERITA.
             em["tv8_modalita"] = "DIFFERITA"
+            em["tv8_orario"] = dt.datetime.fromtimestamp(ts, ROMA).strftime("%H:%M")
         tenuti[k] = {"id": f"{'epg' if guida else 'teleboy'}:{p.get('channel')}:{ts}", "ts": ts, "fine": ts_fine, "sport": sport, "titolo": tit,
                        "titolo_orig": f"{titolo} {sotto} {desc}", "titolo_src": titolo, "evento": True,
                        "lingua": (guida or {}).get("lingua") or LINGUE.get(teleboy.paese(n) or "", "de"),
