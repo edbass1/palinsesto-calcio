@@ -1431,7 +1431,7 @@ def emittente_altro(x, dove, usati):
     tag = ('<span class="tag" aria-label="in chiaro">IN CHIARO</span> ' if x.get("fta") else '')
     tag2 = (('<span class="tag dz">DAZN GRATIS</span> ' if x.get("dazn_gratis") else '')
             + ('<span class="tag tb">TELEBOY</span> ' if x.get("teleboy") and not dtt else '')
-            + (f'<span class="tag">{esc(x["tv8_modalita"])}</span> ' if x.get("tv8_modalita") else ''))
+            + (f'<span class="tag">{esc(x["tv8_modalita"])}{", ore " + esc(x["tv8_orario"]) if x.get("tv8_orario") else ""}</span> ' if x.get("tv8_modalita") else ''))
     link = None if dtt else (x.get("link") or (sito_ufficiale(v, x["nome"]) if v else None) or x.get("pagina"))
     etichetta = "▶ diretta" if x.get("link") else ("▶ " + v["link_card"]["testo"] if (v or {}).get("link_card", {}).get("testo") else "▶ sito")
     tb = bool(x.get("teleboy")) or "teleboy.ch" in (link or "")
