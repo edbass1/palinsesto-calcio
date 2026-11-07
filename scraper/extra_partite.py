@@ -322,6 +322,7 @@ def arricchisci(gruppi, giorni, rete=True, log=print, cache_file=CACHE):
                         "casa": _assenze_fantacalcio_squadra(e["casa"], fanta),
                         "ospite": _assenze_fantacalcio_squadra(e["ospite"], fanta),
                     }
+                    e["_info_fonte"] = "Fantacalcio.it"
                     st["info"] += 1
                 # Serie A: non ripiegare su FotMob, fonte meno affidabile per questo campionato.
                 continue
@@ -359,6 +360,7 @@ def arricchisci(gruppi, giorni, rete=True, log=print, cache_file=CACHE):
             a = cache[k]["a"]
             if a:
                 e["_info"] = {"casa": a["ospite"], "ospite": a["casa"]} if inv else a
+                e["_info_fonte"] = "FotMob"
                 st["info"] += 1
         st["fotmob"] += f", {chieste} dettagli scaricati"
     except Exception as ex:  # noqa: BLE001
