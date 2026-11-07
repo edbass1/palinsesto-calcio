@@ -346,16 +346,38 @@ def _chiave_gp(testo):
     """Normalizza i nomi internazionali dello stesso GP."""
     import unicodedata
     t = unicodedata.normalize("NFKD", testo or "").encode("ascii", "ignore").decode().lower()
-    t = re.sub(r"\b(?:brazilian|brazil|brasil|brasile|bresil)\b", "brasil", t)
+    # Il GP di San Paolo/Interlagos è lo stesso evento indicato spesso
+    # dalle guide internazionali come GP del Brasile.
+    t = re.sub(r"\b(?:sao\s+paulo|san\s+paolo|interlagos|brazilian|brazil|brasil|brasile|bresil)\b", "brasil", t)
     vuote = {"gp", "gran", "grand", "premio", "prix", "del", "della", "di", "du", "de", "gara", "race", "rennen", "course", "formel", "formula", "1", "live", "diretta"}
     return " ".join(x for x in re.findall(r"[a-z0-9]+", t) if x not in vuote and not x.isdigit())
 
+
+def _sessione_f1(e):
+    """Sessione F1, per non fondere prove, qualifiche, Sprint e gara."""
+    t = " ".join(str(e.get(k) or "") for k in ("titolo", "titolo_src", "titolo_orig", "descrizione")
+                 ) + " " + " ".join(str(x) for x in (e.get("testi") or []))
+    t = t.lower()
+    if re.search(r"\b(?:sprint(?:\s+shootout|\s+qualifying|\s+race)?)\b", t):
+        return "sprint"
+    if re.search(r"\b(?:qualifying|qualification|qualifiche?|qualifica|q[1-3])\b", t):
+        return "qualifiche"
+    if re.search(r"\b(?:free\s*practice|practice|prove?\s+libere?|fp[1-3])\b", t):
+        return "prove-libere"
+    if re.search(r"\b(?:race|gara|grand\s+prix|gran\s+premio)\b", t):
+        return "gara"
+    return None
+
+
 def _stesso_gp(a, b):
-    """Riconosce lo stesso GP anche con titoli tradotti diversamente."""
+    """Riconosce lo stesso GP anche con titoli tradotti diversamente e sessione coincidente."""
     import difflib
     ka = _chiave_gp(a.get("titolo") or a.get("titolo_orig"))
     kb = _chiave_gp(b.get("titolo") or b.get("titolo_orig"))
-    return bool(ka and kb and (ka == kb or difflib.SequenceMatcher(None, ka, kb).ratio() >= 0.68))
+    if not (ka and kb and (ka == kb or difflib.SequenceMatcher(None, ka, kb).ratio() >= 0.68)):
+        return False
+    sa, sb = _sessione_f1(a), _sessione_f1(b)
+    return not (sa and sb and sa != sb)
 
 
 def _testo_moto(e):
@@ -426,8 +448,9 @@ def unisci_eventi(eventi):
             if e["id"] in u["ids"]:
                 gia = u
                 break
+            tolleranza_gp = 18 * 3600 if e["sport"] == "Formula 1" else 45 * 60
             if (u["sport"] == e["sport"] and e["sport"] not in ("Sport", "Programma sportivo", "Calcio")
-                    and abs(u["ts"] - e["ts"]) <= (90 * 60 if e["sport"] == "Motomondiale" else 45 * 60)):
+                    and abs(u["ts"] - e["ts"]) <= (90 * 60 if e["sport"] == "Motomondiale" else tolleranza_gp)):
                 # Moto: classe e sessione devono coincidere (MotoGP non va confusa con Moto2/Moto3,
                 # né qualifiche con Sprint o gara). Per F1 resta il confronto del GP.
                 if e["sport"] == "Motomondiale":
