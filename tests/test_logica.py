@@ -1138,6 +1138,9 @@ def test_dtt_italia():
     h = p.emittente_altro({"nome": "Rai Sport", "pagina": None, "link": "https://www.teleboy.ch/it/live/271", "vpn": "SVIZZERA",
                            "teleboy": True, "fta": True}, dove, set())
     assert "DTT 58" in h and "Teleboy" not in h and "flags/ch.svg" not in h and "href=" not in h and "raiplay" not in h, h
+    h = p.emittente_altro({"nome": "TV8", "pagina": None, "link": "https://www.teleboy.ch/it/live/137",
+                           "teleboy": True, "fta": True, "tv8_modalita": "DIFFERITA", "tv8_orario": "21:30"}, dove, set())
+    assert "DTT 8" in h and "DIFFERITA" in h and "ore 21:30" in h and "Teleboy" not in h and "href=" not in h, h
     h = p.badge({"nome": "Rai 2", "fta": True}, dove, set())
     assert "DTT 2" in h and "▶" not in h and "raiplay" not in h, h
 
