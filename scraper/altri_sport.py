@@ -602,7 +602,11 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
                     quando = dt.datetime.fromtimestamp(e["ts"], ROMA).strftime("%d/%m %H:%M")
                     programmi_tolti.append(f'{e["emittenti"][0]["nome"]} {quando} {e.get("titolo_src") or e["titolo"]} – sessione moto non ammessa')
                 continue
-        motivo = e_programma(e, rx_prog, rx_ev, rx_salvo)
+        # Una differita TV8 è comunque una trasmissione richiesta: non scartarla
+        # perché la guida la descrive con parole come "replica" o "differita".
+        tv8_differita = any(x.get("nome", "").strip().upper() == "TV8"
+                            and x.get("tv8_modalita") == "DIFFERITA" for x in e.get("emittenti", []))
+        motivo = None if tv8_differita else e_programma(e, rx_prog, rx_ev, rx_salvo)
         if motivo is None:
             tenuti.append(e)
         elif programmi_tolti is not None:
@@ -611,7 +615,14 @@ def raccogli_altri(inizio, fine, ora, rx_femminile, srg=SRG, scarica_srg_fn=None
     tutti = tenuti
     altri, calcio = [], []
     uniti = unisci_eventi(tutti)
-    uniti = [e for e in uniti if e["emittenti"]]  # partite LiveOnSat senza nessun canale gratis: via
+    # Per MotoGP/Moto2/Moto3: soltanto RSI (Svizzera italiana) e TV8 Italia.
+    # Se più fonti descrivono la stessa sessione, unisci_eventi le accorpa e qui
+    # si conservano esclusivamente i due canali richiesti, senza proposte alternative.
+    for e in uniti:
+        if e.get("sport") == "Motomondiale":
+            e["emittenti"] = [x for x in e["emittenti"]
+                              if re.fullmatch(r"RSI|TV8", x.get("nome", "").strip(), re.I)]
+    uniti = [e for e in uniti if e["emittenti"]]  # eventi senza un canale ammesso: via
     basket = filtro_basket(categorie)  # basket: solo le competizioni ammesse (categorie.json -> basket_ammessi)
     BASKET_TOLTI[:] = []
     tenuti = []
