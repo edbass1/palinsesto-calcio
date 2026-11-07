@@ -8,6 +8,7 @@ import re
 import time
 import urllib.request
 import gzip
+from html.parser import HTMLParser
 from pathlib import Path
 
 try:
@@ -34,6 +35,108 @@ def _get(url, timeout=15):
 
 def _ts(iso):
     return int(dt.datetime.fromisoformat(iso.replace("Z", "+00:00")).timestamp())
+
+
+# ---------------- assenze Serie A (Fantacalcio.it) ----------------
+FANTA_URL = "https://www.fantacalcio.it/indisponibili-serie-a"
+FANTA_CACHE = RADICE / "dati" / "cache_fantacalcio.json"
+FANTA_TTL_S = 60 * 60
+ALIAS_FANTA = {
+    "internazionale": "inter", "hellas verona": "verona", "verona": "verona",
+    "atalanta bergamasca": "atalanta", "ac milan": "milan", "as roma": "roma",
+    "ss lazio": "lazio", "juventus fc": "juventus",
+}
+
+
+class _FantacalcioParser(HTMLParser):
+    """Estrae giocatori e descrizioni dai blocchi squadra della pagina indisponibili."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.team = ""
+        self.section = ""
+        self.items = {}
+        self._li = None
+        self._strong = None
+        self._strong_depth = 0
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == "img":
+            alt = (a.get("alt") or "").strip()
+            if alt:
+                self.team = alt
+                self.section = ""
+        if tag == "li" and self.team:
+            self._li = {"all": [], "name": []}
+        if tag in ("strong", "b") and self._li is not None:
+            self._strong_depth += 1
+
+    def handle_endtag(self, tag):
+        if tag in ("strong", "b") and self._strong_depth:
+            self._strong_depth -= 1
+        if tag == "li" and self._li is not None:
+            full = " ".join(" ".join(self._li["all"]).split())
+            name = " ".join(" ".join(self._li["name"]).split())
+            if full and full.lower() != "nessuno" and self.section in ("infortunato", "squalificato"):
+                if not name:
+                    # Fallback per eventuali cambi di markup: il nome è il breve prefisso prima della descrizione.
+                    m = re.match(r"^([A-ZÀ-Ü][A-Za-zÀ-ÿ'. -]{1,28}?)(?=\\s+(?:il |la |l'|lo |è |out|KO|squalificat))", full, re.I)
+                    name = m.group(1).strip() if m else full.split("  ", 1)[0]
+                desc = full[len(name):].strip(" :-–") if full.startswith(name) else full
+                self.items.setdefault(self.team, []).append((name, self.section, desc))
+            self._li = None
+
+    def handle_data(self, data):
+        t = " ".join(data.split())
+        if not t:
+            return
+        low = t.lower().strip(" :")
+        if low == "infortunati":
+            self.section = "infortunato"
+        elif low == "squalificati":
+            self.section = "squalificato"
+        if self._li is not None:
+            self._li["all"].append(t)
+            if self._strong_depth:
+                self._li["name"].append(t)
+
+
+def indisponibili_fantacalcio(log=print, cache_file=FANTA_CACHE):
+    """Restituisce {squadra: [(nome, motivo), ...]}; cache breve e solo dati della pagina corrente."""
+    try:
+        cache = json.loads(Path(cache_file).read_text(encoding="utf-8"))
+        if time.time() - cache.get("t", 0) < FANTA_TTL_S and cache.get("squadre"):
+            return cache["squadre"]
+    except (OSError, ValueError, TypeError):
+        pass
+    req = urllib.request.Request(FANTA_URL, headers={"User-Agent": UA, "Accept": "text/html"})
+    with urllib.request.urlopen(req, timeout=25) as r:
+        raw = r.read().decode("utf-8", "replace")
+    p = _FantacalcioParser()
+    p.feed(raw)
+    if len(p.items) < 10:
+        raise ValueError(f"Fantacalcio: estrazione incompleta ({len(p.items)} squadre), non uso dati parziali")
+    out = {}
+    for team, players in p.items.items():
+        key = ALIAS_FANTA.get(norm_squadra(team), norm_squadra(team))
+        out[key] = []
+        for name, tipo, desc in players:
+            motivo = tipo + (", " + desc if desc else "")
+            out[key].append((name, motivo))
+    Path(cache_file).parent.mkdir(parents=True, exist_ok=True)
+    Path(cache_file).write_text(json.dumps({"t": time.time(), "squadre": out}, ensure_ascii=False), encoding="utf-8")
+    log(f"  Fantacalcio indisponibili: {len(out)} squadre")
+    return out
+
+
+def _assenze_fantacalcio_squadra(nome, dati):
+    key = ALIAS_FANTA.get(norm_squadra(nome), norm_squadra(nome))
+    if key in dati:
+        return dati[key]
+    for k, v in dati.items():
+        if somiglianza(key, k) >= 0.86:
+            return v
+    return []
 
 
 # ---------------- assenze (FotMob) ----------------
@@ -203,7 +306,25 @@ def arricchisci(gruppi, giorni, rete=True, log=print, cache_file=CACHE):
         fm = partite_fotmob(giorni, log)
         st["fotmob"] = f"{len(fm)} partite"
         chieste, tabelle = 0, {}
+        fanta = None
         for e in sorted(partite, key=lambda x: x["ts"]):
+            comp = comp_di.get(id(e), "")
+            is_serie_a = norm_squadra(comp) in ("serie a", "serie a italy", "italy serie a")
+            if is_serie_a:
+                if fanta is None:
+                    try:
+                        fanta = indisponibili_fantacalcio(log)
+                    except Exception as ex:  # noqa: BLE001
+                        fanta = {}
+                        log(f"  Fantacalcio indisponibili: {ex}")
+                if fanta:
+                    e["_info"] = {
+                        "casa": _assenze_fantacalcio_squadra(e["casa"], fanta),
+                        "ospite": _assenze_fantacalcio_squadra(e["ospite"], fanta),
+                    }
+                    st["info"] += 1
+                # Serie A: non ripiegare su FotMob, fonte meno affidabile per questo campionato.
+                continue
             m, inv = abbina(e, fm, forte=True)
             if not m:
                 continue
