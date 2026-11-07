@@ -1081,19 +1081,30 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     VPN_MANCANTI[:] = []
     esc = html.escape
     unifica_canali(gruppi, altri, dove)
-    # Le differite TV8 non devono comparire nelle liste delle dirette: si separa
-    # soltanto la voce TV8, mantenendo eventuali altre emittenti nella lista normale.
+    # Le differite TV8 non sono eventi autonomi: si agganciano alla sessione
+    # MotoGP/Moto2/Moto3 in diretta e vengono mostrate come nota con l'orario.
     differite_tv8, altri_normali = [], []
     for e in (altri or []):
         em_diff = [x for x in e.get("emittenti", []) if x.get("tv8_modalita") == "DIFFERITA"]
         if em_diff:
-            differite_tv8.append({**e, "emittenti": em_diff})
+            if e.get("sport") == "Motomondiale":
+                differite_tv8.append(e)
             em_restanti = [x for x in e.get("emittenti", []) if x.get("tv8_modalita") != "DIFFERITA"]
             if em_restanti:
                 altri_normali.append({**e, "emittenti": em_restanti})
         else:
             altri_normali.append(e)
     altri = altri_normali
+    for replica in differite_tv8:
+        if not altri_sport._sessione_moto(replica):
+            continue
+        candidati = [diretta for diretta in altri
+                     if diretta.get("sport") == "Motomondiale"
+                     and altri_sport._sessione_moto(diretta)
+                     and altri_sport._stessa_sessione_moto(diretta, replica)]
+        if len(candidati) == 1:
+            q_replica = dt.datetime.fromtimestamp(replica["ts"], ROMA)
+            candidati[0].setdefault("_tv8_differite", []).append(q_replica.strftime("%H:%M"))
     cat_calcio, cat_altro = classificatore(categorie if categorie is not None else carica_categorie())
     for g in gruppi:
         for e in g["partite"]:
@@ -1185,7 +1196,9 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
                 f'<div class="squadre"><span class="comp-tag">{esc(e["sport"].upper())}</span>'
                 f'<span class="sq">{esc(titolo)}</span>'
                 + (f'<span class="orig" lang="{esc(e.get("lingua") or "de")}">{esc(e["titolo_originale"])}</span>'
-                   if e.get("titolo_originale") else '') + '</div>'
+                   if e.get("titolo_originale") else '')
+                 + (f'<span class="tv8-differita">In differita alle {", ".join(esc(x) for x in sorted(set(e["_tv8_differite"])))} anche su TV8 – DTT 8</span>'
+                    if e.get("_tv8_differite") else '') + '</div>'
                 f'<ul class="canali" aria-label="Dove">{em}</ul></li>')
     sez_altri = []
     for d in giorni:
@@ -1202,11 +1215,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
     in_testa = {x.lower() for x in (categorie if categorie is not None else carica_categorie()).get("altri", {}).get("sport_in_testa", [])}
     sez_sport = [f'<section class="comp" data-ordine="{i}"' + (' data-testa="1"' if sp.lower() in in_testa else '') + f'><h2>{esc(sp.upper())}</h2><ol class="partite">{"".join(scheda_altro(e) for e in ev)}</ol></section>'
                  for i, (sp, ev) in sorted(enumerate(fissi), key=lambda x: (min(e["ts"] for e in x[1][1]), x[0]))]
-    # Blocco autonomo, fuori dall'elenco delle dirette e senza badge inline.
-    sez_differite = ""
-    if differite_tv8:
-        sez_differite = (f'<section class="comp differite-tv8"><h2>DIFFERITE TV8</h2>'
-                         f'<ol class="partite">{"".join(scheda_altro(e) for e in sorted(differite_tv8, key=lambda x: x["ts"]))}</ol></section>')
+    # Le differite TV8 sono già indicate accanto alla relativa sessione in diretta.
     if not sez_altri:
         sez_altri.append('<p class="vuoto">Nessun altro sport in diretta in questi giorni.</p>')
         sez_sport.append('<p class="vuoto">Nessun altro sport in diretta in questi giorni.</p>')
@@ -1222,7 +1231,7 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
         note += f'<p>Canali senza partite in questi giorni: {esc(", ".join(senza))}.</p>'
 
     giorni_c = {e["quando"].date() for g in gruppi for e in g["partite"]}
-    giorni_s = {dt.datetime.fromtimestamp(e["ts"], ROMA).date() for e in (altri + differite_tv8)}
+    giorni_s = {dt.datetime.fromtimestamp(e["ts"], ROMA).date() for e in altri}
 
     def bottoni_giorni(pieni):
         return '<button type="button" data-filtro="tutti" aria-pressed="true">Tutti</button>' + "".join(
@@ -1243,10 +1252,10 @@ def genera_html(primo, ora, gruppi, falliti, senza, dove=None, altri=None, categ
                                 ("minore", tit("calcio", "minore", "CALCIO MINORE"))])
     scelta_s = tasti("altri", [("tutto", "TUTTO"), ("elite", tit("altri", "elite", "ELITE SPORT"))])
     return TEMPLATE.format(
-        scelta_c=scelta_c, scelta_s=scelta_s, bottoni_s=bottoni_s, per_sport="\n".join(sez_sport + ([sez_differite] if sez_differite else [])),
+        scelta_c=scelta_c, scelta_s=scelta_s, bottoni_s=bottoni_s, per_sport="\n".join(sez_sport),
         periodo=esc(periodo(primo)), aggiornato=esc(aggiornato), n=n_partite,
         bottoni=bottoni, sezioni="\n".join(sezioni), orario="\n".join(orario), avvisi=avvisi, note=note,
-        altri="\n".join(sez_altri + ([sez_differite] if sez_differite else [])), n_altri=len(altri) + len(differite_tv8),
+        altri="\n".join(sez_altri), n_altri=len(altri),
         dove=sezione_dove(dove, usati, sez_dove), durata=DURATA_PARTITA_S,
         vuoto_nascosto=' hidden' if gruppi else '')
 
