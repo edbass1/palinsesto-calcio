@@ -1067,7 +1067,7 @@ def etichette_extra(e):
         corpo = (f'<span class="ti-h">🩺 Infortunati e squalificati</span>{lato(e["casa"], a.get("casa"))}'
                  f'{lato(e["ospite"], a.get("ospite"))}')
         t.append('<button type="button" class="tg tg-info" aria-label="Info partita: assenze">ℹ️ info partita'
-                 f'<span class="tip tip-info" role="tooltip">{corpo}<span class="tip-f">fonte: FotMob</span></span></button>')
+                 f'<span class="tip tip-info" role="tooltip">{corpo}<span class="tip-f">fonte: {html.escape(e.get("_info_fonte", "FotMob"))}</span></span></button>')
     if e.get("_big"):
         t.append(f'<button type="button" class="tg tg-big" aria-label="Big match">🔝 Big match<span class="tip" role="tooltip">{esc(e["_big"])}</span></button>')
     if e.get("_salvezza"):
