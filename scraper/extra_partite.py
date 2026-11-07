@@ -80,7 +80,7 @@ class _FantacalcioParser(HTMLParser):
             if full and full.lower() != "nessuno" and self.section in ("infortunato", "squalificato"):
                 if not name:
                     # Fallback per eventuali cambi di markup: il nome è il breve prefisso prima della descrizione.
-                    m = re.match(r"^([A-ZÀ-Ü][A-Za-zÀ-ÿ'. -]{1,28}?)(?=\\s+(?:il |la |l'|lo |è |out|KO|squalificat))", full, re.I)
+                    m = re.match(r"^([A-ZÀ-Ü][A-Za-zÀ-ÿ'. -]{1,28}?)(?=\s+(?:il |la |l'|lo |è |out|KO|squalificat))", full, re.I)
                     name = m.group(1).strip() if m else full.split("  ", 1)[0]
                 desc = full[len(name):].strip(" :-–") if full.startswith(name) else full
                 self.items.setdefault(self.team, []).append((name, self.section, desc))
