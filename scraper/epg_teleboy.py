@@ -180,11 +180,10 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None, guida=None):
         else:
             em = {"nome": n, "pagina": PAGINA, "link": teleboy.link(n) or PAGINA, "vpn": "SVIZZERA",
                   "teleboy": True, "teleboy_nome": n}
-        if tv8_motori:
-            modalita_tv8 = ("DIFFERITA" if rx_rep.search(tutto) else
-                            "DIRETTA" if (prima or live_parola) else None)
-            if modalita_tv8:
-                em["tv8_modalita"] = modalita_tv8
+        if tv8_motori and rx_rep.search(tutto):
+            # Mostra l'etichetta soltanto per le trasmissioni in differita.
+            # Le dirette TV8 restano senza alcuna dicitura aggiuntiva.
+            em["tv8_modalita"] = "DIFFERITA"
         tenuti[k] = {"id": f"{'epg' if guida else 'teleboy'}:{p.get('channel')}:{ts}", "ts": ts, "fine": ts_fine, "sport": sport, "titolo": tit,
                        "titolo_orig": f"{titolo} {sotto} {desc}", "titolo_src": titolo, "evento": True,
                        "lingua": (guida or {}).get("lingua") or LINGUE.get(teleboy.paese(n) or "", "de"),
