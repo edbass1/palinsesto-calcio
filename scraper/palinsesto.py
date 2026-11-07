@@ -1415,7 +1415,7 @@ def dtt_di(*nomi):
 
 def pill_dtt(dtt):
     """Pillola dei canali italiani: bandiera italiana + 'DTT <n>' (niente Teleboy, niente VPN, niente RaiPlay sulle schede)."""
-    return (f' <span class="tag dtt" title="Digitale terrestre italiano, canale {dtt["lcn"]} (senza VPN)">'
+    return (f' <span class="tag dtt" title="Digitale terrestre italiano, canale {dtt["lcn"]}">'
             f'<img class="fl" src="flags/it.svg" alt="Italia" width="22" height="16"> DTT {dtt["lcn"]}</span>')
 
 
