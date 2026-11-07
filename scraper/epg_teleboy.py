@@ -180,10 +180,10 @@ def analizza(xml, teleboy, conf, inizio, fine, diag=None, guida=None):
         else:
             em = {"nome": n, "pagina": PAGINA, "link": teleboy.link(n) or PAGINA, "vpn": "SVIZZERA",
                   "teleboy": True, "teleboy_nome": n}
-        if tv8_motori and (rx_rep.search(tutto) or (not prima and not live_parola)):
-            # L'EPG non sempre scrive "differita": su TV8, se non è marcata
-            # come diretta/prima visione, la trasmissione è una replica.
-            # Le dirette esplicitamente riconosciute restano senza etichetta.
+        if tv8_motori and (rx_rep.search(tutto) or p.find("previously-shown") is not None or not live_parola):
+            # L'EPG non sempre scrive "differita" e <premiere> indica solo
+            # una prima messa in onda, non una diretta. TV8 è live solo se
+            # la guida lo segnala esplicitamente; altrimenti è DIFFERITA.
             em["tv8_modalita"] = "DIFFERITA"
         tenuti[k] = {"id": f"{'epg' if guida else 'teleboy'}:{p.get('channel')}:{ts}", "ts": ts, "fine": ts_fine, "sport": sport, "titolo": tit,
                        "titolo_orig": f"{titolo} {sotto} {desc}", "titolo_src": titolo, "evento": True,
