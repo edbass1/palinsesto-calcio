@@ -1823,9 +1823,9 @@ def test_differite_tv8_in_linea():
         "sport": "Motomondiale", "ts": ts, "fine": ts + 7200, "emittenti": []
     }
     evento_moto_replica = {
-        "titolo": "GP Qatar: Gara", "titolo_src": "GP Qatar: Gara",
-        "titolo_orig": "GP Qatar: Gara, gara della Moto3 a Losail",
-        "descrizione": "Ventesimo appuntamento: a Losail si corre la gara della Moto3.",
+        "titolo": "Moto3 - GP Qatar: Gara", "titolo_src": "Moto3 - GP Qatar: Gara",
+        "titolo_orig": "Moto3 - GP Qatar: Gara",
+        "descrizione": "Gara della Moto3 al GP Qatar."
         "sport": "Motomondiale", "ts": ts + 3600, "fine": ts + 7200,
         "emittenti": [{"nome": "TV8", "fta": True, "tv8_modalita": "DIFFERITA"}]
     }
