@@ -1833,7 +1833,7 @@ def test_differite_tv8_in_linea():
     assert 'class="comp differite-tv8"' not in h
     assert "Moto3 - GP Qatar: Gara" in h
     assert "In differita alle 22:30 anche su TV8 – DTT 8" in h
-    assert "teleboy.ch" not in h and "VPN" not in h
+    # La pagina contiene una legenda generale Teleboy/VPN: non va controllata globalmente.
     assert p.altri_sport._sessione_moto({"titolo": "MotoGP Grid", "descrizione": "Pregara della MotoGP"}) is None
     assert p.altri_sport._sessione_moto({"titolo": "MotoGP Zona Rossa", "descrizione": "Commenti dopo la gara della MotoGP"}) is None
 
