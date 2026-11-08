@@ -1058,7 +1058,14 @@ def etichette_extra(e):
             righe = []
             for n, m in (lista or []):
                 sq = "squalific" in (m or "").lower()
-                det = (m or "").split(",", 1)[1].strip() if "," in (m or "") else ("squalificato" if sq else "infortunato")
+                raw_det = (m or "").split(",", 1)[1].strip() if "," in (m or "") else ""
+                if sq:
+                    det = "squalificato"
+                else:
+                    # Mostra esclusivamente la previsione di rientro, mai il dettaglio clinico.
+                    import re
+                    match_rientro = re.search(r'((?:rientro|recuper(?:o|abile)|disponibil(?:e|ità)|in gruppo|in campo)[^.;|]*)', raw_det, re.I)
+                    det = match_rientro.group(1).strip(" :-–") if match_rientro else (raw_det if raw_det.lower().startswith(("rientro", "in dubbio", "fine", "metà", "inizio")) else "rientro non indicato")
                 righe.append(f'<span class="ti-r {"ti-sq" if sq else "ti-inf"}"><span class="ti-i">{"🟥" if sq else "🚑"}</span>'
                              f'<span class="ti-p">{esc(n)}</span><span class="ti-m">{esc(det)}</span></span>')
             if not righe:
@@ -1864,43 +1871,39 @@ TEMPLATE = """<!doctype html>
   @media (max-width: 999px) {{ .tg .tip {{ max-width:86vw; }} }}
   @media (hover: none) {{ .tg:hover .tip {{ display:none; }} .tg.aperto .tip {{ display:block; }} }}
   /* popup INFO PARTITA: compatto, moderno e nero; isolato dal resto del sito */
-  .tg .tip-info {{ width:min(25rem, calc(100vw - 20px)); max-width:calc(100vw - 20px); max-height:min(64vh, 28rem);
-                  padding:0; overflow:auto; overscroll-behavior:contain; font-size:.76rem;
-                  background:#080a0e; color:#e5e7eb; border:1px solid #303640; border-radius:10px;
+  .tg .tip-info {{ width:min(27rem, calc(100vw - 20px)); max-width:calc(100vw - 20px); max-height:min(64vh, 28rem);
+                  padding:0; overflow:auto; overscroll-behavior:contain; font-size:.72rem;
+                  background:#080a0e; color:#e5e7eb; border:1px solid #303640; border-radius:9px;
                   box-shadow:0 12px 30px #000e; cursor:default; }}
-  .tip-info .ti-h {{ display:block; padding:8px 11px; font-size:.78rem; font-weight:800; color:#f3f4f6;
-                    background:#11151b; border-bottom:1px solid #292f38; letter-spacing:.1px; }}
-  .tip-info .ti-s {{ display:block; padding:8px 10px 5px; min-width:0; }}
+  .tip-info .ti-h {{ display:block; padding:7px 10px; font-size:.74rem; font-weight:800; color:#f3f4f6;
+                    background:#11151b; border-bottom:1px solid #292f38; }}
+  .tip-info .ti-s {{ display:block; padding:7px 9px 4px; min-width:0; }}
   .tip-info .ti-s + .ti-s {{ border-top:1px solid #292f38; }}
-  .tip-info .ti-n {{ display:block; font-size:.68rem; font-weight:800; color:#aeb8c6; margin:0 1px 6px;
-                    text-transform:uppercase; letter-spacing:.45px; }}
-  .tip-info .ti-r {{ display:grid; grid-template-columns:18px minmax(0,1fr); grid-template-rows:auto auto;
-                     align-items:start; column-gap:7px; row-gap:2px; padding:6px 8px; margin-bottom:5px;
-                     border-radius:7px; border:1px solid #252b34; min-width:0; width:100%;
+  .tip-info .ti-n {{ display:block; font-size:.64rem; font-weight:800; color:#aeb8c6; margin:0 1px 5px;
+                    text-transform:uppercase; letter-spacing:.4px; }}
+  .tip-info .ti-r {{ display:grid; grid-template-columns:15px minmax(5.5rem,auto) minmax(0,1fr);
+                     align-items:center; column-gap:6px; padding:5px 7px; margin-bottom:4px;
+                     border-radius:6px; border:1px solid #252b34; min-width:0; width:100%;
                      box-sizing:border-box; white-space:normal; background:#10141a; }}
-  .tip-info .ti-inf {{ border-left:3px solid #dc5555; }}
-  .tip-info .ti-sq {{ border-left:3px solid #d69b35; }}
-  .tip-info .ti-i {{ grid-column:1; grid-row:1 / 3; align-self:start; font-size:.82rem; line-height:1.25; }}
-  .tip-info .ti-p {{ display:block; grid-column:2; grid-row:1; min-width:0; width:100%;
-                     font-size:.78rem; line-height:1.25; font-weight:750; color:#f3f4f6;
-                     white-space:normal; word-break:normal; overflow-wrap:break-word; }}
-  .tip-info .ti-m {{ display:block; grid-column:2; grid-row:2; justify-self:start; max-width:100%;
-                     box-sizing:border-box; font-size:.58rem; line-height:1.25; font-weight:650;
-                     padding:2px 5px; border-radius:4px; white-space:normal; text-align:left;
-                     overflow-wrap:break-word; color:#cbd5e1; background:#202630; }}
-  .tip-info .ti-inf .ti-m {{ color:#ffaaaa; background:#3a191c; }}
-  .tip-info .ti-sq .ti-m {{ color:#f4cf8b; background:#382b17; }}
-  .tip-info .ti-ok {{ display:block; padding:6px 8px; margin-bottom:5px; border-radius:7px;
+  .tip-info .ti-inf {{ border-left:2px solid #dc5555; }}
+  .tip-info .ti-sq {{ border-left:2px solid #d69b35; }}
+  .tip-info .ti-i {{ grid-column:1; font-size:.72rem; line-height:1; }}
+  .tip-info .ti-p {{ grid-column:2; min-width:0; font-size:.72rem; line-height:1.2;
+                     font-weight:750; color:#f3f4f6; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }}
+  .tip-info .ti-m {{ grid-column:3; min-width:0; font-size:.61rem; line-height:1.2; font-weight:600;
+                     color:#cbd5e1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:left; }}
+  .tip-info .ti-inf .ti-m {{ color:#ffaaaa; }}
+  .tip-info .ti-sq .ti-m {{ color:#f4cf8b; }}
+  .tip-info .ti-ok {{ display:block; padding:5px 7px; margin-bottom:4px; border-radius:6px;
                      background:#101a15; border:1px solid #263b30; color:#91c9a6;
-                     font-size:.68rem; font-weight:650; }}
-  .tip-info .tip-f {{ display:block; padding:6px 10px 8px; color:#778292; font-size:.58rem;
+                     font-size:.64rem; font-weight:650; }}
+  .tip-info .tip-f {{ display:block; padding:5px 9px 7px; color:#778292; font-size:.55rem;
                       border-top:1px solid #292f38; margin:0; }}
   @media (max-width: 640px) {{
-    .tg .tip-info {{ width:min(25rem, calc(100vw - 16px)); max-width:calc(100vw - 16px); font-size:.72rem; }}
-    .tip-info .ti-s {{ padding:7px 8px 4px; }}
-    .tip-info .ti-r {{ column-gap:6px; padding:5px 6px; margin-bottom:4px; }}
-    .tip-info .ti-p {{ font-size:.74rem; }}
-    .tip-info .ti-m {{ font-size:.56rem; line-height:1.2; padding:2px 4px; }}
+    .tg .tip-info {{ width:min(27rem, calc(100vw - 16px)); max-width:calc(100vw - 16px); font-size:.68rem; }}
+    .tip-info .ti-r {{ grid-template-columns:14px minmax(4.5rem,auto) minmax(0,1fr); column-gap:5px; padding:4px 5px; }}
+    .tip-info .ti-p {{ font-size:.66rem; }}
+    .tip-info .ti-m {{ font-size:.57rem; }}
   }}
 </style>
 </head>
