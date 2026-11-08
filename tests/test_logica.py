@@ -1813,38 +1813,28 @@ test_digi_da_liveonsat_e_doppioni_sabato(); print("Digi da LiveOnSat senza digis
 test_digi_sport_romania(); print("Digi Sport Romania (digisport.ro nuovo HTML, LiveOnSat ogni competizione): OK")
 
 
-# TV8: le differite sono in un blocco autonomo e l'orario mostrato è quello EPG.
-def test_differite_tv8_separate():
+# TV8 Moto: la differita va annotata accanto alla sessione live, non in un blocco autonomo.
+def test_differite_tv8_in_linea():
     ora = dt.datetime(2026, 11, 7, 12, 0, tzinfo=p.ROMA)
     ts = int(dt.datetime(2026, 11, 8, 21, 30, tzinfo=p.ROMA).timestamp())
-    evento = {
-        "titolo": "GP San Paolo - Gara", "sport": "Formula 1",
-        "ts": ts, "fine": ts + 7200,
-        "emittenti": [{
-            "nome": "TV8", "pagina": "https://www.teleboy.ch/it/live",
-            "link": "https://www.teleboy.ch/it/live", "vpn": "SVIZZERA",
-            "teleboy": True, "tv8_modalita": "DIFFERITA", "tv8_orario": "21:30"
-        }]
+    evento_moto_live = {
+        "titolo": "Moto3 - GP Qatar: Gara", "titolo_src": "Moto3 - GP Qatar: Gara",
+        "titolo_orig": "Moto3 - GP Qatar: Gara", "descrizione": "Gara della Moto3 al GP Qatar.",
+        "sport": "Motomondiale", "ts": ts, "fine": ts + 7200, "emittenti": []
     }
-    evento_moto = {
+    evento_moto_replica = {
         "titolo": "GP Qatar: Gara", "titolo_src": "GP Qatar: Gara",
         "titolo_orig": "GP Qatar: Gara, gara della Moto3 a Losail",
         "descrizione": "Ventesimo appuntamento: a Losail si corre la gara della Moto3.",
         "sport": "Motomondiale", "ts": ts + 3600, "fine": ts + 7200,
         "emittenti": [{"nome": "TV8", "fta": True, "tv8_modalita": "DIFFERITA"}]
     }
-    h = p.genera_html(*p.finestra(ora)[:1], ora, [], [], [], [], [evento, evento_moto])
-    assert h.count('class="comp differite-tv8"') == 2
+    h = p.genera_html(*p.finestra(ora)[:1], ora, [], [], [], [], [evento_moto_live, evento_moto_replica])
+    assert 'class="comp differite-tv8"' not in h
     assert "Moto3 – GP Qatar: Gara" in h
+    assert "In differita alle 22:30 anche su TV8 – DTT 8" in h
+    assert "teleboy.ch" not in h and "VPN" not in h
     assert p.altri_sport._sessione_moto({"titolo": "MotoGP Grid", "descrizione": "Pregara della MotoGP"}) is None
     assert p.altri_sport._sessione_moto({"titolo": "MotoGP Zona Rossa", "descrizione": "Commenti dopo la gara della MotoGP"}) is None
-    primo_blocco = h.index('<section class="comp differite-tv8">')
-    inizio_vista = h.index('id="vista-sport-tipo"')
-    assert "TV8" not in h[inizio_vista:primo_blocco], "TV8 differita non deve stare tra le dirette"
-    blocco = h[primo_blocco:h.index("</section>", primo_blocco)]
-    assert "DIFFERITE TV8" in blocco and "GP San Paolo - Gara" in blocco
-    assert "21:30" in blocco and "DTT 8" in blocco
-    assert "teleboy.ch" not in blocco and "VPN" not in blocco
-    assert "DIFFERITA" not in blocco.replace("DIFFERITE TV8", "")
-    
-test_differite_tv8_separate(); print("Differite TV8 in sezione separata, orario EPG e solo DTT 8: OK")
+
+test_differite_tv8_in_linea(); print("Differite TV8 Moto annotate accanto alla diretta, senza blocco separato: OK")
