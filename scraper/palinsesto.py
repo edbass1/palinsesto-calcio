@@ -1878,7 +1878,7 @@ TEMPLATE = """<!doctype html>
   .tip-info .ti-sq {{ background:#f59e0b25; border-color:#f59e0b; }}
   .tip-info .ti-i {{ grid-column:1; grid-row:1 / 3; align-self:start; font-size:1.15rem; line-height:1.4; }}
   .tip-info .ti-p {{ display:block; grid-column:2; grid-row:1; min-width:0; width:100%; font-size:1rem; line-height:1.4; font-weight:800; color:#fff; white-space:normal; word-break:normal; overflow-wrap:anywhere; }}
-  .tip-info .ti-m {{ display:block; grid-column:2; grid-row:2; justify-self:start; max-width:100%; box-sizing:border-box; font-size:.78rem; line-height:1.35; font-weight:750; padding:4px 9px; border-radius:7px; white-space:normal; text-align:left; overflow-wrap:anywhere; }}
+  .tip-info .ti-m {{ display:block; grid-column:2; grid-row:2; justify-self:start; max-width:100%; box-sizing:border-box; font-size:.68rem; line-height:1.3; font-weight:700; padding:3px 8px; border-radius:7px; white-space:normal; text-align:left; overflow-wrap:anywhere; }}
   .tip-info .ti-inf .ti-m {{ background:#ef4444; color:#fff; }}
   .tip-info .ti-sq .ti-m {{ background:#f59e0b; color:#1a1200; }}
   .tip-info .ti-ok {{ display:block; padding:9px 10px; margin-bottom:7px; border-radius:9px; background:#22c55e24; color:#86efac; font-size:.9rem; font-weight:750; }}
@@ -1888,7 +1888,7 @@ TEMPLATE = """<!doctype html>
     .tip-info .ti-s {{ padding:10px 11px 7px; }}
     .tip-info .ti-r {{ gap:7px; padding:8px; }}
     .tip-info .ti-p {{ font-size:.88rem; }}
-    .tip-info .ti-m {{ font-size:.74rem; }}
+    .tip-info .ti-m {{ font-size:.64rem; line-height:1.3; padding:3px 7px; }}
   }}
 </style>
 </head>
