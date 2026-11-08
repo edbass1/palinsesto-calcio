@@ -1873,12 +1873,12 @@ TEMPLATE = """<!doctype html>
   .tip-info .ti-s {{ display:block; padding:12px 14px 9px; min-width:0; }}
   .tip-info .ti-s + .ti-s {{ border-top:1px solid #ffffff24; }}
   .tip-info .ti-n {{ display:block; font-size:.98rem; font-weight:850; color:#facc15; margin:1px 2px 9px; text-transform:uppercase; letter-spacing:.45px; }}
-  .tip-info .ti-r {{ display:flex; flex-direction:row; align-items:center; gap:9px; padding:9px 10px; margin-bottom:7px; border-radius:9px; border-left:4px solid; min-width:0; white-space:normal; overflow-wrap:normal; }}
+  .tip-info .ti-r {{ display:grid; grid-template-columns:26px minmax(0,1fr); grid-template-rows:auto auto; align-items:start; column-gap:9px; row-gap:6px; padding:10px 11px; margin-bottom:8px; border-radius:9px; border-left:4px solid; min-width:0; width:100%; box-sizing:border-box; white-space:normal; }}
   .tip-info .ti-inf {{ background:#ef444425; border-color:#ef4444; }}
   .tip-info .ti-sq {{ background:#f59e0b25; border-color:#f59e0b; }}
-  .tip-info .ti-i {{ font-size:1rem; flex:none; }}
-  .tip-info .ti-p {{ display:block; font-size:.92rem; line-height:1.35; font-weight:750; color:#fff; flex:1 1 auto; min-width:0; white-space:normal; word-break:normal; overflow-wrap:normal; }}
-  .tip-info .ti-m {{ flex:none; font-size:.78rem; line-height:1.25; font-weight:800; padding:4px 9px; border-radius:7px; white-space:normal; text-align:center; }}
+  .tip-info .ti-i {{ grid-column:1; grid-row:1 / 3; align-self:start; font-size:1.15rem; line-height:1.4; }}
+  .tip-info .ti-p {{ display:block; grid-column:2; grid-row:1; min-width:0; width:100%; font-size:1rem; line-height:1.4; font-weight:800; color:#fff; white-space:normal; word-break:normal; overflow-wrap:anywhere; }}
+  .tip-info .ti-m {{ display:block; grid-column:2; grid-row:2; justify-self:start; max-width:100%; box-sizing:border-box; font-size:.78rem; line-height:1.35; font-weight:750; padding:4px 9px; border-radius:7px; white-space:normal; text-align:left; overflow-wrap:anywhere; }}
   .tip-info .ti-inf .ti-m {{ background:#ef4444; color:#fff; }}
   .tip-info .ti-sq .ti-m {{ background:#f59e0b; color:#1a1200; }}
   .tip-info .ti-ok {{ display:block; padding:9px 10px; margin-bottom:7px; border-radius:9px; background:#22c55e24; color:#86efac; font-size:.9rem; font-weight:750; }}
