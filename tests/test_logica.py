@@ -1832,6 +1832,7 @@ def test_differite_tv8_in_linea():
     h = p.genera_html(*p.finestra(ora)[:1], ora, [], [], [], [], [evento_moto_live, evento_moto_replica])
     assert 'class="comp differite-tv8"' not in h
     assert "Moto3 - GP Qatar: Gara" in h
+    print("DEBUG TV8:", h[h.find("Moto3")-150:h.find("Moto3")+500])
     assert "In differita alle 21:30 anche su TV8 – DTT 8" in h
     assert "teleboy.ch" not in h and "VPN" not in h
     assert p.altri_sport._sessione_moto({"titolo": "MotoGP Grid", "descrizione": "Pregara della MotoGP"}) is None
