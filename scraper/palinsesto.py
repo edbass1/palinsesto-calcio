@@ -1863,32 +1863,33 @@ TEMPLATE = """<!doctype html>
   .tg:hover .tip, .tg:focus .tip, .tg.aperto .tip {{ display:block; }}
   @media (max-width: 999px) {{ .tg .tip {{ max-width:86vw; }} }}
   @media (hover: none) {{ .tg:hover .tip {{ display:none; }} .tg.aperto .tip {{ display:block; }} }}
-  /* popup info partita */
-  .tg .tip-info {{ width:min(22rem, calc(100vw - 16px)); max-width:calc(100vw - 16px); padding:0; overflow:auto; overscroll-behavior:contain; font-size:.7rem;
-                  background:linear-gradient(180deg,#16202e,#0f141b); border:1px solid #2f4a6b; border-radius:16px;
+  /* popup info partita: testo grande e squadre sempre separate */
+  .tg .tip-info {{ width:min(34rem, calc(100vw - 24px)); max-width:calc(100vw - 24px); max-height:min(70vh, 34rem);
+                  padding:0; overflow:auto; overscroll-behavior:contain; font-size:.92rem;
+                  background:linear-gradient(180deg,#16202e,#0f141b); border:1px solid #42658d; border-radius:14px;
                   box-shadow:0 14px 40px #000d, 0 0 0 1px #ffffff0d inset; cursor:default; }}
-  .tip-info .ti-h {{ display:block; padding:7px 12px; font-size:.82rem; font-weight:800; color:#fff; letter-spacing:.2px;
+  .tip-info .ti-h {{ display:block; padding:12px 15px; font-size:1rem; font-weight:850; color:#fff; letter-spacing:.2px;
                     background:linear-gradient(90deg,#1d4ed8,#0ea5e9); }}
-  .tip-info .ti-s {{ display:block; padding:7px 10px 3px; min-width:0; }}
-  .tip-info .ti-s + .ti-s {{ border-top:1px solid #ffffff14; }}
-  .tip-info .ti-n {{ display:block; font-size:.76rem; font-weight:800; color:var(--giallo, #facc15); margin:1px 2px 5px; text-transform:uppercase; letter-spacing:.4px; }}
-  .tip-info .ti-r {{ display:flex; align-items:center; gap:6px; padding:4px 7px; margin-bottom:4px; border-left-width:3px; border-radius:10px; border-left:4px solid; }}
-  .tip-info .ti-inf {{ background:#ef44441f; border-color:#ef4444; }}
-  .tip-info .ti-sq {{ background:#f59e0b1f; border-color:#f59e0b; }}
-  .tip-info .ti-i {{ font-size:.85rem; flex:none; }}
-  .tip-info .ti-p {{ font-weight:700; color:#fff; flex:1; min-width:0; }}
-  .tip-info .ti-m {{ font-size:.64rem; font-weight:700; padding:1px 7px; border-radius:999px; white-space:nowrap; }}
+  .tip-info .ti-s {{ display:block; padding:12px 14px 9px; min-width:0; }}
+  .tip-info .ti-s + .ti-s {{ border-top:1px solid #ffffff24; }}
+  .tip-info .ti-n {{ display:block; font-size:.98rem; font-weight:850; color:#facc15; margin:1px 2px 9px; text-transform:uppercase; letter-spacing:.45px; }}
+  .tip-info .ti-r {{ display:flex; align-items:flex-start; gap:9px; padding:9px 10px; margin-bottom:7px; border-radius:9px; border-left:4px solid; }}
+  .tip-info .ti-inf {{ background:#ef444425; border-color:#ef4444; }}
+  .tip-info .ti-sq {{ background:#f59e0b25; border-color:#f59e0b; }}
+  .tip-info .ti-i {{ font-size:1rem; flex:none; }}
+  .tip-info .ti-p {{ font-size:.92rem; line-height:1.35; font-weight:750; color:#fff; flex:1; min-width:0; }}
+  .tip-info .ti-m {{ flex:none; font-size:.78rem; line-height:1.25; font-weight:800; padding:4px 9px; border-radius:7px; white-space:normal; text-align:center; }}
   .tip-info .ti-inf .ti-m {{ background:#ef4444; color:#fff; }}
   .tip-info .ti-sq .ti-m {{ background:#f59e0b; color:#1a1200; }}
-  .tip-info .ti-ok {{ display:block; padding:4px 7px; margin-bottom:4px; border-radius:10px; background:#22c55e1f; color:#86efac; font-weight:700; }}
-  .tip-info .tip-f {{ padding:4px 12px 7px; color:#7d8ea3; font-size:.6rem; margin:0; }}
-  @media (min-width: 900px) {{ .tg .tip-info {{ width:min(38rem, calc(100vw - 16px)); }}
-    .tg.aperto .tip-info {{ display:grid; grid-template-columns:1fr 1fr; }}
-    @media (hover: hover) {{ .tg:hover .tip-info, .tg:focus .tip-info {{ display:grid; grid-template-columns:1fr 1fr; }} }}
-    .tip-info .ti-h, .tip-info .tip-f {{ grid-column:1 / -1; }}
-    .tip-info .ti-s + .ti-s {{ border-top:0; border-left:1px solid #ffffff14; }} }}
-  @media (max-width: 640px) {{ .tg .tip-info {{ font-size:.76rem; }}
-                              .tip-info .ti-m {{ white-space:normal; text-align:center; }} }}
+  .tip-info .ti-ok {{ display:block; padding:9px 10px; margin-bottom:7px; border-radius:9px; background:#22c55e24; color:#86efac; font-size:.9rem; font-weight:750; }}
+  .tip-info .tip-f {{ padding:8px 14px 10px; color:#a7b6c8; font-size:.76rem; margin:0; }}
+  @media (max-width: 640px) {{
+    .tg .tip-info {{ width:min(34rem, calc(100vw - 24px)); font-size:.9rem; }}
+    .tip-info .ti-s {{ padding:10px 11px 7px; }}
+    .tip-info .ti-r {{ gap:7px; padding:8px; }}
+    .tip-info .ti-p {{ font-size:.88rem; }}
+    .tip-info .ti-m {{ font-size:.74rem; }}
+  }}
 </style>
 </head>
 <body>
