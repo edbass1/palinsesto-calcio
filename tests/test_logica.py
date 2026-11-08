@@ -1825,7 +1825,7 @@ def test_differite_tv8_in_linea():
     evento_moto_replica = {
         "titolo": "Moto3 - GP Qatar: Gara", "titolo_src": "Moto3 - GP Qatar: Gara",
         "titolo_orig": "Moto3 - GP Qatar: Gara",
-        "descrizione": "Gara della Moto3 al GP Qatar."
+        "descrizione": "Gara della Moto3 al GP Qatar.",
         "sport": "Motomondiale", "ts": ts + 3600, "fine": ts + 7200,
         "emittenti": [{"nome": "TV8", "fta": True, "tv8_modalita": "DIFFERITA"}]
     }
