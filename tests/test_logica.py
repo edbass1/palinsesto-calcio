@@ -78,7 +78,7 @@ p.GIORNI_FINESTRA = 4
 
 def test_fixture():
     """Solo LiveSoccerTV, finestra ven 9 – lun 12: esclude i campionati nazionali romeni e la Saudi Pro League."""
-    canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
+    canali = [c for c in json.loads((QUI.parent / "canali.json").read_text())["canali"] if "rai-sport-uno" not in c["url"]]  # fixture storico: non contiene ancora Rai Sport
     p.scarica = finto_lstv
     v, ini, fine = p.finestra(dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA))
     gruppi, falliti, senza = p.raccogli(canali, ini, fine)
