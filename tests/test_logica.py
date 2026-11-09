@@ -1396,6 +1396,9 @@ test_los_pagina_vuota(); print("LiveOnSat pagina valida senza partite: nessun av
 def test_doppioni_nomi():
     t = 1_800_000_000
     assert U.stessa_partita(t, "RB Leipzig", "PSV", t, "Leipzig", "PSV Eindhoven")
+    assert U.stessa_partita(t, "Sabadell", "Real Sociedad II", t, "Sabadell", "Real Sociedad B")
+    assert U.stessa_partita(t, "Ascoli B", "Perugia", t, "Ascoli II", "Perugia")
+    assert not U.stessa_partita(t, "Ascoli", "Perugia", t, "Ascoli B", "Perugia")
     assert U.stessa_partita(t, "Leeds", "Arsenal", t, "Leeds United", "Arsenal FC")
     assert U.stessa_partita(t, "Atlético Madrid", "Roma", t, "Atletico de Madrid", "AS Roma")
     assert U.stessa_partita(t, "Lugano", "Stella Rossa", t, "FC Lugano", "Red Star Belgrade")
