@@ -81,8 +81,14 @@ DISTINTIVE = set("miami city sociedad madrid betis valladolid oviedo zaragoza mu
 def marcatori(nome: str):
     s = unicodedata.normalize("NFKD", nome).encode("ascii", "ignore").decode().lower()
     s = re.sub(r"\bu[- ]?(\d\d)\b", r"u\1", s)
-    return {w for w in re.split(r"[^a-z0-9]+", s) if w and MARCATORI.match(w) and w != "2"}
-
+    parole = {w for w in re.split(r"[^a-z0-9]+", s) if w and MARCATORI.match(w)}
+    # Le seconde squadre sono la stessa entità anche se una fonte usa B e l'altra II/2.
+    # Restano distinte dalla prima squadra e dalle formazioni giovanili U19/U21.
+    seconda = {"b", "ii", "2", "reserve", "reserves", "amateure"}
+    if parole & seconda:
+        parole -= seconda
+        parole.add("seconda")
+    return parole
 
 def somiglianza(a: str, b: str) -> float:
     if marcatori(a) != marcatori(b):
