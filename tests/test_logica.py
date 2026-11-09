@@ -145,7 +145,7 @@ def test_russi_iraniani():
         assert f(n) is None, (n, f(n))
     assert f("Canale X", "ru") and f("Canale X", "ir") and f("Canale X", "ch") is None  # paese Teleboy
     # dati salvati: Seoul-Jeju, Feyenoord-AZ, Ajax-NEC avevano solo TV Start Russia -> spariscono; Arsenal-Leeds resta con Idman TV
-    canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
+    canali = [c for c in json.loads((QUI.parent / "canali.json").read_text())["canali"] if "rai-sport-uno" not in c["url"]]  # fixture storico senza pagina Rai Sport
     p.scarica, L.scarica = finto_lstv, finto_los
     ini = dt.datetime(2026, 10, 9, tzinfo=p.ROMA); fine = ini + dt.timedelta(days=4)
     st = {}
@@ -553,7 +553,7 @@ def test_dazn():
     assert DZ.parametri("it", dt.date(2026, 10, 10), 4)["timeZoneOffset"] == 120
     assert DZ.parametri("de", dt.date(2026, 10, 26), 4)["timeZoneOffset"] == 60
     assert DZ.parametri("de", dt.date(2026, 10, 26), 4)["languageCode"] == "en"
-    canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
+    canali = [c for c in json.loads((QUI.parent / "canali.json").read_text())["canali"] if "rai-sport-uno" not in c["url"]]  # fixture storico senza pagina Rai Sport
     p.scarica, L.scarica = finto_lstv, finto_los
     st = {}
     gruppi, falliti, _ = p.raccogli(canali, ini, fine, dict(CONF_LOS, pausa_secondi=0), st, None,
@@ -619,7 +619,7 @@ def test_femminile():
     assert not any(U.femminile(rx, c, s) for c, s in no), [x for x in no if U.femminile(rx, *x)]
     assert not any("women" in u.lower() for u in CONF_LOS["pagine"])
     # sui dati salvati: nessuna partita femminile resta, quelle maschili sì
-    canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
+    canali = [c for c in json.loads((QUI.parent / "canali.json").read_text())["canali"] if "rai-sport-uno" not in c["url"]]  # fixture storico senza pagina Rai Sport
     p.scarica, L.scarica = finto_lstv, finto_los
     v, ini, fine = p.finestra(dt.datetime(2026, 10, 9, 12, tzinfo=p.ROMA))
     st = {}
@@ -668,7 +668,7 @@ def test_altri_sport():
     ora2 = dt.datetime(2026, 10, 10, 18, 0, tzinfo=p.ROMA)
     _, calcio2, _ = A.raccogli_altri(ini, fine, ora2, rx, scarica_srg_fn=srg, scarica_ard_fn=lambda i, f: ([], None))
     assert [(e["casa"], e["ospite"], len(e["emittenti"])) for e in calcio2] == [("Lugano", "Luzern", 2)], calcio2
-    canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
+    canali = [c for c in json.loads((QUI.parent / "canali.json").read_text())["canali"] if "rai-sport-uno" not in c["url"]]  # fixture storico senza pagina Rai Sport
     p.scarica, L.scarica = finto_lstv, finto_los
     st = {}
     gruppi, falliti, _ = p.raccogli(canali, ini, fine, dict(CONF_LOS, pausa_secondi=0), st, None, None,
@@ -867,7 +867,7 @@ def test_dazn_rail():
 
 def test_unione():
     """LiveSoccerTV (9/10) + LiveOnSat (10/10), finestra ven 9 – lun 12 ottobre."""
-    canali = json.loads((QUI.parent / "canali.json").read_text())["canali"]
+    canali = [c for c in json.loads((QUI.parent / "canali.json").read_text())["canali"] if "rai-sport-uno" not in c["url"]]  # fixture storico senza pagina Rai Sport
     p.scarica = finto_lstv
     L.scarica = finto_los
     conf = dict(CONF_LOS, pausa_secondi=0)
