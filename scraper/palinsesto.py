@@ -255,7 +255,10 @@ def evento_dazn(p):
     casa, ospite = SQUADRE.get(p["casa"], p["casa"]), SQUADRE.get(p["ospite"], p["ospite"])
     return {"ts": p["ts"], "quando": dt.datetime.fromtimestamp(p["ts"], ROMA), "titolo": f"{casa} v {ospite}",
             "ordine": ordine, "competizione": etichetta, "casa": casa, "ospite": ospite,
-            "canali": [{"nome": f"DAZN {dazn.PAESI[p['paese']]}", "fta": False, "dazn_gratis": True}], "fonti": ["DAZN"]}
+            "canali": [{"nome": f"DAZN {dazn.PAESI[p['paese']]}", "fta": False,
+                         "dazn_gratis": bool(p.get("gratis", True)),
+                         "dazn_promo": p["paese"] == "pt" and dt.datetime.fromtimestamp(p["ts"], ROMA).date() <= dt.date(2026, 11, 29)
+                         and dt.datetime.fromtimestamp(p["ts"], ROMA).date() >= dt.date(2026, 11, 20)}], "fonti": ["DAZN"]}
 
 
 def unisci_dazn(eventi, partite_dazn):
@@ -1493,6 +1496,8 @@ def badge(c, dove, usati, competizione=""):
     testo = esc(c["nome"])
     if c.get("dazn_gratis"):
         testo = f'{testo} <span class="tag dz" aria-label="gratis su DAZN con account gratuito">DAZN GRATIS</span>'
+    if c.get("dazn_promo"):
+        testo += ' <span class="tag dz">1 MESE GRATIS · BLACK FRIDAY</span> <a class="tag" href="#dazn-promo">LEGGI QUI</a>'
     if c.get("teleboy") and not dtt:
         testo = f'{testo} <span class="tag tb" aria-label="su Teleboy">TELEBOY</span>'
     if c["fta"]:
@@ -1947,6 +1952,9 @@ TEMPLATE = """<!doctype html>
 <p id="nessun-risultato" class="nessun-risultato" role="status" hidden>Nessun risultato per «<span></span>»</p>
 <main>
 <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera) · <span class="tag dz">DAZN GRATIS</span> = senza lucchetto su DAZN (account gratuito)</p>
+<details id="dazn-promo" class="legenda"><summary><strong>DAZN PORTOGALLO · BLACK FRIDAY: 1 MESE GRATIS</strong></summary>
+<p>Registrati su DAZN Portogallo e attiva un piano mensile DAZN Base o DAZN Total aderente alla promozione: il primo mese è gratuito. L'offerta è riservata a chi non ha un abbonamento DAZN attivo. Per non pagare il mese successivo, annulla la sottoscrizione dalle impostazioni dell'account prima della fine del periodo promozionale. Se non annulli in tempo, il rinnovo è automatico e verrà addebitato il prezzo mensile del piano scelto.</p>
+<p><a href="https://www.dazn.com/pt-PT/home" target="_blank" rel="noopener">Apri DAZN Portogallo</a> · <a href="https://www.dazn.com/pt-PT/help/articles/40761073572765-termos-e-condicoes-da-campanha-black-friday-oferta-de-1-mes" target="_blank" rel="noopener">Termini ufficiali della promozione</a></p></details>
 <div class="ordine-crono-wrap"><label class="ordine-crono" for="crono"><input type="checkbox" id="crono" autocomplete="off"> Ordine cronologico</label></div>
 <div id="vista-campionato" class="vista" data-sez="calcio">
 {sezioni}
