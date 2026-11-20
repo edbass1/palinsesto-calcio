@@ -141,7 +141,12 @@ def analizza(tiles, paese):
         if t.get("EventId"):
             viste[t["EventId"]] = rec
     unici = {id(p): p for p in viste.values()}.values()
-    return [p for p in unici if p["gratis"]]
+    # Promo Black Friday: DAZN Portogallo include anche gli eventi a pagamento
+    # fino al 29/11/2026 compreso. Dal 30/11 torna il filtro gratuito abituale.
+    return [p for p in unici if p["gratis"] or (
+        paese == "pt" and dt.datetime.fromtimestamp(p["ts"], ROMA).date() <= dt.date(2026, 11, 29)
+        and dt.datetime.fromtimestamp(p["ts"], ROMA).date() >= dt.date(2026, 11, 20)
+    )]
 
 
 FRESCHEZZA_S = 3 * 3600  # dati/dazn.json vale solo se generato da meno di 3 ore
