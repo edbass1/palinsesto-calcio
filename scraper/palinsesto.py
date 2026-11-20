@@ -765,7 +765,7 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         n = k["nome"].lower()
         if any(w in n for w in mai):
             return True  # mai_escludere vince sempre (Idman TV)
-        if k.get("dazn_gratis"):
+        if k.get("dazn_gratis") or k.get("dazn_promo"):
             return True
         if any(x in n for x in escludi):
             return False
