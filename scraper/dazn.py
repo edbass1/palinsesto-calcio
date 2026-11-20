@@ -141,11 +141,12 @@ def analizza(tiles, paese):
         if t.get("EventId"):
             viste[t["EventId"]] = rec
     unici = {id(p): p for p in viste.values()}.values()
-    # Promo Black Friday: DAZN Portogallo include anche gli eventi a pagamento
-    # fino al 29/11/2026 compreso. Dal 30/11 torna il filtro gratuito abituale.
+    # Black Friday DAZN Portogallo: gli abbonati che attivano il mese gratuito
+    # entro il 30/11 possono vedere anche gli eventi normalmente a pagamento
+    # durante il mese promozionale (fino al 30/12/2026).
     return [p for p in unici if p["gratis"] or (
-        paese == "pt" and dt.datetime.fromtimestamp(p["ts"], ROMA).date() <= dt.date(2026, 11, 29)
-        and dt.datetime.fromtimestamp(p["ts"], ROMA).date() >= dt.date(2026, 11, 20)
+        paese == "pt" and dt.date(2026, 11, 18) <= dt.datetime.fromtimestamp(p["ts"], ROMA).date()
+        <= dt.date(2026, 12, 30)
     )]
 
 
