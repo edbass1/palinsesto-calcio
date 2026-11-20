@@ -1726,6 +1726,12 @@ TEMPLATE = """<!doctype html>
   .verifica {{ font-size:.8rem; color:#000; background:var(--giallo); padding:1px 6px; border-radius:6px; font-weight:800; }}
   .tag.tb {{ background:var(--azzurro); }}
   .tag.dz {{ background:#fff; color:#000; outline:2px solid #ff3df5; }}\n  .tag[href="#dazn-promo"] {{ color:#000 !important; }}
+  .dazn-promo-info {{ margin:42px 0 24px; padding:20px; border:2px solid var(--azzurro); border-radius:14px; background:var(--pannello, #171717); color:var(--testo, #f5f5f5); scroll-margin-top:18px; }}
+  .dazn-promo-info h2 {{ margin:0 0 16px; color:var(--azzurro); }}
+  .dazn-promo-info h3 {{ margin:24px 0 10px; color:var(--azzurro); }}
+  .dazn-promo-info h4 {{ margin:16px 0 6px; }}
+  .dazn-promo-info li {{ margin:5px 0; }}
+  .dazn-promo-info a {{ color:var(--azzurro); overflow-wrap:anywhere; }}
   .legenda {{ margin:10px 0 0; font-size:.9rem; color:var(--grigio); }}
   li.partita.in-corso {{ border-color:var(--verde); box-shadow:0 0 0 2px var(--verde) inset; }}
   li.partita.in-corso .stato {{ background:var(--verde); color:#000; }}
@@ -1952,9 +1958,7 @@ TEMPLATE = """<!doctype html>
 <p id="nessun-risultato" class="nessun-risultato" role="status" hidden>Nessun risultato per «<span></span>»</p>
 <main>
 <p class="legenda"><span class="tag">IN CHIARO</span> <span style="color:var(--verde);font-weight:700">canale verde</span> = gratuito (free-to-air) nel suo paese · <span class="tag tb">TELEBOY</span> = si vede su Teleboy (VPN Svizzera) · <span class="tag dz">DAZN GRATIS</span> = senza lucchetto su DAZN (account gratuito)</p>
-<details id="dazn-promo" class="legenda"><summary><strong>DAZN PORTOGALLO · BLACK FRIDAY: 1 MESE GRATIS</strong></summary>
-<p>Registrati su DAZN Portogallo e attiva un piano mensile DAZN Base o DAZN Total aderente alla promozione: il primo mese è gratuito. L'offerta è riservata a chi non ha un abbonamento DAZN attivo. DAZN conferma che puoi cancellare l'abbonamento anche durante il mese gratuito, seguendo la procedura di cancellazione dalle impostazioni del tuo account. Se non completi la cancellazione prima della fine del periodo promozionale, il rinnovo mensile è automatico e ti verrà addebitato il prezzo del piano scelto.</p>
-<p><a href="https://www.dazn.com/pt-PT/home" target="_blank" rel="noopener">Apri DAZN Portogallo</a> · <a href="https://www.dazn.com/pt-PT/help/articles/40761073572765-termos-e-condicoes-da-campanha-black-friday-oferta-de-1-mes" target="_blank" rel="noopener">Termini ufficiali della promozione</a></p></details>
+
 <div class="ordine-crono-wrap"><label class="ordine-crono" for="crono"><input type="checkbox" id="crono" autocomplete="off"> Ordine cronologico</label></div>
 <div id="vista-campionato" class="vista" data-sez="calcio">
 {sezioni}
@@ -1973,6 +1977,36 @@ TEMPLATE = """<!doctype html>
 {avvisi}
 {dove}
 </main>
+<section id="dazn-promo" class="dazn-promo-info" aria-labelledby="dazn-promo-titolo">
+<h2 id="dazn-promo-titolo">DAZN Portogallo: 1 MESE GRATIS per il Black Friday! ⚽ 🏎️</h2>
+<p>Interessante promozione di DAZN Portogallo: fino al 30 novembre 2026 è possibile attivare un mese intero di DAZN completamente gratuito, senza vincolo di permanenza.</p>
+<p>La cosa interessante è che non si tratta di una semplice selezione di eventi gratuiti: per 30 giorni si ha accesso ai contenuti compresi nel piano scelto, DAZN Base oppure DAZN Total.</p>
+<h3>📺 Cosa si può vedere durante il mese gratuito?</h3>
+<p>Tra i contenuti sportivi proposti da DAZN Portogallo troviamo:</p>
+<h4>CALCIO</h4>
+<ul><li>Premier League inglese</li><li>UEFA Champions League</li><li>UEFA Europa League</li><li>UEFA Conference League</li><li>UEFA Youth League</li><li>LALIGA spagnola</li><li>Bundesliga tedesca</li><li>Eredivisie olandese</li><li>Jupiler Pro League belga</li></ul>
+<p>Altre competizioni calcistiche disponibili nel catalogo portoghese.</p>
+<h4>MOTORI</h4>
+<p>Formula 1, comprese le ultime gare della stagione 2026.</p>
+<h4>ALTRI SPORT</h4>
+<p>Boxe e MMA, inclusi nel piano DAZN Total.</p>
+<p>Altri contenuti sportivi previsti dal piano sottoscritto.</p>
+<h3>🎁 Quali piani si possono attivare gratuitamente?</h3>
+<p>La promozione riguarda esclusivamente i piani mensili:</p>
+<ul><li>DAZN Base Mensile: primo mese gratis, poi 24,99 € al mese.</li><li>DAZN Total Mensile: primo mese gratis, poi 30,99 € al mese.</li></ul>
+<p>Sono esclusi i piani annuali e gli altri prodotti DAZN.</p>
+<h3>📝 Come attivare il mese gratuito</h3>
+<ol><li>Collegarsi al sito DAZN con VPN Portogallo: <a href="https://www.dazn.com/pt-PT/home" target="_blank" rel="noopener">https://www.dazn.com/pt-PT/home</a>.</li><li>Registrarsi oppure accedere al proprio account DAZN.</li><li>Scegliere il piano mensile Base o Total che aderisce alla promozione.</li><li>Prima di confermare, controllare che venga indicato il primo mese gratuito.</li><li>Completare l'attivazione senza uso VPN: l'accesso ai contenuti parte immediatamente.</li></ol>
+<h3>⚠️ IMPORTANTE: come evitare il rinnovo a pagamento</h3>
+<p><strong>Questo è il punto da non dimenticare!</strong></p>
+<p>DAZN conferma espressamente che è possibile cancellare l'abbonamento anche durante il mese gratuito, senza costi aggiuntivi.</p>
+<p>Se non si vuole proseguire con l'abbonamento a pagamento, bisogna:</p>
+<ol><li>Accedere al proprio account DAZN.</li><li>Entrare nella sezione La mia account / A minha conta.</li><li>Aprire la sezione Abbonamento DAZN / Subscrição DAZN.</li><li>Selezionare Cancella abbonamento / Cancelar Subscrição.</li><li>Completare tutti i passaggi richiesti e verificare di aver ricevuto la conferma della cancellazione.</li></ol>
+<p>La cancellazione deve essere richiesta entro la fine del periodo promozionale. Se non viene completata in tempo, l'abbonamento si rinnova automaticamente e DAZN addebita il prezzo mensile del piano scelto: 24,99 € per Base oppure 30,99 € per Total.</p>
+<h3>📅 Quando scade la promozione?</h3>
+<p>L'offerta è valida per le nuove adesioni dal 18 al 30 novembre 2026 compresi. Il mese gratuito decorre dall'attivazione, quindi è possibile scegliere quando iniziare i propri 30 giorni in base agli eventi che si desidera seguire.</p>
+<p><a href="https://dazngroup.com/press-room/black-friday-arranca-hoje-na-dazn-com-um-mes-gratis-de-champions-league-premier-league-formula-1-e-muito-mais/" target="_blank" rel="noopener">Comunicato ufficiale DAZN sulla promozione</a> · <a href="https://www.dazn.com/pt-PT/help/articles/40761073572765-termos-e-condicoes-da-campanha-black-friday-oferta-de-1-mes" target="_blank" rel="noopener">Termini e condizioni ufficiali</a></p>
+</section>
 <footer>
   {note}
   <p>Fonti: <a href="https://www.livesoccertv.com/">LiveSoccerTV</a> (canali scelti) e
