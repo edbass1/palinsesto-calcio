@@ -257,8 +257,8 @@ def evento_dazn(p):
             "ordine": ordine, "competizione": etichetta, "casa": casa, "ospite": ospite,
             "canali": [{"nome": f"DAZN {dazn.PAESI[p['paese']]}", "fta": False,
                          "dazn_gratis": bool(p.get("gratis", True)),
-                         "dazn_promo": p["paese"] == "pt" and dt.datetime.fromtimestamp(p["ts"], ROMA).date() <= dt.date(2026, 11, 29)
-                         and dt.datetime.fromtimestamp(p["ts"], ROMA).date() >= dt.date(2026, 11, 20)}], "fonti": ["DAZN"]}
+                         "dazn_promo": p["paese"] == "pt" and dt.date(2026, 11, 18) <= dt.datetime.fromtimestamp(p["ts"], ROMA).date()
+                         <= dt.date(2026, 12, 30)}], "fonti": ["DAZN"]}
 
 
 def unisci_dazn(eventi, partite_dazn):
@@ -777,7 +777,7 @@ def raccogli(canali, inizio, fine, conf_los=None, statistiche=None, teleboy=None
         return True
 
     for e in eventi:
-        # i canali DAZN delle altre fonti sono esclusi; restano solo le partite gratis prese dalla guida DAZN;
+        # i canali DAZN delle altre fonti sono esclusi; restano le partite gratis e quelle PT incluse nella promo Black Friday;
         # esclusi anche i canali russi e iraniani (liveonsat.json -> escludi_russi_iraniani), tranne "mai_escludere"
         e["canali"] = [k for k in e["canali"] if tieni(k)]
         if e["canali"] or e.get("senza_canali"):
@@ -1725,7 +1725,7 @@ TEMPLATE = """<!doctype html>
   ul.link a {{ color:var(--azzurro); font-size:1.05rem; font-weight:700; overflow-wrap:anywhere; text-underline-offset:4px; }}
   .verifica {{ font-size:.8rem; color:#000; background:var(--giallo); padding:1px 6px; border-radius:6px; font-weight:800; }}
   .tag.tb {{ background:var(--azzurro); }}
-  .tag.dz {{ background:#fff; color:#000; outline:2px solid #ff3df5; }}
+  .tag.dz {{ background:#fff; color:#000; outline:2px solid #ff3df5; }}\n  .tag[href="#dazn-promo"] {{ color:#000 !important; }}
   .legenda {{ margin:10px 0 0; font-size:.9rem; color:var(--grigio); }}
   li.partita.in-corso {{ border-color:var(--verde); box-shadow:0 0 0 2px var(--verde) inset; }}
   li.partita.in-corso .stato {{ background:var(--verde); color:#000; }}
